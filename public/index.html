@@ -137,10 +137,50 @@
       from { opacity: 0; transform: scale(0.95); }
       to { opacity: 1; transform: scale(1); }
     }
+    form {
+  background: #fff;
+  padding: 15px;
+  border-radius: 10px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+form input, form button {
+  padding: 10px;
+  font-size: 1em;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+form button {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+form button:hover {
+  background-color: #2980b9;
+}
   </style>
 </head>
 <body>
   <h1>Portal Inmobiliario 🏡</h1>
+  <h2>Agregar nueva propiedad 🏠</h2>
+<form id="form-propiedad">
+  <input type="text" id="titulo" placeholder="Título" required>
+  <input type="text" id="descripcion" placeholder="Descripción">
+  <input type="number" id="precio" placeholder="Precio (€)" required>
+  <input type="text" id="direccion" placeholder="Dirección" required>
+  <input type="text" id="imagen" placeholder="URL de la imagen">
+  <button type="submit">Guardar propiedad</button>
+</form>
+
+<hr>
   <div id="propiedades"></div>
 
   <!-- MODAL -->
@@ -216,6 +256,36 @@
     });
 
     cargarPropiedades();
+    document.getElementById("form-propiedad").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const nuevaPropiedad = {
+    titulo: document.getElementById("titulo").value,
+    descripcion: document.getElementById("descripcion").value,
+    precio: document.getElementById("precio").value,
+    direccion: document.getElementById("direccion").value,
+    imagen: document.getElementById("imagen").value
+  };
+
+  try {
+    const res = await fetch("/propiedades", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(nuevaPropiedad)
+    });
+
+    if (res.ok) {
+      alert("✅ Propiedad añadida correctamente");
+      document.getElementById("form-propiedad").reset();
+      cargarPropiedades(); // Recarga la lista
+    } else {
+      alert("❌ Error al guardar la propiedad");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Error de conexión con el servidor");
+  }
+});
   </script>
 </body>
 </html>
