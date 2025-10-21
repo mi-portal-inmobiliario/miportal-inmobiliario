@@ -19,7 +19,8 @@
   <script>
     async function cargarPropiedades() {
       try {
-        const res = await fetch("http://localhost:3000/propiedades");
+        const res = await fetch("/propiedades");
+
         const propiedades = await res.json();
         const contenedor = document.getElementById("propiedades");
         contenedor.innerHTML = "";
