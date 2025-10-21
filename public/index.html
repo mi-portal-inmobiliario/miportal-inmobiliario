@@ -1,60 +1,141 @@
 <!DOCTYPE html>
 <html lang="es">
-<<head>
+<head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Inmobiliario</title>
   <style>
     body { 
-      font-family: Arial, sans-serif; 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      background: #f5f5f5; 
+      margin: 0; 
       padding: 20px; 
-      background: #f0f0f0; 
     }
 
     h1 { 
-      color: #333; 
+      text-align: center; 
+      color: #2c3e50; 
+      margin-bottom: 30px;
     }
 
     #propiedades {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 25px;
     }
 
     .propiedad {
       background: #fff;
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+      display: flex;
+      flex-direction: column;
     }
 
     .propiedad:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+      transform: translateY(-8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
     }
 
     .propiedad img {
       width: 100%;
       height: 200px;
       object-fit: cover;
-      border-radius: 8px;
     }
 
-    .propiedad h2 {
-      margin: 10px 0 5px;
-      font-size: 1.2em;
+    .contenido {
+      padding: 15px 20px;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
     }
 
-    .propiedad p {
-      margin: 5px 0;
+    .contenido h2 {
+      font-size: 1.3em;
+      margin: 0 0 8px 0;
+      color: #34495e;
     }
 
-    .propiedad .precio {
+    .contenido p {
+      margin: 4px 0;
+      flex-grow: 1;
+      color: #555;
+      font-size: 0.95em;
+    }
+
+    .precio {
       color: #E74C3C;
       font-weight: bold;
       font-size: 1.2em;
+      margin: 10px 0;
+    }
+
+    .direccion {
+      font-size: 0.9em;
+      color: #7f8c8d;
+    }
+
+    .btn-ver {
+      background: #2980b9;
+      color: #fff;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      text-align: center;
+      transition: background 0.3s;
+      margin-top: 10px;
+    }
+
+    .btn-ver:hover {
+      background: #1c5980;
+    }
+
+    /* ==== MODAL ==== */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 10px;
+      padding: 20px;
+      max-width: 600px;
+      width: 90%;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content img {
+      width: 100%;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #555;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
     }
   </style>
 </head>
@@ -62,39 +143,82 @@
   <h1>Portal Inmobiliario 🏡</h1>
   <div id="propiedades"></div>
 
+  <!-- MODAL -->
+  <div id="modal" class="modal">
+    <div class="modal-content">
+      <button class="close-btn" id="cerrarModal">&times;</button>
+      <img id="modalImagen" src="" alt="Propiedad">
+      <h2 id="modalTitulo"></h2>
+      <p id="modalDescripcion"></p>
+      <p class="precio" id="modalPrecio"></p>
+      <p class="direccion" id="modalDireccion"></p>
+    </div>
+  </div>
+
   <script>
-  async function cargarPropiedades() {
-    try {
-      const res = await fetch("/propiedades");
-      const propiedades = await res.json();
-      const contenedor = document.getElementById("propiedades");
-      contenedor.innerHTML = "";
+    async function cargarPropiedades() {
+      try {
+        const res = await fetch("/propiedades");
+        const propiedades = await res.json();
+        const contenedor = document.getElementById("propiedades");
+        contenedor.innerHTML = "";
 
-      if (propiedades.length === 0) {
-        contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
-        return;
+        if(propiedades.length === 0){
+          contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
+          return;
+        }
+
+        propiedades.forEach((p, index) => {
+          const div = document.createElement("div");
+          div.className = "propiedad";
+          div.innerHTML = `
+            <img src="${p.imagen || 'https://via.placeholder.com/400'}" alt="${p.titulo}">
+            <div class="contenido">
+              <h2>${p.titulo}</h2>
+              <p>${p.descripcion || ""}</p>
+              <p class="precio">€${p.precio}</p>
+              <p class="direccion">${p.direccion}</p>
+              <button class="btn-ver" data-index="${index}">Ver más</button>
+            </div>
+          `;
+          contenedor.appendChild(div);
+        });
+
+        // Eventos para abrir modal
+        document.querySelectorAll(".btn-ver").forEach(btn => {
+          btn.addEventListener("click", e => {
+            const i = e.target.getAttribute("data-index");
+            mostrarModal(propiedades[i]);
+          });
+        });
+      } catch (err) {
+        console.error("Error cargando propiedades:", err);
       }
-
-      propiedades.forEach(p => {
-        const div = document.createElement("div");
-        div.className = "propiedad";
-        div.innerHTML = `
-          <h2>${p.titulo}</h2>
-          <p>${p.descripcion || ""}</p>
-         <p class="precio">${p.precio.toLocaleString('es-ES')} €</p>
-          <p><strong>Dirección:</strong> ${p.direccion}</p>
-          ${p.imagen ? `<img src="${p.imagen}" alt="${p.titulo}">` : ""}
-        `;
-        contenedor.appendChild(div);
-      });
-    } catch (err) {
-      console.error("Error cargando propiedades:", err);
     }
-  }
 
-  cargarPropiedades();
-</script>
+    function mostrarModal(propiedad) {
+      document.getElementById("modalImagen").src = propiedad.imagen || 'https://via.placeholder.com/400';
+      document.getElementById("modalTitulo").textContent = propiedad.titulo;
+      document.getElementById("modalDescripcion").textContent = propiedad.descripcion || "Sin descripción disponible.";
+      document.getElementById("modalPrecio").textContent = `€${propiedad.precio}`;
+      document.getElementById("modalDireccion").textContent = propiedad.direccion;
+      document.getElementById("modal").style.display = "flex";
+    }
 
+    document.getElementById("cerrarModal").addEventListener("click", () => {
+      document.getElementById("modal").style.display = "none";
+    });
+
+    window.addEventListener("click", e => {
+      if (e.target.id === "modal") {
+        document.getElementById("modal").style.display = "none";
+      }
+    });
+
+    cargarPropiedades();
+  </script>
 </body>
 </html>
+
+
 
