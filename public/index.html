@@ -5,50 +5,90 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Inmobiliario</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
-    h1 { color: #333; }
-    .propiedad { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .propiedad img { max-width: 100%; height: auto; border-radius: 5px; }
-    .propiedad h2 { margin: 0 0 5px 0; }
-  </style>
+body { 
+  font-family: Arial, sans-serif; 
+  padding: 20px; 
+  background: #f0f0f0; 
+}
+
+h1 { 
+  color: #333; 
+}
+
+.propiedad {
+  background: #fff;
+  padding: 20px;
+  margin-bottom: 15px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.propiedad:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.propiedad img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.propiedad h2 {
+  margin: 10px 0 5px;
+  font-size: 1.2em;
+}
+
+.propiedad p {
+  margin: 5px 0;
+}
+
+.propiedad .precio {
+  color: #E74C3C;
+  font-weight: bold;
+  font-size: 1.2em;
+}
+</style>
 </head>
 <body>
   <h1>Portal Inmobiliario 🏡</h1>
   <div id="propiedades"></div>
 
   <script>
-    async function cargarPropiedades() {
-      try {
-        const res = await fetch("/propiedades");
+  async function cargarPropiedades() {
+    try {
+      const res = await fetch("/propiedades");
+      const propiedades = await res.json();
+      const contenedor = document.getElementById("propiedades");
+      contenedor.innerHTML = "";
 
-        const propiedades = await res.json();
-        const contenedor = document.getElementById("propiedades");
-        contenedor.innerHTML = "";
-
-        if(propiedades.length === 0){
-          contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
-          return;
-        }
-
-        propiedades.forEach(p => {
-          const div = document.createElement("div");
-          div.className = "propiedad";
-          div.innerHTML = `
-            <h2>${p.titulo}</h2>
-            <p>${p.descripcion || ""}</p>
-            <p><strong>Precio:</strong> $${p.precio}</p>
-            <p><strong>Dirección:</strong> ${p.direccion}</p>
-            ${p.imagen ? `<img src="${p.imagen}" alt="${p.titulo}">` : ""}
-          `;
-          contenedor.appendChild(div);
-        });
-      } catch (err) {
-        console.error("Error cargando propiedades:", err);
+      if (propiedades.length === 0) {
+        contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
+        return;
       }
-    }
 
-    cargarPropiedades();
-  </script>
+      propiedades.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "propiedad";
+        div.innerHTML = `
+          <h2>${p.titulo}</h2>
+          <p>${p.descripcion || ""}</p>
+         <p class="precio">${p.precio.toLocaleString('es-ES')} €</p>
+          <p><strong>Dirección:</strong> ${p.direccion}</p>
+          ${p.imagen ? `<img src="${p.imagen}" alt="${p.titulo}">` : ""}
+        `;
+        contenedor.appendChild(div);
+      });
+    } catch (err) {
+      console.error("Error cargando propiedades:", err);
+    }
+  }
+
+  cargarPropiedades();
+</script>
+
 </body>
 </html>
 
