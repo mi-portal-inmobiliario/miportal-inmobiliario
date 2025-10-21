@@ -5,290 +5,177 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal Inmobiliario</title>
   <style>
-    body { 
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-      background: #f5f5f5; 
-      margin: 0; 
-      padding: 20px; 
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #f4f6f8;
+      margin: 0;
+      padding: 0;
     }
 
-    h1 { 
-      text-align: center; 
-      color: #2c3e50; 
+    header {
+      background-color: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 20px 0;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 1.8em;
+    }
+
+    main {
+      max-width: 1000px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    /* Formulario */
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
       margin-bottom: 30px;
     }
 
-    #propiedades {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 25px;
+    form h2 {
+      margin-top: 0;
+      color: #333;
     }
 
-    .propiedad {
-      background: #fff;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-      transition: transform 0.3s, box-shadow 0.3s;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .propiedad:hover {
-      transform: translateY(-8px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.15);
-    }
-
-    .propiedad img {
+    input, textarea {
       width: 100%;
-      height: 200px;
-      object-fit: cover;
+      padding: 10px;
+      margin: 8px 0 15px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 1em;
     }
 
-    .contenido {
-      padding: 15px 20px;
-      flex-grow: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .contenido h2 {
-      font-size: 1.3em;
-      margin: 0 0 8px 0;
-      color: #34495e;
-    }
-
-    .contenido p {
-      margin: 4px 0;
-      flex-grow: 1;
-      color: #555;
-      font-size: 0.95em;
-    }
-
-    .precio {
-      color: #E74C3C;
-      font-weight: bold;
-      font-size: 1.2em;
-      margin: 10px 0;
-    }
-
-    .direccion {
-      font-size: 0.9em;
-      color: #7f8c8d;
-    }
-
-    .btn-ver {
-      background: #2980b9;
-      color: #fff;
+    button {
+      background-color: #27ae60;
+      color: white;
       border: none;
       padding: 10px 15px;
       border-radius: 6px;
       cursor: pointer;
-      text-align: center;
-      transition: background 0.3s;
-      margin-top: 10px;
+      font-weight: bold;
     }
 
-    .btn-ver:hover {
-      background: #1c5980;
+    button:hover {
+      background-color: #219150;
     }
 
-    /* ==== MODAL ==== */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
+    /* Grid de propiedades */
+    #propiedades {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
     }
 
-    .modal-content {
+    .propiedad {
       background: white;
+      padding: 15px;
       border-radius: 10px;
-      padding: 20px;
-      max-width: 600px;
-      width: 90%;
-      position: relative;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-      animation: fadeIn 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.2s, box-shadow 0.2s;
     }
 
-    .modal-content img {
+    .propiedad:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+    }
+
+    .propiedad img {
       width: 100%;
+      height: 180px;
+      object-fit: cover;
       border-radius: 8px;
-      margin-bottom: 15px;
+      margin-bottom: 10px;
     }
 
-    .close-btn {
-      position: absolute;
-      top: 10px;
-      right: 15px;
-      background: none;
-      border: none;
-      font-size: 1.5em;
-      cursor: pointer;
-      color: #555;
+    .precio {
+      color: #e74c3c;
+      font-weight: bold;
+      font-size: 1.1em;
     }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    form {
-  background: #fff;
-  padding: 15px;
-  border-radius: 10px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  margin-bottom: 30px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-form input, form button {
-  padding: 10px;
-  font-size: 1em;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-}
-
-form button {
-  background-color: #3498db;
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-form button:hover {
-  background-color: #2980b9;
-}
   </style>
 </head>
 <body>
-  <h1>Portal Inmobiliario 🏡</h1>
-  <h2>Agregar nueva propiedad 🏠</h2>
-<form id="form-propiedad">
-  <input type="text" id="titulo" placeholder="Título" required>
-  <input type="text" id="descripcion" placeholder="Descripción">
-  <input type="number" id="precio" placeholder="Precio (€)" required>
-  <input type="text" id="direccion" placeholder="Dirección" required>
-  <input type="text" id="imagen" placeholder="URL de la imagen">
-  <button type="submit">Guardar propiedad</button>
-</form>
+  <header>
+    <h1>🏡 Portal Inmobiliario</h1>
+  </header>
 
-<hr>
-  <div id="propiedades"></div>
+  <main>
+    <form id="formPropiedad">
+      <h2>Agregar nueva propiedad</h2>
+      <input type="text" id="titulo" placeholder="Título" required />
+      <textarea id="descripcion" placeholder="Descripción"></textarea>
+      <input type="number" id="precio" placeholder="Precio" required />
+      <input type="text" id="direccion" placeholder="Dirección" required />
+      <input type="text" id="imagen" placeholder="URL de imagen" />
+      <button type="submit">Agregar propiedad</button>
+    </form>
 
-  <!-- MODAL -->
-  <div id="modal" class="modal">
-    <div class="modal-content">
-      <button class="close-btn" id="cerrarModal">&times;</button>
-      <img id="modalImagen" src="" alt="Propiedad">
-      <h2 id="modalTitulo"></h2>
-      <p id="modalDescripcion"></p>
-      <p class="precio" id="modalPrecio"></p>
-      <p class="direccion" id="modalDireccion"></p>
-    </div>
-  </div>
+    <section id="propiedades"></section>
+  </main>
 
   <script>
+    const API_URL = "/propiedades";
+
     async function cargarPropiedades() {
-      try {
-        const res = await fetch("/propiedades");
-        const propiedades = await res.json();
-        const contenedor = document.getElementById("propiedades");
-        contenedor.innerHTML = "";
+      const res = await fetch(API_URL);
+      const propiedades = await res.json();
+      const contenedor = document.getElementById("propiedades");
+      contenedor.innerHTML = "";
 
-        if(propiedades.length === 0){
-          contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
-          return;
-        }
-
-        propiedades.forEach((p, index) => {
-          const div = document.createElement("div");
-          div.className = "propiedad";
-          div.innerHTML = `
-            <img src="${p.imagen || 'https://via.placeholder.com/400'}" alt="${p.titulo}">
-            <div class="contenido">
-              <h2>${p.titulo}</h2>
-              <p>${p.descripcion || ""}</p>
-              <p class="precio">€${p.precio}</p>
-              <p class="direccion">${p.direccion}</p>
-              <button class="btn-ver" data-index="${index}">Ver más</button>
-            </div>
-          `;
-          contenedor.appendChild(div);
-        });
-
-        // Eventos para abrir modal
-        document.querySelectorAll(".btn-ver").forEach(btn => {
-          btn.addEventListener("click", e => {
-            const i = e.target.getAttribute("data-index");
-            mostrarModal(propiedades[i]);
-          });
-        });
-      } catch (err) {
-        console.error("Error cargando propiedades:", err);
+      if (propiedades.length === 0) {
+        contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
+        return;
       }
+
+      propiedades.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "propiedad";
+        div.innerHTML = `
+          <img src="${p.imagen || 'https://via.placeholder.com/400'}" alt="${p.titulo}">
+          <h3>${p.titulo}</h3>
+          <p>${p.descripcion || ""}</p>
+          <p class="precio">${p.precio.toLocaleString()} €</p>
+          <p><strong>${p.direccion}</strong></p>
+        `;
+        contenedor.appendChild(div);
+      });
     }
 
-    function mostrarModal(propiedad) {
-      document.getElementById("modalImagen").src = propiedad.imagen || 'https://via.placeholder.com/400';
-      document.getElementById("modalTitulo").textContent = propiedad.titulo;
-      document.getElementById("modalDescripcion").textContent = propiedad.descripcion || "Sin descripción disponible.";
-      document.getElementById("modalPrecio").textContent = `€${propiedad.precio}`;
-      document.getElementById("modalDireccion").textContent = propiedad.direccion;
-      document.getElementById("modal").style.display = "flex";
-    }
+    document.getElementById("formPropiedad").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const nueva = {
+        titulo: document.getElementById("titulo").value,
+        descripcion: document.getElementById("descripcion").value,
+        precio: parseFloat(document.getElementById("precio").value),
+        direccion: document.getElementById("direccion").value,
+        imagen: document.getElementById("imagen").value
+      };
 
-    document.getElementById("cerrarModal").addEventListener("click", () => {
-      document.getElementById("modal").style.display = "none";
-    });
+      await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(nueva)
+      });
 
-    window.addEventListener("click", e => {
-      if (e.target.id === "modal") {
-        document.getElementById("modal").style.display = "none";
-      }
+      e.target.reset();
+      cargarPropiedades();
     });
 
     cargarPropiedades();
-    document.getElementById("form-propiedad").addEventListener("submit", async (e) => {
-  e.preventDefault();
-
-  const nuevaPropiedad = {
-    titulo: document.getElementById("titulo").value,
-    descripcion: document.getElementById("descripcion").value,
-    precio: document.getElementById("precio").value,
-    direccion: document.getElementById("direccion").value,
-    imagen: document.getElementById("imagen").value
-  };
-
-  try {
-    const res = await fetch("/propiedades", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(nuevaPropiedad)
-    });
-
-    if (res.ok) {
-      alert("✅ Propiedad añadida correctamente");
-      document.getElementById("form-propiedad").reset();
-      cargarPropiedades(); // Recarga la lista
-    } else {
-      alert("❌ Error al guardar la propiedad");
-    }
-  } catch (err) {
-    console.error(err);
-    alert("Error de conexión con el servidor");
-  }
-});
   </script>
 </body>
 </html>
+
+
 
 
 
