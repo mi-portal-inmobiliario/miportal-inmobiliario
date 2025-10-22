@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Añadir Propiedad - Portal Inmobiliario</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+    h1 { color: #333; }
+
+    .formulario {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .formulario input, .formulario textarea, .formulario button {
+      width: 100%;
+      margin-bottom: 10px;
+      padding: 8px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    .formulario button {
+      background-color: #3498DB;
+      color: white;
+      border: none;
+      cursor: pointer;
+      padding: 10px;
+      font-size: 1em;
+      transition: background 0.3s;
+    }
+
+    .formulario button:hover {
+      background-color: #2980B9;
+    }
+
+    .instrucciones {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 500px;
+      margin: 20px auto;
+    }
+
+    .mensaje {
+      text-align: center;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Añadir Propiedad 🏡</h1>
+
+  <div class="instrucciones">
+    <h2>Instrucciones y condiciones</h2>
+    <ul>
+      <li>Rellena todos los campos obligatorios.</li>
+      <li>Las imágenes deben ser URLs públicas.</li>
+      <li>El precio debe estar en euros (€).</li>
+      <li>Revisa que la dirección sea correcta.</li>
+    </ul>
+  </div>
+
+  <div class="formulario">
+    <input type="text" id="titulo" placeholder="Título de la propiedad" required>
+    <textarea id="descripcion" placeholder="Descripción"></textarea>
+    <input type="number" id="precio" placeholder="Precio (€)" required>
+    <input type="text" id="direccion" placeholder="Dirección" required>
+    <input type="text" id="imagen" placeholder="URL de la imagen">
+    <button id="btn-enviar">Añadir Propiedad</button>
+    <p id="mensaje" class="mensaje"></p>
+  </div>
+
+  <script>
+    document.getElementById('btn-enviar').addEventListener('click', async () => {
+      const propiedad = {
+        titulo: document.getElementById('titulo').value,
+        descripcion: document.getElementById('descripcion').value,
+        precio: Number(document.getElementById('precio').value),
+        direccion: document.getElementById('direccion').value,
+        imagen: document.getElementById('imagen').value
+      };
+
+      try {
+        const res = await fetch('/propiedades', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(propiedad)
+        });
+
+        const data = await res.json();
+        if(res.ok) {
+          document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
+          // limpiar formulario
+          document.getElementById('titulo').value = '';
+          document.getElementById('descripcion').value = '';
+          document.getElementById('precio').value = '';
+          document.getElementById('direccion').value = '';
+          document.getElementById('imagen').value = '';
+        } else {
+          document.getElementById('mensaje').textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
+        }
+      } catch (err) {
+        document.getElementById('mensaje').textContent = '❌ Error al conectar con el servidor.';
+      }
+    });
+  </script>
+</body>
+</html>
