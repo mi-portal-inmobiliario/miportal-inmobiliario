@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal Inmobiliario</title>
+  <title>Añadir Propiedad</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 0; margin: 0; background: #f0f0f0; }
-
-    /* Banner animado */
+    body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; margin-top: 80px; }
+    
+    /* Banner animado fijo */
     .banner {
       position: fixed;
       top: 0;
@@ -24,178 +24,143 @@
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       z-index: 1000;
     }
+
     @keyframes gradientMove {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
-    .banner h1 { margin: 0; font-size: 1.5em; }
 
-    /* Menú desplegable */
-    .menu { position: relative; display: inline-block; }
-    .dropdown-btn {
-      background-color: white;
-      color: #2980b9;
-      padding: 10px 16px;
-      font-size: 1em;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    .dropdown-btn:hover { background-color: #f0f0f0; }
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: white;
-      min-width: 200px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-      border-radius: 8px;
-      z-index: 1001;
-      padding: 10px;
-    }
-    .menu:hover .dropdown-content { display: block; }
+    .banner h1 { margin: 0; font-size: 1.5em; }
 
     /* Formulario */
     #formulario-anuncio {
-      display: flex;
-      flex-direction: column;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 0 auto;
     }
-    #formulario-anuncio input, #formulario-anuncio textarea, #formulario-anuncio button {
+
+    #formulario-anuncio h2 { margin-top: 0; }
+
+    #formulario-anuncio input, 
+    #formulario-anuncio textarea, 
+    #formulario-anuncio button {
       width: 100%;
-      margin-bottom: 10px;
-      padding: 8px;
+      margin-bottom: 15px;
+      padding: 10px;
       border-radius: 5px;
       border: 1px solid #ccc;
       box-sizing: border-box;
+      font-size: 1em;
     }
+
     #formulario-anuncio button {
       background-color: #3498DB;
       color: white;
       border: none;
       cursor: pointer;
-      font-size: 1em;
+      transition: background 0.3s;
     }
+
     #formulario-anuncio button:hover {
       background-color: #2980B9;
     }
 
-    /* Propiedades */
-    #propiedades {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 20px;
-      padding: 20px;
-      margin-top: 90px; /* espacio debajo del banner */
-    }
-    .propiedad {
+    /* Condiciones */
+    .condiciones {
       background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .propiedad:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-    }
-    .propiedad img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
+      padding: 15px;
       border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: 20px auto;
     }
-    .propiedad h2 { margin: 10px 0 5px; font-size: 1.2em; }
-    .propiedad p { margin: 5px 0; }
-    .propiedad .precio { color: #E74C3C; font-weight: bold; font-size: 1.2em; }
+
+    .condiciones h3 { margin-top: 0; }
+
   </style>
 </head>
 <body>
-  <header class="banner">
-    <h1>Portal Inmobiliario 🏡</h1>
-    <div class="menu">
-      <button class="dropdown-btn">Pon tu anuncio ⬇️</button>
-      <div class="dropdown-content">
-        <form id="formulario-anuncio">
-          <input type="text" id="titulo" placeholder="Título" required>
-          <textarea id="descripcion" placeholder="Descripción"></textarea>
-          <input type="number" id="precio" placeholder="Precio (€)" required>
-          <input type="text" id="direccion" placeholder="Dirección" required>
-          <input type="text" id="imagen" placeholder="URL de la imagen">
-          <button type="submit">Añadir propiedad</button>
-        </form>
-      </div>
-    </div>
-  </header>
 
-  <div id="propiedades"></div>
+  <<!-- 🌈 Banner animado fijo -->
+<header class="banner">
+  <h1>Portal Inmobiliario 🏡</h1>
+  <div class="menu">
+    <button class="dropdown-btn">Pon tu anuncio ⬇️</button>
+    <div class="dropdown-content">
+      <!-- Enlazamos la nueva página -->
+      <a href="añadir.html">Añadir propiedad</a>
+    </div>
+  </div>
+</header>
+
+  <div class="condiciones">
+    <h3>Instrucciones para publicar tu propiedad:</h3>
+    <ul>
+      <li>Rellena todos los campos obligatorios con información real.</li>
+      <li>El precio debe estar en euros (€).</li>
+      <li>Sube una imagen representativa de la propiedad.</li>
+      <li>Evita contenido inapropiado o fotos de baja calidad.</li>
+    </ul>
+  </div>
+
+  <div id="formulario-anuncio">
+    <h2>Añadir nueva propiedad</h2>
+    <form id="form-anuncio">
+      <input type="text" id="titulo" placeholder="Título de la propiedad" required>
+      <textarea id="descripcion" placeholder="Descripción" rows="4"></textarea>
+      <input type="number" id="precio" placeholder="Precio (€)" required>
+      <input type="text" id="direccion" placeholder="Dirección completa" required>
+      <input type="url" id="imagen" placeholder="URL de la imagen">
+      <button type="submit">Enviar propiedad</button>
+    </form>
+    <p id="mensaje"></p>
+  </div>
 
   <script>
-    async function cargarPropiedades() {
-      try {
-        const res = await fetch("/propiedades");
-        const propiedades = await res.json();
-        const contenedor = document.getElementById("propiedades");
-        contenedor.innerHTML = "";
+    const form = document.getElementById('form-anuncio');
+    const mensaje = document.getElementById('mensaje');
 
-        if (propiedades.length === 0) {
-          contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
-          return;
-        }
-
-        propiedades.forEach(p => {
-          const div = document.createElement("div");
-          div.className = "propiedad";
-          div.innerHTML = `
-            <h2>${p.titulo}</h2>
-            <p>${p.descripcion || ""}</p>
-            <p class="precio">${p.precio} €</p>
-            <p><strong>Dirección:</strong> ${p.direccion}</p>
-            ${p.imagen ? `<img src="${p.imagen}" alt="${p.titulo}">` : ""}
-          `;
-          contenedor.appendChild(div);
-        });
-      } catch (err) {
-        console.error("Error cargando propiedades:", err);
-      }
-    }
-
-    cargarPropiedades();
-
-    // 📝 Enviar nueva propiedad
-    const formulario = document.getElementById("formulario-anuncio");
-    formulario.addEventListener("submit", async (e) => {
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const nuevaProp = {
-        titulo: document.getElementById("titulo").value,
-        descripcion: document.getElementById("descripcion").value,
-        precio: Number(document.getElementById("precio").value),
-        direccion: document.getElementById("direccion").value,
-        imagen: document.getElementById("imagen").value
+
+      const propiedad = {
+        titulo: document.getElementById('titulo').value,
+        descripcion: document.getElementById('descripcion').value,
+        precio: parseFloat(document.getElementById('precio').value),
+        direccion: document.getElementById('direccion').value,
+        imagen: document.getElementById('imagen').value
       };
 
       try {
-        const res = await fetch("/propiedades", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(nuevaProp)
+        const res = await fetch('/propiedades', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(propiedad)
         });
 
         if (res.ok) {
-          cargarPropiedades();
-          formulario.reset();
-          alert("Propiedad añadida con éxito ✅");
+          mensaje.textContent = "✅ Propiedad añadida correctamente!";
+          mensaje.style.color = "green";
+          form.reset();
         } else {
-          alert("Error al añadir propiedad");
+          const error = await res.json();
+          mensaje.textContent = "❌ Error: " + error.error;
+          mensaje.style.color = "red";
         }
       } catch (err) {
-        console.error(err);
-        alert("Error al añadir propiedad");
+        mensaje.textContent = "❌ Error al conectar con el servidor.";
+        mensaje.style.color = "red";
       }
     });
   </script>
+
 </body>
 </html>
+
 
 
 
