@@ -79,12 +79,7 @@
       font-size: 1.5em;
     }
 
-    /* 🌟 Menú desplegable */
-    .menu {
-      position: relative;
-      display: inline-block;
-    }
-
+    /* Botón Pon tu anuncio */
     .dropdown-btn {
       background-color: white;
       color: #2980b9;
@@ -99,44 +94,15 @@
     .dropdown-btn:hover {
       background-color: #f0f0f0;
     }
-
-    .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: white;
-      min-width: 160px;
-      box-shadow: 0px 8px 16px rgba(0,0,0,0.2);
-      border-radius: 8px;
-      z-index: 1001;
-    }
-
-    .dropdown-content a {
-      color: #2980b9;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      transition: background 0.2s;
-    }
-
-    .dropdown-content a:hover {
-      background-color: #f1f1f1;
-    }
-
-    .menu:hover .dropdown-content {
-      display: block;
-    }
   </style>
 </head>
 <body>
   <!-- 🌈 Banner animado fijo -->
   <header class="banner">
     <h1>Portal Inmobiliario 🏡</h1>
-    <div class="menu">
-      <button class="dropdown-btn">Pon tu anuncio ⬇️</button>
-      <div class="dropdown-content">
-        <a href="añadir.html">Añadir propiedad</a>
-      </div>
-    </div>
+    <button class="dropdown-btn" onclick="window.location.href='añadir.html'">
+      Pon tu anuncio
+    </button>
   </header>
 
   <div id="propiedades"></div>
@@ -175,6 +141,7 @@
   </script>
 </body>
 </html>
+
 
 
 
