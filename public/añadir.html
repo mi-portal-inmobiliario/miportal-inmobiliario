@@ -6,20 +6,35 @@
   <title>Añadir Propiedad - Portal Inmobiliario</title>
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
-    h1 { color: #333; }
+    h1, h2 { color: #333; }
+    h2 { margin-top: 30px; }
+
+    .informacion-util {
+      background: #fffbe6;
+      border-left: 5px solid #f1c40f;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
 
     .formulario {
       background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: 0 auto;
+      max-width: 700px;
+      margin: 0 auto 30px;
     }
 
-    .formulario input, .formulario textarea, .formulario button {
+    .formulario label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .formulario input, .formulario select, .formulario textarea, .formulario button {
       width: 100%;
-      margin-bottom: 10px;
+      margin-top: 5px;
       padding: 8px;
       border-radius: 5px;
       border: 1px solid #ccc;
@@ -31,8 +46,9 @@
       color: white;
       border: none;
       cursor: pointer;
-      padding: 10px;
+      padding: 12px;
       font-size: 1em;
+      margin-top: 15px;
       transition: background 0.3s;
     }
 
@@ -40,58 +56,124 @@
       background-color: #2980B9;
     }
 
-    .instrucciones {
-      background: #fff;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-      max-width: 500px;
-      margin: 20px auto;
-    }
-
     .mensaje {
       text-align: center;
       font-weight: bold;
       margin-top: 10px;
     }
+
+    .checkbox-group label {
+      font-weight: normal;
+      margin-right: 15px;
+    }
   </style>
 </head>
 <body>
-  <h1>Añadir Propiedad 🏡</h1>
 
-  <div class="instrucciones">
-    <h2>Instrucciones y condiciones</h2>
-    <ul>
-      <li>Rellena todos los campos obligatorios.</li>
-      <li>Las imágenes deben ser URLs públicas.</li>
-      <li>El precio debe estar en euros (€).</li>
-      <li>Revisa que la dirección sea correcta.</li>
-    </ul>
+  <h1>Portal Inmobiliario 🏡</h1>
+
+  <div class="informacion-util">
+    <h2>Información útil</h2>
+    <p>Ten las fotos a mano. Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</p>
+    <p>Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc. hasta que lo vendas o alquiles.</p>
+    <p>Para mantener nuestra calidad de servicio, cobramos en los casos de anuncios duplicados o propiedades de gran valor.</p>
   </div>
 
   <div class="formulario">
-    <input type="text" id="titulo" placeholder="Título de la propiedad" required>
-    <textarea id="descripcion" placeholder="Descripción"></textarea>
-    <input type="number" id="precio" placeholder="Precio (€)" required>
-    <input type="text" id="direccion" placeholder="Dirección" required>
-    <input type="text" id="imagen" placeholder="URL de la imagen">
-    <button id="btn-enviar">Añadir Propiedad</button>
+    <h2>1. Datos básicos</h2>
+
+    <label for="tipo">Tipo de inmueble</label>
+    <select id="tipo">
+      <option value="">Selecciona</option>
+      <option value="piso">Piso</option>
+      <option value="casa">Casa</option>
+      <option value="atico">Ático</option>
+      <option value="chalet">Chalet</option>
+      <option value="garaje">Garaje</option>
+      <option value="local">Local</option>
+      <option value="parcela">Parcela</option>
+    </select>
+
+    <label for="operacion">Operación</label>
+    <select id="operacion">
+      <option value="">Selecciona</option>
+      <option value="venta">Venta</option>
+      <option value="alquiler">Alquiler</option>
+    </select>
+
+    <label for="titulo">Título del anuncio</label>
+    <input type="text" id="titulo" placeholder="Ej: Piso luminoso en el centro">
+
+    <label for="descripcion">Descripción breve</label>
+    <textarea id="descripcion" rows="4" placeholder="Descripción de la propiedad"></textarea>
+
+    <h2>2. Detalles</h2>
+
+    <label for="habitaciones">Número de habitaciones</label>
+    <input type="number" id="habitaciones" min="0">
+
+    <label for="banos">Número de baños</label>
+    <input type="number" id="banos" min="0">
+
+    <label for="superficie">Superficie (m²)</label>
+    <input type="number" id="superficie" min="0">
+
+    <label>Características</label>
+    <div class="checkbox-group">
+      <label><input type="checkbox" value="terraza"> Terraza</label>
+      <label><input type="checkbox" value="balcon"> Balcón</label>
+      <label><input type="checkbox" value="garaje"> Garaje</label>
+      <label><input type="checkbox" value="piscina"> Piscina</label>
+      <label><input type="checkbox" value="amueblado"> Amueblado</label>
+    </div>
+
+    <label for="precio">Precio (€)</label>
+    <input type="number" id="precio" min="0">
+
+    <h2>3. Ubicación</h2>
+
+    <label for="localidad">Localidad</label>
+    <input type="text" id="localidad" placeholder="Ej: Madrid">
+
+    <label for="calle">Nombre de la vía</label>
+    <input type="text" id="calle" placeholder="Ej: Calle Mayor">
+
+    <label for="numero">Número de vía</label>
+    <input type="text" id="numero" placeholder="Ej: 15">
+
+    <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
+
+    <h2>4. Fotos</h2>
+    <label for="imagen">URL de la imagen principal</label>
+    <input type="text" id="imagen" placeholder="https://">
+
+    <button type="button" id="btn-enviar">Añadir Propiedad</button>
     <p id="mensaje" class="mensaje"></p>
   </div>
 
   <script>
     document.getElementById('btn-enviar').addEventListener('click', async () => {
+      const caracteristicas = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
+
       const propiedad = {
+        tipo: document.getElementById('tipo').value,
+        operacion: document.getElementById('operacion').value,
         titulo: document.getElementById('titulo').value,
         descripcion: document.getElementById('descripcion').value,
+        habitaciones: Number(document.getElementById('habitaciones').value),
+        banos: Number(document.getElementById('banos').value),
+        superficie: Number(document.getElementById('superficie').value),
+        caracteristicas: caracteristicas,
         precio: Number(document.getElementById('precio').value),
-        direccion: document.getElementById('direccion').value,
+        localidad: document.getElementById('localidad').value,
+        calle: document.getElementById('calle').value,
+        numero: document.getElementById('numero').value,
+        ocultarCalle: document.getElementById('ocultarCalle').checked,
         imagen: document.getElementById('imagen').value
       };
 
       try {
-        const res = await fetch('/propiedades', {
+        const res = await fetch('https://miportal-inmobiliario-server.onrender.com/propiedades', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(propiedad)
@@ -101,11 +183,8 @@
         if(res.ok) {
           document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
           // limpiar formulario
-          document.getElementById('titulo').value = '';
-          document.getElementById('descripcion').value = '';
-          document.getElementById('precio').value = '';
-          document.getElementById('direccion').value = '';
-          document.getElementById('imagen').value = '';
+          document.querySelectorAll('.formulario input, .formulario textarea').forEach(el => el.value = '');
+          document.querySelectorAll('.checkbox-group input').forEach(el => el.checked = false);
         } else {
           document.getElementById('mensaje').textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
         }
@@ -116,3 +195,4 @@
   </script>
 </body>
 </html>
+
