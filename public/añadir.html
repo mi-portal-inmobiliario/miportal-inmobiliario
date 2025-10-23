@@ -7,23 +7,21 @@
   <style>
     body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
     h1, h2 { color: #333; }
-    h2 { margin-top: 30px; }
+    h2 { margin-top: 20px; }
 
-    .informacion-util {
-      background: #fffbe6;
-      border-left: 5px solid #f1c40f;
-      padding: 15px;
-      border-radius: 8px;
-      margin-bottom: 20px;
+    .contenedor {
+      display: flex;
+      gap: 20px;
+      max-width: 1000px;
+      margin: 0 auto;
     }
 
     .formulario {
+      flex: 2;
       background: #fff;
       padding: 20px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      max-width: 700px;
-      margin: 0 auto 30px;
     }
 
     .formulario label {
@@ -66,89 +64,123 @@
       font-weight: normal;
       margin-right: 15px;
     }
+
+    .informacion-util {
+      flex: 1;
+      background: #fffbe6;
+      border-left: 5px solid #f1c40f;
+      padding: 15px;
+      border-radius: 8px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .informacion-util ul {
+      padding-left: 20px;
+    }
+
+    .informacion-util li {
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
 
   <h1>Portal Inmobiliario 🏡</h1>
 
-  <div class="informacion-util">
-    <h2>Información útil</h2>
-    <p>Ten las fotos a mano. Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</p>
-    <p>Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc. hasta que lo vendas o alquiles.</p>
-    <p>Para mantener nuestra calidad de servicio, cobramos en los casos de anuncios duplicados o propiedades de gran valor.</p>
-  </div>
+  <div class="contenedor">
+    <!-- Formulario -->
+    <div class="formulario">
+      <h2>1. Datos básicos</h2>
 
-  <div class="formulario">
-    <h2>1. Datos básicos</h2>
+      <label for="tipo">Tipo de inmueble</label>
+      <select id="tipo">
+        <option value="">Selecciona</option>
+        <option value="piso">Piso</option>
+        <option value="casa">Casa</option>
+        <option value="atico">Ático</option>
+        <option value="chalet">Chalet</option>
+        <option value="garaje">Garaje</option>
+        <option value="local">Local</option>
+        <option value="parcela">Parcela</option>
+      </select>
 
-    <label for="tipo">Tipo de inmueble</label>
-    <select id="tipo">
-      <option value="">Selecciona</option>
-      <option value="piso">Piso</option>
-      <option value="casa">Casa</option>
-      <option value="atico">Ático</option>
-      <option value="chalet">Chalet</option>
-      <option value="garaje">Garaje</option>
-      <option value="local">Local</option>
-      <option value="parcela">Parcela</option>
-    </select>
+      <label for="operacion">Operación</label>
+      <select id="operacion">
+        <option value="">Selecciona</option>
+        <option value="venta">Venta</option>
+        <option value="alquiler">Alquiler</option>
+      </select>
 
-    <label for="operacion">Operación</label>
-    <select id="operacion">
-      <option value="">Selecciona</option>
-      <option value="venta">Venta</option>
-      <option value="alquiler">Alquiler</option>
-    </select>
+      <label for="titulo">Título del anuncio</label>
+      <input type="text" id="titulo" placeholder="Ej: Piso luminoso en el centro">
 
-    <label for="titulo">Título del anuncio</label>
-    <input type="text" id="titulo" placeholder="Ej: Piso luminoso en el centro">
+      <label for="descripcion">Descripción breve</label>
+      <textarea id="descripcion" rows="4" placeholder="Descripción de la propiedad"></textarea>
 
-    <label for="descripcion">Descripción breve</label>
-    <textarea id="descripcion" rows="4" placeholder="Descripción de la propiedad"></textarea>
+      <h2>2. Detalles</h2>
 
-    <h2>2. Detalles</h2>
+      <label for="habitaciones">Número de habitaciones</label>
+      <input type="number" id="habitaciones" min="0">
 
-    <label for="habitaciones">Número de habitaciones</label>
-    <input type="number" id="habitaciones" min="0">
+      <label for="banos">Número de baños</label>
+      <input type="number" id="banos" min="0">
 
-    <label for="banos">Número de baños</label>
-    <input type="number" id="banos" min="0">
+      <label for="superficie">Superficie (m²)</label>
+      <input type="number" id="superficie" min="0">
 
-    <label for="superficie">Superficie (m²)</label>
-    <input type="number" id="superficie" min="0">
+      <label>Características</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="terraza"> Terraza</label>
+        <label><input type="checkbox" value="balcon"> Balcón</label>
+        <label><input type="checkbox" value="garaje"> Garaje</label>
+        <label><input type="checkbox" value="piscina"> Piscina</label>
+        <label><input type="checkbox" value="amueblado"> Amueblado</label>
+      </div>
 
-    <label>Características</label>
-    <div class="checkbox-group">
-      <label><input type="checkbox" value="terraza"> Terraza</label>
-      <label><input type="checkbox" value="balcon"> Balcón</label>
-      <label><input type="checkbox" value="garaje"> Garaje</label>
-      <label><input type="checkbox" value="piscina"> Piscina</label>
-      <label><input type="checkbox" value="amueblado"> Amueblado</label>
+      <label for="precio">Precio (€)</label>
+      <input type="number" id="precio" min="0">
+
+      <h2>3. Ubicación</h2>
+
+      <label for="localidad">Localidad</label>
+      <input type="text" id="localidad" placeholder="Ej: Madrid">
+
+      <label for="calle">Nombre de la vía</label>
+      <input type="text" id="calle" placeholder="Ej: Calle Mayor">
+
+      <label for="numero">Número de vía</label>
+      <input type="text" id="numero" placeholder="Ej: 15">
+
+      <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
+
+      <h2>4. Fotos</h2>
+      <label for="imagen">URL de la imagen principal</label>
+      <input type="text" id="imagen" placeholder="https://">
+
+      <button type="button" id="btn-enviar">Añadir Propiedad</button>
+      <p id="mensaje" class="mensaje"></p>
     </div>
 
-    <label for="precio">Precio (€)</label>
-    <input type="number" id="precio" min="0">
-
-    <h2>3. Ubicación</h2>
-
-    <label for="localidad">Localidad</label>
-    <input type="text" id="localidad" placeholder="Ej: Madrid">
-
-    <label for="calle">Nombre de la vía</label>
-    <input type="text" id="calle" placeholder="Ej: Calle Mayor">
-
-    <label for="numero">Número de vía</label>
-    <input type="text" id="numero" placeholder="Ej: 15">
-
-    <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
-
-    <h2>4. Fotos</h2>
-    <label for="imagen">URL de la imagen principal</label>
-    <input type="text" id="imagen" placeholder="https://">
-
-    <button type="button" id="btn-enviar">Añadir Propiedad</button>
-    <p id="mensaje" class="mensaje"></p>
+    <!-- Información útil -->
+    <div class="informacion-util">
+      <h2>Información útil</h2>
+      <ul>
+        <li>Ten las fotos a mano. Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</li>
+        <li>Te regalamos tus primeros dos anuncios para que pruebes nuestro servicio. Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc. hasta que lo vendas o lo alquiles.</li>
+        <li>Además, puedes publicar hasta 5 habitaciones gratis en piso compartido, no suman en el número de anuncios que te regalamos.</li>
+        <li>Para poder mantener nuestra calidad de servicio necesitamos cobrar en estos casos:
+          <ul>
+            <li>Anunciantes con más de dos inmuebles</li>
+            <li>Anuncios de inmuebles duplicados</li>
+            <li>Inmuebles en venta de más de 1.000.000 €</li>
+            <li>Inmuebles en alquiler de más de 2.500 €/mes</li>
+          </ul>
+        </li>
+        <li>¿Quieres vender tu casa rápidamente? Encuentra la agencia inmobiliaria más adecuada</li>
+        <li>¿Eres profesional inmobiliario? Conoce nuestras ventajas para profesionales</li>
+      </ul>
+    </div>
   </div>
 
   <script>
@@ -182,7 +214,6 @@
         const data = await res.json();
         if(res.ok) {
           document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
-          // limpiar formulario
           document.querySelectorAll('.formulario input, .formulario textarea').forEach(el => el.value = '');
           document.querySelectorAll('.checkbox-group input').forEach(el => el.checked = false);
         } else {
@@ -195,4 +226,5 @@
   </script>
 </body>
 </html>
+
 
