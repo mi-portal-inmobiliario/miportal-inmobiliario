@@ -82,6 +82,15 @@
     .informacion-util li {
       margin-bottom: 10px;
     }
+
+    #previsualizacion img {
+      width: 100px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+
   </style>
 </head>
 <body>
@@ -157,6 +166,7 @@
       <h2>4. Fotos</h2>
       <label for="imagenes">Sube tus fotos</label>
       <input type="file" id="imagenes" multiple accept="image/*">
+      <div id="previsualizacion"></div>
       <p>Si no tienes todas las fotos ahora, puedes añadirlas más tarde.</p>
 
       <button type="button" id="btn-enviar">Añadir Propiedad</button>
@@ -185,18 +195,30 @@
   </div>
 
   <script>
+    // Previsualización de imágenes
+    const inputFotos = document.getElementById('imagenes');
+    const contenedorPrev = document.getElementById('previsualizacion');
+
+    inputFotos.addEventListener('change', () => {
+      contenedorPrev.innerHTML = '';
+      Array.from(inputFotos.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          contenedorPrev.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+
+    // Envío del formulario
     document.getElementById('btn-enviar').addEventListener('click', async () => {
       const caracteristicas = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
-      const inputFotos = document.getElementById('imagenes');
 
       const formData = new FormData();
+      Array.from(inputFotos.files).forEach(file => formData.append('imagenes', file));
 
-      // Añadir archivos seleccionados
-      Array.from(inputFotos.files).forEach(file => {
-        formData.append('imagenes', file);
-      });
-
-      // Añadir el resto de campos
       formData.append('tipo', document.getElementById('tipo').value);
       formData.append('operacion', document.getElementById('operacion').value);
       formData.append('titulo', document.getElementById('titulo').value);
@@ -217,21 +239,7 @@
           body: formData
         });
 
-        const data = await res.json();
-        if(res.ok) {
-          document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
-          document.querySelectorAll('.formulario input, .formulario textarea').forEach(el => el.value = '');
-          document.querySelectorAll('.checkbox-group input').forEach(el => el.checked = false);
-        } else {
-          document.getElementById('mensaje').textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
-        }
-      } catch (err) {
-        document.getElementById('mensaje').textContent = '❌ Error al conectar con el servidor.';
-      }
-    });
-  </script>
-</body>
-</html>
+
 
 
 
