@@ -84,8 +84,8 @@
     }
 
     #previsualizacion img {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
       object-fit: cover;
       border-radius: 5px;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
@@ -166,7 +166,8 @@
       <h2>4. Fotos</h2>
       <label for="imagenes">Sube tus fotos</label>
       <input type="file" id="imagenes" multiple accept="image/*">
-      <div id="previsualizacion"></div>
+      <p id="contadorFotos">0 fotos seleccionadas</p>
+      <div id="previsualizacion" style="display:flex; gap:10px; overflow-x:auto;"></div>
       <p>Si no tienes todas las fotos ahora, puedes añadirlas más tarde.</p>
 
       <button type="button" id="btn-enviar">Añadir Propiedad</button>
@@ -195,41 +196,82 @@
   </div>
 
   <script>
-    // Previsualización de imágenes
     const inputFotos = document.getElementById('imagenes');
     const contenedorPrev = document.getElementById('previsualizacion');
+    const contadorFotos = document.getElementById('contadorFotos');
+    let archivosSeleccionados = [];
 
     inputFotos.addEventListener('change', () => {
+      archivosSeleccionados = Array.from(inputFotos.files);
+      actualizarPrevisualizacion();
+    });
+
+    function actualizarPrevisualizacion() {
       contenedorPrev.innerHTML = '';
-      Array.from(inputFotos.files).forEach(file => {
+      archivosSeleccionados.forEach((file, index) => {
         const reader = new FileReader();
         reader.onload = (e) => {
+          const wrapper = document.createElement('div');
+          wrapper.style.position = 'relative';
           const img = document.createElement('img');
           img.src = e.target.result;
-          contenedorPrev.appendChild(img);
+          wrapper.appendChild(img);
+
+          const btnEliminar = document.createElement('button');
+          btnEliminar.textContent = 'X';
+          btnEliminar.style.position = 'absolute';
+          btnEliminar.style.top = '2px';
+          btnEliminar.style.right = '2px';
+          btnEliminar.style.background = 'rgba(255,0,0,0.8)';
+          btnEliminar.style.color = 'white';
+          btnEliminar.style.border = 'none';
+          btnEliminar.style.borderRadius = '50%';
+          btnEliminar.style.width = '20px';
+          btnEliminar.style.height = '20px';
+          btnEliminar.style.cursor = 'pointer';
+          btnEliminar.addEventListener('click', () => {
+            archivosSeleccionados.splice(index, 1);
+            actualizarPrevisualizacion();
+          });
+          wrapper.appendChild(btnEliminar);
+          contenedorPrev.appendChild(wrapper);
         };
         reader.readAsDataURL(file);
       });
-    });
+      contadorFotos.textContent = `${archivosSeleccionados.length} foto(s) seleccionada(s)`;
+    }
 
-    // Envío del formulario
     document.getElementById('btn-enviar').addEventListener('click', async () => {
+      const tipo = document.getElementById('tipo').value;
+      const operacion = document.getElementById('operacion').value;
+      const titulo = document.getElementById('titulo').value;
+      const precio = document.getElementById('precio').value;
+      const localidad = document.getElementById('localidad').value;
+      const calle = document.getElementById('calle').value;
+
+      if(!tipo || !operacion || !titulo || !precio || !localidad || !calle) {
+        alert('Por favor, completa todos los campos obligatorios.');
+        return;
+      }
+      if(Number(precio) <= 0) {
+        alert('El precio debe ser mayor que 0.');
+        return;
+      }
+
       const caracteristicas = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
-
       const formData = new FormData();
-      Array.from(inputFotos.files).forEach(file => formData.append('imagenes', file));
-
-      formData.append('tipo', document.getElementById('tipo').value);
-      formData.append('operacion', document.getElementById('operacion').value);
-      formData.append('titulo', document.getElementById('titulo').value);
+      archivosSeleccionados.forEach(file => formData.append('imagenes', file));
+      formData.append('tipo', tipo);
+      formData.append('operacion', operacion);
+      formData.append('titulo', titulo);
       formData.append('descripcion', document.getElementById('descripcion').value);
       formData.append('habitaciones', document.getElementById('habitaciones').value);
       formData.append('banos', document.getElementById('banos').value);
       formData.append('superficie', document.getElementById('superficie').value);
       formData.append('caracteristicas', JSON.stringify(caracteristicas));
-      formData.append('precio', document.getElementById('precio').value);
-      formData.append('localidad', document.getElementById('localidad').value);
-      formData.append('calle', document.getElementById('calle').value);
+      formData.append('precio', precio);
+      formData.append('localidad', localidad);
+      formData.append('calle', calle);
       formData.append('numero', document.getElementById('numero').value);
       formData.append('ocultarCalle', document.getElementById('ocultarCalle').checked);
 
@@ -238,6 +280,26 @@
           method: 'POST',
           body: formData
         });
+
+        const data = await res.json();
+        const mensaje = document.getElementById('mensaje');
+        if(res.ok) {
+          mensaje.textContent = '✅ Propiedad añadida con éxito!';
+          document.querySelectorAll('.formulario input, .formulario textarea').forEach(el => el.value = '');
+          document.querySelectorAll('.checkbox-group input').forEach(el => el.checked = false);
+          archivosSeleccionados = [];
+          actualizarPrevisualizacion();
+        } else {
+          mensaje.textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
+        }
+      } catch (err) {
+        document.getElementById('mensaje').textContent = '❌ Error al conectar con el servidor.';
+      }
+    });
+  </script>
+
+</body>
+</html>
 
 
 
