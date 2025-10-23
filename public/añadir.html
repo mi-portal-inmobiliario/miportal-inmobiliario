@@ -4,175 +4,154 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Añadir Propiedad - Portal Inmobiliario</title>
+<link rel="stylesheet" href="styles.css">
 <style>
-  body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
-  h1 { color: #333; text-align:center; }
-  .formulario-multistep { background:#fff; padding:20px; border-radius:10px; max-width:600px; margin:20px auto; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-  .formulario-multistep input, .formulario-multistep select, .formulario-multistep button { width:100%; margin-bottom:10px; padding:8px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
-  .formulario-multistep button { background:#3498DB; color:white; border:none; cursor:pointer; font-size:1em; transition: background 0.3s; }
-  .formulario-multistep button:hover { background:#2980B9; }
-  .mensaje { text-align:center; font-weight:bold; margin-top:10px; }
-  #barra-progreso { margin-bottom:20px; background:#eee; border-radius:5px; height:10px; }
-  #progreso { height:10px; width:0%; background:#3498DB; border-radius:5px; }
-  .informacion-util { background:#fff; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-top:20px; }
-  .informacion-util h3 { color:#2980b9; margin-bottom:10px; }
-  .informacion-util ul { padding-left:20px; line-height:1.6; }
-  .informacion-util a { color:#3498DB; text-decoration:none; }
-  .informacion-util a:hover { text-decoration:underline; }
+  /* Ajustes específicos de la página */
+  .formulario-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-top: 120px; /* espacio por banner */
+  }
+  .formulario-multistep {
+    flex: 1 1 400px;
+  }
+  .informacion-util {
+    flex: 1 1 300px;
+    max-width: 350px;
+  }
+  #previsualizacion img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 5px;
+  }
 </style>
 </head>
 <body>
 
-<h1>Añadir Propiedad 🏡</h1>
+<header class="banner">
+  <h1>Añadir Propiedad 🏡</h1>
+</header>
 
-<div class="formulario-multistep">
+<div class="formulario-container">
+  <!-- Formulario Multistep -->
+  <div class="formulario-multistep">
 
-  <!-- Barra de progreso -->
-  <div id="barra-progreso">
-    <div id="progreso"></div>
+    <div id="barra-progreso" style="background:#eee; border-radius:5px; height:10px; margin-bottom:20px;">
+      <div id="progreso" style="height:10px; width:0%; background:#A6CF3E; border-radius:5px;"></div>
+    </div>
+
+    <!-- Paso 1 -->
+    <div class="paso" id="paso1">
+      <h2>Datos básicos</h2>
+      <select id="tipo" required>
+        <option value="">Selecciona tipo de inmueble</option>
+        <option value="Piso">Piso</option>
+        <option value="Chalet">Chalet</option>
+        <option value="Garaje">Garaje</option>
+        <option value="Local">Local</option>
+      </select>
+      <select id="operacion" required>
+        <option value="">Selecciona operación</option>
+        <option value="Venta">Venta</option>
+        <option value="Alquiler">Alquiler</option>
+      </select>
+      <input type="text" id="titulo" placeholder="Título de la propiedad" required>
+      <button type="button" id="siguiente1">Siguiente →</button>
+    </div>
+
+    <!-- Paso 2 -->
+    <div class="paso" id="paso2" style="display:none;">
+      <h2>Detalles</h2>
+      <input type="number" id="precio" placeholder="Precio (€)" required>
+      <input type="number" id="habitaciones" placeholder="Habitaciones">
+      <input type="number" id="banos" placeholder="Baños">
+      <input type="number" id="superficie" placeholder="Superficie (m²)">
+      <button type="button" id="anterior2">← Anterior</button>
+      <button type="button" id="siguiente2">Siguiente →</button>
+    </div>
+
+    <!-- Paso 3 -->
+    <div class="paso" id="paso3" style="display:none;">
+      <h2>Fotos y ubicación</h2>
+      <label>Selecciona las imágenes (puedes elegir varias)</label>
+      <input type="file" id="imagenes" multiple accept="image/*">
+      <div id="previsualizacion"></div>
+      <input type="text" id="localidad" placeholder="Localidad" required>
+      <input type="text" id="calle" placeholder="Nombre de la vía" required>
+      <input type="text" id="numero" placeholder="Número" required>
+      <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
+      <button type="button" id="anterior3">← Anterior</button>
+      <button type="button" id="btn-enviar">Añadir Propiedad</button>
+    </div>
+
+    <p id="mensaje" class="mensaje"></p>
   </div>
 
-  <!-- Paso 1: Datos básicos -->
-  <div class="paso" id="paso1">
-    <h2>Datos básicos</h2>
-    <p>Selecciona el tipo de inmueble y la operación que deseas realizar, y añade un título descriptivo.</p>
-    <select id="tipo" required>
-      <option value="">Selecciona tipo de inmueble</option>
-      <option value="Piso">Piso</option>
-      <option value="Chalet">Chalet</option>
-      <option value="Garaje">Garaje</option>
-      <option value="Local">Local</option>
-    </select>
-    <select id="operacion" required>
-      <option value="">Selecciona operación</option>
-      <option value="Venta">Venta</option>
-      <option value="Alquiler">Alquiler</option>
-    </select>
-    <input type="text" id="titulo" placeholder="Título de la propiedad" required>
-    <button type="button" id="siguiente1">Siguiente →</button>
+  <!-- Información útil al lado -->
+  <div class="informacion-util">
+    <h3>Información útil</h3>
+    <ul>
+      <li>📷 <strong>Ten las fotos a mano.</strong> Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</li>
+      <li>🎁 <strong>Primeros dos anuncios gratuitos.</strong> Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc hasta que lo vendas o lo alquiles.</li>
+      <li>🏠 <strong>Piso compartido:</strong> Puedes publicar hasta 5 habitaciones gratis en piso compartido, no suman en el número de anuncios que te regalamos.</li>
+      <li>⚠️ <strong>Casos con cargo:</strong> Se aplican cargos para anunciantes con más de dos inmuebles, anuncios duplicados, inmuebles en venta >1.000.000 € o alquiler >2.500 €/mes.</li>
+      <li>🏢 <strong>¿Quieres vender tu casa rápidamente?</strong><br>
+          <a href="vender.html" target="_blank">Más información y asistencia →</a>
+      </li>
+      <li>👔 <strong>¿Eres profesional inmobiliario?</strong><br>
+          <a href="profesionales.html" target="_blank">Conoce nuestras ventajas para profesionales →</a>
+      </li>
+    </ul>
   </div>
-
-  <!-- Paso 2: Detalles -->
-  <div class="paso" id="paso2" style="display:none;">
-    <h2>Detalles</h2>
-    <input type="number" id="precio" placeholder="Precio (€)" required>
-    <input type="number" id="habitaciones" placeholder="Habitaciones">
-    <input type="number" id="banos" placeholder="Baños">
-    <input type="number" id="superficie" placeholder="Superficie (m²)">
-    <button type="button" id="anterior2">← Anterior</button>
-    <button type="button" id="siguiente2">Siguiente →</button>
-  </div>
-
-  <!-- Paso 3: Fotos y ubicación -->
-  <div class="paso" id="paso3" style="display:none;">
-    <h2>Fotos y ubicación</h2>
-
-    <!-- Selección de imágenes con previsualización -->
-    <label>Selecciona las imágenes (puedes elegir varias)</label>
-    <input type="file" id="imagenes" multiple accept="image/*">
-    <div id="previsualizacion" style="display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;"></div>
-
-    <!-- Ubicación -->
-    <input type="text" id="localidad" placeholder="Localidad" required>
-    <input type="text" id="calle" placeholder="Nombre de la vía" required>
-    <input type="text" id="numero" placeholder="Número" required>
-    <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
-
-    <!-- Botones de navegación -->
-    <button type="button" id="anterior3">← Anterior</button>
-    <button type="button" id="btn-enviar">Añadir Propiedad</button>
-  </div>
-
-  <p id="mensaje" class="mensaje"></p>
-</div>
-
-<!-- Información útil -->
-<div class="informacion-util">
-  <h3>Información útil</h3>
-  <ul>
-    <li>📷 <strong>Ten las fotos a mano.</strong> Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</li>
-    <li>🎁 <strong>Primeros dos anuncios gratuitos.</strong> Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc hasta que lo vendas o lo alquiles.</li>
-    <li>🏠 <strong>Piso compartido:</strong> Puedes publicar hasta 5 habitaciones gratis en piso compartido, no suman en el número de anuncios que te regalamos.</li>
-    <li>⚠️ <strong>Casos con cargo:</strong> Se aplican cargos para anunciantes con más de dos inmuebles, anuncios duplicados, inmuebles en venta >1.000.000 € o alquiler >2.500 €/mes.</li>
-    <li>🏢 <strong>¿Quieres vender tu casa rápidamente?</strong><br>
-        <a href="vender.html" target="_blank">Más información y asistencia →</a>
-    </li>
-    <li>👔 <strong>¿Eres profesional inmobiliario?</strong><br>
-        <a href="profesionales.html" target="_blank">Conoce nuestras ventajas para profesionales →</a>
-    </li>
-  </ul>
 </div>
 
 <script>
-// Navegación entre pasos y barra de progreso
-let pasoActual = 1;
-
-function actualizarProgreso() {
-  const porcentaje = (pasoActual / 3) * 100;
-  document.getElementById('progreso').style.width = porcentaje + '%';
-}
-
-// Paso 1 → Paso 2
-document.getElementById('siguiente1').addEventListener('click', () => {
-  if (!document.getElementById('tipo').value || 
-      !document.getElementById('operacion').value || 
-      !document.getElementById('titulo').value) {
-    alert("Por favor completa todos los campos del Paso 1.");
-    return;
-  }
-  document.getElementById('paso1').style.display='none';
-  document.getElementById('paso2').style.display='block';
-  pasoActual=2;
-  actualizarProgreso();
-});
-
-// Paso 2 → Paso 3
-document.getElementById('siguiente2').addEventListener('click', ()=>{
-  document.getElementById('paso2').style.display='none';
-  document.getElementById('paso3').style.display='block';
-  pasoActual=3;
-  actualizarProgreso();
-});
-
-// Botones “Anterior”
-document.getElementById('anterior2').addEventListener('click', ()=>{
-  document.getElementById('paso2').style.display='none';
-  document.getElementById('paso1').style.display='block';
-  pasoActual=1;
-  actualizarProgreso();
-});
-
-document.getElementById('anterior3').addEventListener('click', ()=>{
-  document.getElementById('paso3').style.display='none';
-  document.getElementById('paso2').style.display='block';
-  pasoActual=2;
-  actualizarProgreso();
-});
-
-// Inicializa barra
-actualizarProgreso();
-
 // Previsualización de imágenes
 const inputImagenes = document.getElementById('imagenes');
 const contenedorPrev = document.getElementById('previsualizacion');
-
 inputImagenes.addEventListener('change', () => {
   contenedorPrev.innerHTML = '';
-  const archivos = inputImagenes.files;
-  Array.from(archivos).forEach(file => {
+  Array.from(inputImagenes.files).forEach(file => {
     const reader = new FileReader();
     reader.onload = e => {
       const img = document.createElement('img');
       img.src = e.target.result;
-      img.style.width='100px';
-      img.style.height='100px';
-      img.style.objectFit='cover';
-      img.style.borderRadius='5px';
       contenedorPrev.appendChild(img);
     };
     reader.readAsDataURL(file);
   });
 });
+
+// Navegación multistep
+let pasoActual = 1;
+function actualizarProgreso() {
+  document.getElementById('progreso').style.width = (pasoActual/3*100) + '%';
+}
+
+document.getElementById('siguiente1').addEventListener('click', ()=>{
+  document.getElementById('paso1').style.display='none';
+  document.getElementById('paso2').style.display='block';
+  pasoActual=2; actualizarProgreso();
+});
+document.getElementById('siguiente2').addEventListener('click', ()=>{
+  document.getElementById('paso2').style.display='none';
+  document.getElementById('paso3').style.display='block';
+  pasoActual=3; actualizarProgreso();
+});
+document.getElementById('anterior2').addEventListener('click', ()=>{
+  document.getElementById('paso2').style.display='none';
+  document.getElementById('paso1').style.display='block';
+  pasoActual=1; actualizarProgreso();
+});
+document.getElementById('anterior3').addEventListener('click', ()=>{
+  document.getElementById('paso3').style.display='none';
+  document.getElementById('paso2').style.display='block';
+  pasoActual=2; actualizarProgreso();
+});
+actualizarProgreso();
 
 // Botón enviar
 document.getElementById('btn-enviar').addEventListener('click', async () => {
@@ -189,20 +168,19 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
     numero: document.getElementById('numero').value,
     ocultarCalle: document.getElementById('ocultarCalle').checked
   };
-
   try {
     const res = await fetch('/propiedades', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
       body: JSON.stringify(propiedad)
     });
     const data = await res.json();
     if(res.ok){
       document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
     } else {
-      document.getElementById('mensaje').textContent = '❌ Error: '+(data.error || 'No se pudo añadir');
+      document.getElementById('mensaje').textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
     }
-  } catch(err) {
+  } catch(err){
     document.getElementById('mensaje').textContent = '❌ Error al conectar con el servidor.';
   }
 });
@@ -210,6 +188,9 @@ document.getElementById('btn-enviar').addEventListener('click', async () => {
 
 </body>
 </html>
+
+
+
 
 
 
