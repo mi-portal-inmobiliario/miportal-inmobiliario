@@ -98,7 +98,141 @@
         <option value="">Selecciona</option>
         <option value="piso">Piso</option>
         <option value="casa">Casa</option>
-        <op
+        <option value="atico">Ático</option>
+        <option value="chalet">Chalet</option>
+        <option value="garaje">Garaje</option>
+        <option value="local">Local</option>
+        <option value="parcela">Parcela</option>
+      </select>
+
+      <label for="operacion">Operación</label>
+      <select id="operacion">
+        <option value="">Selecciona</option>
+        <option value="venta">Venta</option>
+        <option value="alquiler">Alquiler</option>
+      </select>
+
+      <label for="titulo">Título del anuncio</label>
+      <input type="text" id="titulo" placeholder="Ej: Piso luminoso en el centro">
+
+      <label for="descripcion">Descripción breve</label>
+      <textarea id="descripcion" rows="4" placeholder="Descripción de la propiedad"></textarea>
+
+      <h2>2. Detalles</h2>
+
+      <label for="habitaciones">Número de habitaciones</label>
+      <input type="number" id="habitaciones" min="0">
+
+      <label for="banos">Número de baños</label>
+      <input type="number" id="banos" min="0">
+
+      <label for="superficie">Superficie (m²)</label>
+      <input type="number" id="superficie" min="0">
+
+      <label>Características</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" value="terraza"> Terraza</label>
+        <label><input type="checkbox" value="balcon"> Balcón</label>
+        <label><input type="checkbox" value="garaje"> Garaje</label>
+        <label><input type="checkbox" value="piscina"> Piscina</label>
+        <label><input type="checkbox" value="amueblado"> Amueblado</label>
+      </div>
+
+      <label for="precio">Precio (€)</label>
+      <input type="number" id="precio" min="0">
+
+      <h2>3. Ubicación</h2>
+
+      <label for="localidad">Localidad</label>
+      <input type="text" id="localidad" placeholder="Ej: Madrid">
+
+      <label for="calle">Nombre de la vía</label>
+      <input type="text" id="calle" placeholder="Ej: Calle Mayor">
+
+      <label for="numero">Número de vía</label>
+      <input type="text" id="numero" placeholder="Ej: 15">
+
+      <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
+
+      <h2>4. Fotos</h2>
+      <label for="imagenes">Sube tus fotos</label>
+      <input type="file" id="imagenes" multiple accept="image/*">
+      <p>Si no tienes todas las fotos ahora, puedes añadirlas más tarde.</p>
+
+      <button type="button" id="btn-enviar">Añadir Propiedad</button>
+      <p id="mensaje" class="mensaje"></p>
+    </div>
+
+    <!-- Información útil -->
+    <div class="informacion-util">
+      <h2>Información útil</h2>
+      <ul>
+        <li>Ten las fotos a mano. Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</li>
+        <li>Te regalamos tus primeros dos anuncios para que pruebes nuestro servicio. Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc. hasta que lo vendas o lo alquiles.</li>
+        <li>Además, puedes publicar hasta 5 habitaciones gratis en piso compartido, no suman en el número de anuncios que te regalamos.</li>
+        <li>Para poder mantener nuestra calidad de servicio necesitamos cobrar en estos casos:
+          <ul>
+            <li>Anunciantes con más de dos inmuebles</li>
+            <li>Anuncios de inmuebles duplicados</li>
+            <li>Inmuebles en venta de más de 1.000.000 €</li>
+            <li>Inmuebles en alquiler de más de 2.500 €/mes</li>
+          </ul>
+        </li>
+        <li>¿Quieres vender tu casa rápidamente? Encuentra la agencia inmobiliaria más adecuada</li>
+        <li>¿Eres profesional inmobiliario? Conoce nuestras ventajas para profesionales</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('btn-enviar').addEventListener('click', async () => {
+      const caracteristicas = Array.from(document.querySelectorAll('.checkbox-group input:checked')).map(cb => cb.value);
+      const inputFotos = document.getElementById('imagenes');
+
+      const formData = new FormData();
+
+      // Añadir archivos seleccionados
+      Array.from(inputFotos.files).forEach(file => {
+        formData.append('imagenes', file);
+      });
+
+      // Añadir el resto de campos
+      formData.append('tipo', document.getElementById('tipo').value);
+      formData.append('operacion', document.getElementById('operacion').value);
+      formData.append('titulo', document.getElementById('titulo').value);
+      formData.append('descripcion', document.getElementById('descripcion').value);
+      formData.append('habitaciones', document.getElementById('habitaciones').value);
+      formData.append('banos', document.getElementById('banos').value);
+      formData.append('superficie', document.getElementById('superficie').value);
+      formData.append('caracteristicas', JSON.stringify(caracteristicas));
+      formData.append('precio', document.getElementById('precio').value);
+      formData.append('localidad', document.getElementById('localidad').value);
+      formData.append('calle', document.getElementById('calle').value);
+      formData.append('numero', document.getElementById('numero').value);
+      formData.append('ocultarCalle', document.getElementById('ocultarCalle').checked);
+
+      try {
+        const res = await fetch('https://miportal-inmobiliario-server.onrender.com/propiedades', {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await res.json();
+        if(res.ok) {
+          document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
+          document.querySelectorAll('.formulario input, .formulario textarea').forEach(el => el.value = '');
+          document.querySelectorAll('.checkbox-group input').forEach(el => el.checked = false);
+        } else {
+          document.getElementById('mensaje').textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
+        }
+      } catch (err) {
+        document.getElementById('mensaje').textContent = '❌ Error al conectar con el servidor.';
+      }
+    });
+  </script>
+</body>
+</html>
+
 
 
 
