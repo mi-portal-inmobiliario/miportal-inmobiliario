@@ -1,1 +1,32 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment files
 .env
+.env.local
+.env.*.local
+
+# Build folders
+dist/
+build/
+public/build/
+
+# MacOS
+.DS_Store
+
+# VS Code
+.vscode/
+
+# OS generated files
+Thumbs.db
+
+# Render secrets (si guardas algo temporal)
+*.secret
+
