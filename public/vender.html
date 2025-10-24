@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vender Propiedad - Portal Inmobiliario</title>
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { background:#FFF9E5; font-family: Arial, sans-serif; padding:20px; }
+  .banner { background: linear-gradient(90deg,#A6CF3E,#7CC242); color:white; padding:15px 20px; text-align:center; border-radius:10px; }
+  .contenido { display:flex; flex-wrap:wrap; gap:20px; justify-content:center; margin-top:20px; }
+  .seccion { background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); flex:1 1 400px; max-width:600px; }
+  .informacion-util { flex:1 1 300px; max-width:350px; }
+  .informacion-util ul { padding-left:20px; line-height:1.6; }
+  .informacion-util a { color:#A6CF3E; text-decoration:none; }
+  .informacion-util a:hover { text-decoration:underline; }
+  h2 { color:#7CC242; }
+
+  /* Formulario por pasos */
+  .step { display:none; }
+  .step.active { display:block; }
+  .buttons { margin-top: 10px; }
+  .buttons button { background:#A6CF3E;color:white;padding:10px;border:none;border-radius:5px;cursor:pointer;margin-right:5px; }
+
+  /* Chat teleoperador */
+  .chat-container { position: fixed; bottom: 20px; right: 20px; width: 320px; font-family: Arial; z-index:9999; }
+  .chat-cara { width:70px;height:70px;border-radius:50%;background:#A6CF3E;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;position:relative;box-shadow:0 4px 12px rgba(0,0,0,0.3); }
+  .ojos { display:flex;justify-content:space-between;width:50%;margin-top:12px; }
+  .ojo { width:12px;height:12px;background:white;border-radius:50%;position:relative; }
+  .ojo::after { content:''; width:6px;height:6px;background:black;border-radius:50%;position:absolute;top:3px;left:3px; transition:all 0.2s; }
+  .boca { width:25px;height:6px;background:white;border-radius:3px;margin-top:6px; transition:all 0.2s; }
+  .chat-ventana { display:none; position:absolute; bottom:80px; right:0; width:100%; max-height:400px; background:white; border-radius:10px; box-shadow:0 6px 18px rgba(0,0,0,0.3); display:flex; flex-direction:column; overflow:hidden; }
+  .chat-mensajes { flex:1; padding:10px; overflow-y:auto; }
+  .chat-mensajes .mensaje-chat { margin-bottom:10px; }
+  .mensaje-chat.user { text-align:right; color:#333; }
+  .mensaje-chat.ia { text-align:left; color:#007700; }
+  .chat-input { display:flex; border-top:1px solid #ccc; }
+  .chat-input input { flex:1; padding:10px; border:none; outline:none; }
+  .chat-input button { padding:10px; border:none; background:#7CC242; color:white; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<header class="banner">
+  <h1>Vender tu Propiedad 🏡</h1>
+</header>
+
+<div class="contenido">
+  <div class="seccion">
+    <h2>Publica tu inmueble</h2>
+
+    <!-- Formulario por pasos -->
+    <form id="formVender">
+      <!-- Paso 1 -->
+      <div class="step active" id="step1">
+        <label>Título del inmueble*</label><br>
+        <input type="text" name="titulo" required><br><br>
+        <label>Dirección*</label><br>
+        <input type="text" name="direccion" required><br><br>
+        <div class="buttons">
+          <button type="button" id="next1">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Paso 2 -->
+      <div class="step" id="step2">
+        <label>Precio (€)*</label><br>
+        <input type="number" name="precio" required><br><br>
+        <label>Descripción</label><br>
+        <textarea name="descripcion"></textarea><br><br>
+        <div class="buttons">
+          <button type="button" id="prev2">Anterior</button>
+          <button type="button" id="next2">Siguiente</button>
+        </div>
+      </div>
+
+      <!-- Paso 3 -->
+      <div class="step" id="step3">
+        <label>Imagen URL</label><br>
+        <input type="url" name="imagen"><br><br>
+        <div class="buttons">
+          <button type="button" id="prev3">Anterior</button>
+          <button type="submit">Publicar</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="informacion-util">
+    <h3>Información útil</h3>
+    <ul>
+      <li>📷 Ten las fotos a mano para que tu anuncio sea más atractivo.</li>
+      <li>🎁 Los dos primeros anuncios son gratuitos.</li>
+      <li>⚠️ Cargos aplicables a más de dos inmuebles, duplicados, venta >1.000.000 € o alquiler >2.500 €/mes.</li>
+      <li>👔 ¿Eres profesional inmobiliario? <a href="profesionales.html" target="_blank">Conoce nuestras ventajas →</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- Chat teleoperador -->
+<div class="chat-container">
+  <div class="chat-cara" id="chatCara">
+    <div class="ojos">
+      <div class="ojo izquierdo"></div>
+      <div class="ojo derecho"></div>
+    </div>
+    <div class="boca" id="boca"></div>
+  </div>
+  <div class="chat-ventana" id="ventanaChat">
+    <div class="chat-mensajes" id="mensajesChat"></div>
+    <div class="chat-input">
+      <input type="text" id="inputChat" placeholder="Escribe tu mensaje...">
+      <button id="enviarChat">Enviar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const steps = document.querySelectorAll('.step');
+let currentStep = 0;
+
+// Validación y navegación entre pasos
+document.getElementById('next1').addEventListener('click', ()=> {
+  const inputs = steps[0].querySelectorAll('input[required]');
+  for(const i of inputs){
+    if(!i.value.trim()){ alert('Rellena los campos obligatorios'); i.focus(); return; }
+  }
+  steps[0].classList.remove('active'); steps[1].classList.add('active'); currentStep=1;
+});
+document.getElementById('next2').addEventListener('click', ()=> {
+  const inputs = steps[1].querySelectorAll('input[required]');
+  for(const i of inputs){
+    if(!i.value.trim()){ alert('Rellena los campos obligatorios'); i.focus(); return; }
+  }
+  steps[1].classList.remove('active'); steps[2].classList.add('active'); currentStep=2;
+});
+document.getElementById('prev2').addEventListener('click', ()=> { steps[1].classList.remove('active'); steps[0].classList.add('active'); currentStep=0; });
+document.getElementById('prev3').addEventListener('click', ()=> { steps[2].classList.remove('active'); steps[1].classList.add('active'); currentStep=1; });
+
+document.getElementById('formVender').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  alert('✅ Propiedad publicada con éxito');
+  e.target.reset();
+  steps[currentStep].classList.remove('active'); steps[0].classList.add('active'); currentStep=0;
+});
+
+// Chat teleoperador
+const chatCara = document.getElementById('chatCara');
+const ventanaChat = document.getElementById('ventanaChat');
+const mensajesChat = document.getElementById('mensajesChat');
+const inputChat = document.getElementById('inputChat');
+const enviarChat = document.getElementById('enviarChat');
+const boca = document.getElementById('boca');
+const ojos = chatCara.querySelectorAll('.ojo');
+
+chatCara.addEventListener('click', ()=> { ventanaChat.style.display = ventanaChat.style.display==='flex'?'none':'flex'; });
+function animarBoca(){ boca.style.height='15px'; chatCara.style.background='#C0F050'; setTimeout(()=>{ boca.style.height='6px'; chatCara.style.background='#A6CF3E'; },200); }
+
+async function enviarMensaje(){
+  const mensaje = inputChat.value.trim();
+  if(!mensaje) return;
+  const divUser = document.createElement('div'); divUser.textContent=mensaje; divUser.className='mensaje-chat user'; mensajesChat.appendChild(divUser);
+  inputChat.value=''; mensajesChat.scrollTop=mensajesChat.scrollHeight; animarBoca();
+  try{
+    const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({mensaje})});
+    const data = await res.json();
+    const divIA = document.createElement('div'); divIA.textContent=data.respuesta||'🤖 Sin respuesta'; divIA.className='mensaje-chat ia'; mensajesChat.appendChild(divIA);
+    mensajesChat.scrollTop = mensajesChat.scrollHeight; animarBoca();
+  }catch(err){
+    const divError = document.createElement('div'); divError.textContent='❌ Error en el chat'; divError.className='mensaje-chat ia';
+    mensajesChat.appendChild(divError); mensajesChat.scrollTop = mensajesChat.scrollHeight; animarBoca();
+  }
+}
+enviarChat.addEventListener('click', enviarMensaje);
+inputChat.addEventListener('keypress', (e)=>{ if(e.key==='Enter') enviarMensaje(); });
+
+// Animación ojos
+function parpadear(){ const ojo = ojos[Math.floor(Math.random()*ojos.length)]; ojo.style.transform='scaleY(0.1)'; setTimeout(()=>ojo.style.transform='scaleY(1)',200+Math.random()*200);}
+setInterval(parpadear,4000);
+</script>
+
+</body>
+</html>
+
+
+
+
