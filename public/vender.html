@@ -137,12 +137,43 @@ document.getElementById('next2').addEventListener('click', ()=> {
 document.getElementById('prev2').addEventListener('click', ()=> { steps[1].classList.remove('active'); steps[0].classList.add('active'); currentStep=0; });
 document.getElementById('prev3').addEventListener('click', ()=> { steps[2].classList.remove('active'); steps[1].classList.add('active'); currentStep=1; });
 
-document.getElementById('formVender').addEventListener('submit', (e)=>{
+document.getElementById('formVender').addEventListener('submit', async (e) => {
   e.preventDefault();
-  alert('✅ Propiedad publicada con éxito');
-  e.target.reset();
-  steps[currentStep].classList.remove('active'); steps[0].classList.add('active'); currentStep=0;
+  
+  const form = e.target;
+  const data = {
+    titulo: form.titulo.value.trim(),
+    direccion: form.direccion.value.trim(),
+    precio: Number(form.precio.value),
+    descripcion: form.descripcion.value.trim(),
+    imagen: form.imagen.value.trim()
+  };
+
+  try {
+    const res = await fetch('/propiedades', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+
+    if (!res.ok) throw new Error('Error al guardar la propiedad');
+
+    const propiedadGuardada = await res.json();
+    alert('✅ Propiedad publicada con éxito!');
+    
+    form.reset();
+    steps[currentStep].classList.remove('active');
+    steps[0].classList.add('active');
+    currentStep = 0;
+
+    console.log('Propiedad guardada:', propiedadGuardada);
+
+  } catch (err) {
+    console.error(err);
+    alert('❌ No se pudo publicar la propiedad. Intenta de nuevo.');
+  }
 });
+
 
 // Chat teleoperador
 const chatCara = document.getElementById('chatCara');

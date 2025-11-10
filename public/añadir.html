@@ -8,187 +8,89 @@
 <style>
   body { background:#FFF9E5; font-family: Arial, sans-serif; padding:20px; }
   h1 { text-align:center; color:#7CC242; margin-top:0; }
-  .formulario-multistep { background:white; padding:20px; border-radius:10px; max-width:600px; margin:20px auto; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-  .formulario-multistep input, .formulario-multistep select, .formulario-multistep button { width:100%; margin-bottom:10px; padding:8px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
-  .formulario-multistep button { background:#A6CF3E; color:white; border:none; cursor:pointer; font-size:1em; transition: background 0.3s; }
-  .formulario-multistep button:hover { background:#7CC242; }
-  .mensaje { text-align:center; font-weight:bold; margin-top:10px; }
-  #barra-progreso { margin-bottom:20px; background:#eee; border-radius:5px; height:10px; }
-  #progreso { height:10px; width:0%; background:#A6CF3E; border-radius:5px; }
-  .informacion-util { background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto;}
-  .informacion-util h3 { color:#7CC242; margin-bottom:10px; }
-  .informacion-util ul { padding-left:20px; line-height:1.6; }
-  .informacion-util a { color:#A6CF3E; text-decoration:none; }
-  .informacion-util a:hover { text-decoration:underline; }
-  #previsualizacion img { width:100px; height:100px; object-fit:cover; border-radius:5px; margin-right:10px; margin-bottom:10px; }
+  .formulario { max-width:600px; margin:20px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+  .formulario input, .formulario select, .formulario button { width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
+  .formulario button { background:#A6CF3E; color:white; border:none; cursor:pointer; }
+  .formulario button:hover { background:#7CC242; }
+  #mensaje { text-align:center; font-weight:bold; margin-top:10px; }
+  #previsualizacion img { width:100px; height:100px; object-fit:cover; margin-right:5px; margin-bottom:5px; border-radius:5px; }
 </style>
 </head>
 <body>
 
 <h1>Añadir Propiedad 🏡</h1>
 
-<div class="formulario-multistep">
+<form id="formAñadir" class="formulario" enctype="multipart/form-data">
+  <label>Título</label>
+  <input type="text" name="titulo" required>
 
-  <!-- Barra de progreso -->
-  <div id="barra-progreso">
-    <div id="progreso"></div>
-  </div>
+  <label>Descripción</label>
+  <input type="text" name="descripcion">
 
-  <!-- Paso 1 -->
-  <div class="paso" id="paso1">
-    <h2>Datos básicos</h2>
-    <select id="tipo" required>
-      <option value="">Selecciona tipo de inmueble</option>
-      <option value="Piso">Piso</option>
-      <option value="Chalet">Chalet</option>
-      <option value="Garaje">Garaje</option>
-      <option value="Local">Local</option>
-    </select>
-    <select id="operacion" required>
-      <option value="">Selecciona operación</option>
-      <option value="Venta">Venta</option>
-      <option value="Alquiler">Alquiler</option>
-    </select>
-    <input type="text" id="titulo" placeholder="Título de la propiedad" required>
-    <button type="button" id="siguiente1">Siguiente →</button>
-  </div>
+  <label>Precio (€)</label>
+  <input type="number" name="precio" required>
 
-  <!-- Paso 2 -->
-  <div class="paso" id="paso2" style="display:none;">
-    <h2>Detalles</h2>
-    <input type="number" id="precio" placeholder="Precio (€)" required>
-    <input type="number" id="habitaciones" placeholder="Habitaciones">
-    <input type="number" id="banos" placeholder="Baños">
-    <input type="number" id="superficie" placeholder="Superficie (m²)">
-    <button type="button" id="anterior2">← Anterior</button>
-    <button type="button" id="siguiente2">Siguiente →</button>
-  </div>
+  <label>Dirección</label>
+  <input type="text" name="direccion" required>
 
-  <!-- Paso 3 -->
-  <div class="paso" id="paso3" style="display:none;">
-    <h2>Fotos y ubicación</h2>
-    <label>Selecciona las imágenes (puedes elegir varias)</label>
-    <input type="file" id="imagenes" multiple accept="image/*">
-    <div id="previsualizacion" style="display:flex; flex-wrap:wrap;"></div>
-    <input type="text" id="localidad" placeholder="Localidad" required>
-    <input type="text" id="calle" placeholder="Nombre de la vía" required>
-    <input type="text" id="numero" placeholder="Número" required>
-    <label><input type="checkbox" id="ocultarCalle"> Ocultar calle y número (opcional)</label>
-    <button type="button" id="anterior3">← Anterior</button>
-    <button type="button" id="btn-enviar">Añadir Propiedad</button>
-  </div>
+  <label>Imagen</label>
+  <input type="file" name="imagen" accept="image/*">
 
-  <p id="mensaje" class="mensaje"></p>
-</div>
+  <div id="previsualizacion"></div>
 
-<!-- Información útil -->
-<div class="informacion-util">
-  <h3>Información útil</h3>
-  <ul>
-    <li>📷 <strong>Ten las fotos a mano.</strong> Si no las tienes, podrás añadirlas más tarde. Sin fotos no tendrás resultados.</li>
-    <li>🎁 <strong>Primeros dos anuncios gratuitos.</strong> Puedes publicar gratis pisos, chalets, garajes, parcelas, locales, etc hasta que lo vendas o lo alquiles.</li>
-    <li>🏠 <strong>Piso compartido:</strong> Puedes publicar hasta 5 habitaciones gratis en piso compartido, no suman en el número de anuncios que te regalamos.</li>
-    <li>⚠️ <strong>Casos con cargo:</strong> Se aplican cargos para anunciantes con más de dos inmuebles, anuncios duplicados, inmuebles en venta >1.000.000 € o alquiler >2.500 €/mes.</li>
-    <li>🏢 <strong>¿Quieres vender tu casa rápidamente?</strong><br>
-        <a href="vender.html" target="_blank">Más información y asistencia →</a>
-    </li>
-    <li>👔 <strong>¿Eres profesional inmobiliario?</strong><br>
-        <a href="profesionales.html" target="_blank">Conoce nuestras ventajas para profesionales →</a>
-    </li>
-  </ul>
-</div>
+  <button type="submit">Añadir Propiedad</button>
+</form>
+
+<p id="mensaje"></p>
 
 <script>
-// Previsualización de imágenes
-const inputImagenes = document.getElementById('imagenes');
-const contenedorPrev = document.getElementById('previsualizacion');
-inputImagenes.addEventListener('change', () => {
-  contenedorPrev.innerHTML = '';
-  Array.from(inputImagenes.files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = document.createElement('img');
-      img.src = e.target.result;
-      contenedorPrev.appendChild(img);
-    };
-    reader.readAsDataURL(file);
-  });
-});
-
-// Navegación multistep
-let pasoActual = 1;
-function actualizarProgreso() {
-  document.getElementById('progreso').style.width = (pasoActual/3*100) + '%';
-}
-
-document.getElementById('siguiente1').addEventListener('click', ()=>{
-  document.getElementById('paso1').style.display='none';
-  document.getElementById('paso2').style.display='block';
-  pasoActual=2; actualizarProgreso();
-});
-document.getElementById('siguiente2').addEventListener('click', ()=>{
-  document.getElementById('paso2').style.display='none';
-  document.getElementById('paso3').style.display='block';
-  pasoActual=3; actualizarProgreso();
-});
-document.getElementById('anterior2').addEventListener('click', ()=>{
-  document.getElementById('paso2').style.display='none';
-  document.getElementById('paso1').style.display='block';
-  pasoActual=1; actualizarProgreso();
-});
-document.getElementById('anterior3').addEventListener('click', ()=>{
-  document.getElementById('paso3').style.display='none';
-  document.getElementById('paso2').style.display='block';
-  pasoActual=2; actualizarProgreso();
-});
-actualizarProgreso();
-
-// Botón enviar
-document.getElementById('btn-enviar').addEventListener('click', async () => {
-  const propiedad = {
-    tipo: document.getElementById('tipo').value,
-    operacion: document.getElementById('operacion').value,
-    titulo: document.getElementById('titulo').value,
-    precio: Number(document.getElementById('precio').value),
-    habitaciones: Number(document.getElementById('habitaciones').value),
-    banos: Number(document.getElementById('banos').value),
-    superficie: Number(document.getElementById('superficie').value),
-    localidad: document.getElementById('localidad').value,
-    calle: document.getElementById('calle').value,
-    numero: document.getElementById('numero').value,
-    ocultarCalle: document.getElementById('ocultarCalle').checked
-  };
-  try {
-    const res = await fetch('/propiedades', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(propiedad)
-    });
-    const data = await res.json();
-    if(res.ok){
-      document.getElementById('mensaje').textContent = '✅ Propiedad añadida con éxito!';
-    } else {
-      document.getElementById('mensaje').textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
+  // Previsualización de imagen
+  const inputImagen = document.querySelector('input[name="imagen"]');
+  const contenedorPrev = document.getElementById('previsualizacion');
+  inputImagen.addEventListener('change', () => {
+    contenedorPrev.innerHTML = '';
+    const file = inputImagen.files[0];
+    if(file){
+      const reader = new FileReader();
+      reader.onload = e => {
+        const img = document.createElement('img');
+        img.src = e.target.result;
+        contenedorPrev.appendChild(img);
+      };
+      reader.readAsDataURL(file);
     }
-  } catch(err){
-    document.getElementById('mensaje').textContent = '❌ Error al conectar con el servidor.';
-  }
-});
+  });
+
+  // Enviar formulario usando fetch y FormData
+  const form = document.getElementById('formAñadir');
+  const mensaje = document.getElementById('mensaje');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    mensaje.textContent = '⏳ Subiendo...';
+
+    const formData = new FormData(form);
+
+    try {
+      const res = await fetch('/propiedades', {
+        method: 'POST',
+        body: formData
+      });
+      const data = await res.json();
+
+      if(res.ok){
+        mensaje.textContent = '✅ Propiedad añadida con éxito!';
+        form.reset();
+        contenedorPrev.innerHTML = '';
+      } else {
+        mensaje.textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
+      }
+    } catch(err){
+      console.error(err);
+      mensaje.textContent = '❌ Error al conectar con el servidor.';
+    }
+  });
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
