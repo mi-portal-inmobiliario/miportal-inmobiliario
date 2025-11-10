@@ -76,8 +76,8 @@
 
       <!-- Paso 3 -->
       <div class="step" id="step3">
-        <label>Imagen URL</label><br>
-        <input type="url" name="imagen"><br><br>
+        <label>Imagen</label><br>
+        <input type="file" name="imagen" id="imagen"><br><br>
         <div class="buttons">
           <button type="button" id="prev3">Anterior</button>
           <button type="submit">Publicar</button>
@@ -116,64 +116,51 @@
 </div>
 
 <script>
+// Navegación pasos
 const steps = document.querySelectorAll('.step');
 let currentStep = 0;
-
-// Validación y navegación entre pasos
-document.getElementById('next1').addEventListener('click', ()=> {
+document.getElementById('next1').addEventListener('click', ()=>{
   const inputs = steps[0].querySelectorAll('input[required]');
-  for(const i of inputs){
-    if(!i.value.trim()){ alert('Rellena los campos obligatorios'); i.focus(); return; }
-  }
+  for(const i of inputs){ if(!i.value.trim()){ alert('Rellena los campos'); i.focus(); return; } }
   steps[0].classList.remove('active'); steps[1].classList.add('active'); currentStep=1;
 });
-document.getElementById('next2').addEventListener('click', ()=> {
+document.getElementById('next2').addEventListener('click', ()=>{
   const inputs = steps[1].querySelectorAll('input[required]');
-  for(const i of inputs){
-    if(!i.value.trim()){ alert('Rellena los campos obligatorios'); i.focus(); return; }
-  }
+  for(const i of inputs){ if(!i.value.trim()){ alert('Rellena los campos'); i.focus(); return; } }
   steps[1].classList.remove('active'); steps[2].classList.add('active'); currentStep=2;
 });
-document.getElementById('prev2').addEventListener('click', ()=> { steps[1].classList.remove('active'); steps[0].classList.add('active'); currentStep=0; });
-document.getElementById('prev3').addEventListener('click', ()=> { steps[2].classList.remove('active'); steps[1].classList.add('active'); currentStep=1; });
+document.getElementById('prev2').addEventListener('click', ()=>{ steps[1].classList.remove('active'); steps[0].classList.add('active'); currentStep=0; });
+document.getElementById('prev3').addEventListener('click', ()=>{ steps[2].classList.remove('active'); steps[1].classList.add('active'); currentStep=1; });
 
-document.getElementById('formVender').addEventListener('submit', async (e) => {
+// Publicar propiedad con Cloudinary
+document.getElementById('formVender').addEventListener('submit', async (e)=>{
   e.preventDefault();
-  
   const form = e.target;
-  const data = {
-    titulo: form.titulo.value.trim(),
-    direccion: form.direccion.value.trim(),
-    precio: Number(form.precio.value),
-    descripcion: form.descripcion.value.trim(),
-    imagen: form.imagen.value.trim()
-  };
+  const data = new FormData();
+  data.append('titulo', form.titulo.value);
+  data.append('direccion', form.direccion.value);
+  data.append('precio', form.precio.value);
+  data.append('descripcion', form.descripcion.value);
+  data.append('imagen', form.imagen.files[0]);
 
   try {
     const res = await fetch('/propiedades', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      method:'POST',
+      body: data
     });
-
-    if (!res.ok) throw new Error('Error al guardar la propiedad');
-
-    const propiedadGuardada = await res.json();
-    alert('✅ Propiedad publicada con éxito!');
-    
-    form.reset();
-    steps[currentStep].classList.remove('active');
-    steps[0].classList.add('active');
-    currentStep = 0;
-
-    console.log('Propiedad guardada:', propiedadGuardada);
-
-  } catch (err) {
+    const result = await res.json();
+    if(res.ok){
+      alert('✅ Propiedad publicada con éxito!');
+      form.reset();
+      steps[currentStep].classList.remove('active');
+      steps[0].classList.add('active');
+      currentStep = 0;
+    } else alert('❌ Error: ' + (result.error || 'No se pudo publicar'));
+  } catch(err){
     console.error(err);
-    alert('❌ No se pudo publicar la propiedad. Intenta de nuevo.');
+    alert('❌ Error al conectar con el servidor.');
   }
 });
-
 
 // Chat teleoperador
 const chatCara = document.getElementById('chatCara');
@@ -184,14 +171,14 @@ const enviarChat = document.getElementById('enviarChat');
 const boca = document.getElementById('boca');
 const ojos = chatCara.querySelectorAll('.ojo');
 
-chatCara.addEventListener('click', ()=> { ventanaChat.style.display = ventanaChat.style.display==='flex'?'none':'flex'; });
+chatCara.addEventListener('click', ()=>{ ventanaChat.style.display = ventanaChat.style.display==='flex'?'none':'flex'; });
 function animarBoca(){ boca.style.height='15px'; chatCara.style.background='#C0F050'; setTimeout(()=>{ boca.style.height='6px'; chatCara.style.background='#A6CF3E'; },200); }
 
 async function enviarMensaje(){
   const mensaje = inputChat.value.trim();
   if(!mensaje) return;
   const divUser = document.createElement('div'); divUser.textContent=mensaje; divUser.className='mensaje-chat user'; mensajesChat.appendChild(divUser);
-  inputChat.value=''; mensajesChat.scrollTop=mensajesChat.scrollHeight; animarBoca();
+  inputChat.value=''; mensajesChat.scrollTop = mensajesChat.scrollHeight; animarBoca();
   try{
     const res = await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body: JSON.stringify({mensaje})});
     const data = await res.json();
@@ -204,14 +191,12 @@ async function enviarMensaje(){
 }
 enviarChat.addEventListener('click', enviarMensaje);
 inputChat.addEventListener('keypress', (e)=>{ if(e.key==='Enter') enviarMensaje(); });
-
-// Animación ojos
-function parpadear(){ const ojo = ojos[Math.floor(Math.random()*ojos.length)]; ojo.style.transform='scaleY(0.1)'; setTimeout(()=>ojo.style.transform='scaleY(1)',200+Math.random()*200);}
-setInterval(parpadear,4000);
+setInterval(()=>{ const ojo = ojos[Math.floor(Math.random()*ojos.length)]; ojo.style.transform='scaleY(0.1)'; setTimeout(()=>ojo.style.transform='scaleY(1)',200+Math.random()*200); },4000);
 </script>
 
 </body>
 </html>
+
 
 
 

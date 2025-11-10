@@ -6,90 +6,101 @@
 <title>Añadir Propiedad - Portal Inmobiliario</title>
 <link rel="stylesheet" href="styles.css">
 <style>
-  body { background:#FFF9E5; font-family: Arial, sans-serif; padding:20px; }
-  h1 { text-align:center; color:#7CC242; margin-top:0; }
-  .formulario { max-width:600px; margin:20px auto; background:white; padding:20px; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
-  .formulario input, .formulario select, .formulario button { width:100%; padding:10px; margin-bottom:10px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
-  .formulario button { background:#A6CF3E; color:white; border:none; cursor:pointer; }
-  .formulario button:hover { background:#7CC242; }
-  #mensaje { text-align:center; font-weight:bold; margin-top:10px; }
-  #previsualizacion img { width:100px; height:100px; object-fit:cover; margin-right:5px; margin-bottom:5px; border-radius:5px; }
+body { background:#FFF9E5; font-family: Arial, sans-serif; padding:20px; }
+h1 { text-align:center; color:#7CC242; }
+.formulario-multistep { background:white; padding:20px; border-radius:10px; max-width:600px; margin:20px auto; box-shadow:0 4px 10px rgba(0,0,0,0.1);}
+.formulario-multistep input, .formulario-multistep select, .formulario-multistep button { width:100%; margin-bottom:10px; padding:8px; border-radius:5px; border:1px solid #ccc; box-sizing:border-box; }
+.formulario-multistep button { background:#A6CF3E; color:white; border:none; cursor:pointer; font-size:1em; transition: background 0.3s; }
+.formulario-multistep button:hover { background:#7CC242; }
+.mensaje { text-align:center; font-weight:bold; margin-top:10px; }
+.informacion-util { background:white; padding:15px; border-radius:10px; box-shadow:0 2px 5px rgba(0,0,0,0.1); margin-top:20px; max-width:600px; margin-left:auto; margin-right:auto;}
+.informacion-util h3 { color:#7CC242; margin-bottom:10px; }
+.informacion-util ul { padding-left:20px; line-height:1.6; }
+.informacion-util a { color:#A6CF3E; text-decoration:none; }
+.informacion-util a:hover { text-decoration:underline; }
 </style>
 </head>
 <body>
 
 <h1>Añadir Propiedad 🏡</h1>
 
-<form id="formAñadir" class="formulario" enctype="multipart/form-data">
-  <label>Título</label>
-  <input type="text" name="titulo" required>
+<form id="formAgregarPropiedad" class="formulario-multistep" enctype="multipart/form-data">
 
-  <label>Descripción</label>
-  <input type="text" name="descripcion">
+  <!-- Paso 1 -->
+  <div class="paso" id="paso1">
+    <h2>Datos básicos</h2>
+    <input type="text" name="titulo" placeholder="Título" required>
+    <input type="text" name="direccion" placeholder="Dirección completa" required>
+    <button type="button" id="siguiente1">Siguiente →</button>
+  </div>
 
-  <label>Precio (€)</label>
-  <input type="number" name="precio" required>
+  <!-- Paso 2 -->
+  <div class="paso" id="paso2" style="display:none;">
+    <h2>Detalles</h2>
+    <input type="number" name="precio" placeholder="Precio (€)" required>
+    <input type="text" name="descripcion" placeholder="Descripción">
+    <button type="button" id="anterior2">← Anterior</button>
+    <button type="button" id="siguiente2">Siguiente →</button>
+  </div>
 
-  <label>Dirección</label>
-  <input type="text" name="direccion" required>
+  <!-- Paso 3 -->
+  <div class="paso" id="paso3" style="display:none;">
+    <h2>Fotos</h2>
+    <input type="file" name="imagen" accept="image/*" required>
+    <button type="button" id="anterior3">← Anterior</button>
+    <button type="submit">Añadir Propiedad</button>
+  </div>
 
-  <label>Imagen</label>
-  <input type="file" name="imagen" accept="image/*">
-
-  <div id="previsualizacion"></div>
-
-  <button type="submit">Añadir Propiedad</button>
 </form>
 
-<p id="mensaje"></p>
+<p id="mensaje" class="mensaje"></p>
+
+<!-- Información útil -->
+<div class="informacion-util">
+<h3>Información útil</h3>
+<ul>
+<li>📷 Ten las fotos a mano para que tu anuncio sea más atractivo.</li>
+<li>🎁 Los dos primeros anuncios son gratuitos.</li>
+<li>⚠️ Se aplican cargos para más de dos inmuebles o anuncios duplicados.</li>
+<li>🏢 <a href="vender.html">Más información sobre vender tu propiedad →</a></li>
+<li>👔 <a href="profesionales.html">Ventajas para profesionales →</a></li>
+</ul>
+</div>
 
 <script>
-  // Previsualización de imagen
-  const inputImagen = document.querySelector('input[name="imagen"]');
-  const contenedorPrev = document.getElementById('previsualizacion');
-  inputImagen.addEventListener('change', () => {
-    contenedorPrev.innerHTML = '';
-    const file = inputImagen.files[0];
-    if(file){
-      const reader = new FileReader();
-      reader.onload = e => {
-        const img = document.createElement('img');
-        img.src = e.target.result;
-        contenedorPrev.appendChild(img);
-      };
-      reader.readAsDataURL(file);
+// Navegación multistep
+let pasoActual = 1;
+function mostrarPaso(paso) {
+  document.querySelectorAll(".paso").forEach((el, i) => el.style.display = (i+1) === paso ? "block" : "none");
+}
+document.getElementById("siguiente1").addEventListener("click", ()=> { pasoActual=2; mostrarPaso(pasoActual); });
+document.getElementById("siguiente2").addEventListener("click", ()=> { pasoActual=3; mostrarPaso(pasoActual); });
+document.getElementById("anterior2").addEventListener("click", ()=> { pasoActual=1; mostrarPaso(pasoActual); });
+document.getElementById("anterior3").addEventListener("click", ()=> { pasoActual=2; mostrarPaso(pasoActual); });
+
+// Submit con imagen a Cloudinary
+const form = document.getElementById("formAgregarPropiedad");
+const mensaje = document.getElementById("mensaje");
+
+form.addEventListener("submit", async (e)=>{
+  e.preventDefault();
+  const formData = new FormData(form);
+
+  try {
+    const res = await fetch("/propiedades", { method:"POST", body:formData });
+    const data = await res.json();
+    if(res.ok){
+      mensaje.textContent = "✅ Propiedad añadida con éxito!";
+      form.reset();
+      pasoActual=1; mostrarPaso(pasoActual);
+    } else {
+      mensaje.textContent = "❌ Error: "+(data.error||"No se pudo añadir");
     }
-  });
-
-  // Enviar formulario usando fetch y FormData
-  const form = document.getElementById('formAñadir');
-  const mensaje = document.getElementById('mensaje');
-
-  form.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    mensaje.textContent = '⏳ Subiendo...';
-
-    const formData = new FormData(form);
-
-    try {
-      const res = await fetch('/propiedades', {
-        method: 'POST',
-        body: formData
-      });
-      const data = await res.json();
-
-      if(res.ok){
-        mensaje.textContent = '✅ Propiedad añadida con éxito!';
-        form.reset();
-        contenedorPrev.innerHTML = '';
-      } else {
-        mensaje.textContent = '❌ Error: ' + (data.error || 'No se pudo añadir');
-      }
-    } catch(err){
-      console.error(err);
-      mensaje.textContent = '❌ Error al conectar con el servidor.';
-    }
-  });
+  } catch(err){
+    console.error(err);
+    mensaje.textContent = "❌ Error al conectar con el servidor.";
+  }
+});
 </script>
 
 </body>
