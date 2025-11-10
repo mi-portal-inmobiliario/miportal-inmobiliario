@@ -7,47 +7,36 @@ import OpenAI from "openai";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
-import fs from "fs";
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
 
-// ----------------------
-// CONFIGURAR VARIABLES DE ENTORNO
-// ----------------------
+// Carga variables de entorno
 dotenv.config();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-// ----------------------
-// CONFIGURAR CLOUDINARY
-// ----------------------
-cloudinary.v2.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET
-});
-
-// ----------------------
-// CONFIGURAR EXPRESS
-// ----------------------
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.static('public'));
 
-// ----------------------
-// CONFIGURAR MULTER (temporal)
-// ----------------------
-const upload = multer({ dest: 'tmp/' }); // carpeta temporal
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// ----------------------
-// SERVIR HTML
-// ----------------------
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// Configuración de Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUD_NAME,
+  api_key: process.env.CLOUD_API_KEY,
+  api_secret: process.env.CLOUD_API_SECRET
 });
-app.get('/vender.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'vender.html'));
+
+// Configuración Multer + Cloudinary
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'propiedades', // Carpeta en Cloudinary
+    allowed_formats: ['jpg', 'jpeg', 'png']
+  }
 });
+const upload = multer({ storage });
 
 // ----------------------
 // MODELO DE PROPIEDAD
@@ -64,30 +53,19 @@ const Propiedad = mongoose.model("Propiedad", propiedadSchema);
 // ----------------------
 // RUTAS CRUD PROPIEDADES
 // ----------------------
+
+// Crear propiedad con imagen
 app.post("/propiedades", upload.single('imagen'), async (req, res) => {
   try {
-    let imagenUrl = "";
-    if (req.file) {
-      const result = await cloudinary.v2.uploader.upload(req.file.path, {
-        folder: 'propiedades'
-      });
-      imagenUrl = result.secure_url;
-      fs.unlinkSync(req.file.path); // borrar archivo temporal
-    }
+    const { titulo, descripcion, precio, direccion } = req.body;
+    const imagen = req.file ? req.file.path : ''; // URL de Cloudinary
 
-    const propiedad = new Propiedad({
-      titulo: req.body.titulo,
-      descripcion: req.body.descripcion,
-      precio: req.body.precio,
-      direccion: req.body.direccion,
-      imagen: imagenUrl
-    });
-
+    const propiedad = new Propiedad({ titulo, descripcion, precio, direccion, imagen });
     await propiedad.save();
-    res.json({ success: true, propiedad });
+    res.json(propiedad);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Error al guardar propiedad' });
+    res.status(500).json({ error: "Error al guardar la propiedad" });
   }
 });
 
@@ -103,7 +81,6 @@ app.get("/propiedades", async (req, res) => {
 app.get("/propiedades/:id", async (req, res) => {
   try {
     const propiedad = await Propiedad.findById(req.params.id);
-    if (!propiedad) return res.status(404).json({ error: "No encontrada" });
     res.json(propiedad);
   } catch (err) {
     res.status(500).json({ error: "Error al obtener propiedad" });
@@ -113,7 +90,6 @@ app.get("/propiedades/:id", async (req, res) => {
 app.put("/propiedades/:id", async (req, res) => {
   try {
     const propiedad = await Propiedad.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!propiedad) return res.status(404).json({ error: "No encontrada" });
     res.json(propiedad);
   } catch (err) {
     res.status(500).json({ error: "Error al actualizar propiedad" });
@@ -122,9 +98,8 @@ app.put("/propiedades/:id", async (req, res) => {
 
 app.delete("/propiedades/:id", async (req, res) => {
   try {
-    const propiedad = await Propiedad.findByIdAndDelete(req.params.id);
-    if (!propiedad) return res.status(404).json({ error: "No encontrada" });
-    res.json({ success: true });
+    await Propiedad.findByIdAndDelete(req.params.id);
+    res.json({ message: "Propiedad eliminada" });
   } catch (err) {
     res.status(500).json({ error: "Error al eliminar propiedad" });
   }
@@ -151,6 +126,14 @@ app.post("/api/chat", async (req, res) => {
     console.error("Error OpenAI:", err);
     res.status(500).json({ error: "Error al conectarse con la IA" });
   }
+});
+
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+app.get('/vender.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'vender.html'));
 });
 
 // ----------------------
