@@ -77,7 +77,7 @@ document.getElementById("siguiente2").addEventListener("click", ()=> { pasoActua
 document.getElementById("anterior2").addEventListener("click", ()=> { pasoActual=1; mostrarPaso(pasoActual); });
 document.getElementById("anterior3").addEventListener("click", ()=> { pasoActual=2; mostrarPaso(pasoActual); });
 
-// Submit con imagen a Cloudinary
+// Submit con imagen a Cloudinary (Render backend)
 const form = document.getElementById("formAgregarPropiedad");
 const mensaje = document.getElementById("mensaje");
 
@@ -86,7 +86,11 @@ form.addEventListener("submit", async (e)=>{
   const formData = new FormData(form);
 
   try {
-    const res = await fetch("/propiedades", { method:"POST", body:formData });
+    const res = await fetch("https://miportal-inmobiliario-server.onrender.com/propiedades", {
+      method: "POST",
+      body: formData
+    });
+
     const data = await res.json();
     if(res.ok){
       mensaje.textContent = "✅ Propiedad añadida con éxito!";
@@ -104,6 +108,7 @@ form.addEventListener("submit", async (e)=>{
 
 </body>
 </html>
+
 
 
 
