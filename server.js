@@ -58,7 +58,8 @@ const Propiedad = mongoose.model("Propiedad", propiedadSchema);
 app.post("/propiedades", upload.single('imagen'), async (req, res) => {
   try {
     const { titulo, descripcion, precio, direccion } = req.body;
-    const imagen = req.file ? req.file.path : ''; // URL de Cloudinary
+    const imagen = req.file ? (req.file.path || req.file.secure_url) : '';
+
 
     const propiedad = new Propiedad({ titulo, descripcion, precio, direccion, imagen });
     await propiedad.save();

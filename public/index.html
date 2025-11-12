@@ -22,7 +22,7 @@
 
 <header class="banner">
   <h1>Portal Inmobiliario 🏡</h1>
-  <button onclick="location.href='añadir.html'" class="dropdown-btn">Pon tu anuncio</button>
+  <button onclick="location.href='vender.html'" class="dropdown-btn">Pon tu anuncio</button>
 </header>
 
 <div id="propiedades"></div>
@@ -30,12 +30,13 @@
 <script>
   async function cargarPropiedades() {
     try {
-      const res = await fetch("/propiedades");
+      // ✅ Usa tu servidor de Render
+      const res = await fetch("https://miportal-inmobiliario-server.onrender.com/propiedades");
       const propiedades = await res.json();
       const contenedor = document.getElementById("propiedades");
       contenedor.innerHTML = "";
 
-      if(propiedades.length === 0){
+      if (propiedades.length === 0) {
         contenedor.innerHTML = "<p>No hay propiedades todavía.</p>";
         return;
       }
@@ -44,10 +45,12 @@
         const div = document.createElement("div");
         div.className = "propiedad";
 
-        // Si hay imagen, la tomamos de /uploads
+        // ✅ Mostrar imagen de Cloudinary (o placeholder si no hay)
         let imgHTML = '';
-        if(p.imagen) {
-          imgHTML = `<img src="/uploads/${p.imagen}" alt="${p.titulo}">`;
+        if (p.imagen && p.imagen.startsWith("http")) {
+          imgHTML = `<img src="${p.imagen}" alt="${p.titulo}">`;
+        } else {
+          imgHTML = `<img src="https://via.placeholder.com/400x300?text=Sin+imagen" alt="Sin imagen">`;
         }
 
         div.innerHTML = `
@@ -59,7 +62,7 @@
         `;
         contenedor.appendChild(div);
       });
-    } catch(err) {
+    } catch (err) {
       console.error("Error cargando propiedades:", err);
     }
   }
