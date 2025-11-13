@@ -1,151 +1,93 @@
-// server.js
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
-import cors from "cors";
-import OpenAI from "openai";
-import path from "path";
-import { fileURLToPath } from "url";
 import multer from "multer";
+import cors from "cors";
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+import dotenv from "dotenv";
+import fs from "fs";
 
-// Carga variables de entorno
 dotenv.config();
-
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use(express.static('public'));
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Configuración de Cloudinary
+// 📦 Configurar Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUD_NAME,
-  api_key: process.env.CLOUD_API_KEY,
-  api_secret: process.env.CLOUD_API_SECRET
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Configuración Multer + Cloudinary
-const storage = new CloudinaryStorage({
-  cloudinary,
-  params: {
-    folder: 'propiedades', // Carpeta en Cloudinary
-    allowed_formats: ['jpg', 'jpeg', 'png']
-  }
-});
-const upload = multer({ storage });
+// 📦 Configurar Multer (temporal)
+const upload = multer({ dest: "uploads/" });
 
-// ----------------------
-// MODELO DE PROPIEDAD
-// ----------------------
+// 📦 Conectar a MongoDB Atlas
+mongoose.connect(process.env.MONGODB_URI)
+  .then(() => console.log("✅ Conectado a MongoDB Atlas"))
+  .catch(err => console.error("❌ Error MongoDB:", err));
+
+// 📄 Definir el modelo de Propiedad
 const propiedadSchema = new mongoose.Schema({
-  titulo: { type: String, required: true },
-  descripcion: { type: String },
-  precio: { type: Number, required: true },
-  direccion: { type: String, required: true },
-  imagen: { type: String } // URL de Cloudinary
+  titulo: String,
+  direccion: String,
+  precio: Number,
+  descripcion: String,
+  imagenes: [String], // 👈 Ahora es un array
+  fecha: { type: Date, default: Date.now }
 });
 const Propiedad = mongoose.model("Propiedad", propiedadSchema);
 
-// ----------------------
-// RUTAS CRUD PROPIEDADES
-// ----------------------
-
-// Crear propiedad con imagen
-app.post("/propiedades", upload.single('imagen'), async (req, res) => {
+// 🚀 Ruta: crear nueva propiedad con múltiples imágenes
+app.post("/propiedades", upload.array("imagenes", 10), async (req, res) => {
   try {
-    const { titulo, descripcion, precio, direccion } = req.body;
-    const imagen = req.file ? (req.file.path || req.file.secure_url) : '';
+    const { titulo, direccion, precio, descripcion } = req.body;
+    const imagenes = [];
 
+    // Subir imágenes a Cloudinary
+    for (const file of req.files) {
+      const subida = await cloudinary.uploader.upload(file.path, {
+        folder: "miportal_inmobiliario"
+      });
+      imagenes.push(subida.secure_url);
+      fs.unlinkSync(file.path); // eliminar archivo temporal
+    }
 
-    const propiedad = new Propiedad({ titulo, descripcion, precio, direccion, imagen });
-    await propiedad.save();
-    res.json(propiedad);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error al guardar la propiedad" });
+    // Guardar propiedad
+    const nuevaPropiedad = new Propiedad({
+      titulo,
+      direccion,
+      precio,
+      descripcion,
+      imagenes
+    });
+
+    await nuevaPropiedad.save();
+    res.json({ mensaje: "Propiedad añadida con éxito", propiedad: nuevaPropiedad });
+  } catch (error) {
+    console.error("❌ Error al subir propiedad:", error);
+    res.status(500).json({ error: "Error al subir la propiedad" });
   }
 });
 
+// 📄 Ruta para obtener todas las propiedades
 app.get("/propiedades", async (req, res) => {
   try {
-    const propiedades = await Propiedad.find();
+    const propiedades = await Propiedad.find().sort({ fecha: -1 });
     res.json(propiedades);
-  } catch (err) {
+  } catch (error) {
     res.status(500).json({ error: "Error al obtener propiedades" });
   }
 });
 
-app.get("/propiedades/:id", async (req, res) => {
-  try {
-    const propiedad = await Propiedad.findById(req.params.id);
-    res.json(propiedad);
-  } catch (err) {
-    res.status(500).json({ error: "Error al obtener propiedad" });
-  }
-});
-
-app.put("/propiedades/:id", async (req, res) => {
-  try {
-    const propiedad = await Propiedad.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.json(propiedad);
-  } catch (err) {
-    res.status(500).json({ error: "Error al actualizar propiedad" });
-  }
-});
-
+// 📄 Ruta para eliminar una propiedad
 app.delete("/propiedades/:id", async (req, res) => {
   try {
     await Propiedad.findByIdAndDelete(req.params.id);
-    res.json({ message: "Propiedad eliminada" });
-  } catch (err) {
+    res.json({ mensaje: "Propiedad eliminada correctamente" });
+  } catch (error) {
     res.status(500).json({ error: "Error al eliminar propiedad" });
   }
 });
 
-// ----------------------
-// CONFIGURAR OPENAI
-// ----------------------
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
-app.post("/api/chat", async (req, res) => {
-  const { mensaje } = req.body;
-  if (!mensaje) return res.status(400).json({ error: "Mensaje vacío" });
-
-  try {
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [{ role: "user", content: mensaje }],
-      max_tokens: 200
-    });
-    const respuesta = completion.choices[0].message.content;
-    res.json({ respuesta });
-  } catch (err) {
-    console.error("Error OpenAI:", err);
-    res.status(500).json({ error: "Error al conectarse con la IA" });
-  }
-});
-
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-app.get('/vender.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'vender.html'));
-});
-
-// ----------------------
-// CONEXIÓN A MONGODB Y PUERTO
-// ----------------------
-const PORT = process.env.PORT || 3000;
-const MONGO_URI = process.env.MONGODB_URI;
-
-mongoose.connect(MONGO_URI)
-  .then(() => {
-    console.log("✅ Conectado a MongoDB Atlas");
-    app.listen(PORT, () => console.log(`🚀 Servidor corriendo en puerto ${PORT}`));
-  })
-  .catch(err => console.error("❌ Error al conectar MongoDB:", err));
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`🚀 Servidor en http://localhost:${PORT}`));

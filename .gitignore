@@ -30,6 +30,4 @@ Thumbs.db
 # Render secrets (si guardas algo temporal)
 *.secret
 
-CLOUDINARY_CLOUD_NAME=dgagdremv
-CLOUDINARY_API_KEY=826183577317224
-CLOUDINARY_API_SECRET=nXFeSS10UZPKPpqBRC6D9c2jZiQ
+

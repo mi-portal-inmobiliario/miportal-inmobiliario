@@ -18,6 +18,72 @@ h1 { text-align:center; color:#7CC242; }
 .informacion-util ul { padding-left:20px; line-height:1.6; }
 .informacion-util a { color:#A6CF3E; text-decoration:none; }
 .informacion-util a:hover { text-decoration:underline; }
+
+/* Vista previa imágenes */
+.preview-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+.preview-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.preview-item:hover { transform: scale(1.05); }
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.preview-item button {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.preview-item button:hover { background: red; }
+
+/* Modal imagen grande */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  justify-content: center;
+  align-items: center;
+}
+.modal img {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+}
+.modal button {
+  position: absolute;
+  top: 20px; background: rgba(255,255,255,0.7);
+  border: none; font-size: 24px; border-radius: 50%; cursor: pointer;
+}
+.modal button:hover { background: white; }
+#cerrarModal { right: 30px; }
+#anteriorModal { left: 30px; font-size: 40px; background: transparent; color: white; }
+#siguienteModal { right: 30px; font-size: 40px; background: transparent; color: white; }
+#anteriorModal:hover, #siguienteModal:hover { color: #A6CF3E; }
 </style>
 </head>
 <body>
@@ -46,7 +112,10 @@ h1 { text-align:center; color:#7CC242; }
   <!-- Paso 3 -->
   <div class="paso" id="paso3" style="display:none;">
     <h2>Fotos</h2>
-    <input type="file" name="imagen" accept="image/*" required>
+    <input type="file" id="imagenes" name="imagenes" accept="image/*" multiple required>
+    <small>Puedes seleccionar varias imágenes. Haz clic para verlas en grande o eliminar.</small>
+    <div class="preview-container" id="preview"></div>
+    <br>
     <button type="button" id="anterior3">← Anterior</button>
     <button type="submit">Añadir Propiedad</button>
   </div>
@@ -55,10 +124,18 @@ h1 { text-align:center; color:#7CC242; }
 
 <p id="mensaje" class="mensaje"></p>
 
+<!-- Modal con navegación -->
+<div class="modal" id="modalImagen">
+  <button id="anteriorModal">⟨</button>
+  <img src="" alt="Vista ampliada">
+  <button id="siguienteModal">⟩</button>
+  <button id="cerrarModal">×</button>
+</div>
+
 <div class="informacion-util">
 <h3>Información útil</h3>
 <ul>
-<li>📷 Ten las fotos a mano para que tu anuncio sea más atractivo.</li>
+<li>📷 Puedes subir varias fotos a la vez para destacar tu anuncio.</li>
 <li>🎁 Los dos primeros anuncios son gratuitos.</li>
 <li>⚠️ Se aplican cargos para más de dos inmuebles o anuncios duplicados.</li>
 <li>🏢 <a href="vender.html">Más información sobre vender tu propiedad →</a></li>
@@ -67,23 +144,94 @@ h1 { text-align:center; color:#7CC242; }
 </div>
 
 <script>
-// Navegación multistep
+// Navegación pasos
 let pasoActual = 1;
 function mostrarPaso(paso) {
   document.querySelectorAll(".paso").forEach((el, i) => el.style.display = (i+1) === paso ? "block" : "none");
 }
-document.getElementById("siguiente1").addEventListener("click", ()=> { pasoActual=2; mostrarPaso(pasoActual); });
-document.getElementById("siguiente2").addEventListener("click", ()=> { pasoActual=3; mostrarPaso(pasoActual); });
-document.getElementById("anterior2").addEventListener("click", ()=> { pasoActual=1; mostrarPaso(pasoActual); });
-document.getElementById("anterior3").addEventListener("click", ()=> { pasoActual=2; mostrarPaso(pasoActual); });
+document.getElementById("siguiente1").onclick = ()=>{ pasoActual=2; mostrarPaso(pasoActual); };
+document.getElementById("siguiente2").onclick = ()=>{ pasoActual=3; mostrarPaso(pasoActual); };
+document.getElementById("anterior2").onclick = ()=>{ pasoActual=1; mostrarPaso(pasoActual); };
+document.getElementById("anterior3").onclick = ()=>{ pasoActual=2; mostrarPaso(pasoActual); };
 
-// Submit con imagen a Cloudinary (Render backend)
+// Vista previa
+const inputImagenes = document.getElementById("imagenes");
+const preview = document.getElementById("preview");
+const modal = document.getElementById("modalImagen");
+const modalImg = modal.querySelector("img");
+const cerrarModal = document.getElementById("cerrarModal");
+const anteriorModal = document.getElementById("anteriorModal");
+const siguienteModal = document.getElementById("siguienteModal");
+
+let archivosSeleccionados = [];
+let indiceActual = 0;
+
+inputImagenes.addEventListener("change", (e) => {
+  archivosSeleccionados = Array.from(e.target.files);
+  mostrarVistaPrevia();
+});
+
+function mostrarVistaPrevia() {
+  preview.innerHTML = "";
+  archivosSeleccionados.forEach((archivo, index) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const div = document.createElement("div");
+      div.classList.add("preview-item");
+      div.innerHTML = `
+        <img src="${e.target.result}" alt="imagen" data-index="${index}">
+        <button type="button" data-index="${index}">×</button>
+      `;
+      preview.appendChild(div);
+    };
+    reader.readAsDataURL(archivo);
+  });
+}
+
+// Eliminar o ver imagen
+preview.addEventListener("click", (e) => {
+  const index = parseInt(e.target.getAttribute("data-index"));
+  if (e.target.tagName === "BUTTON") {
+    archivosSeleccionados.splice(index, 1);
+    actualizarInput();
+    mostrarVistaPrevia();
+  } else if (e.target.tagName === "IMG") {
+    indiceActual = index;
+    abrirModal(index);
+  }
+});
+
+function abrirModal(index) {
+  modalImg.src = URL.createObjectURL(archivosSeleccionados[index]);
+  modal.style.display = "flex";
+}
+
+cerrarModal.onclick = () => modal.style.display = "none";
+modal.onclick = (e) => { if (e.target === modal) modal.style.display = "none"; };
+
+anteriorModal.onclick = () => {
+  indiceActual = (indiceActual - 1 + archivosSeleccionados.length) % archivosSeleccionados.length;
+  abrirModal(indiceActual);
+};
+siguienteModal.onclick = () => {
+  indiceActual = (indiceActual + 1) % archivosSeleccionados.length;
+  abrirModal(indiceActual);
+};
+
+function actualizarInput() {
+  const dt = new DataTransfer();
+  archivosSeleccionados.forEach(f => dt.items.add(f));
+  inputImagenes.files = dt.files;
+}
+
+// Envío al backend
 const form = document.getElementById("formAgregarPropiedad");
 const mensaje = document.getElementById("mensaje");
 
 form.addEventListener("submit", async (e)=>{
   e.preventDefault();
   const formData = new FormData(form);
+  archivosSeleccionados.forEach(f => formData.append("imagenes", f));
 
   try {
     const res = await fetch("https://miportal-inmobiliario-server.onrender.com/propiedades", {
@@ -95,6 +243,8 @@ form.addEventListener("submit", async (e)=>{
     if(res.ok){
       mensaje.textContent = "✅ Propiedad añadida con éxito!";
       form.reset();
+      preview.innerHTML = "";
+      archivosSeleccionados = [];
       pasoActual=1; mostrarPaso(pasoActual);
     } else {
       mensaje.textContent = "❌ Error: "+(data.error||"No se pudo añadir");
@@ -108,6 +258,10 @@ form.addEventListener("submit", async (e)=>{
 
 </body>
 </html>
+
+
+
+
 
 
 
