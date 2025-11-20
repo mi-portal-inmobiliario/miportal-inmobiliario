@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 dotenv.config({ path: "./.env" });
+console.log("GEOCODE_API_KEY cargada:", process.env.GEOCODE_API_KEY);
 
 import express from "express";
 import mongoose from "mongoose";
