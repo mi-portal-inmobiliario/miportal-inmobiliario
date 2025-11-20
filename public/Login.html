@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Iniciar sesión - Costa Hogar</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #7cc242, #4fa72a);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        background: white;
+        width: 90%;
+        max-width: 380px;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        animation: fadeIn .8s ease;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.8rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 14px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #7cc242;
+        font-size: 1.1rem;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    button:hover {
+        background: #65a832;
+    }
+
+    .link {
+        text-align: center;
+        margin-top: 14px;
+        font-size: .95rem;
+    }
+
+    .link a {
+        color: #333;
+        font-weight: 600;
+        text-decoration: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Iniciar sesión</h2>
+
+    <input type="email" id="email" placeholder="Correo electrónico" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+
+    <button onclick="login()">Entrar</button>
+
+    <div class="link">
+        ¿No tienes cuenta? <a href="registro.html">Crear una cuenta</a>
+    </div>
+</div>
+
+<script>
+function login() {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
+
+    const almacenado = JSON.parse(localStorage.getItem("usuario"));
+
+    if (!almacenado) {
+        alert("No hay ninguna cuenta registrada. Regístrate primero.");
+        return;
+    }
+
+    if (almacenado.email === email && almacenado.password === pass) {
+        alert("Bienvenido " + almacenado.nombre);
+        window.location.href = "perfil.html";
+    } else {
+        alert("Correo o contraseña incorrectos");
+    }
+}
+</script>
+
+</body>
+</html>

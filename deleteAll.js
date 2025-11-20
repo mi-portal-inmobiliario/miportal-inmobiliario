@@ -1,20 +1,30 @@
-import mongoose from "mongoose";
+// deleteAll.js
 import dotenv from "dotenv";
+dotenv.config({ path: "./.env" });
 
-dotenv.config();
+import mongoose from "mongoose";
 
-const propiedadSchema = new mongoose.Schema({}, { strict: false });
-const Propiedad = mongoose.model("Propiedad", propiedadSchema, "propiedads");
+const mongoURI = process.env.MONGO_URI;
+if (!mongoURI) {
+  console.error("❌ ERROR: MONGO_URI no está definido. Revisa tu archivo .env");
+  process.exit(1);
+}
+
+const PropiedadSchema = new mongoose.Schema({}, { strict: false });
+const Propiedad = mongoose.model("Propiedad", PropiedadSchema, "propiedads");
 
 async function borrarTodo() {
   try {
-    await mongoose.connect(process.env.MONGODB_URI);
-    const resultado = await Propiedad.deleteMany({});
-    console.log(`🗑️ ${resultado.deletedCount} propiedades eliminadas`);
-  } catch (error) {
-    console.error("❌ Error al eliminar propiedades:", error);
-  } finally {
+    await mongoose.connect(mongoURI, { dbName: "CostaHogar" });
+    console.log("✅ Conectado a MongoDB");
+
+    const result = await Propiedad.deleteMany({});
+    console.log(`🗑 Se eliminaron ${result.deletedCount} propiedades`);
+
     await mongoose.disconnect();
+    console.log("🔌 Conexión cerrada");
+  } catch (err) {
+    console.error("❌ Error al eliminar propiedades:", err);
   }
 }
 

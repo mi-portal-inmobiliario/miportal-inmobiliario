@@ -1,0 +1,149 @@
+<!-- CHAT.HTML - Chat vinculado a una propiedad específica -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat - Costa Hogar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body { margin:0; font-family:"Inter",sans-serif; background:#f7f7f7; }
+
+    header {
+      width:100%; background:white; padding:12px 25px;
+      box-shadow:0 2px 10px rgba(0,0,0,0.08);
+      display:flex; justify-content:space-between; align-items:center;
+      position:sticky; top:0; z-index:50;
+    }
+
+    .logo { font-size:1.7rem; font-weight:700; color:#7cc242; cursor:pointer; }
+    .header-center { display:flex; gap:15px; }
+    .header-btn { padding:10px 20px; background:#7cc242; border:none; border-radius:8px; color:white; font-weight:600; cursor:pointer; }
+    .header-right { display:flex; gap:18px; font-size:1.3rem; align-items:center; }
+    .login-btn { padding:8px 18px; border:2px solid #7cc242; background:white; border-radius:8px; font-weight:600; cursor:pointer; }
+
+    /* CHAT */
+    .chat-container {
+      max-width:900px; margin:25px auto; background:white;
+      border-radius:12px; box-shadow:0 4px 12px rgba(0,0,0,0.08);
+      display:flex; flex-direction:column; height:75vh; overflow:hidden;
+    }
+
+    .chat-header {
+      padding:15px; background:#f0f0f0; display:flex; flex-direction:column;
+      border-bottom:1px solid #ddd;
+    }
+
+    .chat-header small { color:#666; margin-top:4px; }
+
+    .chat-messages {
+      flex:1; padding:20px; overflow-y:auto; display:flex;
+      flex-direction:column; gap:15px;
+    }
+
+    .msg { max-width:70%; padding:12px; border-radius:12px; font-size:.95rem; }
+    .me { background:#7cc242; color:white; align-self:flex-end; border-bottom-right-radius:2px; }
+    .them { background:#eaeaea; align-self:flex-start; border-bottom-left-radius:2px; }
+
+    .chat-input { display:flex; border-top:1px solid #ddd; }
+    .chat-input input {
+      flex:1; padding:15px; border:none; outline:none; font-size:1rem;
+    }
+    .chat-input button {
+      padding:15px 25px; background:#7cc242; border:none;
+      color:white; font-weight:600; cursor:pointer;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo" onclick="window.location.href='index.html'">Costa Hogar</div>
+  <div class="header-center">
+    <button class="header-btn" onclick="window.location.href='index.html?modo=venta'">Comprar</button>
+    <button class="header-btn" onclick="window.location.href='index.html?modo=alquiler'">Alquilar</button>
+    <button class="header-btn" onclick="window.location.href='publicar.html'">Pon tu anuncio</button>
+  </div>
+  <div class="header-right">
+    <span class="icon-btn" onclick="window.location.href='favoritos.html'">❤️</span>
+    <span class="icon-btn" onclick="window.location.href='chat.html'">💬</span>
+    <button class="login-btn" onclick="window.location.href='perfil.html'">Perfil</button>
+  </div>
+</header>
+
+<div class="chat-container">
+  <div class="chat-header" id="chatHeader">
+    Cargando conversación...
+    <small></small>
+  </div>
+
+  <div class="chat-messages" id="chatArea"></div>
+
+  <div class="chat-input">
+    <input type="text" id="mensaje" placeholder="Escribe un mensaje...">
+    <button onclick="enviarMensaje()">Enviar</button>
+  </div>
+</div>
+
+<script>
+let propiedad = null;
+
+// Cargar datos desde la URL
+const params = new URLSearchParams(window.location.search);
+const propiedadID = params.get("id");
+
+// Cargar propiedades y extraer info
+async function cargarPropiedad() {
+  if (!propiedadID) {
+    document.getElementById("chatHeader").innerHTML = "Chat genérico <small>Sin propiedad asociada</small>";
+    return;
+  }
+
+  const res = await fetch('/propiedades');
+  const lista = await res.json();
+  propiedad = lista.find(p => p._id === propiedadID);
+
+  if (!propiedad) {
+    document.getElementById("chatHeader").innerHTML = "Propiedad no encontrada";
+    return;
+  }
+
+  document.getElementById("chatHeader").innerHTML = `
+    Chat sobre: ${propiedad.titulo}
+    <small>${propiedad.direccion}</small>
+  `;
+
+  // Mensaje inicial
+  const chat = document.getElementById("chatArea");
+  chat.innerHTML = `<div class="msg them">Hola, soy el propietario de '${propiedad.titulo}'. ¿En qué puedo ayudarte?</div>`;
+}
+
+function enviarMensaje() {
+  const texto = document.getElementById("mensaje").value.trim();
+  if (!texto) return;
+
+  const chat = document.getElementById("chatArea");
+
+  const msg = document.createElement("div");
+  msg.className = "msg me";
+  msg.textContent = texto;
+  chat.appendChild(msg);
+  chat.scrollTop = chat.scrollHeight;
+
+  document.getElementById("mensaje").value = "";
+
+  setTimeout(() => {
+    const r = document.createElement("div");
+    r.className = "msg them";
+    r.textContent = "Gracias por tu mensaje. Te responderé lo antes posible.";
+    chat.appendChild(r);
+    chat.scrollTop = chat.scrollHeight;
+  }, 600);
+}
+
+cargarPropiedad();
+</script>
+
+</body>
+</html>

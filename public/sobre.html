@@ -1,0 +1,268 @@
+<!-- SOBRE.HTML - Costa Hogar / Quiénes somos -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sobre Nosotros - Costa Hogar</title>
+
+  <link href="styles.css" rel="stylesheet">
+
+  <style>
+    /* ---------------- PARALLAX ---------------- */
+    .parallax {
+      width: 100%;
+      height: 420px;
+      background-image: url("https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=2400");
+      background-attachment: fixed;
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .parallax::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+    }
+
+    .parallax h1 {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 3rem;
+      font-weight: 700;
+      z-index: 5;
+      text-shadow: 0 3px 10px rgba(0,0,0,0.7);
+    }
+
+    /* ---------------- CONTENIDO ---------------- */
+    .sobre-container {
+      max-width: 1100px;
+      margin: 40px auto;
+      padding: 25px;
+      line-height: 1.7;
+      color: #444;
+    }
+
+    .sobre-container h2 {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      color: #7cc242;
+    }
+
+    .sobre-container p {
+      margin-bottom: 20px;
+      font-size: 1.05rem;
+    }
+
+    .valores {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 25px;
+    }
+
+    .valor {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: .25s ease;
+    }
+
+    .valor:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+    }
+
+    .valor h3 {
+      margin-bottom: 10px;
+      color: #7cc242;
+      font-size: 1.3rem;
+    }
+
+    /* ---------------- EQUIPO ---------------- */
+    .equipo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 25px;
+      margin-top: 35px;
+    }
+
+    .equipo-card {
+      background: white;
+      padding: 18px;
+      text-align: center;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      transition: .25s ease;
+    }
+
+    .equipo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.18);
+    }
+
+    .equipo-card img {
+      width: 100%;
+      height: 210px;
+      object-fit: cover;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .equipo-card h4 {
+      margin-bottom: 4px;
+      font-size: 1.2rem;
+      color: #333;
+    }
+
+    .equipo-card p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+  </style>
+
+</head>
+<body>
+
+<!-- Header general -->
+<header class="header">
+  <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
+
+  <nav class="nav">
+    <button class="nav-btn" onclick="location.href='comprar.html'">Comprar</button>
+    <button class="nav-btn" onclick="location.href='alquiler.html'">Alquilar</button>
+    <button class="nav-btn green" onclick="location.href='publicar.html'">Pon tu anuncio</button>
+  </nav>
+
+  <div class="header-right">
+    <span class="icon" onclick="location.href='favoritos.html'">❤️</span>
+    <span class="icon" onclick="location.href='chat.html'">💬</span>
+    <button class="login-btn" onclick="location.href='login.html'">Iniciar sesión</button>
+  </div>
+</header>
+
+<!-- PARALLAX -->
+<div class="parallax">
+  <h1>Sobre Costa Hogar</h1>
+</div>
+
+<!-- CONTENIDO -->
+<div class="sobre-container">
+
+  <h2>Nuestra historia</h2>
+  <p>
+    Costa Hogar nació con una idea clara: ofrecer una experiencia inmobiliaria transparente, 
+    moderna y accesible. Durante años hemos conectado a miles de personas con el hogar perfecto 
+    en la costa mediterránea.
+  </p>
+  <p>
+    Nuestra plataforma destaca por ser intuitiva, rápida y centrada en lo que realmente importa: 
+    ayudarte a encontrar tu casa ideal sin complicaciones.
+  </p>
+
+  <h2>Nuestra misión</h2>
+  <p>
+    Simplificar la búsqueda de vivienda. En Costa Hogar creemos que encontrar una casa no debe 
+    ser un proceso estresante, sino emocionante. Por eso trabajamos para ofrecerte una plataforma 
+    clara, fiable y cargada de oportunidades reales.
+  </p>
+
+  <h2>Valores que nos mueven</h2>
+
+  <div class="valores">
+    <div class="valor">
+      <h3>Transparencia</h3>
+      <p>
+        Información clara, real y verificable. Sin trucos, sin anuncios falsos.
+      </p>
+    </div>
+
+    <div class="valor">
+      <h3>Compromiso</h3>
+      <p>
+        Acompañamos a nuestros usuarios en cada paso del camino, desde la búsqueda hasta el cierre.
+      </p>
+    </div>
+
+    <div class="valor">
+      <h3>Innovación</h3>
+      <p>
+        Usamos tecnología moderna para mejorar la experiencia inmobiliaria día a día.
+      </p>
+    </div>
+  </div>
+
+  <h2>Conoce a nuestro equipo</h2>
+
+  <div class="equipo-grid">
+    <div class="equipo-card">
+      <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e" alt="">
+      <h4>Sonia García</h4>
+      <p>Fundadora y Directora General</p>
+    </div>
+
+    <div class="equipo-card">
+      <img src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6" alt="">
+      <h4>David Romero</h4>
+      <p>Director Comercial</p>
+    </div>
+
+    <div class="equipo-card">
+      <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1" alt="">
+      <h4>Claudia Pérez</h4>
+      <p>Atención al Cliente</p>
+    </div>
+  </div>
+
+<!-- TESTIMONIOS -->
+<h2 style="margin-top:50px;">Lo que dicen nuestros clientes</h2>
+
+<div class="testimonios">
+  
+  <div class="testimonio">
+    <p class="texto">“Encontré mi piso en solo 3 días. La web es súper clara y cómoda.”</p>
+    <div class="cliente">
+      <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="">
+      <div>
+        <h4>María López</h4>
+        <span>Compró su casa en Torrevieja</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonio">
+    <p class="texto">“Publicamos nuestro apartamento y tuvimos visitas en menos de 24h.”</p>
+    <div class="cliente">
+      <img src="https://randomuser.me/api/portraits/men/78.jpg" alt="">
+      <div>
+        <h4>Javier Martínez</h4>
+        <span>Propietario en Alicante</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="testimonio">
+    <p class="texto">“Costa Hogar nos ayudó a alquilar rápido y sin complicaciones.”</p>
+    <div class="cliente">
+      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="">
+      <div>
+        <h4>Lucía Fernández</h4>
+        <span>Alquiló su vivienda en Murcia</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+</div>
+
+</body>
+</html>

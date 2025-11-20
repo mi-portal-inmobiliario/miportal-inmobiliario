@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Crear cuenta - Costa Hogar</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Inter", sans-serif;
+        background: linear-gradient(135deg, #4fa72a, #7cc242);
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .card {
+        background: white;
+        width: 90%;
+        max-width: 380px;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.15);
+        animation: fadeIn .8s ease;
+    }
+
+    @keyframes fadeIn {
+        from {opacity: 0; transform: translateY(20px);}
+        to {opacity: 1; transform: translateY(0);}
+    }
+
+    h2 {
+        text-align: center;
+        margin-bottom: 20px;
+        color: #333;
+        font-size: 1.8rem;
+    }
+
+    input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 14px;
+        border-radius: 10px;
+        border: 1px solid #ccc;
+        font-size: 1rem;
+    }
+
+    button {
+        width: 100%;
+        padding: 12px;
+        background: #7cc242;
+        font-size: 1.1rem;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-weight: 600;
+        transition: .2s;
+    }
+
+    button:hover {
+        background: #65a832;
+    }
+
+    .link {
+        text-align: center;
+        margin-top: 14px;
+        font-size: .95rem;
+    }
+
+    .link a {
+        color: #333;
+        font-weight: 600;
+        text-decoration: none;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>Crear cuenta</h2>
+
+    <input type="text" id="nombre" placeholder="Nombre completo" required>
+    <input type="email" id="email" placeholder="Correo electrónico" required>
+    <input type="password" id="password" placeholder="Contraseña" required>
+
+    <button onclick="registrar()">Registrarme</button>
+
+    <div class="link">
+        ¿Ya tienes cuenta? <a href="login.html">Iniciar sesión</a>
+    </div>
+</div>
+
+<script>
+function registrar() {
+    const nombre = document.getElementById("nombre").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("password").value.trim();
+
+    if (!nombre || !email || !pass) {
+        alert("Rellena todos los campos.");
+        return;
+    }
+
+    const usuario = { nombre, email, password: pass };
+    localStorage.setItem("usuario", JSON.stringify(usuario));
+
+    alert("Cuenta creada con éxito");
+    window.location.href = "login.html";
+}
+</script>
+
+</body>
+</html>

@@ -1,221 +1,172 @@
+<!-- index.html - Costa Hogar A1 con carrusel + frases + buscador + destacados -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Costa Hogar - Tu portal inmobiliario</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Arial', sans-serif;
-      background: #fff;
-      color: #333;
-    }
+  <title>Costa Hogar - Inicio</title>
+  <link rel="stylesheet" href="css/styles.css">
 
-    /* --- HERO / PORTADA --- */
-    .hero {
-      position: relative;
-      height: 100vh;
-      background: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80')
-                  center/cover no-repeat;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      color: white;
-    }
-
-    .hero::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      z-index: 1;
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 2;
-      padding: 20px;
-    }
-
-    .hero h1 {
-      font-size: 4rem;
-      margin: 0;
-      text-shadow: 2px 2px 6px rgba(0,0,0,0.6);
-    }
-
-    .hero p {
-      font-size: 1.5rem;
-      margin: 10px 0 30px;
-      text-shadow: 1px 1px 4px rgba(0,0,0,0.6);
-    }
-
-    .hero-buttons {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 15px;
-    }
-
-    .hero-buttons a {
-      background: #A6CF3E;
-      color: white;
-      padding: 12px 25px;
-      border-radius: 6px;
-      font-weight: bold;
-      text-decoration: none;
-      transition: background 0.3s;
-    }
-
-    .hero-buttons a:hover {
-      background: #7CC242;
-    }
-
-    /* --- RESPONSIVO --- */
-    @media (max-width: 768px) {
-      .hero {
-        height: 75vh;
-      }
-      .hero h1 {
-        font-size: 2.5rem;
-      }
-      .hero p {
-        font-size: 1.2rem;
-      }
-    }
-
-    /* --- SECCIÓN DE ANUNCIOS --- */
-    .contenedor {
-      max-width: 1200px;
-      margin: 50px auto;
-      padding: 0 20px;
-    }
-
-    h2 {
-      text-align: center;
-      color: #7CC242;
-      margin-bottom: 30px;
-    }
-
-    .lista-propiedades {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
-
-    .tarjeta {
-      background: white;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      transition: transform 0.2s;
-    }
-
-    .tarjeta:hover {
-      transform: scale(1.02);
-    }
-
-    .tarjeta img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      cursor: pointer;
-    }
-
-    .tarjeta .contenido {
-      padding: 15px;
-    }
-
-    .tarjeta h3 {
-      margin: 0 0 10px;
-      color: #7CC242;
-    }
-
-    .tarjeta p {
-      margin: 0;
-      color: #555;
-    }
-
-  </style>
 </head>
+
 <body>
 
-  <!-- HERO / PORTADA -->
-  <section class="hero">
-    <div class="hero-content">
-      <h1>Costa Hogar</h1>
-      <p>Compra, vende o alquila con confianza</p>
-      <div class="hero-buttons">
-        <a href="#propiedades">🏠 Ver propiedades</a>
-        <a href="vender.html">✍️ Publicar anuncio</a>
-        <a href="contacto.html">💬 Contactar</a>
-      </div>
-    </div>
-  </section>
+<!-- ================================
+     HEADER FIJO
+================================ -->
+<header class="header">
+  <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
 
-  <!-- SECCIÓN DE ANUNCIOS -->
-  <div class="contenedor" id="propiedades">
-    <h2>Propiedades destacadas</h2>
-    <div class="lista-propiedades" id="lista-propiedades"></div>
+  <nav class="nav">
+    <button class="nav-btn" onclick="location.href='comprar.html'">Comprar</button>
+    <button class="nav-btn" onclick="location.href='alquiler.html'">Alquilar</button>
+    <button class="nav-btn green" onclick="location.href='publicar.html'">Pon tu anuncio</button>
+  </nav>
+
+  <div class="header-right">
+    <span class="icon" onclick="location.href='favoritos.html'">❤️</span>
+    <span class="icon" onclick="location.href='chat.html'">💬</span>
+    <button class="login-btn" onclick="location.href='login.html'">Iniciar sesión</button>
+  </div>
+</header>
+
+<!-- ================================
+     HERO + CARRUSEL CON FRASES
+================================ -->
+<section class="hero">
+
+  <div class="hero-slider">
+    <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1200');"></div>
+    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200');"></div>
+    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200');"></div>
   </div>
 
-  <script>
-    // Cargar propiedades desde el backend (Render)
-    async function cargarPropiedades() {
-      try {
-        const res = await fetch("https://miportal-inmobiliario-server.onrender.com/propiedades");
-        const propiedades = await res.json();
+  <div class="hero-content">
+    <h1 id="heroFrase">Encuentra tu hogar ideal</h1>
 
-        const contenedor = document.getElementById("lista-propiedades");
-        contenedor.innerHTML = "";
+    <div class="search-box">
+      <input type="text" id="busqueda" placeholder="Buscar ciudad, zona o dirección...">
+      <button onclick="buscar()">Buscar</button>
+    </div>
 
-        propiedades.forEach(p => {
-          const div = document.createElement("div");
-          div.classList.add("tarjeta");
-          div.innerHTML = `
-            <img src="${p.imagen}" alt="${p.titulo}" onclick="verImagen('${p.imagen}')">
-            <div class="contenido">
-              <h3>${p.titulo}</h3>
-              <p>${p.direccion}</p>
-              <p><strong>${p.precio} €</strong></p>
-            </div>
-          `;
-          contenedor.appendChild(div);
-        });
-      } catch (err) {
-        console.error("Error al cargar propiedades:", err);
-      }
-    }
+    <div class="sugerencias" id="sugerencias"></div>
+  </div>
 
-    function verImagen(url) {
-      const ventana = window.open("", "_blank");
-      ventana.document.write(`<img src='${url}' style='width:100%;height:auto;'>`);
-    }
+</section>
 
-    cargarPropiedades();
-  </script>
+<!-- ================================
+     PROPIEDADES DESTACADAS
+================================ -->
+<section class="destacadas-section">
+  <h2>Propiedades destacadas</h2>
+  <div class="lista" id="listaDestacadas"></div>
+</section>
+
+<!-- ================================
+     FOOTER SIMPLE
+================================ -->
+<footer style="text-align:center;padding:20px;color:#666;">
+  © 2025 Costa Hogar. Todos los derechos reservados.
+</footer>
+
+
+<!-- ================================
+     JAVASCRIPT
+================================ -->
+<script>
+/* =====================================
+   1. CARRUSEL AUTOMÁTICO
+=====================================*/
+let slideIndex = 0;
+setInterval(() => {
+  const slides = document.querySelectorAll(".slide");
+  slides.forEach(s => s.classList.remove("active"));
+  slideIndex = (slideIndex + 1) % slides.length;
+  slides[slideIndex].classList.add("active");
+}, 4500);
+
+/* =====================================
+   2. FRASES AUTOMÁTICAS
+=====================================*/
+const frases = [
+  "Encuentra tu hogar ideal",
+  "Viviendas hechas para ti",
+  "Sueña en grande, vive mejor",
+  "El lugar perfecto te espera"
+];
+
+let fraseIndex = 0;
+setInterval(() => {
+  fraseIndex = (fraseIndex + 1) % frases.length;
+  document.getElementById("heroFrase").textContent = frases[fraseIndex];
+}, 4000);
+
+/* =====================================
+   3. AUTOCOMPLETADO DIRECCIONES
+=====================================*/
+const input = document.getElementById("busqueda");
+const sugerencias = document.getElementById("sugerencias");
+
+input.addEventListener("input", async () => {
+  const t = input.value.trim();
+  if (t.length < 3) { sugerencias.style.display = "none"; return; }
+
+  const url = `https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=691dbf7ce0ac5786669402bgm8f835e`;
+  const res = await fetch(url);
+  const data = await res.json();
+
+  sugerencias.innerHTML = "";
+  sugerencias.style.display = "block";
+
+  data.slice(0, 6).forEach(s => {
+    const d = document.createElement("div");
+    d.textContent = s.display_name;
+    d.onclick = () => {
+      input.value = s.display_name;
+      sugerencias.style.display = "none";
+    };
+    sugerencias.appendChild(d);
+  });
+});
+
+/* =====================================
+   4. LISTADO DESTACADAS
+=====================================*/
+async function cargarDestacadas() {
+  const res = await fetch("/propiedades");
+  const propiedades = await res.json();
+
+  const cont = document.getElementById("listaDestacadas");
+
+  cont.innerHTML = "";
+
+  propiedades.slice(0, 6).forEach(p => {
+    const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
+    cont.innerHTML += `
+      <div class="item" onclick="location.href='propiedad.html?id=${p._id}'">
+        <img src="${img}">
+        <div class="info">
+          <div class="precio">${p.precio} €</div>
+          <div class="titulo">${p.titulo}</div>
+          <div class="direccion">${p.direccion}</div>
+        </div>
+      </div>
+    `;
+  });
+}
+
+cargarDestacadas();
+
+/* =====================================
+   5. BOTÓN DE BUSCAR
+=====================================*/
+function buscar() {
+  const q = input.value.trim();
+  if (!q) return;
+
+  location.href = `comprar.html?search=${encodeURIComponent(q)}`;
+}
+</script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
