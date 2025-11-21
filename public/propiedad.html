@@ -1,13 +1,17 @@
-<!-- propiedad.html - Vista premium de propiedad -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Costa Hogar - Propiedad</title>
 
+  <!-- CSS Global -->
   <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+  <!-- CSS Específico -->
+  <link rel="stylesheet" href="css/propiedad.css">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 </head>
 
 <body>
@@ -15,16 +19,16 @@
 <header class="header">
   <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
 
-  <nav class="menu">
-    <a href="comprar.html">Comprar</a>
-    <a href="alquiler.html">Alquilar</a>
-    <a class="publicar-btn" href="publicar.html">Publicar anuncio</a>
+  <nav class="nav">
+    <a class="nav-btn" href="index.html?modo=venta">Comprar</a>
+    <a class="nav-btn" href="index.html?modo=alquiler">Alquilar</a>
+    <a class="nav-btn green" href="publicar.html">Publicar anuncio</a>
   </nav>
 
-  <div class="menu-icons">
-    <span onclick="location.href='favoritos.html'">❤️</span>
-    <span onclick="location.href='chat.html'">💬</span>
-    <span onclick="location.href='login.html'">👤</span>
+  <div class="header-right">
+    <span class="icon" onclick="location.href='favoritos.html'">❤️</span>
+    <span class="icon" onclick="location.href='chat.html'">💬</span>
+    <span class="icon" onclick="location.href='login.html'">👤</span>
   </div>
 </header>
 
@@ -32,13 +36,15 @@
   Cargando propiedad...
 </main>
 
+<!-- Modal Fullscreen -->
 <div class="modal" id="modal">
   <span class="modal-cerrar" onclick="cerrarModal()">×</span>
   <img id="modal-img">
 </div>
 
-<!-- Scripts -->
+<!-- Leaflet -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!-- Lógica JS -->
 <script src="js/propiedad.js"></script>
 
 </body>
