@@ -347,3 +347,59 @@ body {
 
   .nav { margin-top: 8px; }
 }
+/* ===========================
+   AJUSTES PARA MÓVIL
+=========================== */
+@media (max-width: 480px) {
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    height: auto;
+    padding: 10px 15px;
+  }
+
+  .nav {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+
+  .nav-btn,
+  .login-btn {
+    width: 48%;
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1rem;
+  }
+
+  .header-right {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+  }
+
+  .icon {
+    font-size: 1.7rem;
+  }
+
+  .hero-content h1 {
+    font-size: 2rem;
+    line-height: 2.3rem;
+    padding: 0 10px;
+  }
+
+  .search-box {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .search-box input,
+  .search-box button {
+    width: 100%;
+  }
+}

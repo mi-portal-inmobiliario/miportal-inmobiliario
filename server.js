@@ -1,13 +1,19 @@
+import dotenv from "dotenv";
+dotenv.config();   // debe ir SIEMPRE antes de cualquier otro import
+
 import express from "express";
 import mongoose from "mongoose";
-import dotenv from "dotenv";
 import cors from "cors";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
 
-dotenv.config();
+import authRoutes from "./routes/auth.js";
+import authMiddleware from "./middleware/auth.js";
+
+// Crear servidor
 const app = express();
+
 
 // =============================
 // CONFIG BÁSICA
@@ -23,7 +29,7 @@ console.log("GEOCODE API KEY:", process.env.GEOCODE_API_KEY);
 console.log("MONGO:", process.env.MONGODB_URI);
 
 // =============================
-// MULTER - subida de imágenes
+// MULTER - SUBIDA DE IMÁGENES
 // =============================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -39,7 +45,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // =============================
-// MONGOOSE SCHEMA
+// MONGOOSE SCHEMAS
 // =============================
 const PropiedadSchema = new mongoose.Schema({
   titulo: String,
@@ -50,6 +56,7 @@ const PropiedadSchema = new mongoose.Schema({
   imagenes: [String],
   lat: Number,
   lng: Number,
+  usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" }
 });
 
 const Propiedad = mongoose.model("Propiedad", PropiedadSchema);
@@ -79,17 +86,22 @@ async function geocode(direccion) {
 }
 
 // =============================
-// ENDPOINTS
+// RUTAS - AUTENTICACIÓN
+// =============================
+app.use("/auth", authRoutes);
+
+// =============================
+// RUTAS PROPIEDADES
 // =============================
 
-// GET todas las propiedades
+// Obtener todas las propiedades
 app.get("/propiedades", async (req, res) => {
   const propiedades = await Propiedad.find();
   res.json(propiedades);
 });
 
-// POST crear propiedad
-app.post("/propiedades", upload.array("imagenes", 10), async (req, res) => {
+// Crear propiedad (requiere login)
+app.post("/propiedades", authMiddleware, upload.array("imagenes", 10), async (req, res) => {
   try {
     const { titulo, direccion, precio, descripcion, tipoOperacion } = req.body;
 
@@ -106,11 +118,12 @@ app.post("/propiedades", upload.array("imagenes", 10), async (req, res) => {
       imagenes,
       lat: geo?.lat || null,
       lng: geo?.lng || null,
+      usuarioId: req.usuarioId   // ← MUY IMPORTANTE
     });
 
     await nueva.save();
 
-    res.json({ mensaje: "Propiedad creada", propiedad: nueva });
+    res.json({ mensaje: "Propiedad creada correctamente", propiedad: nueva });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Error al crear propiedad" });

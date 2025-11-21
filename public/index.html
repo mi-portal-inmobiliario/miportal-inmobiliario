@@ -1,12 +1,12 @@
-<!-- index.html - Costa Hogar A1 con carrusel + frases + buscador + destacados -->
+<!-- index.html - Costa Hogar A1 limpio, sin listar propiedades reales -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Costa Hogar - Inicio</title>
+  <!-- Importante: ruta correcta al CSS -->
   <link rel="stylesheet" href="css/styles.css">
-
 </head>
 
 <body>
@@ -55,39 +55,92 @@
 </section>
 
 <!-- ================================
-     PROPIEDADES DESTACADAS
+     BLOQUES TIPO IDEALISTA
 ================================ -->
 <section class="destacadas-section">
-  <h2>Propiedades destacadas</h2>
-  <div class="lista" id="listaDestacadas"></div>
+  <h2>¿Qué quieres hacer hoy?</h2>
+  <div class="lista">
+    <div class="item" onclick="location.href='comprar.html'">
+      <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800" alt="Comprar vivienda">
+      <div class="info">
+        <div class="titulo">Comprar vivienda</div>
+        <div class="direccion">Explora todas las viviendas en venta</div>
+      </div>
+    </div>
+
+    <div class="item" onclick="location.href='alquiler.html'">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800" alt="Alquilar vivienda">
+      <div class="info">
+        <div class="titulo">Alquilar vivienda</div>
+        <div class="direccion">Encuentra piso o casa de alquiler</div>
+      </div>
+    </div>
+
+    <div class="item" onclick="location.href='publicar.html'">
+      <img src="https://images.unsplash.com/photo-1512914890250-353c97c9e7e2?w=800" alt="Publicar anuncio">
+      <div class="info">
+        <div class="titulo">Publicar mi anuncio</div>
+        <div class="direccion">Pon tu vivienda en Costa Hogar en minutos</div>
+      </div>
+    </div>
+  </div>
+
+  <h2 style="margin-top:40px;">Lo que dicen nuestros clientes</h2>
+  <div class="testimonios">
+    <div class="testimonio">
+      <p class="texto">“Vendimos nuestro piso en menos de un mes gracias a Costa Hogar. El proceso fue muy sencillo.”</p>
+      <div class="cliente">
+        <img src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200" alt="Cliente 1">
+        <div>
+          <h4>María y Carlos</h4>
+          <span>Propietarios en Alicante</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonio">
+      <p class="texto">“Encontré un alquiler cerca del trabajo y con el presupuesto que buscaba. Muy recomendable.”</p>
+      <div class="cliente">
+        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200" alt="Cliente 2">
+        <div>
+          <h4>Lucía</h4>
+          <span>Inquilina en Torrevieja</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimonio">
+      <p class="texto">“La web es muy cómoda y pude gestionar las visitas a mis propiedades sin complicaciones.”</p>
+      <div class="cliente">
+        <img src="https://images.unsplash.com/photo-1544723795-3fb0b90c07e4?w=200" alt="Cliente 3">
+        <div>
+          <h4>Javier</h4>
+          <span>Agente inmobiliario</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
-<!-- ================================
-     FOOTER SIMPLE
-================================ -->
 <footer style="text-align:center;padding:20px;color:#666;">
   © 2025 Costa Hogar. Todos los derechos reservados.
 </footer>
-
 
 <!-- ================================
      JAVASCRIPT
 ================================ -->
 <script>
-/* =====================================
-   1. CARRUSEL AUTOMÁTICO
-=====================================*/
+/* 1. CARRUSEL AUTOMÁTICO */
 let slideIndex = 0;
 setInterval(() => {
   const slides = document.querySelectorAll(".slide");
+  if (!slides.length) return;
   slides.forEach(s => s.classList.remove("active"));
   slideIndex = (slideIndex + 1) % slides.length;
   slides[slideIndex].classList.add("active");
 }, 4500);
 
-/* =====================================
-   2. FRASES AUTOMÁTICAS
-=====================================*/
+/* 2. FRASES AUTOMÁTICAS */
 const frases = [
   "Encuentra tu hogar ideal",
   "Viviendas hechas para ti",
@@ -98,12 +151,11 @@ const frases = [
 let fraseIndex = 0;
 setInterval(() => {
   fraseIndex = (fraseIndex + 1) % frases.length;
-  document.getElementById("heroFrase").textContent = frases[fraseIndex];
+  const el = document.getElementById("heroFrase");
+  if (el) el.textContent = frases[fraseIndex];
 }, 4000);
 
-/* =====================================
-   3. AUTOCOMPLETADO DIRECCIONES
-=====================================*/
+/* 3. AUTOCOMPLETADO DIRECCIONES */
 const input = document.getElementById("busqueda");
 const sugerencias = document.getElementById("sugerencias");
 
@@ -112,58 +164,32 @@ input.addEventListener("input", async () => {
   if (t.length < 3) { sugerencias.style.display = "none"; return; }
 
   const url = `https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=691dbf7ce0ac5786669402bgm8f835e`;
-  const res = await fetch(url);
-  const data = await res.json();
+  try {
+    const res = await fetch(url);
+    const data = await res.json();
+    sugerencias.innerHTML = "";
+    if (!data.length) { sugerencias.style.display = "none"; return; }
 
-  sugerencias.innerHTML = "";
-  sugerencias.style.display = "block";
-
-  data.slice(0, 6).forEach(s => {
-    const d = document.createElement("div");
-    d.textContent = s.display_name;
-    d.onclick = () => {
-      input.value = s.display_name;
-      sugerencias.style.display = "none";
-    };
-    sugerencias.appendChild(d);
-  });
+    data.slice(0, 6).forEach(s => {
+      const d = document.createElement("div");
+      d.textContent = s.display_name;
+      d.onclick = () => {
+        input.value = s.display_name;
+        sugerencias.style.display = "none";
+      };
+      sugerencias.appendChild(d);
+    });
+    sugerencias.style.display = "block";
+  } catch(e) {
+    console.error(e);
+    sugerencias.style.display = "none";
+  }
 });
 
-/* =====================================
-   4. LISTADO DESTACADAS
-=====================================*/
-async function cargarDestacadas() {
-  const res = await fetch("/propiedades");
-  const propiedades = await res.json();
-
-  const cont = document.getElementById("listaDestacadas");
-
-  cont.innerHTML = "";
-
-  propiedades.slice(0, 6).forEach(p => {
-    const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
-    cont.innerHTML += `
-      <div class="item" onclick="location.href='propiedad.html?id=${p._id}'">
-        <img src="${img}">
-        <div class="info">
-          <div class="precio">${p.precio} €</div>
-          <div class="titulo">${p.titulo}</div>
-          <div class="direccion">${p.direccion}</div>
-        </div>
-      </div>
-    `;
-  });
-}
-
-cargarDestacadas();
-
-/* =====================================
-   5. BOTÓN DE BUSCAR
-=====================================*/
+/* 4. BOTÓN DE BUSCAR → va a COMPRAR con filtro */
 function buscar() {
   const q = input.value.trim();
   if (!q) return;
-
   location.href = `comprar.html?search=${encodeURIComponent(q)}`;
 }
 </script>
