@@ -13,6 +13,7 @@
       --shadow: 0 4px 15px rgba(0,0,0,.1);
     }
 
+
     body {
       margin: 0;
       font-family: "Inter", sans-serif;
@@ -39,30 +40,13 @@
       cursor:pointer;
     }
 
-    .header-btn {
-      background: var(--green);
-      color: white;
-      padding: 10px 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .header-right {
-      display: flex;
-      gap: 18px;
-      align-items: center;
-      font-size: 1.3rem;
-      cursor: pointer;
-    }
-
     .contenedor {
-      max-width: 1000px;
-      margin: 40px auto;
+      max-width: 1050px;
+      margin: 35px auto;
       padding: 0 15px;
     }
 
+    /* PERFIL */
     .perfil-box {
       background:white;
       padding:25px;
@@ -83,8 +67,8 @@
       justify-content:center;
       align-items:center;
       font-size:3rem;
-      color:white;
       font-weight:700;
+      color:white;
       box-shadow:var(--shadow);
     }
 
@@ -92,11 +76,6 @@
       margin:0;
       font-size:1.8rem;
       color:#222;
-    }
-
-    .perfil-info p {
-      margin:6px 0;
-      color:#555;
     }
 
     .logout-btn {
@@ -110,22 +89,18 @@
       font-weight:600;
     }
 
-    .logout-btn:hover {
-      background:#d63a3a;
-    }
-
+    /* SECCIONES */
     .titulo-seccion {
       font-size:1.6rem;
-      margin:20px 0;
+      margin:25px 0 15px;
       font-weight:700;
     }
 
-    /* ---- TARJETAS ---- */
+    /* LISTA DE PROPIEDADES */
     .lista {
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
       gap:20px;
-      margin-bottom:50px;
     }
 
     .card {
@@ -135,8 +110,6 @@
       box-shadow:var(--shadow);
       cursor:pointer;
       transition:.25s ease;
-      display:flex;
-      flex-direction:column;
     }
 
     .card:hover {
@@ -161,33 +134,35 @@
       margin-bottom:5px;
     }
 
-    .dir {
-      font-size:.95rem;
-      color:#555;
+    /* CHAT LIST */
+    .chat-list {
+      display:flex;
+      flex-direction:column;
+      gap:12px;
     }
 
-    .publicar-btn {
-      background:var(--green);
-      color:white;
-      padding:14px 20px;
-      font-size:1.1rem;
-      font-weight:700;
-      border:none;
-      border-radius:10px;
+    .chat-item {
+      background:white;
+      padding:16px;
+      border-radius:12px;
+      box-shadow:var(--shadow);
       cursor:pointer;
-      margin-bottom:40px;
-      width:100%;
+      transition:.2s;
     }
 
-    .publicar-btn:hover {
-      background:#65a832;
+    .chat-item:hover {
+      background:#f0f8e9;
     }
 
-    .no-props {
-      text-align:center;
-      padding:40px;
-      color:#777;
+    .chat-item .titulo {
+      font-weight:700;
+      margin-bottom:6px;
     }
+
+    .chat-item small {
+      color:#666;
+    }
+
   </style>
 </head>
 <body>
@@ -200,137 +175,46 @@
     <button class="header-btn" onclick="location.href='index.html?modo=alquiler'">Alquilar</button>
     <button class="header-btn" onclick="location.href='publicar.html'">Publicar</button>
   </div>
-
-  <div class="header-right">
-    <span onclick="location.href='favoritos.html'">❤️</span>
-    <span onclick="location.href='chat.html'">💬</span>
-    <span onclick="location.href='perfil.html'">👤</span>
-  </div>
 </header>
 
 <div class="contenedor">
 
-  <!-- PERFIL DEL USUARIO -->
+  <!-- PERFIL -->
   <div class="perfil-box">
-
     <div class="avatar" id="avatar">U</div>
 
     <div class="perfil-info">
       <h2 id="nombreUsuario">Usuario</h2>
       <p id="emailUsuario">correo@example.com</p>
-
       <button class="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
-
   </div>
 
-
   <!-- PUBLICAR -->
-  <button class="publicar-btn" onclick="location.href='publicar.html'">
+  <button class="header-btn" style="width:100%; font-size:1.1rem; margin-bottom:30px;"
+          onclick="location.href='publicar.html'">
     + Publicar nueva propiedad
   </button>
 
-  <!-- PROPIEDADES PUBLICADAS -->
+  <!-- PROPIEDADES -->
   <h2 class="titulo-seccion">Mis propiedades publicadas</h2>
-
   <div id="lista" class="lista"></div>
 
-  <p id="noProps" class="no-props" style="display:none;">
-    No has publicado ninguna propiedad todavía.
+  <p id="noProps" style="display:none; text-align:center; margin:25px 0; color:#777;">
+    No has publicado ninguna propiedad.
+  </p>
+
+  <!-- CHATS -->
+  <h2 class="titulo-seccion">Chats recibidos</h2>
+  <div id="chatsRecibidos" class="chat-list"></div>
+
+  <p id="noChats" style="display:none; text-align:center; margin:20px 0; color:#777;">
+    Aún no tienes conversaciones.
   </p>
 
 </div>
 
-
-<script>
-// ====================================
-// 🟢 PROTEGER PERFIL → si no hay login
-// ====================================
-const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-if (!usuario) {
-    location.href = "login.html";
-}
-
-// =========================
-// CARGAR DATOS DE USUARIO
-// =========================
-
-function cargarUsuario() {
-  document.getElementById("nombreUsuario").textContent = usuario.nombre;
-  document.getElementById("emailUsuario").textContent = usuario.email;
-  document.getElementById("avatar").textContent = usuario.nombre.charAt(0).toUpperCase();
-}
-
-// =========================
-// PROPIEDADES PUBLICADAS
-// =========================
-
-let propiedades = [];
-
-async function cargarPropiedades() {
-  const token = localStorage.getItem("token");
-
-  const res = await fetch("/propiedades-usuario", {
-    headers: {
-      "Authorization": "Bearer " + token
-    }
-  });
-
-  propiedades = await res.json();
-  mostrarPropiedades();
-}
-
-function mostrarPropiedades() {
-  const cont = document.getElementById("lista");
-  const noProps = document.getElementById("noProps");
-
-  cont.innerHTML = "";
-
-  if (propiedades.length === 0) {
-    noProps.style.display = "block";
-    return;
-  }
-
-  noProps.style.display = "none";
-
-  propiedades.forEach(p => {
-    const foto = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
-
-    const div = document.createElement("div");
-    div.className = "card";
-    div.innerHTML = `
-      <img src="${foto}" onclick="abrir('${p._id}')">
-      <div class="info">
-        <div class="precio">${p.precio} €</div>
-        <div class="dir">${p.direccion}</div>
-      </div>
-    `;
-    cont.appendChild(div);
-  });
-}
-
-function abrir(id) {
-  window.location.href = "propiedad.html?id=" + id;
-}
-
-// =========================
-// CERRAR SESIÓN
-// =========================
-
-function cerrarSesion() {
-  localStorage.removeItem("usuario");
-  localStorage.removeItem("token");
-  location.href = "login.html";
-}
-
-// =========================
-// INICIAR
-// =========================
-
-cargarUsuario();
-cargarPropiedades();
-
-</script>
+<script src="js/perfil.js"></script>
 
 </body>
 </html>

@@ -7,7 +7,7 @@
 
   <!-- CSS Global -->
   <link rel="stylesheet" href="css/styles.css">
-  <!-- CSS Específico -->
+  <!-- CSS específico de propiedades -->
   <link rel="stylesheet" href="css/propiedad.css">
 
   <!-- Leaflet -->
@@ -28,7 +28,7 @@
   <div class="header-right">
     <span class="icon" onclick="location.href='favoritos.html'">❤️</span>
     <span class="icon" onclick="location.href='chat.html'">💬</span>
-    <span class="icon" onclick="location.href='login.html'">👤</span>
+    <span class="icon" onclick="location.href='perfil.html'">👤</span>
   </div>
 </header>
 
@@ -36,7 +36,7 @@
   Cargando propiedad...
 </main>
 
-<!-- Modal Fullscreen -->
+<!-- Modal Fullscreen imágenes -->
 <div class="modal" id="modal">
   <span class="modal-cerrar" onclick="cerrarModal()">×</span>
   <img id="modal-img">
@@ -44,8 +44,14 @@
 
 <!-- Leaflet -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<!-- Lógica JS -->
+
+<!-- Chat Inline -->
+<script src="js/chat-inline.js"></script>
+
+<!-- Lógica propiedad -->
 <script src="js/propiedad.js"></script>
+
+<script type="module" src="js/chat-inline.js"></script>
 
 </body>
 </html>

@@ -9,7 +9,9 @@ import path from "path";
 import fs from "fs";
 
 import authRoutes from "./routes/auth.js";
+import chatRoutes from "./routes/chat.js";
 import authMiddleware from "./middleware/auth.js";
+
 
 // Crear servidor
 const app = express();
@@ -20,6 +22,8 @@ const app = express();
 // =============================
 app.use(cors());
 app.use(express.json());
+app.use("/chat", chatRoutes);
+
 
 // Servir frontend y uploads
 app.use(express.static("public"));
