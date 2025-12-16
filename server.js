@@ -26,7 +26,7 @@ app.use("/chat", chatRoutes);
 
 
 // Servir frontend y uploads
-app.use(express.static("public"));
+app.use(express.static("."));
 app.use("/uploads", express.static("uploads"));
 
 console.log("GEOCODE API KEY:", process.env.GEOCODE_API_KEY);
