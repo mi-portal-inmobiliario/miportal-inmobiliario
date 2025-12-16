@@ -142,6 +142,14 @@ app.get("/", (req, res) => {
 });
 
 // =============================
+// RUTAS HTML (FRONTEND)
+// =============================
+app.get("/:page", (req, res) => {
+  const page = req.params.page;
+  res.sendFile(path.resolve("public", page));
+});
+
+// =============================
 // CONEXIÓN A MONGO Y START
 // =============================
 const PORT = process.env.PORT || 3000;
