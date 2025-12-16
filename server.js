@@ -1,43 +1,52 @@
+// =============================
+// CONFIG INICIAL (OBLIGATORIO ARRIBA)
+// =============================
 import dotenv from "dotenv";
-dotenv.config();   // debe ir SIEMPRE antes de cualquier otro import
+dotenv.config();
 
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
 import multer from "multer";
-import path from "path";
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
+// Rutas
 import authRoutes from "./routes/auth.js";
 import chatRoutes from "./routes/chat.js";
 import authMiddleware from "./middleware/auth.js";
 
-
-// Crear servidor
-const app = express();
-
+// =============================
+// FIX RUTAS EN RENDER (CLAVE)
+// =============================
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // =============================
-// CONFIG BÁSICA
+// APP
+// =============================
+const app = express();
+
+// =============================
+// MIDDLEWARE
 // =============================
 app.use(cors());
 app.use(express.json());
-app.use("/chat", chatRoutes);
 
-
-// Servir frontend y uploads
-app.use(express.static("."));
-app.use("/uploads", express.static("uploads"));
+// 👉 SERVIR CARPETA PUBLIC (IMPORTANTE)
+app.use(express.static(path.join(__dirname, "public")));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 console.log("GEOCODE API KEY:", process.env.GEOCODE_API_KEY);
-console.log("MONGO:", process.env.MONGODB_URI);
+console.log("MONGO:", process.env.MONGO_URI);
 
 // =============================
-// MULTER - SUBIDA DE IMÁGENES
+// MULTER (SUBIDA IMÁGENES)
 // =============================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = "uploads/";
+    const dir = path.join(__dirname, "uploads");
     if (!fs.existsSync(dir)) fs.mkdirSync(dir);
     cb(null, dir);
   },
@@ -49,7 +58,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // =============================
-// MONGOOSE SCHEMAS
+// SCHEMA PROPIEDAD
 // =============================
 const PropiedadSchema = new mongoose.Schema({
   titulo: String,
@@ -66,7 +75,7 @@ const PropiedadSchema = new mongoose.Schema({
 const Propiedad = mongoose.model("Propiedad", PropiedadSchema);
 
 // =============================
-// GEOCODING API
+// GEOCODING
 // =============================
 async function geocode(direccion) {
   try {
@@ -90,76 +99,72 @@ async function geocode(direccion) {
 }
 
 // =============================
-// RUTAS - AUTENTICACIÓN
+// RUTAS
 // =============================
 app.use("/auth", authRoutes);
+app.use("/chat", chatRoutes);
 
 // =============================
-// RUTAS PROPIEDADES
+// PROPIEDADES
 // =============================
-
-// Obtener todas las propiedades
 app.get("/propiedades", async (req, res) => {
   const propiedades = await Propiedad.find();
   res.json(propiedades);
 });
 
-// Crear propiedad (requiere login)
-app.post("/propiedades", authMiddleware, upload.array("imagenes", 10), async (req, res) => {
-  try {
-    const { titulo, direccion, precio, descripcion, tipoOperacion } = req.body;
+app.post(
+  "/propiedades",
+  authMiddleware,
+  upload.array("imagenes", 10),
+  async (req, res) => {
+    try {
+      const { titulo, direccion, precio, descripcion, tipoOperacion } = req.body;
 
-    const imagenes = req.files.map(f => "/" + f.path.replace(/\\/g, "/"));
+      const imagenes = req.files.map(f =>
+        "/uploads/" + f.filename
+      );
 
-    const geo = await geocode(direccion);
+      const geo = await geocode(direccion);
 
-    const nueva = new Propiedad({
-      titulo,
-      direccion,
-      precio,
-      descripcion,
-      tipoOperacion,
-      imagenes,
-      lat: geo?.lat || null,
-      lng: geo?.lng || null,
-      usuarioId: req.usuarioId   // ← MUY IMPORTANTE
-    });
+      const nueva = new Propiedad({
+        titulo,
+        direccion,
+        precio,
+        descripcion,
+        tipoOperacion,
+        imagenes,
+        lat: geo?.lat || null,
+        lng: geo?.lng || null,
+        usuarioId: req.usuarioId
+      });
 
-    await nueva.save();
-
-    res.json({ mensaje: "Propiedad creada correctamente", propiedad: nueva });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Error al crear propiedad" });
+      await nueva.save();
+      res.json(nueva);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Error al crear propiedad" });
+    }
   }
-});
+);
 
 // =============================
-// SERVIR INDEX
+// INDEX
 // =============================
 app.get("/", (req, res) => {
-  res.sendFile(path.resolve("public/index.html"));
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // =============================
-// RUTAS HTML (FRONTEND)
-// =============================
-app.get("/:page", (req, res) => {
-  const page = req.params.page;
-  res.sendFile(path.resolve("public", page));
-});
-
-// =============================
-// CONEXIÓN A MONGO Y START
+// START SERVER
 // =============================
 const PORT = process.env.PORT || 3000;
 
 mongoose
-  .connect(process.env.MONGODB_URI, { dbName: "CostaHogar" })
+  .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("✅ Conectado a MongoDB Atlas");
+    console.log("✅ Conectado a MongoDB");
     app.listen(PORT, () =>
-      console.log(`🚀 Servidor funcionando en puerto ${PORT}`)
+      console.log(`🚀 Servidor activo en puerto ${PORT}`)
     );
   })
-  .catch((err) => console.error("❌ Error MongoDB:", err));
+  .catch(err => console.error("❌ Mongo error:", err));
