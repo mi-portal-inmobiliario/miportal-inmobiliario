@@ -39,7 +39,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 console.log("GEOCODE API KEY:", process.env.GEOCODE_API_KEY);
-console.log("MONGO:", process.env.MONGO_URI);
+console.log("MONGO:", process.env.MONGODB_URI);
 
 // =============================
 // MULTER (SUBIDA IMÁGENES)
@@ -160,7 +160,7 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 3000;
 
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("✅ Conectado a MongoDB");
     app.listen(PORT, () =>
