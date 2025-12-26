@@ -161,14 +161,27 @@
 
 <script>
 /* ======================
-   USUARIO
+   SESIÓN (FIX DEFINITIVO)
 ====================== */
-const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
+const rawUsuario = localStorage.getItem("usuario");
+const token = localStorage.getItem("token");
 
-if (!usuario._id) {
-  location.href = "login.html";
+let usuario = null;
+try {
+  usuario = JSON.parse(rawUsuario);
+} catch (e) {
+  usuario = null;
 }
 
+const userId = usuario?._id || usuario?.id;
+
+if (!userId || !token) {
+  location.replace("login.html");
+}
+
+/* ======================
+   PINTAR PERFIL
+====================== */
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
 document.getElementById("emailUsuario").textContent = usuario.email;
 document.getElementById("avatar").textContent =
@@ -181,13 +194,15 @@ async function cargarPropiedades() {
   const res = await fetch("/propiedades");
   const data = await res.json();
 
-const mias = data.filter(p => String(p.usuarioId) === String(usuario._id));
+  const mias = data.filter(p => String(p.usuarioId) === String(userId));
   const cont = document.getElementById("listaPropiedades");
 
   if (mias.length === 0) {
     document.getElementById("noProps").style.display = "block";
     return;
   }
+
+  cont.innerHTML = "";
 
   mias.forEach(p => {
     const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200";
@@ -204,25 +219,27 @@ const mias = data.filter(p => String(p.usuarioId) === String(usuario._id));
 }
 
 /* ======================
-   CHATS (PASO 3)
+   CHATS
 ====================== */
 async function cargarChats() {
-  const res = await fetch(`/chat/mis-conversaciones/${usuario._id}`);
+  const res = await fetch(`/chat/mis-conversaciones/${userId}`);
   const chats = await res.json();
 
   const cont = document.getElementById("listaChats");
 
-  if (chats.length === 0) {
+  if (!chats || chats.length === 0) {
     document.getElementById("noChats").style.display = "block";
     return;
   }
+
+  cont.innerHTML = "";
 
   chats.forEach(c => {
     cont.innerHTML += `
       <div class="chat-item"
            onclick="location.href='chat.html?id=${c._id}'">
-        <strong>Conversación</strong><br>
-        <small>Propiedad: ${c.propiedadId}</small>
+        <strong>Chat</strong><br>
+        <small>Propiedad: ${c.propiedadTitulo || "Propiedad"}</small>
       </div>
     `;
   });
@@ -233,7 +250,8 @@ async function cargarChats() {
 ====================== */
 function cerrarSesion() {
   localStorage.removeItem("usuario");
-  location.href = "login.html";
+  localStorage.removeItem("token");
+  location.replace("login.html");
 }
 
 /* ======================
