@@ -3,129 +3,86 @@ import mongoose from "mongoose";
 
 const router = express.Router();
 
-/* =========================
+/* ======================
    SCHEMAS
-========================= */
+====================== */
+const ConversacionSchema = new mongoose.Schema({
+  propiedadId: String,
+  anuncianteId: String,
+  compradorId: String,
+  creado: { type: Date, default: Date.now }
+});
 
-// Conversación
-const ConversacionSchema = new mongoose.Schema(
-  {
-    propiedadId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Propiedad",
-      required: true,
-    },
-    anuncianteId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Usuario",
-      required: true,
-    },
-    compradorId: {
-      type: String, // puede ser ObjectId o guest
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
+const MensajeSchema = new mongoose.Schema({
+  conversacionId: String,
+  userId: String,
+  texto: String,
+  creado: { type: Date, default: Date.now }
+});
 
-const Conversacion = mongoose.model(
-  "Conversacion",
-  ConversacionSchema
-);
-
-// Mensajes
-const MensajeSchema = new mongoose.Schema(
-  {
-    conversacionId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Conversacion",
-      required: true,
-    },
-    userId: {
-      type: String, // usuario que envía
-      required: true,
-    },
-    texto: {
-      type: String,
-      required: true,
-    },
-  },
-  { timestamps: true }
-);
-
+const Conversacion = mongoose.model("Conversacion", ConversacionSchema);
 const Mensaje = mongoose.model("Mensaje", MensajeSchema);
 
-/* =========================
-   RUTAS
-========================= */
-
-/**
- * Crear o recuperar conversación
- * POST /chat/conversaciones
- */
+/* ======================
+   CREAR / OBTENER CONVERSACIÓN
+====================== */
 router.post("/conversaciones", async (req, res) => {
-  try {
-    const { propiedadId, compradorId, anuncianteId } = req.body;
+  const { propiedadId, anuncianteId, compradorId } = req.body;
 
-    let conv = await Conversacion.findOne({
+  let conv = await Conversacion.findOne({
+    propiedadId,
+    anuncianteId,
+    compradorId
+  });
+
+  if (!conv) {
+    conv = await Conversacion.create({
       propiedadId,
-      compradorId,
       anuncianteId,
+      compradorId
     });
-
-    if (!conv) {
-      conv = new Conversacion({
-        propiedadId,
-        compradorId,
-        anuncianteId,
-      });
-      await conv.save();
-    }
-
-    res.json(conv);
-  } catch (err) {
-    console.error("❌ Error creando conversación:", err);
-    res.status(500).json({ error: "Error conversación" });
   }
+
+  res.json(conv);
 });
 
-/**
- * Obtener mensajes de una conversación
- * GET /chat/conversaciones/:id/mensajes
- */
+/* ======================
+   MENSAJES
+====================== */
 router.get("/conversaciones/:id/mensajes", async (req, res) => {
-  try {
-    const mensajes = await Mensaje.find({
-      conversacionId: req.params.id,
-    }).sort({ createdAt: 1 });
+  const msgs = await Mensaje.find({
+    conversacionId: req.params.id
+  }).sort({ creado: 1 });
 
-    res.json(mensajes);
-  } catch (err) {
-    console.error("❌ Error obteniendo mensajes:", err);
-    res.status(500).json({ error: "Error mensajes" });
-  }
+  res.json(msgs);
 });
 
-/**
- * Enviar mensaje
- * POST /chat/conversaciones/:id/mensajes
- */
 router.post("/conversaciones/:id/mensajes", async (req, res) => {
-  try {
-    const { userId, texto } = req.body;
+  const { userId, texto } = req.body;
 
-    const nuevo = new Mensaje({
-      conversacionId: req.params.id,
-      userId,
-      texto,
-    });
+  const msg = await Mensaje.create({
+    conversacionId: req.params.id,
+    userId,
+    texto
+  });
 
-    await nuevo.save();
-    res.json(nuevo);
-  } catch (err) {
-    console.error("❌ Error enviando mensaje:", err);
-    res.status(500).json({ error: "Error enviar mensaje" });
-  }
+  res.json(msg);
+});
+
+/* ======================
+   LISTAR CONVERSACIONES DE UN USUARIO
+====================== */
+router.get("/mis-conversaciones/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  const convs = await Conversacion.find({
+    $or: [
+      { anuncianteId: userId },
+      { compradorId: userId }
+    ]
+  }).sort({ creado: -1 });
+
+  res.json(convs);
 });
 
 export default router;

@@ -1,11 +1,24 @@
 import mongoose from "mongoose";
 
-const ConversacionSchema = new mongoose.Schema({
-  propiedadId: { type: String, required: true },
-  propiedadTitulo: { type: String },
-  compradorId: { type: String, required: true },
-  compradorNombre: { type: String },
-  anuncianteId: { type: String, required: true }
-}, { timestamps: true });
+const ConversacionSchema = new mongoose.Schema(
+  {
+    propiedadId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Propiedad",
+      required: true,
+    },
+    compradorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      required: true,
+    },
+    anuncianteId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Usuario",
+      required: true,
+    },
+  },
+  { timestamps: true }
+);
 
 export default mongoose.model("Conversacion", ConversacionSchema);
