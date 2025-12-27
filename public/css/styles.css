@@ -426,3 +426,101 @@ body {
     height: 260px;
   }
 }
+
+/* ===============================
+   HEADER USUARIO (TIPO IDEALISTA)
+================================ */
+
+header {
+  background: #ffffff;
+  padding: 14px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #7cc242;
+  cursor: pointer;
+}
+
+/* --- Zona derecha del header --- */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+/* --- Avatar usuario --- */
+.user-menu {
+  position: relative;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #7cc242;
+  color: white;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* --- Dropdown --- */
+.dropdown {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background: white;
+  min-width: 220px;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+  overflow: hidden;
+}
+
+.user-menu:hover .dropdown {
+  display: block;
+}
+
+.dropdown a {
+  display: block;
+  padding: 14px 18px;
+  color: #333;
+  text-decoration: none;
+  font-size: 0.95rem;
+}
+
+.dropdown a:hover {
+  background: #f0f8e9;
+}
+
+.dropdown hr {
+  border: none;
+  height: 1px;
+  background: #eaeaea;
+  margin: 6px 0;
+}
+
+/* --- Botones login --- */
+.header-right a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+
+.header-right .btn {
+  background: #7cc242;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+}
