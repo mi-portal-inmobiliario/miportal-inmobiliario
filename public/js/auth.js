@@ -1,13 +1,9 @@
 // ================================
 // CONFIG AUTO: LOCAL o PRODUCCIÓN
 // ================================
-
 const API_BASE = location.hostname.includes("localhost")
   ? "http://localhost:3000"
   : "https://miportal-inmobiliario-server.onrender.com";
-
-console.log("🔗 API BASE:", API_BASE);
-
 
 // ================================
 // REGISTRO
@@ -18,71 +14,59 @@ async function registro() {
   const pass = document.getElementById("pass").value.trim();
 
   if (!nombre || !email || !pass) {
-    alert("Rellena todos los campos.");
+    alert("Rellena todos los campos");
     return;
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, email, password: pass })
-    });
+  const res = await fetch(`${API_BASE}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ nombre, email, password: pass })
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.error || "Error al registrarte");
-      return;
-    }
-
-    alert("Cuenta creada correctamente");
-    window.location.href = "login.html";
-
-  } catch (err) {
-    console.error(err);
-    alert("Error al registrar");
+  if (!res.ok) {
+    alert(data.error || "Error al registrarte");
+    return;
   }
+
+  alert("Cuenta creada correctamente");
+  location.href = "login.html";
 }
 
-
 // ================================
-// LOGIN
+// LOGIN (FIX CLAVE)
 // ================================
 async function login() {
   const email = document.getElementById("email").value.trim();
   const pass = document.getElementById("pass").value.trim();
 
   if (!email || !pass) {
-    alert("Rellena todos los campos.");
+    alert("Rellena todos los campos");
     return;
   }
 
-  try {
-    const res = await fetch(`${API_BASE}/auth/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password: pass })
-    });
+  const res = await fetch(`${API_BASE}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password: pass })
+  });
 
-    const data = await res.json();
+  const data = await res.json();
 
-    if (!res.ok) {
-      alert(data.error || "Error en inicio de sesión");
-      return;
-    }
-
-    // Guardar token + usuario
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("usuario", JSON.stringify(data.usuario));
-
-    alert("Bienvenido " + data.usuario.nombre);
-
-    // Redirigir
-    window.location.href = "perfil.html";
-
-  } catch (err) {
-    console.error(err);
-    alert("Error al iniciar sesión");
+  if (!res.ok) {
+    alert(data.error || "Error al iniciar sesión");
+    return;
   }
+
+  // ✅ GUARDAMOS _id (NO id)
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("usuario", JSON.stringify({
+    _id: data.usuario._id,
+    nombre: data.usuario.nombre,
+    email: data.usuario.email
+  }));
+
+  location.href = "perfil.html";
 }
