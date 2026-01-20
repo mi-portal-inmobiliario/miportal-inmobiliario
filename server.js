@@ -40,21 +40,7 @@ app.use(express.json());
 
 // 👉 SERVIR TODO LO QUE HAY EN /public
 const publicPath = path.resolve(__dirname, "public");
-console.log("📂 Serving public from:", publicPath);
-
 app.use(express.static(publicPath));
-
-// =============================
-// FIX RUTAS HTML (Render)
-// =============================
-app.get("/:page", (req, res, next) => {
-  const file = path.join(__dirname, "public", req.params.page);
-  if (fs.existsSync(file)) {
-    return res.sendFile(file);
-  }
-  next();
-});
-
 
 
 // 👉 SERVIR uploads
