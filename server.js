@@ -44,13 +44,17 @@ console.log("📂 Serving public from:", publicPath);
 
 app.use(express.static(publicPath));
 
-// Fallback para HTML (login, chat, perfil, etc)
-app.get("/:page", (req, res) => {
-  const file = path.join(publicPath, req.params.page);
-  res.sendFile(file, err => {
-    if (err) res.status(404).send("Not found");
-  });
+// =============================
+// FIX RUTAS HTML (Render)
+// =============================
+app.get("/:page", (req, res, next) => {
+  const file = path.join(__dirname, "public", req.params.page);
+  if (fs.existsSync(file)) {
+    return res.sendFile(file);
+  }
+  next();
 });
+
 
 
 // 👉 SERVIR uploads
