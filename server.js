@@ -39,7 +39,19 @@ app.use(express.json());
 // =============================
 
 // 👉 SERVIR TODO LO QUE HAY EN /public
-app.use(express.static(path.join(__dirname, "public")));
+const publicPath = path.resolve(__dirname, "public");
+console.log("📂 Serving public from:", publicPath);
+
+app.use(express.static(publicPath));
+
+// Fallback para HTML (login, chat, perfil, etc)
+app.get("/:page", (req, res) => {
+  const file = path.join(publicPath, req.params.page);
+  res.sendFile(file, err => {
+    if (err) res.status(404).send("Not found");
+  });
+});
+
 
 // 👉 SERVIR uploads
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
