@@ -14,22 +14,6 @@
       background: #f5f5f5;
     }
 
-    header {
-      background: white;
-      padding: 15px 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-    }
-
-    .logo {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #7cc242;
-      cursor: pointer;
-    }
-
     .contenedor {
       max-width: 1100px;
       margin: 35px auto;
@@ -131,9 +115,8 @@
 </head>
 <body>
 
+<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
-<script src="/js/header.js"></script>
-
 
 <div class="contenedor">
 
@@ -150,18 +133,26 @@
   <!-- PROPIEDADES -->
   <h2 class="titulo-seccion">Mis propiedades publicadas</h2>
   <div id="listaPropiedades" class="lista"></div>
-  <p id="noProps" class="muted" style="display:none;">No has publicado propiedades</p>
+  <p id="noProps" class="muted" style="display:none;">
+    No has publicado propiedades
+  </p>
 
   <!-- CHATS -->
   <h2 class="titulo-seccion">Mis conversaciones</h2>
   <div id="listaChats"></div>
-  <p id="noChats" class="muted" style="display:none;">No tienes conversaciones</p>
+  <p id="noChats" class="muted" style="display:none;">
+    No tienes conversaciones
+  </p>
 
 </div>
 
+<!-- =======================
+     SCRIPTS
+======================= -->
+
 <script>
 /* ======================
-   SESIÓN (FIX DEFINITIVO)
+   SESIÓN
 ====================== */
 const rawUsuario = localStorage.getItem("usuario");
 const token = localStorage.getItem("token");
@@ -176,7 +167,7 @@ try {
 const userId = usuario?._id || usuario?.id;
 
 if (!userId || !token) {
-  location.replace("login.html");
+  location.replace("/login.html");
 }
 
 /* ======================
@@ -196,18 +187,17 @@ async function cargarPropiedades() {
 
   const mias = data.filter(p => String(p.usuarioId) === String(userId));
   const cont = document.getElementById("listaPropiedades");
+  cont.innerHTML = "";
 
   if (mias.length === 0) {
     document.getElementById("noProps").style.display = "block";
     return;
   }
 
-  cont.innerHTML = "";
-
   mias.forEach(p => {
     const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200";
     cont.innerHTML += `
-      <div class="card" onclick="location.href='propiedad.html?id=${p._id}'">
+      <div class="card" onclick="location.href='/propiedad.html?id=${p._id}'">
         <img src="${img}">
         <div class="info">
           <div class="precio">${p.precio} €</div>
@@ -226,20 +216,19 @@ async function cargarChats() {
   const chats = await res.json();
 
   const cont = document.getElementById("listaChats");
+  cont.innerHTML = "";
 
   if (!chats || chats.length === 0) {
     document.getElementById("noChats").style.display = "block";
     return;
   }
 
-  cont.innerHTML = "";
-
   chats.forEach(c => {
     cont.innerHTML += `
       <div class="chat-item"
-           onclick="location.href='chat.html?id=${c._id}'">
+           onclick="location.href='/chat.html?id=${c._id}'">
         <strong>Chat</strong><br>
-        <small>Propiedad: ${c.propiedadTitulo || "Propiedad"}</small>
+        <small>${c.propiedadTitulo || "Propiedad"}</small>
       </div>
     `;
   });
@@ -251,7 +240,7 @@ async function cargarChats() {
 function cerrarSesion() {
   localStorage.removeItem("usuario");
   localStorage.removeItem("token");
-  location.replace("login.html");
+  location.replace("/login.html");
 }
 
 /* ======================
@@ -260,6 +249,9 @@ function cerrarSesion() {
 cargarPropiedades();
 cargarChats();
 </script>
+
+<!-- HEADER (AL FINAL, MUY IMPORTANTE) -->
+<script src="/js/header.js" defer></script>
 
 </body>
 </html>
