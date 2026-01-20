@@ -95,6 +95,7 @@ async function contactar() {
     return;
   }
 
-  location.href = `chat.html?id=${data._id}`;
+  location.href = `/chat.html?id=${data._id}`;
+
 }
 
