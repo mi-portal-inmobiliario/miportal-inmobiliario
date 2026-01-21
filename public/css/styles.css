@@ -524,3 +524,563 @@ header {
   padding: 8px 14px;
   border-radius: 8px;
 }
+
+/* ================================
+   HEADER ESTILO IDEALISTA
+================================ */
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #ffffff;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #7cc242;
+  cursor: pointer;
+}
+
+/* ================================
+   BOTONES PRINCIPALES
+================================ */
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-actions a {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  color: #333;
+  transition: background .2s;
+}
+
+.header-actions a:hover {
+  background: #f0f0f0;
+}
+
+.btn-primary {
+  background: #7cc242;
+  color: white !important;
+}
+
+.btn-primary:hover {
+  background: #63a831;
+}
+
+/* ================================
+   USUARIO + DROPDOWN
+================================ */
+
+.user-menu {
+  position: relative;
+}
+
+.user-name {
+  cursor: pointer;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.user-name::after {
+  content: "▾";
+  font-size: .8rem;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 120%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 20px rgba(0,0,0,.12);
+  min-width: 200px;
+  display: none;
+  overflow: hidden;
+}
+
+.dropdown a {
+  display: block;
+  padding: 12px 16px;
+  color: #333;
+  text-decoration: none;
+  font-size: .95rem;
+}
+
+.dropdown a:hover {
+  background: #f5f5f5;
+}
+
+.dropdown .logout {
+  color: #e74c3c;
+  font-weight: 600;
+}
+
+/* visible */
+.user-menu.open .dropdown {
+  display: block;
+}
+
+/* ================================
+   HERO (ya lo usas)
+================================ */
+
+.hero {
+  position: relative;
+  height: 80vh;
+  overflow: hidden;
+}
+
+.hero-slider {
+  position: absolute;
+  inset: 0;
+}
+
+.slide {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1s ease;
+}
+
+.slide.active {
+  opacity: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.hero-content h1 {
+  font-size: 2.8rem;
+  margin-bottom: 25px;
+}
+
+.search-box {
+  display: flex;
+  max-width: 520px;
+  width: 100%;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px 0 0 10px;
+  border: none;
+  font-size: 1rem;
+}
+
+.search-box button {
+  padding: 14px 22px;
+  border: none;
+  border-radius: 0 10px 10px 0;
+  background: #7cc242;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* ================================
+   LISTADOS TIPO IDEALISTA
+================================ */
+
+.lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-top: 25px;
+}
+
+.item {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.12);
+  cursor: pointer;
+  transition: transform .2s;
+}
+
+.item:hover {
+  transform: translateY(-4px);
+}
+
+.item img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.item .info {
+  padding: 16px;
+}
+
+.item .titulo {
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.item .direccion {
+  color: #777;
+  font-size: .9rem;
+}
+
+/* ================================
+   TESTIMONIOS
+================================ */
+
+.testimonios {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 25px;
+  margin-top: 25px;
+}
+
+.testimonio {
+  background: white;
+  padding: 20px;
+  border-radius: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,.1);
+}
+
+.testimonio .texto {
+  font-style: italic;
+}
+
+.cliente {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 15px;
+}
+
+.cliente img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ============================
+   HEADER RESPONSIVE (MÓVIL)
+============================ */
+
+.header {
+  background: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,.06);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-logo {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #7cc242;
+  cursor: pointer;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+/* BOTÓN HAMBURGUESA */
+.menu-toggle {
+  display: none;
+  font-size: 1.6rem;
+  cursor: pointer;
+}
+
+/* USER MENU */
+.user-menu {
+  position: relative;
+}
+
+.user-name {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dropdown {
+  position: absolute;
+  top: 120%;
+  right: 0;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0,0,0,.15);
+  min-width: 180px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.user-menu.open .dropdown {
+  display: flex;
+}
+
+.dropdown a {
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #333;
+  font-size: .95rem;
+}
+
+.dropdown a:hover {
+  background: #f3f3f3;
+}
+
+.dropdown .logout {
+  color: #c0392b;
+  font-weight: 600;
+}
+
+/* ============================
+   MÓVIL
+============================ */
+@media (max-width: 768px) {
+  .header-actions a:not(.btn-primary),
+  .user-name {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+
+  .header-actions {
+    gap: 10px;
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.4);
+    display: none;
+    z-index: 2000;
+  }
+
+  .mobile-menu.open {
+    display: block;
+  }
+
+  .mobile-panel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 260px;
+    height: 100%;
+    background: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .mobile-panel a {
+    text-decoration: none;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .mobile-panel .logout {
+    color: #c0392b;
+  }
+}
+
+/* =================================================
+   HEADER PROFESIONAL + FIX DROPDOWN
+================================================= */
+
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  z-index: 9999; /* 🔴 CLAVE */
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 14px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #7cc242;
+  cursor: pointer;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.header-actions a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: #7cc242;
+  color: #fff !important;
+  padding: 8px 14px;
+  border-radius: 6px;
+}
+
+/* =========================
+   USER MENU
+========================= */
+
+.user-menu {
+  position: relative;
+  cursor: pointer;
+}
+
+.user-name {
+  font-weight: 600;
+}
+
+.user-menu .dropdown {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  background: white;
+  min-width: 190px;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0,0,0,.15);
+  display: none;
+  flex-direction: column;
+  z-index: 10000; /* 🔴 MÁS ALTO QUE EL HERO */
+}
+
+.user-menu.open .dropdown {
+  display: flex;
+}
+
+.user-menu .dropdown a {
+  padding: 12px 16px;
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.user-menu .dropdown a:hover {
+  background: #f5f5f5;
+}
+
+.logout {
+  color: #e74c3c;
+}
+
+/* =========================
+   FIX HERO (NO ROBAR CLICS)
+========================= */
+
+.hero {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.hero * {
+  pointer-events: auto;
+}
+
+/* Empujar el contenido hacia abajo por header fijo */
+body {
+  padding-top: 80px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+.menu-toggle {
+  font-size: 1.8rem;
+  cursor: pointer;
+}
+
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  display: none;
+  z-index: 10000;
+}
+
+.mobile-menu.open {
+  display: block;
+}
+
+.mobile-panel {
+  background: white;
+  width: 260px;
+  height: 100%;
+  padding: 20px;
+}
+
+.mobile-panel a {
+  display: block;
+  padding: 12px 0;
+  text-decoration: none;
+  color: #333;
+  font-weight: 600;
+}
+
+/* Responsive */
+.desktop-only { display: flex; }
+.mobile-only { display: none; }
+
+@media (max-width: 768px) {
+  .desktop-only { display: none; }
+  .mobile-only { display: block; }
+}
