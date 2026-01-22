@@ -5,8 +5,13 @@
   <title>Perfil - Costa Hogar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- FUENTES -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+  <!-- CSS GLOBAL (OBLIGATORIO) -->
+  <link rel="stylesheet" href="/css/styles.css">
+
+  <!-- CSS SOLO DEL PERFIL -->
   <style>
     body {
       margin: 0;
@@ -41,20 +46,6 @@
       font-size: 3rem;
       color: white;
       font-weight: 700;
-    }
-
-    h2 {
-      margin: 0 0 10px;
-    }
-
-    .logout-btn {
-      background: #ff4b4b;
-      border: none;
-      color: white;
-      padding: 10px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: 600;
     }
 
     .titulo-seccion {
@@ -113,10 +104,13 @@
     }
   </style>
 </head>
+
 <body>
 
-<!-- HEADER DINÁMICO -->
+<!-- HEADER -->
 <div id="main-header"></div>
+<script src="/js/header.js" defer></script>
+
 
 <div class="contenedor">
 
@@ -126,7 +120,6 @@
     <div>
       <h2 id="nombreUsuario">Usuario</h2>
       <p id="emailUsuario"></p>
-      <button class="logout-btn" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
   </div>
 
@@ -146,59 +139,39 @@
 
 </div>
 
-<!-- =======================
-     SCRIPTS
-======================= -->
-
+<!-- ======================
+     JS PERFIL
+====================== -->
 <script>
-/* ======================
-   SESIÓN
-====================== */
-const rawUsuario = localStorage.getItem("usuario");
+const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 const token = localStorage.getItem("token");
 
-let usuario = null;
-try {
-  usuario = JSON.parse(rawUsuario);
-} catch (e) {
-  usuario = null;
-}
-
-const userId = usuario?._id || usuario?.id;
-
-if (!userId || !token) {
+if (!usuario || !usuario._id || !token) {
   location.replace("/login.html");
 }
 
-/* ======================
-   PINTAR PERFIL
-====================== */
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
 document.getElementById("emailUsuario").textContent = usuario.email;
 document.getElementById("avatar").textContent =
   usuario.nombre.charAt(0).toUpperCase();
 
-/* ======================
-   PROPIEDADES
-====================== */
 async function cargarPropiedades() {
   const res = await fetch("/propiedades");
   const data = await res.json();
+  const mias = data.filter(p => String(p.usuarioId) === usuario._id);
 
-  const mias = data.filter(p => String(p.usuarioId) === String(userId));
   const cont = document.getElementById("listaPropiedades");
   cont.innerHTML = "";
 
-  if (mias.length === 0) {
+  if (!mias.length) {
     document.getElementById("noProps").style.display = "block";
     return;
   }
 
   mias.forEach(p => {
-    const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200";
     cont.innerHTML += `
       <div class="card" onclick="location.href='/propiedad.html?id=${p._id}'">
-        <img src="${img}">
+        <img src="${p.imagenes?.[0] || 'https://via.placeholder.com/400x200'}">
         <div class="info">
           <div class="precio">${p.precio} €</div>
           <div>${p.direccion}</div>
@@ -208,17 +181,14 @@ async function cargarPropiedades() {
   });
 }
 
-/* ======================
-   CHATS
-====================== */
 async function cargarChats() {
-  const res = await fetch(`/chat/mis-conversaciones/${userId}`);
+  const res = await fetch(`/chat/mis-conversaciones/${usuario._id}`);
   const chats = await res.json();
 
   const cont = document.getElementById("listaChats");
   cont.innerHTML = "";
 
-  if (!chats || chats.length === 0) {
+  if (!chats.length) {
     document.getElementById("noChats").style.display = "block";
     return;
   }
@@ -226,7 +196,7 @@ async function cargarChats() {
   chats.forEach(c => {
     cont.innerHTML += `
       <div class="chat-item"
-           onclick="location.href='/chat.html?id=${c._id}'">
+        onclick="location.href='/chat.html?id=${c._id}'">
         <strong>Chat</strong><br>
         <small>${c.propiedadTitulo || "Propiedad"}</small>
       </div>
@@ -234,24 +204,39 @@ async function cargarChats() {
   });
 }
 
-/* ======================
-   LOGOUT
-====================== */
-function cerrarSesion() {
-  localStorage.removeItem("usuario");
-  localStorage.removeItem("token");
-  location.replace("/login.html");
-}
-
-/* ======================
-   INIT
-====================== */
 cargarPropiedades();
 cargarChats();
 </script>
 
-<!-- HEADER (AL FINAL, MUY IMPORTANTE) -->
-<script src="/js/header.js" defer></script>
+<!-- HEADER JS (UNA SOLA VEZ) -->
+
+<!-- MENÚ MÓVIL TIPO APP -->
+<nav class="mobile-nav" id="mobileNav">
+  <a href="/index.html" class="active">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+
+  <a href="/comprar.html">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+
+  <a href="/favoritos.html">
+    <span>❤️</span>
+    <small>Favoritos</small>
+  </a>
+
+  <a href="/perfil.html#chats">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
+</nav>
 
 </body>
 </html>

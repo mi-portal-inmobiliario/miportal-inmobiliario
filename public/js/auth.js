@@ -14,7 +14,7 @@ async function registro() {
   const pass = document.getElementById("pass").value.trim();
 
   if (!nombre || !email || !pass) {
-    alert("Rellena todos los campos");
+    alert("Rellena todos los campos.");
     return;
   }
 
@@ -36,14 +36,14 @@ async function registro() {
 }
 
 // ================================
-// LOGIN (FIX CLAVE)
+// LOGIN (ESTE ES EL IMPORTANTE)
 // ================================
 async function login() {
   const email = document.getElementById("email").value.trim();
   const pass = document.getElementById("pass").value.trim();
 
   if (!email || !pass) {
-    alert("Rellena todos los campos");
+    alert("Rellena todos los campos.");
     return;
   }
 
@@ -56,17 +56,14 @@ async function login() {
   const data = await res.json();
 
   if (!res.ok) {
-    alert(data.error || "Error al iniciar sesión");
+    alert(data.error || "Error en inicio de sesión");
     return;
   }
 
-  // ✅ GUARDAMOS _id (NO id)
+  // 🔑 Guardar sesión
   localStorage.setItem("token", data.token);
-  localStorage.setItem("usuario", JSON.stringify({
-    _id: data.usuario._id,
-    nombre: data.usuario.nombre,
-    email: data.usuario.email
-  }));
+  localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-  location.href = "perfil.html";
+  // ✅ CAMBIO CLAVE: volvemos a la HOME
+  location.href = "index.html";
 }

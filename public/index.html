@@ -12,7 +12,8 @@
 <body>
 
 <div id="main-header"></div>
-<script src="/js/header.js"></script>
+<script src="/js/header.js" defer></script>
+
 
 <!-- ================================
      HERO + CARRUSEL CON FRASES
@@ -177,6 +178,34 @@ function buscar() {
   location.href = `comprar.html?search=${encodeURIComponent(q)}`;
 }
 </script>
+
+<!-- MENÚ MÓVIL TIPO APP -->
+<nav class="mobile-nav" id="mobileNav">
+  <a href="/index.html" class="active">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+
+  <a href="/comprar.html">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+
+  <a href="/favoritos.html">
+    <span>❤️</span>
+    <small>Favoritos</small>
+  </a>
+
+  <a href="/perfil.html#chats">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
+</nav>
 
 </body>
 </html>

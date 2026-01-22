@@ -129,13 +129,9 @@ header{
 
 <body>
 
-<header>
-  <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
-  <div>
-    <button class="header-btn" onclick="location.href='publicar.html'">Publicar</button>
-    <button class="header-btn" onclick="location.href='favoritos.html'">❤️ Favoritos</button>
-  </div>
-</header>
+<div id="main-header"></div>
+<script src="/js/header.js" defer></script>
+
 
 <div class="contenedor">
 
@@ -176,6 +172,34 @@ header{
 <script>
 cargarPropiedades("venta");
 </script>
+
+<!-- MENÚ MÓVIL TIPO APP -->
+<nav class="mobile-nav" id="mobileNav">
+  <a href="/index.html" class="active">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+
+  <a href="/comprar.html">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+
+  <a href="/favoritos.html">
+    <span>❤️</span>
+    <small>Favoritos</small>
+  </a>
+
+  <a href="/perfil.html#chats">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
+</nav>
 
 </body>
 </html>

@@ -1084,3 +1084,270 @@ body {
   .desktop-only { display: none; }
   .mobile-only { display: block; }
 }
+
+/* ===============================
+   HEADER ESTILO IDEALISTA
+=============================== */
+
+.header {
+  background: #fff;
+  border-bottom: 1px solid #eee;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #7cc242;
+  cursor: pointer;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.header-actions a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.btn-primary {
+  background: #7cc242;
+  color: #fff !important;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+.user-menu {
+  position: relative;
+}
+
+.user-name {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 130%;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgba(0,0,0,.12);
+  min-width: 180px;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dropdown a {
+  padding: 12px 15px;
+  text-decoration: none;
+  color: #333;
+  font-size: 0.95rem;
+}
+
+.dropdown a:hover {
+  background: #f5f5f5;
+}
+
+.user-menu.open .dropdown {
+  display: flex;
+}
+
+/* ===============================
+   MÓVIL
+=============================== */
+
+.menu-toggle {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .header-actions a:not(.btn-primary),
+  .user-name {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: block;
+  }
+}
+
+/* =========================
+   MENÚ MÓVIL TIPO APP
+========================= */
+
+.mobile-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 70px; /* espacio para la barra */
+  }
+
+  .mobile-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 65px;
+    background: #ffffff;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    z-index: 9999;
+  }
+
+  .mobile-nav a {
+    text-decoration: none;
+    color: #666;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .mobile-nav a span {
+    font-size: 22px;
+    line-height: 1;
+  }
+
+  .mobile-nav a.active {
+    color: #7cc242;
+  }
+
+  /* OCULTAR HEADER CLÁSICO EN MÓVIL */
+  .header {
+    display: none;
+  }
+}
+
+/* ================= HEADER ================= */
+.app-header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+
+.logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #7cc242;
+  cursor: pointer;
+}
+
+.header-nav a {
+  margin: 0 10px;
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+}
+
+.btn {
+  background: #7cc242;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.user-menu {
+  position: relative;
+}
+
+#userToggle {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.user-dropdown {
+  position: absolute;
+  right: 0;
+  top: 35px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0,0,0,.2);
+  display: none;
+  min-width: 180px;
+}
+
+.user-dropdown.open {
+  display: block;
+}
+
+.user-dropdown a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: #333;
+}
+
+.user-dropdown a:hover {
+  background: #f0f8e9;
+}
+
+.burger {
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+}
+
+/* ================= MOBILE ================= */
+.mobile-menu {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: white;
+  border-top: 1px solid #ddd;
+  padding: 15px;
+}
+
+.mobile-menu.open {
+  display: block;
+}
+
+.mobile-menu a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+}
+
+@media (max-width: 768px) {
+  .header-nav {
+    display: none;
+  }
+  .burger {
+    display: block;
+  }
+}

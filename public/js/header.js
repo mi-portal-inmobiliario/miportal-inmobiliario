@@ -4,136 +4,110 @@ document.addEventListener("DOMContentLoaded", () => {
   const cont = document.getElementById("main-header");
   if (!cont) return;
 
+  const usuarioRaw = localStorage.getItem("usuario");
   let usuario = null;
+
   try {
-    usuario = JSON.parse(localStorage.getItem("usuario"));
+    usuario = JSON.parse(usuarioRaw);
   } catch (e) {
     usuario = null;
   }
 
-  /* =================================================
-     HEADER SIN SESIÓN
-  ================================================= */
-  if (!usuario || !usuario._id) {
-    cont.innerHTML = `
-      <header class="header">
-        <div class="header-container">
-          <div class="header-logo" onclick="location.href='index.html'">
-            Costa Hogar
-          </div>
-
-          <nav class="header-actions">
-            <a href="comprar.html">Comprar</a>
-            <a href="alquiler.html">Alquilar</a>
-            <a href="login.html" class="btn-primary">Iniciar sesión</a>
-          </nav>
-        </div>
-      </header>
-    `;
-    return;
-  }
-
-  /* =================================================
-     HEADER CON SESIÓN
-  ================================================= */
+  /* =========================
+     HEADER BASE
+  ======================== */
   cont.innerHTML = `
-    <header class="header">
-      <div class="header-container">
-
-        <div class="header-logo" onclick="location.href='index.html'">
+    <header class="app-header">
+      <div class="header-left">
+        <div class="logo" onclick="location.href='index.html'">
           Costa Hogar
         </div>
+      </div>
 
-        <nav class="header-actions desktop-only">
-          <a href="comprar.html">Comprar</a>
-          <a href="alquiler.html">Alquilar</a>
-          <a href="publicar.html" class="btn-primary">Publicar</a>
+      <nav class="header-nav">
+        <a href="comprar.html">Comprar</a>
+        <a href="alquiler.html">Alquilar</a>
+        ${usuario ? `<a href="publicar.html" class="btn">Publicar</a>` : ""}
+      </nav>
 
-          <div class="user-menu" id="userMenu">
-            <div class="user-name" id="userName">
-              ${usuario.nombre}
-            </div>
-
-            <div class="dropdown" id="userDropdown">
+      <div class="header-right">
+        ${
+          usuario
+            ? `
+          <div class="user-menu">
+            <span id="userToggle">${usuario.nombre}</span>
+            <div class="user-dropdown" id="userDropdown">
               <a href="perfil.html">Mi perfil</a>
-              <a href="favoritos.html">Mis favoritos</a>
+              <a href="favoritos.html">Favoritos</a>
               <a href="perfil.html#chats">Conversaciones</a>
-              <a href="#" class="logout" id="logoutBtn">Cerrar sesión</a>
+              <a href="#" id="logoutBtn" class="logout">Cerrar sesión</a>
             </div>
           </div>
-        </nav>
+          `
+            : `<a href="login.html" class="btn">Iniciar sesión</a>`
+        }
 
-        <!-- BOTÓN MÓVIL -->
-        <div class="menu-toggle mobile-only" id="menuToggle">☰</div>
-
+        <div class="burger" id="burger">☰</div>
       </div>
-
-      <!-- MENÚ MÓVIL -->
-      <div class="mobile-menu" id="mobileMenu">
-        <div class="mobile-panel">
-          <a href="comprar.html">Comprar</a>
-          <a href="alquiler.html">Alquilar</a>
-          <a href="publicar.html">Publicar</a>
-          <hr>
-          <a href="perfil.html">Mi perfil</a>
-          <a href="favoritos.html">Mis favoritos</a>
-          <a href="perfil.html#chats">Conversaciones</a>
-          <a href="#" class="logout" id="logoutMobile">Cerrar sesión</a>
-        </div>
-      </div>
-
     </header>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="comprar.html">Comprar</a>
+      <a href="alquiler.html">Alquilar</a>
+      ${
+        usuario
+          ? `
+          <a href="perfil.html">Mi perfil</a>
+          <a href="favoritos.html">Favoritos</a>
+          <a href="#" id="logoutMobile">Cerrar sesión</a>
+          `
+          : `<a href="login.html">Iniciar sesión</a>`
+      }
+    </div>
   `;
 
-  /* =================================================
+  /* =========================
      DROPDOWN DESKTOP
-  ================================================= */
-  const userMenu = document.getElementById("userMenu");
-  const userName = document.getElementById("userName");
-  const logoutBtn = document.getElementById("logoutBtn");
+  ======================== */
+  const toggle = document.getElementById("userToggle");
+  const dropdown = document.getElementById("userDropdown");
 
-  userName.addEventListener("click", (e) => {
-    e.stopPropagation();
-    userMenu.classList.toggle("open");
-  });
+  if (toggle && dropdown) {
+    toggle.onclick = (e) => {
+      e.stopPropagation();
+      dropdown.classList.toggle("open");
+    };
 
-  document.addEventListener("click", () => {
-    userMenu.classList.remove("open");
-  });
+    document.addEventListener("click", () => {
+      dropdown.classList.remove("open");
+    });
+  }
 
-  logoutBtn.addEventListener("click", (e) => {
+  /* =========================
+     LOGOUT
+  ======================== */
+  document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
     e.preventDefault();
-    cerrarSesion();
-  });
-
-  /* =================================================
-     MENÚ MÓVIL
-  ================================================= */
-  const menuToggle = document.getElementById("menuToggle");
-  const mobileMenu = document.getElementById("mobileMenu");
-  const logoutMobile = document.getElementById("logoutMobile");
-
-  menuToggle.addEventListener("click", () => {
-    mobileMenu.classList.add("open");
-  });
-
-  mobileMenu.addEventListener("click", (e) => {
-    if (e.target === mobileMenu) {
-      mobileMenu.classList.remove("open");
-    }
-  });
-
-  logoutMobile.addEventListener("click", (e) => {
-    e.preventDefault();
-    cerrarSesion();
-  });
-
-  /* =================================================
-     LOGOUT COMÚN
-  ================================================= */
-  function cerrarSesion() {
-    localStorage.removeItem("usuario");
-    localStorage.removeItem("token");
+    localStorage.clear();
     location.href = "index.html";
+  });
+
+  document.getElementById("logoutMobile")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.clear();
+    location.href = "index.html";
+  });
+
+  /* =========================
+     MENÚ MÓVIL
+  ======================== */
+  const burger = document.getElementById("burger");
+  const mobileMenu = document.getElementById("mobileMenu");
+
+  if (burger && mobileMenu) {
+    burger.onclick = () => {
+      mobileMenu.classList.toggle("open");
+    };
   }
 });
+
