@@ -5,15 +5,13 @@
   <title>Chat - Costa Hogar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- FUENTES -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    body {
-      margin: 0;
-      font-family: "Inter", sans-serif;
-      background: #f5f5f5;
-    }
+  <!-- CSS GLOBAL -->
+  <link rel="stylesheet" href="/css/styles.css">
 
+  <style>
     .chat-container {
       max-width: 900px;
       margin: 30px auto;
@@ -82,21 +80,25 @@
       font-weight: 600;
       cursor: pointer;
     }
+
+    @media (max-width: 768px) {
+      .chat-container {
+        margin: 15px;
+        height: calc(100vh - 140px);
+      }
+    }
   </style>
 </head>
+
 <body>
-
-<div id="main-header"></div>
-<script src="/js/header.js" defer></script>
-
-
 
 <!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
+<script src="/js/header.js" defer></script>
 
 <div class="chat-container">
   <div class="chat-header" id="chatHeader">
-    Cargando conversación…
+    Conversación
   </div>
 
   <div class="chat-messages" id="chatMessages"></div>
@@ -111,15 +113,8 @@
 /* ==========================
    SESIÓN
 ========================== */
-const rawUsuario = localStorage.getItem("usuario");
+const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 const token = localStorage.getItem("token");
-
-let usuario = null;
-try {
-  usuario = JSON.parse(rawUsuario);
-} catch {
-  usuario = null;
-}
 
 if (!usuario || !usuario._id || !token) {
   location.replace("/login.html");
@@ -132,8 +127,7 @@ const params = new URLSearchParams(window.location.search);
 const conversacionId = params.get("id");
 
 if (!conversacionId) {
-  document.getElementById("chatHeader").textContent =
-    "Conversación no válida";
+  document.getElementById("chatHeader").textContent = "Conversación no válida";
 }
 
 /* ==========================
@@ -148,7 +142,8 @@ async function cargarMensajes() {
 
   mensajes.forEach(m => {
     const div = document.createElement("div");
-    div.className = "msg " + (String(m.userId) === String(usuario._id) ? "me" : "them");
+    div.className =
+      "msg " + (String(m.userId) === String(usuario._id) ? "me" : "them");
     div.textContent = m.texto;
     cont.appendChild(div);
   });
@@ -182,15 +177,33 @@ async function enviarMensaje() {
 
 document.getElementById("btnEnviar").onclick = enviarMensaje;
 
-/* ==========================
-   START
-========================== */
+/* START */
 cargarMensajes();
 setInterval(cargarMensajes, 2000);
 </script>
 
-<!-- HEADER (SIEMPRE AL FINAL) -->
-<script src="/js/header.js" defer></script>
+<!-- MENÚ MÓVIL -->
+<nav class="mobile-nav">
+  <a href="/index.html">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+
+  <a href="/comprar.html">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+
+  <a href="/perfil.html#chats" class="active">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
+</nav>
 
 </body>
 </html>

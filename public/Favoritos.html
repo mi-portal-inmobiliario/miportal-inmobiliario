@@ -2,237 +2,154 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Favoritos - Costa Hogar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  <!-- FUENTES -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
+  <!-- CSS GLOBAL -->
+  <link rel="stylesheet" href="/css/styles.css">
+
   <style>
-    :root {
-      --green: #7cc242;
-      --shadow: 0 4px 15px rgba(0,0,0,.1);
-    }
-
-    body {
-      margin: 0;
-      font-family: "Inter", sans-serif;
-      background: #f7f7f7;
-      color: #333;
-    }
-
-    header {
-      background:white;
-      padding:14px 25px;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      box-shadow:0 2px 8px rgba(0,0,0,0.06);
-      position:sticky;
-      top:0;
-      z-index:100;
-    }
-
-    .logo { font-weight:700; font-size:1.6rem; color:var(--green); cursor:pointer; }
-
-    .header-btn {
-      background: var(--green);
-      color: white;
-      padding: 10px 18px;
-      font-weight: 600;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .header-btn:hover { background:#65a832; }
-
-    .header-right {
-      display: flex;
-      gap: 18px;
-      font-size: 1.4rem;
-      align-items: center;
-    }
-
-    /* Contenedor principal */
     .contenedor {
       max-width: 1100px;
-      margin: 40px auto;
+      margin: 35px auto;
       padding: 0 15px;
     }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 15px;
-      color: #222;
+    h2 {
+      margin-bottom: 20px;
+      font-weight: 700;
     }
 
     .lista {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
       gap: 20px;
     }
 
     .card {
-      background:white;
-      border-radius:14px;
-      overflow:hidden;
-      box-shadow:var(--shadow);
-      cursor:pointer;
-      transition:.25s ease;
-      display:flex;
-      flex-direction:column;
+      background: white;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(0,0,0,.1);
+      cursor: pointer;
+      transition: .2s ease;
     }
 
     .card:hover {
       transform: translateY(-4px);
-      box-shadow:0 6px 18px rgba(0,0,0,0.12);
     }
 
     .card img {
-      width:100%;
-      height:200px;
-      object-fit:cover;
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
     }
 
     .info {
-      padding:15px;
+      padding: 15px;
     }
 
     .precio {
-      color:var(--green);
-      font-size:1.3rem;
-      font-weight:700;
-      margin-bottom:5px;
+      color: #7cc242;
+      font-weight: 700;
+      font-size: 1.2rem;
     }
 
-    .dir {
-      font-size:.95rem;
-      color:#555;
-      margin-bottom:10px;
+    .direccion {
+      font-size: .95rem;
+      color: #555;
+      margin-top: 5px;
     }
 
-    .remove-btn {
-      display:block;
-      text-align:center;
-      background:#ff4b4b;
-      color:white;
-      padding:8px;
-      border-radius:6px;
-      margin-top:10px;
-      font-weight:600;
-      cursor:pointer;
-      transition:.2s;
+    .vacio {
+      text-align: center;
+      color: #777;
+      margin-top: 40px;
     }
-
-    .remove-btn:hover {
-      background:#d63a3a;
-    }
-
-    /* Cuando no hay favoritos */
-    .no-favs {
-      text-align:center;
-      padding:60px 20px;
-      color:#777;
-      font-size:1.2rem;
-    }
-
-    .no-favs img {
-      width:200px;
-      opacity:0.5;
-      margin-bottom:20px;
-    }
-
   </style>
-
 </head>
+
 <body>
 
-<header>
-  <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
-
-  <div>
-    <button class="header-btn" onclick="location.href='index.html?modo=venta'">Comprar</button>
-    <button class="header-btn" onclick="location.href='index.html?modo=alquiler'">Alquilar</button>
-    <button class="header-btn" onclick="location.href='publicar.html'">Publicar</button>
-  </div>
-
-  <div class="header-right">
-    <span onclick="location.href='favoritos.html'" style="cursor:pointer">❤️</span>
-    <span onclick="location.href='chat.html'" style="cursor:pointer">💬</span>
-    <button class="header-btn" onclick="location.href='login.html'">Perfil</button>
-  </div>
-</header>
+<!-- HEADER DINÁMICO -->
+<div id="main-header"></div>
+<script src="/js/header.js" defer></script>
 
 <div class="contenedor">
-  <h1>Mis favoritos ❤️</h1>
-
-  <div id="lista" class="lista"></div>
-
-  <div id="noFavs" class="no-favs" style="display:none;">
-    <img src="https://cdn-icons-png.flaticon.com/512/4076/4076549.png">
-    <p>No tienes propiedades guardadas en favoritos todavía.</p>
-  </div>
+  <h2>Mis favoritos</h2>
+  <div id="listaFavoritos" class="lista"></div>
+  <p id="vacio" class="vacio" style="display:none;">
+    No has guardado ninguna propiedad todavía ❤️
+  </p>
 </div>
 
-
 <script>
-let favoritos = JSON.parse(localStorage.getItem("favoritos") || "[]");
-let propiedades = [];
+const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+const token = localStorage.getItem("token");
 
-async function cargar() {
-  const res = await fetch("/propiedades");
-  propiedades = await res.json();
-
-  const favData = propiedades.filter(p => favoritos.includes(p._id));
-  render(favData);
+if (!usuario || !token) {
+  location.replace("/login.html");
 }
 
-function render(lista) {
-  const cont = document.getElementById("lista");
-  const noFavs = document.getElementById("noFavs");
+async function cargarFavoritos() {
+  const res = await fetch(`/favoritos/${usuario._id}`);
+  const data = await res.json();
 
+  const cont = document.getElementById("listaFavoritos");
   cont.innerHTML = "";
 
-  if (lista.length === 0) {
-    noFavs.style.display = "block";
+  if (!data.length) {
+    document.getElementById("vacio").style.display = "block";
     return;
-  } else {
-    noFavs.style.display = "none";
   }
 
-  lista.forEach(p => {
-    const foto = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
-
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <img src="${foto}" onclick="abrir('${p._id}')">
-
-      <div class="info">
-        <div class="precio">${p.precio} €</div>
-        <div class="dir">${p.direccion}</div>
-
-        <div class="remove-btn" onclick="quitarFavorito('${p._id}')">Eliminar</div>
+  data.forEach(p => {
+    cont.innerHTML += `
+      <div class="card" onclick="location.href='/propiedad.html?id=${p._id}'">
+        <img src="${p.imagenes?.[0] || 'https://via.placeholder.com/400x200'}">
+        <div class="info">
+          <div class="precio">${p.precio} €</div>
+          <div class="direccion">${p.direccion}</div>
+        </div>
       </div>
     `;
-
-    cont.appendChild(div);
   });
 }
 
-function abrir(id) {
-  window.location.href = "propiedad.html?id=" + id;
-}
-
-function quitarFavorito(id) {
-  favoritos = favoritos.filter(f => f !== id);
-  localStorage.setItem("favoritos", JSON.stringify(favoritos));
-  cargar();
-}
-
-cargar();
+cargarFavoritos();
 </script>
+
+<!-- MENÚ MÓVIL -->
+<nav class="mobile-nav">
+  <a href="/index.html">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+
+  <a href="/comprar.html">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+
+  <a href="/favoritos.html" class="active">
+    <span>❤️</span>
+    <small>Favoritos</small>
+  </a>
+
+  <a href="/perfil.html#chats">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
+</nav>
 
 </body>
 </html>
+

@@ -1,113 +1,90 @@
-console.log("✅ header.js cargado");
-
 document.addEventListener("DOMContentLoaded", () => {
   const cont = document.getElementById("main-header");
   if (!cont) return;
 
-  const usuarioRaw = localStorage.getItem("usuario");
+  const raw = localStorage.getItem("usuario");
   let usuario = null;
 
   try {
-    usuario = JSON.parse(usuarioRaw);
-  } catch (e) {
+    usuario = JSON.parse(raw);
+  } catch {
     usuario = null;
   }
 
-  /* =========================
-     HEADER BASE
-  ======================== */
+  /* ======================
+     HEADER SIN SESIÓN
+  ====================== */
+  if (!usuario || !usuario._id) {
+    cont.innerHTML = `
+      <header class="header">
+        <div class="header-container">
+          <div class="header-logo" onclick="location.href='/index.html'">
+            Costa Hogar
+          </div>
+
+          <div class="header-actions">
+            <a href="/comprar.html">Comprar</a>
+            <a href="/alquiler.html">Alquilar</a>
+            <a href="/login.html" class="btn-primary">Iniciar sesión</a>
+          </div>
+        </div>
+      </header>
+    `;
+    return;
+  }
+
+  /* ======================
+     HEADER CON SESIÓN
+  ====================== */
   cont.innerHTML = `
-    <header class="app-header">
-      <div class="header-left">
-        <div class="logo" onclick="location.href='index.html'">
+    <header class="header">
+      <div class="header-container">
+        <div class="header-logo" onclick="location.href='/index.html'">
           Costa Hogar
         </div>
-      </div>
 
-      <nav class="header-nav">
-        <a href="comprar.html">Comprar</a>
-        <a href="alquiler.html">Alquilar</a>
-        ${usuario ? `<a href="publicar.html" class="btn">Publicar</a>` : ""}
-      </nav>
+        <div class="header-actions">
+          <a href="/comprar.html">Comprar</a>
+          <a href="/alquiler.html">Alquilar</a>
+          <a href="/publicar.html" class="btn-primary">Publicar</a>
 
-      <div class="header-right">
-        ${
-          usuario
-            ? `
-          <div class="user-menu">
-            <span id="userToggle">${usuario.nombre}</span>
-            <div class="user-dropdown" id="userDropdown">
-              <a href="perfil.html">Mi perfil</a>
-              <a href="favoritos.html">Favoritos</a>
-              <a href="perfil.html#chats">Conversaciones</a>
+          <div class="user-menu" id="userMenu">
+            <div class="user-name" id="userToggle">
+              ${usuario.nombre}
+            </div>
+
+            <div class="dropdown" id="userDropdown">
+              <a href="/perfil.html">Mi perfil</a>
+              <a href="/favoritos.html">Favoritos</a>
+              <a href="/perfil.html#chats">Conversaciones</a>
               <a href="#" id="logoutBtn" class="logout">Cerrar sesión</a>
             </div>
           </div>
-          `
-            : `<a href="login.html" class="btn">Iniciar sesión</a>`
-        }
-
-        <div class="burger" id="burger">☰</div>
+        </div>
       </div>
     </header>
-
-    <div class="mobile-menu" id="mobileMenu">
-      <a href="comprar.html">Comprar</a>
-      <a href="alquiler.html">Alquilar</a>
-      ${
-        usuario
-          ? `
-          <a href="perfil.html">Mi perfil</a>
-          <a href="favoritos.html">Favoritos</a>
-          <a href="#" id="logoutMobile">Cerrar sesión</a>
-          `
-          : `<a href="login.html">Iniciar sesión</a>`
-      }
-    </div>
   `;
 
-  /* =========================
-     DROPDOWN DESKTOP
-  ======================== */
-  const toggle = document.getElementById("userToggle");
-  const dropdown = document.getElementById("userDropdown");
+  /* ======================
+     DROPDOWN CLICK
+  ====================== */
+  const userMenu = document.getElementById("userMenu");
+  const userToggle = document.getElementById("userToggle");
+  const logoutBtn = document.getElementById("logoutBtn");
 
-  if (toggle && dropdown) {
-    toggle.onclick = (e) => {
-      e.stopPropagation();
-      dropdown.classList.toggle("open");
-    };
-
-    document.addEventListener("click", () => {
-      dropdown.classList.remove("open");
-    });
-  }
-
-  /* =========================
-     LOGOUT
-  ======================== */
-  document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    localStorage.clear();
-    location.href = "index.html";
+  userToggle.addEventListener("click", (e) => {
+    e.stopPropagation();
+    userMenu.classList.toggle("open");
   });
 
-  document.getElementById("logoutMobile")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    localStorage.clear();
-    location.href = "index.html";
+  document.addEventListener("click", () => {
+    userMenu.classList.remove("open");
   });
 
-  /* =========================
-     MENÚ MÓVIL
-  ======================== */
-  const burger = document.getElementById("burger");
-  const mobileMenu = document.getElementById("mobileMenu");
-
-  if (burger && mobileMenu) {
-    burger.onclick = () => {
-      mobileMenu.classList.toggle("open");
-    };
-  }
+  logoutBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.removeItem("usuario");
+    localStorage.removeItem("token");
+    location.href = "/index.html";
+  });
 });
-

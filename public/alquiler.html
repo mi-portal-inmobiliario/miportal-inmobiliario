@@ -1,145 +1,135 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Alquiler de propiedades - Costa Hogar</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Alquiler de propiedades - Costa Hogar</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <!-- FUENTE -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
-<style>
-body{
-    margin:0; font-family:Inter,sans-serif; background:#f7f7f7; color:#222;
-}
+  <!-- CSS GLOBAL -->
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="js/header.js"></script>
 
-/* HEADER */
-header{
-    background:white;
-    padding:14px 25px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    box-shadow:0 2px 10px rgba(0,0,0,0.08);
-    position:sticky;
-    top:0;
-    z-index:100;
-}
-.logo{
-    font-size:1.6rem;
-    font-weight:700;
-    color:#7cc242;
-    cursor:pointer;
-}
-.header-btn{
-    background:#7cc242;
-    padding:8px 16px;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-}
-.header-btn:hover{ background:#62a331; }
+  <!-- CSS SOLO DE ALQUILER (idéntico a comprar) -->
+  <style>
+    body{
+      margin:0;
+      font-family:Inter,sans-serif;
+      background:#f7f7f7;
+      color:#222;
+    }
 
-/* LAYOUT */
-.contenedor{
-    max-width:1200px;
-    margin:25px auto;
-    display:grid;
-    grid-template-columns:280px 1fr;
-    gap:25px;
-}
+    .contenedor{
+      max-width:1200px;
+      margin:25px auto;
+      display:grid;
+      grid-template-columns:280px 1fr;
+      gap:25px;
+      padding:0 15px;
+    }
 
-/* --- F I L T R O S --- */
-.filtros{
-    background:white;
-    padding:20px;
-    border-radius:12px;
-    box-shadow:0 4px 12px rgba(0,0,0,0.1);
-    position:sticky;
-    top:100px;
-    height:max-content;
-}
-.filtros h3{
-    margin-top:0;
-    color:#333;
-}
-.filtros label{
-    display:block;
-    margin:10px 0 4px;
-    font-size:0.9rem;
-}
-.filtros input, .filtros select{
-    width:100%;
-    padding:10px;
-    border:1px solid #ccc;
-    border-radius:8px;
-}
-.filtros button{
-    margin-top:15px;
-    width:100%;
-    padding:12px;
-    background:#7cc242;
-    color:white;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-}
-.filtros button:hover{ background:#5a9c2e; }
+    .filtros{
+      background:white;
+      padding:20px;
+      border-radius:12px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      position:sticky;
+      top:90px;
+      height:max-content;
+    }
 
-/* --- L I S T A D O --- */
-.lista{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:20px;
-}
-.item{
-    background:white;
-    border-radius:12px;
-    overflow:hidden;
-    box-shadow:0 4px 14px rgba(0,0,0,0.12);
-    cursor:pointer;
-    transition:.25s ease;
-}
-.item:hover{
-    transform:translateY(-5px);
-    box-shadow:0 6px 18px rgba(0,0,0,0.20);
-}
-.item img{
-    width:100%;
-    height:190px;
-    object-fit:cover;
-}
-.info{
-    padding:15px;
-}
-.precio{
-    font-size:1.3rem;
-    color:#7cc242;
-    font-weight:700;
-}
-.direccion{
-    font-size:0.95rem;
-    color:#555;
-    margin:6px 0;
-}
-</style>
+    .filtros h3{ margin-top:0; }
+
+    .filtros label{
+      display:block;
+      margin:10px 0 4px;
+      font-size:.9rem;
+    }
+
+    .filtros input,
+    .filtros select{
+      width:100%;
+      padding:10px;
+      border:1px solid #ccc;
+      border-radius:8px;
+    }
+
+    .filtros button{
+      margin-top:15px;
+      width:100%;
+      padding:12px;
+      background:#7cc242;
+      color:white;
+      border:none;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .filtros button:hover{ background:#5a9c2e; }
+
+    .lista{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:20px;
+    }
+
+    .item{
+      background:white;
+      border-radius:12px;
+      overflow:hidden;
+      box-shadow:0 4px 14px rgba(0,0,0,0.12);
+      cursor:pointer;
+      transition:.25s ease;
+    }
+
+    .item:hover{
+      transform:translateY(-5px);
+      box-shadow:0 6px 18px rgba(0,0,0,0.20);
+    }
+
+    .item img{
+      width:100%;
+      height:190px;
+      object-fit:cover;
+    }
+
+    .info{ padding:15px; }
+
+    .precio{
+      font-size:1.3rem;
+      color:#7cc242;
+      font-weight:700;
+    }
+
+    .direccion{
+      font-size:.95rem;
+      color:#555;
+      margin:6px 0;
+    }
+
+    @media (max-width:768px){
+      .contenedor{
+        grid-template-columns:1fr;
+      }
+      .filtros{
+        position:static;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<header>
-  <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
-  <div>
-    <button class="header-btn" onclick="location.href='publicar.html'">Publicar</button>
-    <button class="header-btn" onclick="location.href='favoritos.html'">❤️ Favoritos</button>
-  </div>
-</header>
+<!-- HEADER DINÁMICO (ÚNICO) -->
+<div id="main-header"></div>
+<script src="/js/header.js" defer></script>
 
+<!-- CONTENIDO -->
 <div class="contenedor">
 
-  <!-- Filtros -->
   <aside class="filtros">
     <h3>Filtros</h3>
 
@@ -164,92 +154,36 @@ header{
     <button onclick="aplicarFiltros()">Aplicar filtros</button>
   </aside>
 
-  <!-- Listado -->
   <section>
     <div class="lista" id="lista"></div>
   </section>
 
 </div>
 
+<!-- JS -->
+<script src="/js/filtros.js"></script>
 <script>
-let propiedades = [];
-
-async function cargarPropiedades() {
-    const res = await fetch("/propiedades");
-    const todas = await res.json();
-
-    // SOLO alquiler
-    propiedades = todas.filter(p => p.tipoOperacion === "alquiler");
-
-    renderLista(propiedades);
-}
-
-function renderLista(lista) {
-    const cont = document.getElementById("lista");
-    cont.innerHTML = "";
-
-    if (lista.length === 0) {
-        cont.innerHTML = "<h3>No se encontraron resultados</h3>";
-        return;
-    }
-
-    lista.forEach(p => {
-        const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
-
-        cont.innerHTML += `
-        <div class="item" onclick="location.href='propiedad.html?id=${p._id}'">
-            <img src="${img}">
-            <div class="info">
-                <div class="precio">${p.precio} €</div>
-                <div class="direccion">${p.direccion}</div>
-            </div>
-        </div>`;
-    });
-}
-
-function aplicarFiltros() {
-    let lista = [...propiedades];
-
-    const texto = document.getElementById("f_texto").value.toLowerCase();
-    const min = Number(document.getElementById("f_min").value);
-    const max = Number(document.getElementById("f_max").value);
-    const hab = Number(document.getElementById("f_hab").value);
-
-    if (texto)
-        lista = lista.filter(p => p.direccion.toLowerCase().includes(texto));
-
-    if (min) lista = lista.filter(p => p.precio >= min);
-    if (max) lista = lista.filter(p => p.precio <= max);
-    if (hab) lista = lista.filter(p => (p.habitaciones || 0) >= hab);
-
-    renderLista(lista);
-}
-
-cargarPropiedades();
+  cargarPropiedades("alquiler");
 </script>
 
-<!-- MENÚ MÓVIL TIPO APP -->
+<!-- MENÚ MÓVIL -->
 <nav class="mobile-nav" id="mobileNav">
-  <a href="/index.html" class="active">
+  <a href="/index.html">
     <span>🏠</span>
     <small>Inicio</small>
   </a>
-
   <a href="/comprar.html">
     <span>🔍</span>
     <small>Buscar</small>
   </a>
-
   <a href="/favoritos.html">
     <span>❤️</span>
     <small>Favoritos</small>
   </a>
-
   <a href="/perfil.html#chats">
     <span>💬</span>
     <small>Chats</small>
   </a>
-
   <a href="/perfil.html">
     <span>👤</span>
     <small>Perfil</small>

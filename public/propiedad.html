@@ -3,11 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Costa Hogar - Propiedad</title>
+
+  <!-- SEO dinámico (se completa por JS) -->
+  <title>Cargando propiedad | Costa Hogar</title>
+  <meta name="description" content="Consulta los detalles completos de esta propiedad en Costa Hogar.">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Propiedad en Costa Hogar">
+  <meta property="og:description" content="Ver detalles, fotos, mapa y contactar con el anunciante.">
+  <meta property="og:type" content="website">
 
   <!-- CSS -->
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="stylesheet" href="css/propiedad.css">
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/css/propiedad.css">
 
   <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -15,28 +23,35 @@
 
 <body>
 
+<!-- HEADER -->
 <div id="main-header"></div>
-<script src="/js/header.js"></script>
+<script src="/js/header.js" defer></script>
 
-
+<!-- CONTENIDO -->
 <main class="container" id="contenedor">
-  Cargando propiedad...
+
+  <!-- Skeleton / placeholder -->
+  <section class="propiedad-skeleton">
+    <h1>Cargando propiedad...</h1>
+    <p>Estamos obteniendo la información.</p>
+  </section>
+
 </main>
 
 <!-- MODAL IMÁGENES -->
 <div class="modal" id="modal">
   <span class="modal-cerrar" onclick="cerrarModal()">×</span>
-  <img id="modal-img">
+  <img id="modal-img" alt="Imagen de la propiedad">
 </div>
 
 <!-- LIBRERÍAS -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- JS PROPIEDAD -->
-<script src="js/propiedad.js"></script>
+<script src="/js/propiedad.js"></script>
 
-<!-- CHAT INLINE (MUY IMPORTANTE) -->
-<script type="module" src="js/chat-inline.js"></script>
+<!-- CHAT INLINE (NO TOCAR) -->
+<script type="module" src="/js/chat-inline.js"></script>
 
 </body>
 </html>
