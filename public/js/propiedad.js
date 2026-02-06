@@ -1,9 +1,10 @@
 /* ================================
-   VARIABLES
+   VARIABLES GLOBALES
 ================================ */
 let propiedad = null;
 let fotos = [];
 let indexFoto = 0;
+let mapa = null;
 
 /* ================================
    INIT
@@ -11,10 +12,10 @@ let indexFoto = 0;
 document.addEventListener("DOMContentLoaded", cargarPropiedad);
 
 /* ================================
-   CARGAR PROPIEDAD (OPTIMIZADO)
+   CARGAR PROPIEDAD
 ================================ */
 async function cargarPropiedad() {
-  const id = new URLSearchParams(location.search).get("id");
+  const id = new URLSearchParams(window.location.search).get("id");
   if (!id) return mostrarError("ID de propiedad inválido");
 
   try {
@@ -25,12 +26,13 @@ async function cargarPropiedad() {
     return mostrarError("Propiedad no encontrada");
   }
 
-  fotos = propiedad.imagenes?.length
+  fotos = Array.isArray(propiedad.imagenes) && propiedad.imagenes.length
     ? propiedad.imagenes
     : ["https://via.placeholder.com/1200x700?text=Sin+imagen"];
 
   actualizarSEO();
   renderPropiedad();
+  iniciarMapa();
 }
 
 /* ================================
@@ -52,24 +54,23 @@ function actualizarSEO() {
    RENDER PROPIEDAD
 ================================ */
 function renderPropiedad() {
-  document.getElementById("contenedor").innerHTML = `
+  const contenedor = document.getElementById("contenedor");
+
+  contenedor.innerHTML = `
     <div class="slider-container">
-      <button class="slider-btn left" onclick="prevFoto()">‹</button>
-
-      <img src="${fotos[indexFoto]}" class="slider-img"
-           onclick="abrirModal('${fotos[indexFoto]}')">
-
-      <button class="slider-btn right" onclick="nextFoto()">›</button>
+      <div class="flecha flecha-izq" onclick="prevFoto()">‹</div>
+      <img src="${fotos[indexFoto]}" class="activa"
+           onclick="abrirModal('${fotos[indexFoto]}')" />
+      <div class="flecha flecha-der" onclick="nextFoto()">›</div>
     </div>
 
     <h1>${propiedad.titulo}</h1>
     <p class="price">${propiedad.precio} €</p>
     <p><strong>Dirección:</strong> ${propiedad.direccion}</p>
 
-    <!-- MAPA -->
-    <div id="mapa" class="mapa-propiedad"></div>
-
     <p>${propiedad.descripcion || ""}</p>
+
+    <div id="mapa"></div>
 
     <button class="chat-open-btn" onclick="contactar()">
       💬 Contactar con el anunciante
@@ -77,8 +78,6 @@ function renderPropiedad() {
 
     <a class="volver-btn" href="javascript:history.back()">⬅ Volver</a>
   `;
-
-  iniciarMapa();
 }
 
 /* ================================
@@ -87,7 +86,11 @@ function renderPropiedad() {
 function iniciarMapa() {
   if (!propiedad.lat || !propiedad.lng) return;
 
-  const mapa = L.map("mapa").setView(
+  if (mapa) {
+    mapa.remove();
+  }
+
+  mapa = L.map("mapa").setView(
     [propiedad.lat, propiedad.lng],
     15
   );
@@ -98,8 +101,7 @@ function iniciarMapa() {
 
   L.marker([propiedad.lat, propiedad.lng])
     .addTo(mapa)
-    .bindPopup(propiedad.titulo)
-    .openPopup();
+    .bindPopup(propiedad.titulo);
 }
 
 /* ================================
@@ -107,12 +109,19 @@ function iniciarMapa() {
 ================================ */
 function nextFoto() {
   indexFoto = (indexFoto + 1) % fotos.length;
-  renderPropiedad();
+  actualizarFoto();
 }
 
 function prevFoto() {
   indexFoto = (indexFoto - 1 + fotos.length) % fotos.length;
-  renderPropiedad();
+  actualizarFoto();
+}
+
+function actualizarFoto() {
+  const img = document.querySelector(".slider-container img");
+  if (img) {
+    img.src = fotos[indexFoto];
+  }
 }
 
 /* ================================
@@ -120,7 +129,8 @@ function prevFoto() {
 ================================ */
 function abrirModal(src) {
   const modal = document.getElementById("modal");
-  document.getElementById("modal-img").src = src;
+  const img = document.getElementById("modal-img");
+  img.src = src;
   modal.style.display = "flex";
 }
 
@@ -136,14 +146,15 @@ function mostrarError(msg) {
 }
 
 /* ================================
-   CONTACTAR → CHAT REAL
+   CONTACTAR → CHAT
 ================================ */
 async function contactar() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
+  const token = localStorage.getItem("token");
 
-  if (!usuario || !usuario._id) {
+  if (!usuario || !usuario._id || !token) {
     alert("Debes iniciar sesión para contactar");
-    location.href = "login.html";
+    window.location.href = "/login.html";
     return;
   }
 
@@ -156,12 +167,12 @@ async function contactar() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": "Bearer " + localStorage.getItem("token")
+      "Authorization": "Bearer " + token
     },
     body: JSON.stringify({
-      propiedadId: String(propiedad._id),
-      compradorId: String(usuario._id),
-      anuncianteId: String(propiedad.usuarioId)
+      propiedadId: propiedad._id,
+      compradorId: usuario._id,
+      anuncianteId: propiedad.usuarioId
     })
   });
 
@@ -172,5 +183,5 @@ async function contactar() {
     return;
   }
 
-  location.href = `/chat.html?id=${data._id}`;
+  window.location.href = `/chat.html?id=${data._id}`;
 }

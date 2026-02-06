@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- SEO dinámico (se completa por JS) -->
+  <!-- SEO dinámico (relleno por JS) -->
   <title>Cargando propiedad | Costa Hogar</title>
   <meta name="description" content="Consulta los detalles completos de esta propiedad en Costa Hogar.">
 
@@ -13,8 +13,9 @@
   <meta property="og:description" content="Ver detalles, fotos, mapa y contactar con el anunciante.">
   <meta property="og:type" content="website">
 
-  <!-- CSS -->
+  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
+  <!-- CSS PROPIEDAD -->
   <link rel="stylesheet" href="/css/propiedad.css">
 
   <!-- Leaflet -->
@@ -23,7 +24,7 @@
 
 <body>
 
-<!-- HEADER -->
+<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
@@ -48,7 +49,7 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- JS PROPIEDAD -->
-<script src="/js/propiedad.js"></script>
+<script src="/js/propiedad.js" defer></script>
 
 <!-- CHAT INLINE (NO TOCAR) -->
 <script type="module" src="/js/chat-inline.js"></script>

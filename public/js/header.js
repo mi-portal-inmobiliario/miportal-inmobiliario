@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let usuario = null;
 
   try {
-    usuario = JSON.parse(raw);
+    usuario = raw ? JSON.parse(raw) : null;
   } catch {
     usuario = null;
   }
@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           <div class="user-menu" id="userMenu">
             <div class="user-name" id="userToggle">
-              ${usuario.nombre}
+              ${usuario.nombre || "Usuario"}
             </div>
 
             <div class="dropdown" id="userDropdown">
@@ -66,11 +66,13 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
 
   /* ======================
-     DROPDOWN CLICK
+     DROPDOWN MENU
   ====================== */
   const userMenu = document.getElementById("userMenu");
   const userToggle = document.getElementById("userToggle");
   const logoutBtn = document.getElementById("logoutBtn");
+
+  if (!userMenu || !userToggle || !logoutBtn) return;
 
   userToggle.addEventListener("click", (e) => {
     e.stopPropagation();

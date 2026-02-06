@@ -11,6 +11,13 @@ body {
   color: #222;
 }
 
+/* ================= CONTENEDOR GLOBAL ================= */
+.container {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
 /* ================= HEADER DESKTOP ================= */
 .header {
   width: 100%;
@@ -172,7 +179,7 @@ body {
 
 @media (max-width: 768px) {
   body {
-    padding-bottom: 70px;
+    padding-bottom: 75px;
   }
 
   .header {

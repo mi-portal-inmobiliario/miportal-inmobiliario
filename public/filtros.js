@@ -2,130 +2,119 @@
 // filtros.js - Comprar / Alquiler
 // ================================
 
-// Lista completa de propiedades cargadas del servidor
 let propiedades = [];
-
-// Tipo de operación actual (venta / alquiler)
 let modoActual = "venta";
 
-
 // =====================================
-// 1) CARGAR PROPIEDADES SEGÚN MODO
+// CARGAR PROPIEDADES
 // =====================================
 async function cargarPropiedades(modo = "venta") {
-    modoActual = modo;
+  modoActual = modo;
 
-    try {
-        const res = await fetch("/propiedades");
-        const todas = await res.json();
+  try {
+    const res = await fetch("/propiedades");
+    if (!res.ok) throw new Error("Error servidor");
 
-        // Filtrar únicamente por tipoOperacion
-        propiedades = todas.filter(p => p.tipoOperacion === modo);
+    const todas = await res.json();
 
-        // Aplicar filtros si vienen por URL
-        leerFiltrosURL();
+    // Filtrar por tipo de operación
+    propiedades = todas.filter(p => p.tipoOperacion === modoActual);
 
-        renderLista(propiedades);
-    } catch (err) {
-        console.error("Error cargando propiedades:", err);
-    }
+    // Aplicar filtros desde URL si existen
+    aplicarFiltrosDesdeURL();
+
+    // Render inicial
+    renderLista(propiedades);
+
+  } catch (err) {
+    console.error("Error cargando propiedades:", err);
+    mostrarError("No se pudieron cargar las propiedades");
+  }
 }
 
-
 // =====================================
-// 2) MOSTRAR LISTA DE PROPIEDADES
+// MOSTRAR LISTA
 // =====================================
 function renderLista(lista) {
-    const cont = document.getElementById("lista");
-    cont.innerHTML = "";
+  const cont = document.getElementById("lista");
+  if (!cont) return;
 
-    if (lista.length === 0) {
-        cont.innerHTML = `<h3>No se encontraron resultados</h3>`;
-        return;
-    }
+  cont.innerHTML = "";
 
-    lista.forEach(p => {
-        const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
+  if (!lista.length) {
+    cont.innerHTML = `<h3>No se encontraron resultados</h3>`;
+    return;
+  }
 
-        cont.innerHTML += `
-        <div class="item" onclick="abrirPropiedad('${p._id}')">
-            <img src="${img}" alt="Foto propiedad">
-            <div class="info">
-                <div class="precio">${p.precio.toLocaleString()} €</div>
-                <div class="direccion">${p.direccion}</div>
-            </div>
-        </div>`;
-    });
+  lista.forEach(p => {
+    const img = p.imagenes?.[0] || "https://via.placeholder.com/400x200?text=Sin+imagen";
+
+    cont.insertAdjacentHTML("beforeend", `
+      <div class="item" onclick="abrirPropiedad('${p._id}')">
+        <img src="${img}" alt="Foto propiedad">
+        <div class="info">
+          <div class="precio">${Number(p.precio).toLocaleString()} €</div>
+          <div class="direccion">${p.direccion || ""}</div>
+        </div>
+      </div>
+    `);
+  });
 }
 
-
 // =====================================
-// 3) ABRIR PROPIEDAD
+// ABRIR PROPIEDAD
 // =====================================
 function abrirPropiedad(id) {
-    window.location.href = `propiedad.html?id=${id}`;
+  window.location.href = `/propiedad.html?id=${id}`;
 }
 
-
 // =====================================
-// 4) APLICAR FILTROS
+// APLICAR FILTROS MANUALES
 // =====================================
 function aplicarFiltros() {
-    let lista = [...propiedades];
+  let lista = [...propiedades];
 
-    const texto = document.getElementById("f_texto").value.toLowerCase();
-    const min = Number(document.getElementById("f_min").value);
-    const max = Number(document.getElementById("f_max").value);
-    const hab = Number(document.getElementById("f_hab").value);
+  const texto = document.getElementById("f_texto")?.value.toLowerCase() || "";
+  const min = Number(document.getElementById("f_min")?.value);
+  const max = Number(document.getElementById("f_max")?.value);
+  const hab = Number(document.getElementById("f_hab")?.value);
 
-    // Filtro por texto
-    if (texto) {
-        lista = lista.filter(p =>
-            (p.direccion || "").toLowerCase().includes(texto) ||
-            (p.titulo || "").toLowerCase().includes(texto)
-        );
-    }
+  if (texto) {
+    lista = lista.filter(p =>
+      (p.direccion || "").toLowerCase().includes(texto) ||
+      (p.titulo || "").toLowerCase().includes(texto)
+    );
+  }
 
-    // Filtro precio mínimo
-    if (min) lista = lista.filter(p => p.precio >= min);
+  if (min) lista = lista.filter(p => p.precio >= min);
+  if (max) lista = lista.filter(p => p.precio <= max);
+  if (hab) lista = lista.filter(p => (p.habitaciones || 0) >= hab);
 
-    // Filtro precio máximo
-    if (max) lista = lista.filter(p => p.precio <= max);
-
-    // Filtro habitaciones (cuando lo añadas al servidor)
-    if (hab) lista = lista.filter(p => (p.habitaciones || 0) >= hab);
-
-    renderLista(lista);
+  renderLista(lista);
 }
 
+// =====================================
+// FILTROS DESDE URL (INDEX → COMPRAR)
+// =====================================
+function aplicarFiltrosDesdeURL() {
+  const params = new URLSearchParams(window.location.search);
+  const texto = params.get("search");
 
-// =========================================================
-// 5) LEER FILTROS DESDE URL (para búsquedas desde index)
-// =========================================================
-function leerFiltrosURL() {
-    const params = new URLSearchParams(window.location.search);
+  if (!texto) return;
 
-    const texto = params.get("search");
-    const modo = params.get("modo");
+  const input = document.getElementById("f_texto");
+  if (input) input.value = texto;
 
-    // Si viene modo desde alquiler.html → "alquiler"
-    if (modo === "alquiler") modoActual = "alquiler";
-
-    // Si viene búsqueda desde index.html
-    if (texto) {
-        const input = document.getElementById("f_texto");
-        input.value = texto;
-    }
+  propiedades = propiedades.filter(p =>
+    (p.direccion || "").toLowerCase().includes(texto.toLowerCase()) ||
+    (p.titulo || "").toLowerCase().includes(texto.toLowerCase())
+  );
 }
 
-
-// =========================================================
-// 6) EJECUTAR AUTOMÁTICO SEGÚN LA PÁGINA
-// =========================================================
-document.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-
-    const modo = params.get("modo") || "venta";
-
-    cargarPropiedades(modo);
-});
+// =====================================
+// ERRORES
+// =====================================
+function mostrarError(msg) {
+  const cont = document.getElementById("lista");
+  if (cont) cont.innerHTML = `<h3>${msg}</h3>`;
+}
