@@ -14,9 +14,10 @@ async function cargarPropiedades(modo = "venta") {
 
     const todas = await res.json();
 
+    // 🔥 CAMPO CORRECTO SEGÚN TU MODELO
     propiedades = todas.filter(p => p.tipoOperacion === modo);
-    renderLista(propiedades);
 
+    renderLista(propiedades);
   } catch (err) {
     console.error(err);
     document.getElementById("lista").innerHTML =
@@ -55,42 +56,8 @@ function renderLista(lista) {
 }
 
 // ================================
-// ABRIR DETALLE
+// ABRIR PROPIEDAD
 // ================================
 function abrirPropiedad(id) {
   location.href = `/propiedad.html?id=${id}`;
 }
-
-// ================================
-// FILTROS
-// ================================
-function aplicarFiltros() {
-  let lista = [...propiedades];
-
-  const texto = document.getElementById("f_texto").value.toLowerCase();
-  const min = Number(document.getElementById("f_min").value);
-  const max = Number(document.getElementById("f_max").value);
-
-  if (texto) {
-    lista = lista.filter(p =>
-      p.titulo.toLowerCase().includes(texto) ||
-      p.direccion.toLowerCase().includes(texto)
-    );
-  }
-
-  if (min) lista = lista.filter(p => p.precio >= min);
-  if (max) lista = lista.filter(p => p.precio <= max);
-
-  renderLista(lista);
-}
-
-// ================================
-// AUTO-INIT
-// ================================
-document.addEventListener("DOMContentLoaded", () => {
-  const modo = location.pathname.includes("alquiler")
-    ? "alquiler"
-    : "venta";
-
-  cargarPropiedades(modo);
-});

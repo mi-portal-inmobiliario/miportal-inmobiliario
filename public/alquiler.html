@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alquiler de propiedades - Costa Hogar</title>
 
-  <!-- FUENTE -->
+  <!-- Fuente -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
   <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
 
-  <!-- CSS SOLO DE ALQUILER (idéntico a comprar) -->
   <style>
     body{
       margin:0;
@@ -39,8 +38,6 @@
       height:max-content;
     }
 
-    .filtros h3{ margin-top:0; }
-
     .filtros label{
       display:block;
       margin:10px 0 4px;
@@ -67,7 +64,9 @@
       font-weight:600;
     }
 
-    .filtros button:hover{ background:#5a9c2e; }
+    .filtros button:hover{
+      background:#5a9c2e;
+    }
 
     .lista{
       display:grid;
@@ -159,25 +158,22 @@
 
 </div>
 
-<!-- JS -->
-<script src="/js/filtros.js"></script>
-<script>
-  cargarPropiedades("alquiler");
-</script>
+<!-- JS FILTROS (SOLO UNA VEZ) -->
+<script src="/js/filtros.js" defer></script>
 
 <!-- MENÚ MÓVIL -->
-<nav class="mobile-nav" id="mobileNav">
+<nav class="mobile-nav">
   <a href="/index.html">
     <span>🏠</span>
     <small>Inicio</small>
   </a>
-  <a href="/alquiler.html" class="active">
+  <a href="/comprar.html">
     <span>🔍</span>
-    <small>Buscar</small>
+    <small>Comprar</small>
   </a>
-  <a href="/favoritos.html">
-    <span>❤️</span>
-    <small>Favoritos</small>
+  <a href="/alquiler.html" class="active">
+    <span>🏡</span>
+    <small>Alquiler</small>
   </a>
   <a href="/perfil.html#chats">
     <span>💬</span>
@@ -191,3 +187,4 @@
 
 </body>
 </html>
+
