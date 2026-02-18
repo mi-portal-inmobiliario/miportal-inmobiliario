@@ -67,6 +67,10 @@
       font-weight:600;
     }
 
+    .filtros button:hover{
+      background:#5a9c2e;
+    }
+
     .lista{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -79,6 +83,12 @@
       overflow:hidden;
       box-shadow:0 4px 14px rgba(0,0,0,0.12);
       cursor:pointer;
+      transition:0.25s ease;
+    }
+
+    .item:hover{
+      transform:translateY(-5px);
+      box-shadow:0 6px 18px rgba(0,0,0,0.20);
     }
 
     .item img{
@@ -114,7 +124,7 @@
 
 <body>
 
-<!-- HEADER -->
+<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
@@ -151,16 +161,35 @@
 
 </div>
 
-<!-- JS -->
+<!-- JS PRINCIPAL (SOLO UNA VEZ) -->
 <script src="/js/filtros.js" defer></script>
 
 <!-- MENÚ MÓVIL -->
 <nav class="mobile-nav">
-  <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
-  <a href="/comprar.html" class="active"><span>🔍</span><small>Buscar</small></a>
-  <a href="/favoritos.html"><span>❤️</span><small>Favoritos</small></a>
-  <a href="/perfil.html#chats"><span>💬</span><small>Chats</small></a>
-  <a href="/perfil.html"><span>👤</span><small>Perfil</small></a>
+  <a href="/index.html">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+
+  <a href="/comprar.html" class="active">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+
+  <a href="/favoritos.html">
+    <span>❤️</span>
+    <small>Favoritos</small>
+  </a>
+
+  <a href="/perfil.html#chats">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
 </nav>
 
 </body>
