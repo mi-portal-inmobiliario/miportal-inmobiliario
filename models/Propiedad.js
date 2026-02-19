@@ -6,6 +6,7 @@ const PropiedadSchema = new mongoose.Schema({
   precio: { type: Number, required: true },
   descripcion: { type: String },
   tipoOperacion: { type: String, enum: ["venta", "alquiler"], required: true },
+  habitaciones: { type: Number, default: 1 },
   imagenes: { type: [String], default: [] },
   lat: { type: Number },
   lng: { type: Number },

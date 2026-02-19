@@ -1,21 +1,32 @@
 // ================================
-// filtros.js - Comprar / Alquiler
+// filtros.js - versión profesional
 // ================================
 
-let propiedades = [];
+let modoActual = "venta";
 
 // ================================
 // CARGAR PROPIEDADES
 // ================================
-async function cargarPropiedades(modo = "venta") {
+async function cargarPropiedades() {
+  const texto = document.getElementById("f_texto")?.value || "";
+  const min = document.getElementById("f_min")?.value || "";
+  const max = document.getElementById("f_max")?.value || "";
+  const hab = document.getElementById("f_hab")?.value || "";
+
+  const params = new URLSearchParams();
+
+  params.append("tipo", modoActual);
+
+  if (texto) params.append("texto", texto);
+  if (min) params.append("min", min);
+  if (max) params.append("max", max);
+  if (hab) params.append("hab", hab);
+
   try {
-    const res = await fetch("/propiedades");
+    const res = await fetch(`/propiedades?${params.toString()}`);
     if (!res.ok) throw new Error("Error cargando propiedades");
 
-    const todas = await res.json();
-
-    // 🔥 CAMPO CORRECTO SEGÚN TU MODELO
-    propiedades = todas.filter(p => p.tipoOperacion === modo);
+    const propiedades = await res.json();
 
     renderLista(propiedades);
   } catch (err) {
@@ -49,6 +60,7 @@ function renderLista(lista) {
         <div class="info">
           <div class="precio">${p.precio} €</div>
           <div class="direccion">${p.direccion}</div>
+          <div>${p.habitaciones || 0} habitaciones</div>
         </div>
       </div>
     `;
@@ -61,3 +73,18 @@ function renderLista(lista) {
 function abrirPropiedad(id) {
   location.href = `/propiedad.html?id=${id}`;
 }
+
+// ================================
+// AUTO INIT
+// ================================
+document.addEventListener("DOMContentLoaded", () => {
+  if (window.location.pathname.includes("comprar")) {
+    modoActual = "venta";
+  }
+
+  if (window.location.pathname.includes("alquiler")) {
+    modoActual = "alquiler";
+  }
+
+  cargarPropiedades();
+});
