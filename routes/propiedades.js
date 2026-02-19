@@ -65,19 +65,46 @@ router.get("/", async (req, res) => {
 /* ==================================================
    GET PROPIEDAD POR ID
 ================================================== */
-router.get("/:id", async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const propiedad = await Propiedad.findById(req.params.id);
+    const { tipo, min, max, hab, texto } = req.query;
 
-    if (!propiedad) {
-      return res.status(404).json({ message: "Propiedad no encontrada" });
+    let filtro = {};
+
+    // 🔹 Tipo de operación (venta / alquiler)
+    if (tipo) {
+      filtro.tipoOperacion = tipo;
     }
 
-    res.json(propiedad);
+    // 🔹 Precio mínimo / máximo
+    if (min || max) {
+      filtro.precio = {};
+      if (min) filtro.precio.$gte = Number(min);
+      if (max) filtro.precio.$lte = Number(max);
+    }
+
+    // 🔹 Habitaciones mínimas
+    if (hab) {
+      filtro.habitaciones = { $gte: Number(hab) };
+    }
+
+    // 🔹 Búsqueda por texto (direccion o titulo)
+    if (texto) {
+      filtro.$or = [
+        { direccion: { $regex: texto, $options: "i" } },
+        { titulo: { $regex: texto, $options: "i" } }
+      ];
+    }
+
+    const propiedades = await Propiedad.find(filtro);
+
+    res.json(propiedades);
 
   } catch (err) {
-    res.status(400).json({ message: "ID inválido" });
+    console.error(err);
+    res.status(500).json({ message: "Error al obtener propiedades" });
   }
 });
+
 
 module.exports = router;
