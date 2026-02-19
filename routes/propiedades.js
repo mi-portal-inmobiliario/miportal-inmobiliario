@@ -2,42 +2,49 @@ const express = require("express");
 const router = express.Router();
 const Propiedad = require("../models/Propiedad");
 
-/* =====================================================
-   GET PROPIEDADES (FILTROS + PAGINACIÓN + ORDENACIÓN)
-===================================================== */
+/* ==================================================
+   GET PROPIEDADES CON FILTROS PROFESIONALES
+   Ejemplo:
+   /propiedades?tipo=venta&min=100000&max=300000&hab=2&texto=cádiz
+================================================== */
 router.get("/", async (req, res) => {
   try {
-    const {
-      tipo,
-      min,
-      max,
-      hab,
-      texto,
-      page = 1,
-      limit = 6,
-      sort
-    } = req.query;
+    const { tipo, min, max, hab, texto } = req.query;
 
-    const filtro = {};
+    let filtro = {};
 
-    // 🔹 Tipo de operación
+    // ==============================
+    // FILTRO TIPO OPERACIÓN
+    // ==============================
     if (tipo) {
       filtro.tipoOperacion = tipo;
     }
 
-    // 🔹 Rango de precio
+    // ==============================
+    // FILTRO PRECIO
+    // ==============================
     if (min || max) {
       filtro.precio = {};
-      if (min) filtro.precio.$gte = Number(min);
-      if (max) filtro.precio.$lte = Number(max);
+
+      if (min) {
+        filtro.precio.$gte = Number(min);
+      }
+
+      if (max) {
+        filtro.precio.$lte = Number(max);
+      }
     }
 
-    // 🔹 Habitaciones (si tu modelo las tiene)
+    // ==============================
+    // FILTRO HABITACIONES (mínimo)
+    // ==============================
     if (hab) {
       filtro.habitaciones = { $gte: Number(hab) };
     }
 
-    // 🔹 Búsqueda por texto (titulo o direccion)
+    // ==============================
+    // FILTRO TEXTO (título o dirección)
+    // ==============================
     if (texto) {
       filtro.$or = [
         { titulo: { $regex: texto, $options: "i" } },
@@ -45,28 +52,9 @@ router.get("/", async (req, res) => {
       ];
     }
 
-    // 🔹 Ordenación
-    let orden = { createdAt: -1 }; // por defecto más recientes
+    const propiedades = await Propiedad.find(filtro).sort({ createdAt: -1 });
 
-    if (sort === "precio_asc") orden = { precio: 1 };
-    if (sort === "precio_desc") orden = { precio: -1 };
-
-    const skip = (Number(page) - 1) * Number(limit);
-
-    const [propiedades, total] = await Promise.all([
-      Propiedad.find(filtro)
-        .sort(orden)
-        .skip(skip)
-        .limit(Number(limit)),
-      Propiedad.countDocuments(filtro)
-    ]);
-
-    res.json({
-      total,
-      page: Number(page),
-      totalPages: Math.ceil(total / limit),
-      resultados: propiedades
-    });
+    res.json(propiedades);
 
   } catch (err) {
     console.error(err);
@@ -74,9 +62,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-/* =====================================================
+/* ==================================================
    GET PROPIEDAD POR ID
-===================================================== */
+================================================== */
 router.get("/:id", async (req, res) => {
   try {
     const propiedad = await Propiedad.findById(req.params.id);
@@ -93,4 +81,3 @@ router.get("/:id", async (req, res) => {
 });
 
 module.exports = router;
-
