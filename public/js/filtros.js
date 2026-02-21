@@ -1,44 +1,68 @@
-// ================================
-// filtros.js - versión profesional
-// ================================
+// =====================================
+// filtros.js - versión profesional final
+// =====================================
 
-let modoActual = "venta";
+let propiedades = [];
 
-// ================================
-// CARGAR PROPIEDADES
-// ================================
+// =====================================
+// CARGAR PROPIEDADES (CON FILTROS BACKEND)
+// =====================================
 async function cargarPropiedades() {
-  const texto = document.getElementById("f_texto")?.value || "";
-  const min = document.getElementById("f_min")?.value || "";
-  const max = document.getElementById("f_max")?.value || "";
-  const hab = document.getElementById("f_hab")?.value || "";
-
-  const params = new URLSearchParams();
-
-  params.append("tipo", modoActual);
-
-  if (texto) params.append("texto", texto);
-  if (min) params.append("min", min);
-  if (max) params.append("max", max);
-  if (hab) params.append("hab", hab);
-
   try {
-    const res = await fetch(`/propiedades?${params.toString()}`);
+
+    // Detectar modo (venta / alquiler)
+    let tipo = "";
+    if (window.location.pathname.includes("comprar")) {
+      tipo = "venta";
+    }
+    if (window.location.pathname.includes("alquiler")) {
+      tipo = "alquiler";
+    }
+
+    // Leer filtros
+    const texto = document.getElementById("f_texto")?.value.trim();
+    const min = document.getElementById("f_min")?.value;
+    const max = document.getElementById("f_max")?.value;
+    const hab = document.getElementById("f_hab")?.value;
+
+    // Construir parámetros
+    const params = new URLSearchParams();
+
+    if (tipo) params.append("tipo", tipo);
+    if (texto) params.append("texto", texto);
+    if (min) params.append("min", min);
+    if (max) params.append("max", max);
+    if (hab) params.append("hab", hab);
+
+    const url = "/propiedades?" + params.toString();
+
+    const res = await fetch(url);
     if (!res.ok) throw new Error("Error cargando propiedades");
 
-    const propiedades = await res.json();
+    const data = await res.json();
 
+    propiedades = data;
     renderLista(propiedades);
+
   } catch (err) {
     console.error(err);
-    document.getElementById("lista").innerHTML =
-      "<p>Error cargando propiedades</p>";
+    const cont = document.getElementById("lista");
+    if (cont) {
+      cont.innerHTML = "<p>Error cargando propiedades</p>";
+    }
   }
 }
 
-// ================================
+// =====================================
+// BOTÓN APLICAR FILTROS
+// =====================================
+function aplicarFiltros() {
+  cargarPropiedades();
+}
+
+// =====================================
 // RENDER LISTA
-// ================================
+// =====================================
 function renderLista(lista) {
   const cont = document.getElementById("lista");
   if (!cont) return;
@@ -67,24 +91,16 @@ function renderLista(lista) {
   });
 }
 
-// ================================
+// =====================================
 // ABRIR PROPIEDAD
-// ================================
+// =====================================
 function abrirPropiedad(id) {
   location.href = `/propiedad.html?id=${id}`;
 }
 
-// ================================
-// AUTO INIT
-// ================================
+// =====================================
+// AUTO INIT AL CARGAR PÁGINA
+// =====================================
 document.addEventListener("DOMContentLoaded", () => {
-  if (window.location.pathname.includes("comprar")) {
-    modoActual = "venta";
-  }
-
-  if (window.location.pathname.includes("alquiler")) {
-    modoActual = "alquiler";
-  }
-
   cargarPropiedades();
 });
