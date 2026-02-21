@@ -74,9 +74,41 @@ app.use("/chat", chatRoutes);
 // 👉 TODAS LAS PROPIEDADES
 app.get("/propiedades", async (req, res) => {
   try {
-    const propiedades = await Propiedad.find();
+    const { tipo, min, max, hab, texto } = req.query;
+
+    let filtro = {};
+
+    // Tipo operación
+    if (tipo) {
+      filtro.tipoOperacion = tipo;
+    }
+
+    // Precio
+    if (min || max) {
+      filtro.precio = {};
+      if (min) filtro.precio.$gte = Number(min);
+      if (max) filtro.precio.$lte = Number(max);
+    }
+
+    // Habitaciones (mínimo)
+    if (hab) {
+      filtro.habitaciones = { $gte: Number(hab) };
+    }
+
+    // Búsqueda texto en título o dirección
+    if (texto) {
+      filtro.$or = [
+        { titulo: { $regex: texto, $options: "i" } },
+        { direccion: { $regex: texto, $options: "i" } }
+      ];
+    }
+
+    const propiedades = await Propiedad.find(filtro);
+
     res.json(propiedades);
+
   } catch (err) {
+    console.error(err);
     res.status(500).json({ message: "Error al obtener propiedades" });
   }
 });
