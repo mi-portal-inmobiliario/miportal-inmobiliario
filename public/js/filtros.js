@@ -1,16 +1,16 @@
 // =====================================
-// filtros.js - versión profesional final
+// filtros.js - profesional con ordenación
 // =====================================
 
 let propiedades = [];
 
 // =====================================
-// CARGAR PROPIEDADES (CON FILTROS BACKEND)
+// CARGAR PROPIEDADES
 // =====================================
 async function cargarPropiedades() {
   try {
 
-    // Detectar modo (venta / alquiler)
+    // Detectar modo
     let tipo = "";
     if (window.location.pathname.includes("comprar")) {
       tipo = "venta";
@@ -24,8 +24,8 @@ async function cargarPropiedades() {
     const min = document.getElementById("f_min")?.value;
     const max = document.getElementById("f_max")?.value;
     const hab = document.getElementById("f_hab")?.value;
+    const sort = document.getElementById("f_sort")?.value;
 
-    // Construir parámetros
     const params = new URLSearchParams();
 
     if (tipo) params.append("tipo", tipo);
@@ -33,6 +33,7 @@ async function cargarPropiedades() {
     if (min) params.append("min", min);
     if (max) params.append("max", max);
     if (hab) params.append("hab", hab);
+    if (sort) params.append("sort", sort);
 
     const url = "/propiedades?" + params.toString();
 
@@ -47,21 +48,12 @@ async function cargarPropiedades() {
   } catch (err) {
     console.error(err);
     const cont = document.getElementById("lista");
-    if (cont) {
-      cont.innerHTML = "<p>Error cargando propiedades</p>";
-    }
+    if (cont) cont.innerHTML = "<p>Error cargando propiedades</p>";
   }
 }
 
 // =====================================
-// BOTÓN APLICAR FILTROS
-// =====================================
-function aplicarFiltros() {
-  cargarPropiedades();
-}
-
-// =====================================
-// RENDER LISTA
+// RENDER
 // =====================================
 function renderLista(lista) {
   const cont = document.getElementById("lista");
@@ -95,11 +87,11 @@ function renderLista(lista) {
 // ABRIR PROPIEDAD
 // =====================================
 function abrirPropiedad(id) {
-  location.href = `/propiedad.html?id=${id}`;
+  location.href = "/propiedad.html?id=" + id;
 }
 
 // =====================================
-// AUTO INIT AL CARGAR PÁGINA
+// AUTO INIT
 // =====================================
 document.addEventListener("DOMContentLoaded", () => {
   cargarPropiedades();

@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Alquiler de propiedades - Costa Hogar</title>
 
-  <!-- Fuente -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
 
   <style>
@@ -64,10 +61,6 @@
       font-weight:600;
     }
 
-    .filtros button:hover{
-      background:#5a9c2e;
-    }
-
     .lista{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
@@ -80,7 +73,7 @@
       overflow:hidden;
       box-shadow:0 4px 14px rgba(0,0,0,0.12);
       cursor:pointer;
-      transition:.25s ease;
+      transition:0.25s ease;
     }
 
     .item:hover{
@@ -121,11 +114,9 @@
 
 <body>
 
-<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-<!-- CONTENIDO -->
 <div class="contenedor">
 
   <aside class="filtros">
@@ -149,7 +140,15 @@
       <option value="4">4+</option>
     </select>
 
-    <button onclick="aplicarFiltros()">Aplicar filtros</button>
+    <label>Ordenar por</label>
+    <select id="f_sort">
+      <option value="">Relevancia</option>
+      <option value="precio_asc">Precio: menor a mayor</option>
+      <option value="precio_desc">Precio: mayor a menor</option>
+    </select>
+
+    <button onclick="cargarPropiedades()">Aplicar filtros</button>
+
   </aside>
 
   <section>
@@ -158,33 +157,7 @@
 
 </div>
 
-<!-- JS FILTROS (SOLO UNA VEZ) -->
 <script src="/js/filtros.js" defer></script>
-
-<!-- MENÚ MÓVIL -->
-<nav class="mobile-nav">
-  <a href="/index.html">
-    <span>🏠</span>
-    <small>Inicio</small>
-  </a>
-  <a href="/comprar.html">
-    <span>🔍</span>
-    <small>Comprar</small>
-  </a>
-  <a href="/alquiler.html" class="active">
-    <span>🏡</span>
-    <small>Alquiler</small>
-  </a>
-  <a href="/perfil.html#chats">
-    <span>💬</span>
-    <small>Chats</small>
-  </a>
-  <a href="/perfil.html">
-    <span>👤</span>
-    <small>Perfil</small>
-  </a>
-</nav>
 
 </body>
 </html>
-

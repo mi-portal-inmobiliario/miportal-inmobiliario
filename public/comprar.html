@@ -5,13 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comprar propiedades - Costa Hogar</title>
 
-  <!-- FUENTE -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
 
-  <!-- CSS SOLO DE COMPRAR -->
   <style>
     body{
       margin:0;
@@ -39,8 +35,6 @@
       height:max-content;
     }
 
-    .filtros h3{ margin-top:0; }
-
     .filtros label{
       display:block;
       margin:10px 0 4px;
@@ -67,68 +61,19 @@
       font-weight:600;
     }
 
-    .filtros button:hover{
-      background:#5a9c2e;
-    }
-
     .lista{
       display:grid;
       grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
       gap:20px;
-    }
-
-    .item{
-      background:white;
-      border-radius:12px;
-      overflow:hidden;
-      box-shadow:0 4px 14px rgba(0,0,0,0.12);
-      cursor:pointer;
-      transition:0.25s ease;
-    }
-
-    .item:hover{
-      transform:translateY(-5px);
-      box-shadow:0 6px 18px rgba(0,0,0,0.20);
-    }
-
-    .item img{
-      width:100%;
-      height:190px;
-      object-fit:cover;
-    }
-
-    .info{ padding:15px; }
-
-    .precio{
-      font-size:1.3rem;
-      color:#7cc242;
-      font-weight:700;
-    }
-
-    .direccion{
-      font-size:.95rem;
-      color:#555;
-      margin:6px 0;
-    }
-
-    @media (max-width:768px){
-      .contenedor{
-        grid-template-columns:1fr;
-      }
-      .filtros{
-        position:static;
-      }
     }
   </style>
 </head>
 
 <body>
 
-<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-<!-- CONTENIDO -->
 <div class="contenedor">
 
   <aside class="filtros">
@@ -152,6 +97,14 @@
       <option value="4">4+</option>
     </select>
 
+    <!-- NUEVO -->
+    <label>Ordenar por</label>
+    <select id="f_sort">
+      <option value="">Relevancia</option>
+      <option value="precio_asc">Precio: menor a mayor</option>
+      <option value="precio_desc">Precio: mayor a menor</option>
+    </select>
+
     <button onclick="cargarPropiedades()">Aplicar filtros</button>
 
   </aside>
@@ -162,36 +115,8 @@
 
 </div>
 
-<!-- JS PRINCIPAL (SOLO UNA VEZ) -->
 <script src="/js/filtros.js" defer></script>
-
-<!-- MENÚ MÓVIL -->
-<nav class="mobile-nav">
-  <a href="/index.html">
-    <span>🏠</span>
-    <small>Inicio</small>
-  </a>
-
-  <a href="/comprar.html" class="active">
-    <span>🔍</span>
-    <small>Buscar</small>
-  </a>
-
-  <a href="/favoritos.html">
-    <span>❤️</span>
-    <small>Favoritos</small>
-  </a>
-
-  <a href="/perfil.html#chats">
-    <span>💬</span>
-    <small>Chats</small>
-  </a>
-
-  <a href="/perfil.html">
-    <span>👤</span>
-    <small>Perfil</small>
-  </a>
-</nav>
 
 </body>
 </html>
+
