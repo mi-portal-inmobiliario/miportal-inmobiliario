@@ -71,31 +71,27 @@ app.use("/chat", chatRoutes);
 // PROPIEDADES
 // =============================
 
-// 👉 TODAS LAS PROPIEDADES
+// 👉 TODAS LAS PROPIEDADES (CON FILTROS + ORDENACIÓN)
 app.get("/propiedades", async (req, res) => {
   try {
-    const { tipo, min, max, hab, texto } = req.query;
+    const { tipo, min, max, hab, texto, sort } = req.query;
 
-    let filtro = {};
+    const filtro = {};
 
-    // Tipo operación
     if (tipo) {
       filtro.tipoOperacion = tipo;
     }
 
-    // Precio
     if (min || max) {
       filtro.precio = {};
       if (min) filtro.precio.$gte = Number(min);
       if (max) filtro.precio.$lte = Number(max);
     }
 
-    // Habitaciones (mínimo)
     if (hab) {
       filtro.habitaciones = { $gte: Number(hab) };
     }
 
-    // Búsqueda texto en título o dirección
     if (texto) {
       filtro.$or = [
         { titulo: { $regex: texto, $options: "i" } },
@@ -103,28 +99,19 @@ app.get("/propiedades", async (req, res) => {
       ];
     }
 
-    const propiedades = await Propiedad.find(filtro);
+    // ORDENACIÓN
+    let orden = {};
+    if (sort === "precio_asc") orden.precio = 1;
+    if (sort === "precio_desc") orden.precio = -1;
+
+    const propiedades = await Propiedad
+      .find(filtro)
+      .sort(orden);
 
     res.json(propiedades);
 
   } catch (err) {
-    console.error(err);
     res.status(500).json({ message: "Error al obtener propiedades" });
-  }
-});
-
-// 👉 PROPIEDAD POR ID
-app.get("/propiedades/:id", async (req, res) => {
-  try {
-    const propiedad = await Propiedad.findById(req.params.id);
-
-    if (!propiedad) {
-      return res.status(404).json({ message: "Propiedad no encontrada" });
-    }
-
-    res.json(propiedad);
-  } catch (err) {
-    res.status(400).json({ message: "ID inválido" });
   }
 });
 
