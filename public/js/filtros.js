@@ -96,3 +96,5 @@ function abrirPropiedad(id) {
 document.addEventListener("DOMContentLoaded", () => {
   cargarPropiedades();
 });
+
+window.cargarPropiedades = cargarPropiedades;
