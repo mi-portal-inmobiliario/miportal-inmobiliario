@@ -21,10 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="header-logo" onclick="location.href='/index.html'">
             Costa Hogar
           </div>
-
           <div class="header-actions">
-            <a href="/comprar.html">Comprar</a>
-            <a href="/alquiler.html">Alquilar</a>
+            <a href="/comprar.html" class="btn-outline">Comprar</a>
+            <a href="/alquiler.html" class="btn-outline">Alquilar</a>
+            <a href="/publicar.html" class="btn-publish">Pon tu anuncio</a>
+            <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
+            <a href="/login.html" class="btn-icon" title="Chats">💬</a>
             <a href="/login.html" class="btn-primary">Iniciar sesión</a>
           </div>
         </div>
@@ -42,17 +44,17 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="header-logo" onclick="location.href='/index.html'">
           Costa Hogar
         </div>
-
         <div class="header-actions">
-          <a href="/comprar.html">Comprar</a>
-          <a href="/alquiler.html">Alquilar</a>
-          <a href="/publicar.html" class="btn-primary">Publicar</a>
+          <a href="/comprar.html" class="btn-outline">Comprar</a>
+          <a href="/alquiler.html" class="btn-outline">Alquilar</a>
+          <a href="/publicar.html" class="btn-publish">Pon tu anuncio</a>
+          <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
+          <a href="/perfil.html#chats" class="btn-icon" title="Chats">💬</a>
 
           <div class="user-menu" id="userMenu">
             <div class="user-name" id="userToggle">
               ${usuario.nombre || "Usuario"}
             </div>
-
             <div class="dropdown" id="userDropdown">
               <a href="/perfil.html">Mi perfil</a>
               <a href="/favoritos.html">Favoritos</a>

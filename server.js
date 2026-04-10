@@ -12,15 +12,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // =============================
-// MODELOS
-// =============================
-import Propiedad from "./models/Propiedad.js";
-
-// =============================
 // RUTAS API
 // =============================
 import authRoutes from "./routes/auth.js";
 import chatRoutes from "./routes/chat.js";
+import propiedadesRoutes from "./routes/propiedades.js";
 
 // =============================
 // FIX __dirname (ES MODULES)
@@ -66,70 +62,8 @@ app.get("/_debug", (req, res) => {
 // =============================
 app.use("/auth", authRoutes);
 app.use("/chat", chatRoutes);
+app.use("/propiedades", propiedadesRoutes);
 
-// =============================
-// PROPIEDADES CON FILTROS PROFESIONALES
-// =============================
-app.get("/propiedades", async (req, res) => {
-  try {
-    const { tipo, min, max, hab, texto } = req.query;
-
-    const filtro = {};
-
-    // Tipo operación
-    if (tipo) {
-      filtro.tipoOperacion = tipo;
-    }
-
-    // Precio
-    if (min || max) {
-      filtro.precio = {};
-      if (min) filtro.precio.$gte = Number(min);
-      if (max) filtro.precio.$lte = Number(max);
-    }
-
-    // Habitaciones (1+ , 2+ , 3+)
-    if (hab) {
-      filtro.habitaciones = { $gte: Number(hab) };
-    }
-
-    // Búsqueda por texto
-    if (texto) {
-      filtro.$or = [
-        { direccion: { $regex: texto, $options: "i" } },
-        { titulo: { $regex: texto, $options: "i" } }
-      ];
-    }
-
-    console.log("FILTRO APLICADO:", filtro);
-
-    const propiedades = await Propiedad.find(filtro);
-
-    res.json(propiedades);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Error al obtener propiedades" });
-  }
-});
-
-// =============================
-// PROPIEDAD POR ID
-// =============================
-app.get("/propiedades/:id", async (req, res) => {
-  try {
-    const propiedad = await Propiedad.findById(req.params.id);
-
-    if (!propiedad) {
-      return res.status(404).json({ message: "Propiedad no encontrada" });
-    }
-
-    res.json(propiedad);
-
-  } catch (err) {
-    res.status(400).json({ message: "ID inválido" });
-  }
-});
 
 // =============================
 // INDEX
