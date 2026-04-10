@@ -4,69 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Comprar propiedades - Costa Hogar</title>
-
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
-
-  <style>
-    body{
-      margin:0;
-      font-family:Inter,sans-serif;
-      background:#f7f7f7;
-      color:#222;
-    }
-
-    .contenedor{
-      max-width:1200px;
-      margin:25px auto;
-      display:grid;
-      grid-template-columns:280px 1fr;
-      gap:25px;
-      padding:0 15px;
-    }
-
-    .filtros{
-      background:white;
-      padding:20px;
-      border-radius:12px;
-      box-shadow:0 4px 12px rgba(0,0,0,0.1);
-      position:sticky;
-      top:90px;
-      height:max-content;
-    }
-
-    .filtros label{
-      display:block;
-      margin:10px 0 4px;
-      font-size:.9rem;
-    }
-
-    .filtros input,
-    .filtros select{
-      width:100%;
-      padding:10px;
-      border:1px solid #ccc;
-      border-radius:8px;
-    }
-
-    .filtros button{
-      margin-top:15px;
-      width:100%;
-      padding:12px;
-      background:#7cc242;
-      color:white;
-      border:none;
-      border-radius:8px;
-      cursor:pointer;
-      font-weight:600;
-    }
-
-    .lista{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:20px;
-    }
-  </style>
 </head>
 
 <body>
@@ -74,12 +13,27 @@
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-<div class="contenedor">
+<!-- ACCESOS RÁPIDOS MÓVIL -->
+<div class="mobile-quick-actions">
+  <a href="/comprar.html" class="quick-btn active">🏠 Comprar</a>
+  <a href="/alquiler.html" class="quick-btn">🔑 Alquilar</a>
+  <a href="/publicar.html" class="quick-btn publish">➕ Publicar</a>
+</div>
 
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>Viviendas en venta</h1>
+    <span id="resultado-count" class="result-count"></span>
+  </div>
+</div>
+
+<div class="contenedor-comprar">
+
+  <!-- FILTROS -->
   <aside class="filtros">
     <h3>Filtros</h3>
 
-    <label>Texto / Ciudad / Zona</label>
+    <label>Ciudad / Zona</label>
     <input type="text" id="f_texto" placeholder="Buscar ubicación...">
 
     <label>Precio mínimo</label>
@@ -97,7 +51,6 @@
       <option value="4">4+</option>
     </select>
 
-    <!-- NUEVO -->
     <label>Ordenar por</label>
     <select id="f_sort">
       <option value="">Relevancia</option>
@@ -106,17 +59,23 @@
     </select>
 
     <button onclick="cargarPropiedades()">Aplicar filtros</button>
-
+    <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
   </aside>
 
+  <!-- LISTA -->
   <section>
-    <div class="lista" id="lista"></div>
+    <div class="lista-propiedades" id="lista"></div>
   </section>
 
 </div>
 
+<!-- FILTROS MÓVIL FLOTANTE -->
+<button class="btn-filtros-mobile" onclick="toggleFiltrosMobile()">
+  ⚙️ Filtros
+</button>
+
+<script src="/js/header.js" defer></script>
 <script src="/js/filtros.js" defer></script>
 
 </body>
 </html>
-
