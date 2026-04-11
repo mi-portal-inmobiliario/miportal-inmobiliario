@@ -1,315 +1,405 @@
-<!-- publicar.html - Formulario Premium para publicar propiedades -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Publicar propiedad - Costa Hogar</title>
-
-  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
-
   <style>
-    .form-box {
-      max-width: 850px;
+    .publicar-wrap {
+      max-width: 860px;
       margin: 40px auto;
-      background: white;
-      padding: 28px;
-      border-radius: 14px;
-      box-shadow: 0 4px 14px rgba(0,0,0,.12);
+      padding: 0 20px 60px;
     }
 
-    .form-box h1 {
-      text-align: center;
-      color: #7cc242;
-      margin-bottom: 25px;
+    .publicar-wrap h1 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 8px;
+    }
+
+    .publicar-wrap .subtitulo {
+      color: #888;
+      margin-bottom: 30px;
+      font-size: 0.95rem;
+    }
+
+    .form-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      margin-bottom: 20px;
+    }
+
+    .form-card h2 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 18px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .form-group.full {
+      grid-column: 1 / -1;
     }
 
     .form-group label {
+      font-size: 0.88rem;
       font-weight: 600;
-      display: block;
-      margin-bottom: 6px;
+      color: #444;
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
-      width: 100%;
-      padding: 12px;
+      padding: 11px 14px;
+      border: 1.5px solid #ddd;
       border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      transition: border-color 0.2s;
+      font-family: inherit;
     }
 
-    .btn-submit {
-      width: 100%;
-      padding: 14px;
-      font-size: 1.1rem;
-      background: #7cc242;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: .2s;
-      margin-top: 10px;
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: #7cc242;
+      outline: none;
     }
 
-    .btn-submit:hover {
-      background: #5ea628;
+    /* AUTOCOMPLETE */
+    .dir-wrap {
+      position: relative;
     }
 
-    /* Autocompletado */
     #sugerencias {
       position: absolute;
-      background: white;
-      border: 1px solid #ccc;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: #fff;
+      border: 1px solid #ddd;
       border-radius: 10px;
-      width: 100%;
       z-index: 100;
       display: none;
       max-height: 220px;
       overflow-y: auto;
-    }
-    #sugerencias div {
-      padding: 10px;
-      cursor: pointer;
-    }
-    #sugerencias div:hover {
-      background: #eefbe0;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
     }
 
-    /* Vista previa de imágenes */
+    #sugerencias div {
+      padding: 10px 14px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    #sugerencias div:hover {
+      background: #f0fae5;
+    }
+
+    /* MAPA */
+    #mapPreview {
+      width: 100%;
+      height: 280px;
+      border-radius: 12px;
+      background: #eee;
+      margin-top: 14px;
+    }
+
+    /* FOTOS */
+    .upload-area {
+      border: 2px dashed #ccc;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .upload-area:hover {
+      border-color: #7cc242;
+    }
+
+    .upload-area p {
+      color: #888;
+      margin: 8px 0 0;
+      font-size: 0.9rem;
+    }
+
     .preview-container {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 10px;
+      margin-top: 14px;
     }
+
     .preview-item {
-      width: 120px;
-      height: 120px;
+      width: 110px;
+      height: 110px;
       position: relative;
       border-radius: 10px;
       overflow: hidden;
-      cursor: pointer;
     }
+
     .preview-item img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .preview-item button {
       position: absolute;
       top: 5px;
       right: 5px;
       background: rgba(0,0,0,0.6);
       border: none;
-      color: white;
-      font-size: 18px;
+      color: #fff;
+      font-size: 16px;
       border-radius: 50%;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    /* Modal fullscreen */
+    /* BOTÓN SUBMIT */
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      background: #7cc242;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 10px;
+    }
+
+    .btn-submit:hover { background: #63a831; }
+    .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+
+    #mensaje {
+      text-align: center;
+      margin-top: 14px;
+      font-weight: 600;
+      font-size: 1rem;
+    }
+
+    /* MODAL */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,.85);
+      background: rgba(0,0,0,0.88);
       display: none;
       justify-content: center;
       align-items: center;
       z-index: 2000;
     }
+
     .modal img {
-      width: 90%;
-      max-width: 900px;
+      max-width: 95%;
       max-height: 90vh;
       object-fit: contain;
     }
+
     .modal-cerrar {
       position: absolute;
-      top: 25px;
+      top: 20px;
       right: 30px;
-      font-size: 40px;
-      color: white;
+      font-size: 44px;
+      color: #fff;
       cursor: pointer;
     }
 
-    /* Mapa previo */
-    #mapPreview {
-      width: 100%;
-      height: 300px;
-      border-radius: 12px;
-      background: #e4e4e4;
-      margin-top: 12px;
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
 
-<header class="header">
-  <div class="logo" onclick="location.href='index.html'">Costa Hogar</div>
+<div id="main-header"></div>
+<script src="/js/header.js" defer></script>
 
-  <nav class="menu">
-    <a href="index.html?modo=venta">Comprar</a>
-    <a href="index.html?modo=alquiler">Alquilar</a>
-    <a class="publicar-btn" href="publicar.html">Publicar anuncio</a>
-  </nav>
-
-  <div class="menu-icons">
-    <span onclick="location.href='favoritos.html'">❤️</span>
-    <span onclick="location.href='chat.html'">💬</span>
-    <span onclick="location.href='login.html'">👤</span>
-  </div>
-</header>
-
-
-<div class="form-box">
+<div class="publicar-wrap">
   <h1>Publicar propiedad</h1>
+  <p class="subtitulo">Rellena los datos de tu vivienda para publicarla en Costa Hogar</p>
 
-  <form id="formPublicar" enctype="multipart/form-data">
+  <!-- DATOS BÁSICOS -->
+  <div class="form-card">
+    <h2>Datos básicos</h2>
+    <div class="form-grid">
 
-    <div class="form-group">
-      <label>Tipo de operación</label>
-      <select name="tipoOperacion" required>
-        <option value="">Seleccione…</option>
-        <option value="venta">Venta</option>
-        <option value="alquiler">Alquiler</option>
-      </select>
+      <div class="form-group">
+        <label>Tipo de operación *</label>
+        <select id="tipoOperacion" required>
+          <option value="">Selecciona...</option>
+          <option value="venta">Venta</option>
+          <option value="alquiler">Alquiler</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Habitaciones *</label>
+        <select id="habitaciones" required>
+          <option value="">Selecciona...</option>
+          <option value="1">1 habitación</option>
+          <option value="2">2 habitaciones</option>
+          <option value="3">3 habitaciones</option>
+          <option value="4">4 habitaciones</option>
+          <option value="5">5 o más</option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Título del anuncio *</label>
+        <input type="text" id="titulo" placeholder="Ej: Ático con terraza y vistas al mar" required>
+      </div>
+
+      <div class="form-group">
+        <label>Precio (€) *</label>
+        <input type="number" id="precio" placeholder="Ej: 185000" required>
+      </div>
+
+      <div class="form-group">
+        <label>Descripción</label>
+        <textarea id="descripcion" rows="3" placeholder="Describe tu propiedad..."></textarea>
+      </div>
+
     </div>
+  </div>
 
-    <div class="form-group">
-      <label>Título</label>
-      <input type="text" name="titulo" placeholder="Ej: Ático con vistas al mar" required>
-    </div>
-
-    <div class="form-group" style="position:relative;">
-      <label>Dirección</label>
-      <input type="text" name="direccion" id="direccion" placeholder="Escribe la dirección…" autocomplete="off" required>
+  <!-- UBICACIÓN -->
+  <div class="form-card">
+    <h2>Ubicación</h2>
+    <div class="form-group dir-wrap">
+      <label>Dirección *</label>
+      <input type="text" id="direccion" placeholder="Escribe la dirección..." autocomplete="off" required>
       <div id="sugerencias"></div>
     </div>
-
-    <div class="form-group">
-      <label>Precio (€)</label>
-      <input type="number" name="precio" required>
-    </div>
-
-    <div class="form-group">
-      <label>Descripción</label>
-      <textarea name="descripcion" rows="3" placeholder="Descripción detallada…"></textarea>
-    </div>
-
-    <div class="form-group">
-      <label>Fotos</label>
-      <input type="file" id="imagenes" name="imagenes" accept="image/*" multiple required>
-      <div class="preview-container" id="preview"></div>
-    </div>
-
-    <h3>Vista previa del mapa</h3>
     <div id="mapPreview"></div>
+  </div>
 
-    <button class="btn-submit" type="submit">Publicar anuncio</button>
-  </form>
+  <!-- FOTOS -->
+  <div class="form-card">
+    <h2>Fotos</h2>
+    <div class="upload-area" onclick="document.getElementById('imagenes').click()">
+      <div style="font-size:2rem">📷</div>
+      <p>Haz clic para subir fotos</p>
+      <p>JPG, PNG · Máximo 10 fotos</p>
+    </div>
+    <input type="file" id="imagenes" accept="image/*" multiple style="display:none">
+    <div class="preview-container" id="preview"></div>
+  </div>
 
-  <p id="mensaje" style="text-align:center; margin-top:15px; font-weight:600;"></p>
-
-  <a href="index.html" class="volver-btn">⬅ Volver al inicio</a>
+  <button class="btn-submit" id="btnPublicar" onclick="publicar()">
+    Publicar anuncio
+  </button>
+  <p id="mensaje"></p>
 </div>
 
-
-<!-- Modal -->
+<!-- MODAL -->
 <div class="modal" id="modal">
   <span class="modal-cerrar" onclick="cerrarModal()">×</span>
   <img id="modal-img">
 </div>
 
-
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-/* ========= CONFIG ========= */
-const API_KEY = "691dbf7ce0ac5786669402bgm8f835e";
-
-/* ========= AUTOCOMPLETADO ========= */
-const inputDir = document.getElementById("direccion");
-const sugBox = document.getElementById("sugerencias");
-
+const GEOCODE_KEY = "691dbf7ce0ac5786669402bgm8f835e";
 let mapaPrevio = null;
+let latSel = null;
+let lngSel = null;
+let imgFiles = [];
+
+/* ========= GUARD: requiere login ========= */
+document.addEventListener("DOMContentLoaded", () => {
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+  const token   = localStorage.getItem("token");
+  if (!usuario || !token) {
+    alert("Debes iniciar sesión para publicar un anuncio");
+    location.href = "/login.html";
+  }
+});
+
+/* ========= AUTOCOMPLETADO DIRECCIÓN ========= */
+const inputDir = document.getElementById("direccion");
+const sugBox   = document.getElementById("sugerencias");
 
 inputDir.addEventListener("input", async () => {
   const t = inputDir.value.trim();
-  if (t.length < 3) {
-    sugBox.style.display = "none";
-    return;
-  }
+  if (t.length < 3) { sugBox.style.display = "none"; return; }
 
-  const url = `https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=${API_KEY}`;
-  const r = await fetch(url);
-  const data = await r.json();
+  try {
+    const res  = await fetch(`https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=${GEOCODE_KEY}`);
+    const data = await res.json();
+    sugBox.innerHTML = "";
+    if (!data.length) { sugBox.style.display = "none"; return; }
 
-  sugBox.innerHTML = "";
-  if (!data.length) {
-    sugBox.style.display = "none";
-    return;
-  }
-
-  data.slice(0,8).forEach(item => {
-    const div = document.createElement("div");
-    div.textContent = item.display_name;
-
-    div.onclick = () => {
-      inputDir.value = item.display_name;
-      sugBox.style.display = "none";
-      mostrarMapaPrevio(item.lat, item.lon);
-    };
-
-    sugBox.appendChild(div);
-  });
-
-  sugBox.style.display = "block";
+    data.slice(0, 6).forEach(item => {
+      const div = document.createElement("div");
+      div.textContent = item.display_name;
+      div.onclick = () => {
+        inputDir.value = item.display_name;
+        latSel = parseFloat(item.lat);
+        lngSel = parseFloat(item.lon);
+        sugBox.style.display = "none";
+        mostrarMapa(latSel, lngSel);
+      };
+      sugBox.appendChild(div);
+    });
+    sugBox.style.display = "block";
+  } catch(e) { sugBox.style.display = "none"; }
 });
 
-
 /* ========= MAPA PREVIEW ========= */
-function mostrarMapaPrevio(lat, lng) {
+function mostrarMapa(lat, lng) {
   if (!mapaPrevio) {
-    mapaPrevio = L.map("mapPreview").setView([lat, lng], 14);
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 19
-    }).addTo(mapaPrevio);
+    mapaPrevio = L.map("mapPreview").setView([lat, lng], 15);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapaPrevio);
   }
-
   mapaPrevio.setView([lat, lng], 15);
-
   L.marker([lat, lng]).addTo(mapaPrevio);
 }
 
-
-/* ========= PREVIEW IMÁGENES ========= */
-const inputImgs = document.getElementById("imagenes");
-const preview = document.getElementById("preview");
-let imgFiles = [];
-
-inputImgs.addEventListener("change", e => {
-  imgFiles = Array.from(e.target.files);
-  pintarPreview();
+/* ========= PREVIEW FOTOS ========= */
+document.getElementById("imagenes").addEventListener("change", e => {
+  imgFiles = Array.from(e.target.files).slice(0, 10);
+  renderPreview();
 });
 
-function pintarPreview() {
+function renderPreview() {
+  const preview = document.getElementById("preview");
   preview.innerHTML = "";
   imgFiles.forEach((f, i) => {
     const reader = new FileReader();
-    reader.onload = e => {
+    reader.onload = ev => {
       const item = document.createElement("div");
       item.className = "preview-item";
       item.innerHTML = `
-        <img src="${e.target.result}" onclick="abrirModal('${e.target.result}')">
+        <img src="${ev.target.result}" onclick="abrirModal('${ev.target.result}')">
         <button onclick="borrarImg(${i})">×</button>
       `;
       preview.appendChild(item);
@@ -320,12 +410,10 @@ function pintarPreview() {
 
 function borrarImg(i) {
   imgFiles.splice(i, 1);
-  inputImgs.value = "";
-  pintarPreview();
+  renderPreview();
 }
 
-
-/* ========= MODAL FULLSCREEN ========= */
+/* ========= MODAL ========= */
 function abrirModal(src) {
   document.getElementById("modal-img").src = src;
   document.getElementById("modal").style.display = "flex";
@@ -334,35 +422,72 @@ function cerrarModal() {
   document.getElementById("modal").style.display = "none";
 }
 
+/* ========= PUBLICAR ========= */
+async function publicar() {
+  const token   = localStorage.getItem("token");
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 
-/* ========= ENVIAR FORMULARIO ========= */
-const form = document.getElementById("formPublicar");
-const mensaje = document.getElementById("mensaje");
+  const titulo        = document.getElementById("titulo").value.trim();
+  const direccion     = document.getElementById("direccion").value.trim();
+  const precio        = document.getElementById("precio").value;
+  const descripcion   = document.getElementById("descripcion").value.trim();
+  const tipoOperacion = document.getElementById("tipoOperacion").value;
+  const habitaciones  = document.getElementById("habitaciones").value;
+  const mensaje       = document.getElementById("mensaje");
+  const btn           = document.getElementById("btnPublicar");
 
-form.addEventListener("submit", async e => {
-  e.preventDefault();
+  if (!titulo || !direccion || !precio || !tipoOperacion || !habitaciones) {
+    mensaje.textContent = "⚠️ Rellena todos los campos obligatorios";
+    mensaje.style.color = "red";
+    return;
+  }
 
-  const fd = new FormData(form);
+  if (!imgFiles.length) {
+    mensaje.textContent = "⚠️ Añade al menos una foto";
+    mensaje.style.color = "red";
+    return;
+  }
 
+  btn.disabled = true;
+  btn.textContent = "Publicando...";
+
+  const fd = new FormData();
+  fd.append("titulo", titulo);
+  fd.append("direccion", direccion);
+  fd.append("precio", precio);
+  fd.append("descripcion", descripcion);
+  fd.append("tipoOperacion", tipoOperacion);
+  fd.append("habitaciones", habitaciones);
+  fd.append("usuarioId", usuario._id);
+  if (latSel) fd.append("lat", latSel);
+  if (lngSel) fd.append("lng", lngSel);
   imgFiles.forEach(f => fd.append("imagenes", f));
 
-  const r = await fetch("/propiedades", {
-    method: "POST",
-    body: fd
-  });
+  try {
+    const res  = await fetch("/propiedades", {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token },
+      body: fd
+    });
+    const data = await res.json();
 
-  const data = await r.json();
-
-  if (r.ok) {
-    mensaje.textContent = "✔ Propiedad publicada con éxito";
-    form.reset();
-    preview.innerHTML = "";
-    imgFiles = [];
-    mapPreview = null;
-  } else {
-    mensaje.textContent = "❌ Error: " + (data.error || "No se pudo publicar");
+    if (res.ok) {
+      mensaje.textContent = "✅ ¡Propiedad publicada con éxito!";
+      mensaje.style.color = "green";
+      setTimeout(() => location.href = "/propiedad.html?id=" + data._id, 1500);
+    } else {
+      mensaje.textContent = "❌ " + (data.message || "Error al publicar");
+      mensaje.style.color = "red";
+      btn.disabled = false;
+      btn.textContent = "Publicar anuncio";
+    }
+  } catch(e) {
+    mensaje.textContent = "❌ Error de conexión";
+    mensaje.style.color = "red";
+    btn.disabled = false;
+    btn.textContent = "Publicar anuncio";
   }
-});
+}
 </script>
 
 </body>
