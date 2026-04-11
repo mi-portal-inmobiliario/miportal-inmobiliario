@@ -1,14 +1,8 @@
-/* ================================
-   VARIABLES GLOBALES
-================================ */
 let propiedad = null;
 let fotos = [];
 let indexFoto = 0;
 let mapa = null;
 
-/* ================================
-   INIT
-================================ */
 document.addEventListener("DOMContentLoaded", cargarPropiedad);
 
 /* ================================
@@ -28,108 +22,165 @@ async function cargarPropiedad() {
 
   fotos = Array.isArray(propiedad.imagenes) && propiedad.imagenes.length
     ? propiedad.imagenes
-    : ["https://via.placeholder.com/1200x700?text=Sin+imagen"];
+    : ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200"];
 
   actualizarSEO();
   renderPropiedad();
-  iniciarMapa();
+  await iniciarMapa();
 }
 
 /* ================================
-   SEO DINÁMICO
+   SEO
 ================================ */
 function actualizarSEO() {
-  document.title = `${propiedad.titulo} · ${propiedad.precio} € | Costa Hogar`;
-
+  document.title = `${propiedad.titulo} · ${propiedad.precio?.toLocaleString("es-ES")} € | Costa Hogar`;
   const metaDesc = document.querySelector("meta[name='description']");
-  if (metaDesc) {
-    metaDesc.setAttribute(
-      "content",
-      `${propiedad.titulo}. Precio ${propiedad.precio} €. ${propiedad.direccion || ""}`
-    );
-  }
+  if (metaDesc) metaDesc.setAttribute("content",
+    `${propiedad.titulo}. Precio ${propiedad.precio} €. ${propiedad.direccion || ""}`
+  );
 }
 
 /* ================================
-   RENDER PROPIEDAD
+   RENDER
 ================================ */
 function renderPropiedad() {
   const contenedor = document.getElementById("contenedor");
+  const tipo = propiedad.tipoOperacion === "venta" ? "Venta" : "Alquiler";
+  const tipoCls = propiedad.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
+  const precio = propiedad.precio?.toLocaleString("es-ES") + " €";
+  const hab = propiedad.habitaciones ? `🛏 ${propiedad.habitaciones} habitaciones` : "";
 
   contenedor.innerHTML = `
-    <div class="slider-container">
-      <div class="flecha flecha-izq" onclick="prevFoto()">‹</div>
-      <img src="${fotos[indexFoto]}" class="activa"
-           onclick="abrirModal('${fotos[indexFoto]}')" />
-      <div class="flecha flecha-der" onclick="nextFoto()">›</div>
+    <a class="volver-link" href="javascript:history.back()">← Volver</a>
+
+    <div class="propiedad-layout">
+
+      <!-- COLUMNA IZQUIERDA -->
+      <div class="propiedad-left">
+
+        <!-- SLIDER -->
+        <div class="slider-container">
+          <button class="slider-btn left" onclick="prevFoto()">‹</button>
+          <img class="slider-img" src="${fotos[0]}" alt="${propiedad.titulo}"
+               onclick="abrirModal('${fotos[0]}')">
+          <button class="slider-btn right" onclick="nextFoto()">›</button>
+          <span class="slider-count">1 / ${fotos.length}</span>
+          <span class="tag-tipo ${tipoCls}">${tipo}</span>
+        </div>
+
+        <!-- MINIATURAS -->
+        ${fotos.length > 1 ? `
+        <div class="miniaturas">
+          ${fotos.map((f, i) => `
+            <img src="${f}" class="miniatura ${i === 0 ? 'active' : ''}"
+                 onclick="irFoto(${i})" alt="foto ${i+1}">
+          `).join("")}
+        </div>` : ""}
+
+        <!-- DESCRIPCIÓN -->
+        <div class="propiedad-descripcion">
+          <h2>Descripción</h2>
+          <p>${propiedad.descripcion || "Sin descripción disponible."}</p>
+        </div>
+
+        <!-- MAPA -->
+        <div class="propiedad-mapa-wrap">
+          <h2>Ubicación</h2>
+          <div id="mapa"></div>
+        </div>
+
+      </div>
+
+      <!-- COLUMNA DERECHA -->
+      <div class="propiedad-right">
+        <div class="propiedad-card-info">
+          <span class="tag-tipo ${tipoCls}">${tipo}</span>
+          <div class="propiedad-precio">${precio}</div>
+          <h1 class="propiedad-titulo">${propiedad.titulo}</h1>
+          <div class="propiedad-dir">📍 ${propiedad.direccion}</div>
+          ${hab ? `<div class="propiedad-hab">${hab}</div>` : ""}
+
+          <hr>
+
+          <button class="chat-open-btn" onclick="contactar()">
+            💬 Contactar con el anunciante
+          </button>
+
+          <div class="propiedad-aviso">
+            <p>🔒 Tus datos están protegidos</p>
+            <p>✅ Anuncio verificado por Costa Hogar</p>
+          </div>
+        </div>
+      </div>
+
     </div>
-
-    <h1>${propiedad.titulo}</h1>
-    <p class="price">${propiedad.precio} €</p>
-    <p><strong>Dirección:</strong> ${propiedad.direccion}</p>
-
-    <p>${propiedad.descripcion || ""}</p>
-
-    <div id="mapa"></div>
-
-    <button class="chat-open-btn" onclick="contactar()">
-      💬 Contactar con el anunciante
-    </button>
-
-    <a class="volver-btn" href="javascript:history.back()">⬅ Volver</a>
   `;
 }
 
 /* ================================
-   MAPA LEAFLET
+   MAPA CON GEOCODING AUTOMÁTICO
 ================================ */
-function iniciarMapa() {
-  if (!propiedad.lat || !propiedad.lng) return;
+async function iniciarMapa() {
+  let lat = propiedad.lat;
+  let lng = propiedad.lng;
 
-  if (mapa) {
-    mapa.remove();
+  // Si no tiene coordenadas, geocodifica la dirección
+  if (!lat || !lng) {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(propiedad.direccion)}&format=json&limit=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.length) {
+        lat = parseFloat(data[0].lat);
+        lng = parseFloat(data[0].lon);
+      }
+    } catch (e) {
+      console.warn("No se pudo geocodificar la dirección");
+    }
   }
 
-  mapa = L.map("mapa").setView(
-    [propiedad.lat, propiedad.lng],
-    15
-  );
+  if (!lat || !lng) return;
+
+  if (mapa) mapa.remove();
+
+  mapa = L.map("mapa").setView([lat, lng], 15);
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
     attribution: "&copy; OpenStreetMap contributors"
   }).addTo(mapa);
 
-  L.marker([propiedad.lat, propiedad.lng])
+  L.marker([lat, lng])
     .addTo(mapa)
-    .bindPopup(propiedad.titulo);
+    .bindPopup(propiedad.titulo)
+    .openPopup();
 }
 
 /* ================================
    SLIDER
 ================================ */
-function nextFoto() {
-  indexFoto = (indexFoto + 1) % fotos.length;
-  actualizarFoto();
-}
-
-function prevFoto() {
-  indexFoto = (indexFoto - 1 + fotos.length) % fotos.length;
-  actualizarFoto();
-}
-
-function actualizarFoto() {
-  const img = document.querySelector(".slider-container img");
+function irFoto(i) {
+  indexFoto = i;
+  const img = document.querySelector(".slider-img");
   if (img) {
-    img.src = fotos[indexFoto];
+    img.src = fotos[i];
+    img.onclick = () => abrirModal(fotos[i]);
   }
+  const count = document.querySelector(".slider-count");
+  if (count) count.textContent = `${i + 1} / ${fotos.length}`;
+  document.querySelectorAll(".miniatura").forEach((m, idx) => {
+    m.classList.toggle("active", idx === i);
+  });
 }
+
+function nextFoto() { irFoto((indexFoto + 1) % fotos.length); }
+function prevFoto()  { irFoto((indexFoto - 1 + fotos.length) % fotos.length); }
 
 /* ================================
-   MODAL IMÁGENES
+   MODAL
 ================================ */
 function abrirModal(src) {
   const modal = document.getElementById("modal");
-  const img = document.getElementById("modal-img");
+  const img   = document.getElementById("modal-img");
   img.src = src;
   modal.style.display = "flex";
 }
@@ -139,18 +190,22 @@ function cerrarModal() {
 }
 
 /* ================================
-   ERRORES
+   ERROR
 ================================ */
 function mostrarError(msg) {
-  document.getElementById("contenedor").innerHTML = `<h2>${msg}</h2>`;
+  document.getElementById("contenedor").innerHTML = `
+    <div style="text-align:center;padding:60px">
+      <h2>😕 ${msg}</h2>
+      <a href="javascript:history.back()" style="color:#7cc242">← Volver</a>
+    </div>`;
 }
 
 /* ================================
-   CONTACTAR → CHAT
+   CONTACTAR
 ================================ */
 async function contactar() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
-  const token = localStorage.getItem("token");
+  const token   = localStorage.getItem("token");
 
   if (!usuario || !usuario._id || !token) {
     alert("Debes iniciar sesión para contactar");
@@ -177,11 +232,6 @@ async function contactar() {
   });
 
   const data = await res.json();
-
-  if (!res.ok || !data._id) {
-    alert("No se pudo abrir el chat");
-    return;
-  }
-
+  if (!res.ok || !data._id) { alert("No se pudo abrir el chat"); return; }
   window.location.href = `/chat.html?id=${data._id}`;
 }
