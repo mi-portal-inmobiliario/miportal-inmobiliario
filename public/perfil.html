@@ -4,221 +4,299 @@
   <meta charset="UTF-8">
   <title>Perfil - Costa Hogar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- FUENTES -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
-
   <style>
-    .contenedor {
+    .perfil-wrap {
       max-width: 1100px;
-      margin: 35px auto;
-      padding: 0 15px;
+      margin: 30px auto;
+      padding: 0 20px 80px;
     }
 
-    .perfil-box {
-      background: white;
-      padding: 25px;
-      border-radius: 14px;
+    /* CARD PERFIL */
+    .perfil-card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
       display: flex;
-      gap: 25px;
-      margin-bottom: 35px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.1);
       align-items: center;
+      gap: 24px;
+      margin-bottom: 32px;
     }
 
-    .avatar {
-      width: 110px;
-      height: 110px;
+    .perfil-avatar {
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: #7cc242;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 3rem;
-      color: white;
-      font-weight: 700;
+      font-size: 2rem;
+      color: #fff;
+      font-weight: 800;
+      flex-shrink: 0;
     }
 
-    .titulo-seccion {
-      font-size: 1.5rem;
-      margin: 30px 0 15px;
-      font-weight: 700;
+    .perfil-info h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #222;
+      margin-bottom: 4px;
     }
 
-    .lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,.1);
-      cursor: pointer;
-    }
-
-    .card img {
-      width: 100%;
-      height: 190px;
-      object-fit: cover;
-    }
-
-    .info {
-      padding: 15px;
-    }
-
-    .precio {
-      color: #7cc242;
-      font-weight: 700;
-      font-size: 1.3rem;
-    }
-
-    .chat-item {
-      background: white;
-      padding: 16px;
-      border-radius: 12px;
+    .perfil-info p {
+      color: #888;
+      font-size: 0.9rem;
       margin-bottom: 12px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
     }
 
-    .chat-item:hover {
-      background: #f0f8e9;
+    .perfil-acciones {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-perfil {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      border: none;
+      font-family: inherit;
+    }
+
+    .btn-perfil.green {
+      background: #7cc242;
+      color: #fff;
+    }
+
+    .btn-perfil.outline {
+      background: transparent;
+      border: 1.5px solid #ddd;
+      color: #555;
+    }
+
+    .btn-perfil.red {
+      background: transparent;
+      border: 1.5px solid #f87171;
+      color: #f87171;
+    }
+
+    /* SECCIONES */
+    .seccion-titulo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #222;
+      margin: 32px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .seccion-titulo span {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #888;
+    }
+
+    /* CHATS */
+    .chat-item {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      transition: background 0.2s;
+    }
+
+    .chat-item:hover { background: #f0fae5; }
+
+    .chat-icon {
+      font-size: 1.5rem;
+      width: 44px;
+      height: 44px;
+      background: #f0fae5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .chat-info strong {
+      display: block;
+      font-size: 0.95rem;
+      color: #222;
+    }
+
+    .chat-info small {
+      color: #888;
+      font-size: 0.82rem;
     }
 
     .muted {
-      color: #777;
+      color: #aaa;
       text-align: center;
-      margin-top: 15px;
+      padding: 30px;
+      font-size: 0.95rem;
     }
 
-    @media (max-width: 768px) {
-      .perfil-box {
-        flex-direction: column;
-        text-align: center;
-      }
+    @media (max-width: 600px) {
+      .perfil-card { flex-direction: column; text-align: center; }
+      .perfil-acciones { justify-content: center; }
     }
   </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-<div class="contenedor">
+<div class="perfil-wrap">
 
-  <div class="perfil-box">
-    <div class="avatar" id="avatar">U</div>
-    <div>
-      <h2 id="nombreUsuario">Usuario</h2>
+  <!-- CARD PERFIL -->
+  <div class="perfil-card">
+    <div class="perfil-avatar" id="avatar">U</div>
+    <div class="perfil-info">
+      <h2 id="nombreUsuario">Cargando...</h2>
       <p id="emailUsuario"></p>
+      <div class="perfil-acciones">
+        <a href="/publicar.html" class="btn-perfil green">➕ Publicar anuncio</a>
+        <a href="/favoritos.html" class="btn-perfil outline">❤️ Mis favoritos</a>
+        <button class="btn-perfil red" onclick="cerrarSesion()">Cerrar sesión</button>
+      </div>
     </div>
   </div>
 
-  <h2 class="titulo-seccion">Mis propiedades publicadas</h2>
-  <div id="listaPropiedades" class="lista"></div>
-  <p id="noProps" class="muted" style="display:none;">No has publicado propiedades</p>
+  <!-- MIS PROPIEDADES -->
+  <div class="seccion-titulo">
+    Mis propiedades publicadas
+    <span id="countProps"></span>
+  </div>
+  <div id="listaPropiedades" class="lista-propiedades"></div>
+  <p id="noProps" class="muted" style="display:none;">No has publicado ninguna propiedad todavía</p>
 
-  <h2 class="titulo-seccion" id="chats">Mis conversaciones</h2>
+  <!-- MIS CHATS -->
+  <div class="seccion-titulo" id="chats">
+    Mis conversaciones
+    <span id="countChats"></span>
+  </div>
   <div id="listaChats"></div>
-  <p id="noChats" class="muted" style="display:none;">No tienes conversaciones</p>
+  <p id="noChats" class="muted" style="display:none;">No tienes conversaciones activas</p>
 
 </div>
 
+<nav class="mobile-nav">
+  <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
+  <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
+  <a href="/favoritos.html"><span>❤️</span><small>Favoritos</small></a>
+  <a href="/perfil.html#chats"><span>💬</span><small>Chats</small></a>
+  <a href="/perfil.html" class="active"><span>👤</span><small>Perfil</small></a>
+</nav>
+
 <script>
 const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-const token = localStorage.getItem("token");
+const token   = localStorage.getItem("token");
 
-if (!usuario || !usuario._id || !token) {
-  location.replace("/login.html");
-}
+if (!usuario || !usuario._id || !token) location.replace("/login.html");
 
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
-document.getElementById("emailUsuario").textContent = usuario.email;
-document.getElementById("avatar").textContent = usuario.nombre.charAt(0).toUpperCase();
+document.getElementById("emailUsuario").textContent  = usuario.email;
+document.getElementById("avatar").textContent        = usuario.nombre.charAt(0).toUpperCase();
 
+/* ================================
+   MIS PROPIEDADES
+================================ */
 async function cargarPropiedades() {
-  const res = await fetch("/propiedades");
+  const res  = await fetch("/propiedades");
   const data = await res.json();
-
   const mias = data.filter(p => String(p.usuarioId) === String(usuario._id));
   const cont = document.getElementById("listaPropiedades");
-
-  cont.innerHTML = "";
 
   if (!mias.length) {
     document.getElementById("noProps").style.display = "block";
     return;
   }
 
-  mias.forEach(p => {
-    cont.innerHTML += `
-      <div class="card" onclick="location.href='/propiedad.html?id=${p._id}'">
-        <img src="${p.imagenes?.[0] || 'https://via.placeholder.com/400x200'}">
-        <div class="info">
-          <div class="precio">${p.precio} €</div>
-          <div>${p.direccion}</div>
+  document.getElementById("countProps").textContent = `${mias.length} anuncio${mias.length !== 1 ? "s" : ""}`;
+
+  cont.innerHTML = mias.map(p => {
+    const img     = p.imagenes?.[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600";
+    const precio  = p.precio?.toLocaleString("es-ES") + " €";
+    const tipo    = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
+    const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
+    const hab     = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
+
+    return `
+      <div class="card-propiedad" onclick="location.href='/propiedad.html?id=${p._id}'">
+        <div class="card-img-wrap">
+          <img src="${img}" alt="${p.titulo}" loading="lazy">
+          <span class="tag-tipo ${tipoCls}">${tipo}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-precio">${precio}</div>
+          <div class="card-titulo">${p.titulo}</div>
+          <div class="card-direccion">📍 ${p.direccion}</div>
+          ${hab ? `<div class="card-hab">${hab}</div>` : ""}
         </div>
       </div>
     `;
-  });
+  }).join("");
 }
 
+/* ================================
+   MIS CHATS
+================================ */
 async function cargarChats() {
-  const res = await fetch(`/chat/mis-conversaciones/${usuario._id}`);
-  const chats = await res.json();
+  try {
+    const res   = await fetch(`/chat/mis-conversaciones/${usuario._id}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const chats = await res.json();
+    const cont  = document.getElementById("listaChats");
 
-  const cont = document.getElementById("listaChats");
-  cont.innerHTML = "";
+    if (!chats.length) {
+      document.getElementById("noChats").style.display = "block";
+      return;
+    }
 
-  if (!chats.length) {
-    document.getElementById("noChats").style.display = "block";
-    return;
-  }
+    document.getElementById("countChats").textContent = `${chats.length} conversación${chats.length !== 1 ? "es" : ""}`;
 
-  chats.forEach(c => {
-    cont.innerHTML += `
+    cont.innerHTML = chats.map(c => `
       <div class="chat-item" onclick="location.href='/chat.html?id=${c._id}'">
-        <strong>Chat</strong><br>
-        <small>${c.propiedadTitulo || "Propiedad"}</small>
+        <div class="chat-icon">💬</div>
+        <div class="chat-info">
+          <strong>${c.propiedadTitulo || "Propiedad"}</strong>
+          <small>Ver conversación →</small>
+        </div>
       </div>
-    `;
-  });
+    `).join("");
+
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+/* ================================
+   CERRAR SESIÓN
+================================ */
+function cerrarSesion() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+  location.href = "/index.html";
 }
 
 cargarPropiedades();
 cargarChats();
 </script>
-
-<!-- MENÚ MÓVIL -->
-<nav class="mobile-nav">
-  <a href="/index.html">
-    <span>🏠</span>
-    <small>Inicio</small>
-  </a>
-
-  <a href="/comprar.html">
-    <span>🔍</span>
-    <small>Buscar</small>
-  </a>
-
-  <a href="/perfil.html#chats">
-    <span>💬</span>
-    <small>Chats</small>
-  </a>
-
-  <a href="/perfil.html" class="active">
-    <span>👤</span>
-    <small>Perfil</small>
-  </a>
-</nav>
 
 </body>
 </html>
