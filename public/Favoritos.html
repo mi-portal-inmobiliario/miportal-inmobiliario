@@ -4,152 +4,138 @@
   <meta charset="UTF-8">
   <title>Favoritos - Costa Hogar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- FUENTES -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
-
-  <style>
-    .contenedor {
-      max-width: 1100px;
-      margin: 35px auto;
-      padding: 0 15px;
-    }
-
-    h2 {
-      margin-bottom: 20px;
-      font-weight: 700;
-    }
-
-    .lista {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 20px;
-    }
-
-    .card {
-      background: white;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,.1);
-      cursor: pointer;
-      transition: .2s ease;
-    }
-
-    .card:hover {
-      transform: translateY(-4px);
-    }
-
-    .card img {
-      width: 100%;
-      height: 180px;
-      object-fit: cover;
-    }
-
-    .info {
-      padding: 15px;
-    }
-
-    .precio {
-      color: #7cc242;
-      font-weight: 700;
-      font-size: 1.2rem;
-    }
-
-    .direccion {
-      font-size: .95rem;
-      color: #555;
-      margin-top: 5px;
-    }
-
-    .vacio {
-      text-align: center;
-      color: #777;
-      margin-top: 40px;
-    }
-  </style>
 </head>
 
 <body>
 
-<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-<div class="contenedor">
-  <h2>Mis favoritos</h2>
-  <div id="listaFavoritos" class="lista"></div>
-  <p id="vacio" class="vacio" style="display:none;">
-    No has guardado ninguna propiedad todavía ❤️
-  </p>
+<div class="page-header">
+  <div class="page-header-inner">
+    <h1>Mis favoritos</h1>
+    <span id="resultado-count" class="result-count"></span>
+  </div>
 </div>
+
+<div class="favoritos-wrap">
+  <div id="listaFavoritos" class="lista-propiedades"></div>
+  <div id="vacio" class="favoritos-vacio" style="display:none;">
+    <div style="font-size:3rem">❤️</div>
+    <h2>Aún no tienes favoritos</h2>
+    <p>Guarda propiedades que te gusten para verlas aquí</p>
+    <a href="/comprar.html" class="btn-buscar">Buscar propiedades</a>
+  </div>
+</div>
+
+<nav class="mobile-nav">
+  <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
+  <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
+  <a href="/favoritos.html" class="active"><span>❤️</span><small>Favoritos</small></a>
+  <a href="/perfil.html#chats"><span>💬</span><small>Chats</small></a>
+  <a href="/perfil.html"><span>👤</span><small>Perfil</small></a>
+</nav>
+
+<style>
+.favoritos-wrap {
+  max-width: 1200px;
+  margin: 30px auto;
+  padding: 0 20px;
+}
+
+.favoritos-vacio {
+  text-align: center;
+  padding: 80px 20px;
+  color: #888;
+}
+
+.favoritos-vacio h2 {
+  font-size: 1.4rem;
+  color: #333;
+  margin: 16px 0 8px;
+}
+
+.favoritos-vacio p {
+  margin-bottom: 24px;
+}
+
+.btn-buscar {
+  display: inline-block;
+  padding: 12px 28px;
+  background: #7cc242;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+}
+</style>
 
 <script>
 const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-const token = localStorage.getItem("token");
+const token   = localStorage.getItem("token");
 
-if (!usuario || !token) {
-  location.replace("/login.html");
-}
+if (!usuario || !token) location.replace("/login.html");
 
 async function cargarFavoritos() {
-  const res = await fetch(`/favoritos/${usuario._id}`);
-  const data = await res.json();
+  try {
+    const res  = await fetch(`/usuarios/${usuario._id}/favoritos`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    const data = await res.json();
+    const cont  = document.getElementById("listaFavoritos");
+    const count = document.getElementById("resultado-count");
 
-  const cont = document.getElementById("listaFavoritos");
-  cont.innerHTML = "";
+    if (!data.length) {
+      document.getElementById("vacio").style.display = "block";
+      return;
+    }
 
-  if (!data.length) {
-    document.getElementById("vacio").style.display = "block";
-    return;
-  }
+    count.textContent = `${data.length} propiedad${data.length !== 1 ? "es" : ""}`;
 
-  data.forEach(p => {
-    cont.innerHTML += `
-      <div class="card" onclick="location.href='/propiedad.html?id=${p._id}'">
-        <img src="${p.imagenes?.[0] || 'https://via.placeholder.com/400x200'}">
-        <div class="info">
-          <div class="precio">${p.precio} €</div>
-          <div class="direccion">${p.direccion}</div>
+    cont.innerHTML = data.map(p => {
+      const img    = p.imagenes?.[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600";
+      const precio = p.precio?.toLocaleString("es-ES") + " €";
+      const tipo   = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
+      const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
+      const hab    = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
+
+      return `
+        <div class="card-propiedad" onclick="location.href='/propiedad.html?id=${p._id}'">
+          <div class="card-img-wrap">
+            <img src="${img}" alt="${p.titulo}" loading="lazy">
+            <span class="tag-tipo ${tipoCls}">${tipo}</span>
+            <button class="btn-fav active" onclick="quitarFavorito(event, '${p._id}', this)">❤️</button>
+          </div>
+          <div class="card-body">
+            <div class="card-precio">${precio}</div>
+            <div class="card-titulo">${p.titulo}</div>
+            <div class="card-direccion">📍 ${p.direccion}</div>
+            ${hab ? `<div class="card-hab">${hab}</div>` : ""}
+          </div>
         </div>
-      </div>
-    `;
+      `;
+    }).join("");
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function quitarFavorito(e, propiedadId, btn) {
+  e.stopPropagation();
+  await fetch(`/usuarios/${usuario._id}/favoritos/${propiedadId}`, {
+    method: "DELETE",
+    headers: { "Authorization": "Bearer " + token }
   });
+  btn.closest(".card-propiedad").remove();
+  const restantes = document.querySelectorAll(".card-propiedad").length;
+  if (!restantes) document.getElementById("vacio").style.display = "block";
 }
 
 cargarFavoritos();
 </script>
 
-<!-- MENÚ MÓVIL -->
-<nav class="mobile-nav">
-  <a href="/index.html">
-    <span>🏠</span>
-    <small>Inicio</small>
-  </a>
-
-  <a href="/comprar.html">
-    <span>🔍</span>
-    <small>Buscar</small>
-  </a>
-
-  <a href="/favoritos.html" class="active">
-    <span>❤️</span>
-    <small>Favoritos</small>
-  </a>
-
-  <a href="/perfil.html#chats">
-    <span>💬</span>
-    <small>Chats</small>
-  </a>
-
-  <a href="/perfil.html">
-    <span>👤</span>
-    <small>Perfil</small>
-  </a>
-</nav>
-
 </body>
 </html>
-

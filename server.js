@@ -14,6 +14,7 @@ import { fileURLToPath } from "url";
 // =============================
 // RUTAS API
 // =============================
+import usuariosRoutes from "./routes/usuarios.js";
 import authRoutes from "./routes/auth.js";
 import chatRoutes from "./routes/chat.js";
 import propiedadesRoutes from "./routes/propiedades.js";
@@ -63,6 +64,7 @@ app.get("/_debug", (req, res) => {
 app.use("/auth", authRoutes);
 app.use("/chat", chatRoutes);
 app.use("/propiedades", propiedadesRoutes);
+app.use("/usuarios", usuariosRoutes);
 
 
 // =============================

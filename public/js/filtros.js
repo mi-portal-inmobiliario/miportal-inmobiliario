@@ -70,20 +70,21 @@ function renderLista(lista) {
     const tipo = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
 
-    return `
-      <div class="card-propiedad" onclick="abrirPropiedad('${p._id}')">
-        <div class="card-img-wrap">
-          <img src="${img}" alt="${p.titulo}" loading="lazy">
-          <span class="tag-tipo ${tipoCls}">${tipo}</span>
-        </div>
-        <div class="card-body">
-          <div class="card-precio">${precio}</div>
-          <div class="card-titulo">${p.titulo}</div>
-          <div class="card-direccion">📍 ${p.direccion}</div>
-          ${hab ? `<div class="card-hab">${hab}</div>` : ""}
-        </div>
+   return `
+    <div class="card-propiedad" onclick="abrirPropiedad('${p._id}')">
+      <div class="card-img-wrap">
+        <img src="${img}" alt="${p.titulo}" loading="lazy">
+        <span class="tag-tipo ${tipoCls}">${tipo}</span>
+        <button class="btn-fav" onclick="toggleFavorito(event, '${p._id}', this)">🤍</button>
       </div>
-    `;
+      <div class="card-body">
+        <div class="card-precio">${precio}</div>
+        <div class="card-titulo">${p.titulo}</div>
+        <div class="card-direccion">📍 ${p.direccion}</div>
+        ${hab ? `<div class="card-hab">${hab}</div>` : ""}
+      </div>
+    </div>
+  `;
   }).join("");
 }
 
@@ -123,4 +124,28 @@ function abrirPropiedad(id) {
 document.addEventListener("DOMContentLoaded", cargarPropiedades);
 window.cargarPropiedades = cargarPropiedades;
 window.resetFiltros = resetFiltros;
+
+// =====================================
+// TOGGLE FAVORITO
+// =====================================
+async function toggleFavorito(e, propiedadId, btn) {
+  e.stopPropagation();
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+  const token   = localStorage.getItem("token");
+
+  if (!usuario || !token) {
+    location.href = "/login.html";
+    return;
+  }
+
+  const esFav = btn.textContent === "❤️";
+  const method = esFav ? "DELETE" : "POST";
+
+  await fetch(`/usuarios/${usuario._id}/favoritos/${propiedadId}`, {
+    method,
+    headers: { "Authorization": "Bearer " + token }
+  });
+
+  btn.textContent = esFav ? "🤍" : "❤️";
+}
 
