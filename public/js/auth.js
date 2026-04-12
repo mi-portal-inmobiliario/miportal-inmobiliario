@@ -1,24 +1,35 @@
-// ================================
-// CONFIG AUTO: LOCAL o PRODUCCIÓN
-// ================================
 const API_BASE = location.hostname.includes("localhost")
   ? "http://localhost:3000"
   : "https://miportal-inmobiliario-server.onrender.com";
 
-// ================================
-// REGISTRO
-// ================================
+function mostrarMensaje(texto, color = "red") {
+  const el = document.getElementById("mensaje");
+  if (el) { el.textContent = texto; el.style.color = color; }
+}
+
+/* ================================
+   REGISTRO
+================================ */
 async function registro() {
   const nombre = document.getElementById("nombre").value.trim();
-  const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("pass").value.trim();
+  const email  = document.getElementById("email").value.trim();
+  const pass   = document.getElementById("pass").value.trim();
+  const btn    = document.getElementById("btnRegistro");
 
   if (!nombre || !email || !pass) {
-    alert("Rellena todos los campos.");
+    mostrarMensaje("⚠️ Rellena todos los campos");
     return;
   }
 
-  const res = await fetch(`${API_BASE}/auth/register`, {
+  if (pass.length < 6) {
+    mostrarMensaje("⚠️ La contraseña debe tener al menos 6 caracteres");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Creando cuenta...";
+
+  const res  = await fetch(`${API_BASE}/auth/register`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ nombre, email, password: pass })
@@ -27,27 +38,33 @@ async function registro() {
   const data = await res.json();
 
   if (!res.ok) {
-    alert(data.error || "Error al registrarte");
+    mostrarMensaje(data.error || "Error al registrarte");
+    btn.disabled = false;
+    btn.textContent = "Crear cuenta";
     return;
   }
 
-  alert("Cuenta creada correctamente");
-  location.href = "login.html";
+  mostrarMensaje("✅ Cuenta creada. Redirigiendo...", "green");
+  setTimeout(() => location.href = "/login.html", 1500);
 }
 
-// ================================
-// LOGIN (ESTE ES EL IMPORTANTE)
-// ================================
+/* ================================
+   LOGIN
+================================ */
 async function login() {
   const email = document.getElementById("email").value.trim();
-  const pass = document.getElementById("pass").value.trim();
+  const pass  = document.getElementById("pass").value.trim();
+  const btn   = document.getElementById("btnLogin");
 
   if (!email || !pass) {
-    alert("Rellena todos los campos.");
+    mostrarMensaje("⚠️ Rellena todos los campos");
     return;
   }
 
-  const res = await fetch(`${API_BASE}/auth/login`, {
+  btn.disabled = true;
+  btn.textContent = "Entrando...";
+
+  const res  = await fetch(`${API_BASE}/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password: pass })
@@ -56,14 +73,15 @@ async function login() {
   const data = await res.json();
 
   if (!res.ok) {
-    alert(data.error || "Error en inicio de sesión");
+    mostrarMensaje(data.error || "Credenciales incorrectas");
+    btn.disabled = false;
+    btn.textContent = "Iniciar sesión";
     return;
   }
 
-  // 🔑 Guardar sesión
   localStorage.setItem("token", data.token);
   localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
-  // ✅ CAMBIO CLAVE: volvemos a la HOME
-  location.href = "index.html";
+  mostrarMensaje("✅ Sesión iniciada. Redirigiendo...", "green");
+  setTimeout(() => location.href = "/index.html", 1000);
 }

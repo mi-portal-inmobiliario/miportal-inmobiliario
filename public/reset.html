@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nueva contraseña - Costa Hogar</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Inter", sans-serif;
+      background: #f5f5f5;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-wrap { width: 100%; max-width: 420px; }
+    .auth-logo { text-align: center; font-size: 1.8rem; font-weight: 800; color: #7cc242; margin-bottom: 28px; cursor: pointer; }
+    .auth-card { background: #fff; border-radius: 18px; padding: 36px 32px; box-shadow: 0 4px 24px rgba(0,0,0,0.09); }
+    .auth-card h1 { font-size: 1.5rem; font-weight: 800; color: #222; margin-bottom: 6px; }
+    .auth-card .subtitulo { font-size: 0.9rem; color: #888; margin-bottom: 28px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 6px; }
+    .form-group input {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #ddd;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      box-sizing: border-box;
+    }
+    .form-group input:focus { border-color: #7cc242; outline: none; }
+    .btn-auth {
+      width: 100%;
+      padding: 13px;
+      background: #7cc242;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 8px;
+    }
+    .btn-auth:hover { background: #63a831; }
+    .btn-auth:disabled { background: #aaa; cursor: not-allowed; }
+    .mensaje { text-align: center; margin-top: 14px; font-size: 0.9rem; font-weight: 600; min-height: 20px; }
+  </style>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-logo" onclick="location.href='/index.html'">Costa Hogar</div>
+  <div class="auth-card">
+    <h1>Nueva contraseña</h1>
+    <p class="subtitulo">Elige una contraseña segura</p>
+    <div class="form-group">
+      <label>Nueva contraseña</label>
+      <input type="password" id="pass" placeholder="Mínimo 6 caracteres">
+    </div>
+    <div class="form-group">
+      <label>Repetir contraseña</label>
+      <input type="password" id="pass2" placeholder="Repite la contraseña"
+             onkeydown="if(event.key==='Enter') resetear()">
+    </div>
+    <button class="btn-auth" id="btnReset" onclick="resetear()">Guardar contraseña</button>
+    <p class="mensaje" id="mensaje"></p>
+  </div>
+</div>
+
+<script>
+const API_BASE = location.hostname.includes("localhost")
+  ? "http://localhost:3000"
+  : "https://miportal-inmobiliario-server.onrender.com";
+
+const token = new URLSearchParams(window.location.search).get("token");
+
+if (!token) {
+  document.getElementById("mensaje").textContent = "❌ Enlace inválido";
+  document.getElementById("mensaje").style.color = "red";
+}
+
+async function resetear() {
+  const pass  = document.getElementById("pass").value.trim();
+  const pass2 = document.getElementById("pass2").value.trim();
+  const btn   = document.getElementById("btnReset");
+  const msg   = document.getElementById("mensaje");
+
+  if (!pass || !pass2) { msg.textContent = "⚠️ Rellena los dos campos"; msg.style.color = "red"; return; }
+  if (pass !== pass2)  { msg.textContent = "⚠️ Las contraseñas no coinciden"; msg.style.color = "red"; return; }
+  if (pass.length < 6) { msg.textContent = "⚠️ Mínimo 6 caracteres"; msg.style.color = "red"; return; }
+
+  btn.disabled = true;
+  btn.textContent = "Guardando...";
+
+  const res  = await fetch(`${API_BASE}/auth/reset`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token, password: pass })
+  });
+
+  const data = await res.json();
+
+  if (res.ok) {
+    msg.textContent = "✅ Contraseña actualizada. Redirigiendo...";
+    msg.style.color = "green";
+    setTimeout(() => location.href = "/login.html", 1500);
+  } else {
+    msg.textContent = "❌ " + (data.error || "Error al actualizar");
+    msg.style.color = "red";
+    btn.disabled = false;
+    btn.textContent = "Guardar contraseña";
+  }
+}
+</script>
+</body>
+</html>

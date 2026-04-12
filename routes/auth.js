@@ -1,9 +1,12 @@
+import "dotenv/config";
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import Usuario from "../models/Usuario.js";
+import { Resend } from "resend";
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /* ============================
    REGISTRO
@@ -22,13 +25,7 @@ router.post("/register", async (req, res) => {
     }
 
     const hash = await bcrypt.hash(password, 10);
-
-    const usuario = new Usuario({
-      nombre,
-      email,
-      password: hash
-    });
-
+    const usuario = new Usuario({ nombre, email, password: hash });
     await usuario.save();
 
     res.json({ ok: true });
@@ -66,8 +63,6 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
 
-    // 🔴 AQUÍ ESTABA EL PROBLEMA EN TU PROYECTO
-    // 🔴 DEVOLVEMOS _id, NO id
     res.json({
       token,
       usuario: {
@@ -80,6 +75,70 @@ router.post("/login", async (req, res) => {
   } catch (err) {
     console.error("❌ Error login:", err);
     res.status(500).json({ error: "Error en login" });
+  }
+});
+
+/* ============================
+   RECUPERAR CONTRASEÑA
+============================ */
+router.post("/recuperar", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    const usuario = await Usuario.findOne({ email });
+    if (!usuario) {
+      return res.json({ ok: true });
+    }
+
+    const token = jwt.sign(
+      { id: usuario._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    const enlace = `${process.env.APP_URL || "https://miportal-inmobiliario-server.onrender.com"}/reset.html?token=${token}`;
+
+    await resend.emails.send({
+      from: "Costa Hogar <onboarding@resend.dev>",
+      to: email,
+      subject: "Recupera tu contraseña - Costa Hogar",
+      html: `
+        <div style="font-family:Inter,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border-radius:16px;">
+          <h2 style="color:#7cc242">Costa Hogar</h2>
+          <p>Hola <strong>${usuario.nombre}</strong>,</p>
+          <p>Recibimos una solicitud para restablecer tu contraseña.</p>
+          <a href="${enlace}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#7cc242;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
+            Restablecer contraseña
+          </a>
+          <p style="color:#888;font-size:0.85rem">Este enlace caduca en 1 hora. Si no solicitaste esto, ignora este email.</p>
+        </div>
+      `
+    });
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    console.error("❌ Error recuperar:", err);
+    res.status(500).json({ error: "Error al enviar el email" });
+  }
+});
+
+/* ============================
+   RESET CONTRASEÑA
+============================ */
+router.post("/reset", async (req, res) => {
+  try {
+    const { token, password } = req.body;
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const hash = await bcrypt.hash(password, 10);
+
+    await Usuario.findByIdAndUpdate(decoded.id, { password: hash });
+
+    res.json({ ok: true });
+
+  } catch (err) {
+    res.status(400).json({ error: "Token inválido o expirado" });
   }
 });
 
