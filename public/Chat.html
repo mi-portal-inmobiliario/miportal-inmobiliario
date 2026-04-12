@@ -4,30 +4,56 @@
   <meta charset="UTF-8">
   <title>Chat - Costa Hogar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- FUENTES -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-
-  <!-- CSS GLOBAL -->
   <link rel="stylesheet" href="/css/styles.css">
-
   <style>
-    .chat-container {
-      max-width: 900px;
+    .chat-wrap {
+      max-width: 860px;
       margin: 30px auto;
-      background: white;
-      border-radius: 14px;
-      box-shadow: 0 4px 15px rgba(0,0,0,.1);
+      padding: 0 20px 80px;
+    }
+
+    .chat-container {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.08);
       display: flex;
       flex-direction: column;
-      height: 75vh;
+      height: 70vh;
+      overflow: hidden;
     }
 
     .chat-header {
-      padding: 15px;
-      background: #f0f0f0;
-      border-bottom: 1px solid #ddd;
-      font-weight: 600;
+      padding: 16px 20px;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .chat-header-icon {
+      width: 42px;
+      height: 42px;
+      background: #f0fae5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .chat-header-info strong {
+      display: block;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #222;
+    }
+
+    .chat-header-info small {
+      color: #888;
+      font-size: 0.8rem;
     }
 
     .chat-messages {
@@ -36,128 +62,196 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      background: #f9f9f9;
     }
 
     .msg {
       max-width: 70%;
-      padding: 12px;
-      border-radius: 12px;
-      font-size: .95rem;
+      padding: 10px 14px;
+      border-radius: 14px;
+      font-size: 0.93rem;
+      line-height: 1.5;
+      word-break: break-word;
     }
 
     .me {
       background: #7cc242;
-      color: white;
+      color: #fff;
       align-self: flex-end;
-      border-bottom-right-radius: 2px;
+      border-bottom-right-radius: 4px;
     }
 
     .them {
-      background: #eaeaea;
+      background: #fff;
+      color: #222;
       align-self: flex-start;
-      border-bottom-left-radius: 2px;
+      border-bottom-left-radius: 4px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+    }
+
+    .msg-hora {
+      font-size: 0.72rem;
+      opacity: 0.65;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .chat-vacio {
+      text-align: center;
+      color: #aaa;
+      padding: 40px;
+      font-size: 0.9rem;
     }
 
     .chat-input {
       display: flex;
-      border-top: 1px solid #ddd;
+      border-top: 1px solid #eee;
+      padding: 12px;
+      gap: 10px;
+      background: #fff;
     }
 
     .chat-input input {
       flex: 1;
-      padding: 15px;
-      border: none;
+      padding: 11px 16px;
+      border: 1.5px solid #ddd;
+      border-radius: 24px;
+      font-size: 0.95rem;
+      font-family: inherit;
       outline: none;
-      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input input:focus {
+      border-color: #7cc242;
     }
 
     .chat-input button {
-      padding: 15px 25px;
+      padding: 11px 22px;
       background: #7cc242;
       border: none;
-      color: white;
-      font-weight: 600;
+      color: #fff;
+      font-weight: 700;
+      border-radius: 24px;
       cursor: pointer;
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+
+    .chat-input button:hover { background: #63a831; }
+
+    .volver-chat {
+      display: inline-block;
+      color: #7cc242;
+      font-weight: 600;
+      text-decoration: none;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
     }
 
     @media (max-width: 768px) {
-      .chat-container {
-        margin: 15px;
-        height: calc(100vh - 140px);
-      }
+      .chat-wrap { padding: 0 10px 80px; margin: 10px auto; }
+      .chat-container { height: calc(100vh - 180px); }
     }
   </style>
 </head>
-
 <body>
 
-<!-- HEADER DINÁMICO -->
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-<div class="chat-container">
-  <div class="chat-header" id="chatHeader">
-    Conversación
-  </div>
+<div class="chat-wrap">
+  <a href="javascript:history.back()" class="volver-chat">← Volver</a>
 
-  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-container">
+    <div class="chat-header">
+      <div class="chat-header-icon">💬</div>
+      <div class="chat-header-info">
+        <strong id="chatTitulo">Cargando...</strong>
+        <small>Conversación sobre la propiedad</small>
+      </div>
+    </div>
 
-  <div class="chat-input">
-    <input id="mensajeInput" placeholder="Escribe un mensaje…">
-    <button id="btnEnviar">Enviar</button>
+    <div class="chat-messages" id="chatMessages">
+      <div class="chat-vacio">Cargando mensajes...</div>
+    </div>
+
+    <div class="chat-input">
+      <input id="mensajeInput" placeholder="Escribe un mensaje...">
+      <button id="btnEnviar">Enviar</button>
+    </div>
   </div>
 </div>
 
+<nav class="mobile-nav">
+  <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
+  <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
+  <a href="/favoritos.html"><span>❤️</span><small>Favoritos</small></a>
+  <a href="/perfil.html#chats" class="active"><span>💬</span><small>Chats</small></a>
+  <a href="/perfil.html"><span>👤</span><small>Perfil</small></a>
+</nav>
+
 <script>
-/* ==========================
-   SESIÓN
-========================== */
-const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-const token = localStorage.getItem("token");
+const usuario       = JSON.parse(localStorage.getItem("usuario") || "null");
+const token         = localStorage.getItem("token");
+const conversacionId = new URLSearchParams(window.location.search).get("id");
 
-if (!usuario || !usuario._id || !token) {
-  location.replace("/login.html");
+if (!usuario || !usuario._id || !token) location.replace("/login.html");
+if (!conversacionId) location.replace("/perfil.html");
+
+/* ================================
+   CARGAR INFO CONVERSACIÓN
+================================ */
+async function cargarConversacion() {
+  try {
+    const res  = await fetch(`/chat/conversaciones/${conversacionId}`);
+    const data = await res.json();
+    document.getElementById("chatTitulo").textContent = data.propiedadTitulo || "Conversación";
+  } catch(e) {}
 }
 
-/* ==========================
-   CONVERSACIÓN
-========================== */
-const params = new URLSearchParams(window.location.search);
-const conversacionId = params.get("id");
-
-if (!conversacionId) {
-  document.getElementById("chatHeader").textContent = "Conversación no válida";
-}
-
-/* ==========================
+/* ================================
    CARGAR MENSAJES
-========================== */
+================================ */
 async function cargarMensajes() {
-  const res = await fetch(`/chat/conversaciones/${conversacionId}/mensajes`);
-  const mensajes = await res.json();
+  try {
+    const res      = await fetch(`/chat/conversaciones/${conversacionId}/mensajes`);
+    const mensajes = await res.json();
+    const cont     = document.getElementById("chatMessages");
 
-  const cont = document.getElementById("chatMessages");
-  cont.innerHTML = "";
+    if (!mensajes.length) {
+      cont.innerHTML = `<div class="chat-vacio">Sé el primero en enviar un mensaje 👋</div>`;
+      return;
+    }
 
-  mensajes.forEach(m => {
-    const div = document.createElement("div");
-    div.className =
-      "msg " + (String(m.userId) === String(usuario._id) ? "me" : "them");
-    div.textContent = m.texto;
-    cont.appendChild(div);
-  });
+    cont.innerHTML = mensajes.map(m => {
+      const esMio = String(m.userId) === String(usuario._id);
+      const hora  = new Date(m.creado).toLocaleTimeString("es-ES", { hour: "2-digit", minute: "2-digit" });
+      return `
+        <div class="msg ${esMio ? "me" : "them"}">
+          ${m.texto}
+          <div class="msg-hora">${hora}</div>
+        </div>
+      `;
+    }).join("");
 
-  cont.scrollTop = cont.scrollHeight;
+    cont.scrollTop = cont.scrollHeight;
+  } catch(e) {
+    console.error(e);
+  }
 }
 
-/* ==========================
+/* ================================
    ENVIAR MENSAJE
-========================== */
+================================ */
 async function enviarMensaje() {
   const input = document.getElementById("mensajeInput");
   const texto = input.value.trim();
   if (!texto) return;
+
+  input.value = "";
 
   await fetch(`/chat/conversaciones/${conversacionId}/mensajes`, {
     method: "POST",
@@ -165,45 +259,24 @@ async function enviarMensaje() {
       "Content-Type": "application/json",
       "Authorization": "Bearer " + token
     },
-    body: JSON.stringify({
-      userId: usuario._id,
-      texto
-    })
+    body: JSON.stringify({ userId: usuario._id, texto })
   });
 
-  input.value = "";
   cargarMensajes();
 }
 
 document.getElementById("btnEnviar").onclick = enviarMensaje;
+document.getElementById("mensajeInput").addEventListener("keydown", e => {
+  if (e.key === "Enter") enviarMensaje();
+});
 
-/* START */
+/* ================================
+   INIT
+================================ */
+cargarConversacion();
 cargarMensajes();
-setInterval(cargarMensajes, 2000);
+setInterval(cargarMensajes, 3000);
 </script>
-
-<!-- MENÚ MÓVIL -->
-<nav class="mobile-nav">
-  <a href="/index.html">
-    <span>🏠</span>
-    <small>Inicio</small>
-  </a>
-
-  <a href="/comprar.html">
-    <span>🔍</span>
-    <small>Buscar</small>
-  </a>
-
-  <a href="/perfil.html#chats" class="active">
-    <span>💬</span>
-    <small>Chats</small>
-  </a>
-
-  <a href="/perfil.html">
-    <span>👤</span>
-    <small>Perfil</small>
-  </a>
-</nav>
 
 </body>
 </html>
