@@ -49,7 +49,24 @@ document.addEventListener("DOMContentLoaded", () => {
           <a href="/alquiler.html" class="btn-outline">Alquilar</a>
           <a href="/publicar.html" class="btn-publish">Pon tu anuncio</a>
           <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
-          <a href="/perfil.html#chats" class="btn-icon" title="Chats">💬</a>
+          <a href="/perfil.html#chats" class="btn-icon" title="Chats" style="position:relative;">
+            💬
+            <span id="chatBadge" style="
+              display:none;
+              position:absolute;
+              top:-6px;
+              right:-6px;
+              background:#f87171;
+              color:#fff;
+              border-radius:50%;
+              width:18px;
+              height:18px;
+              font-size:0.7rem;
+              font-weight:700;
+              align-items:center;
+              justify-content:center;
+            ">0</span>
+          </a>
 
           <div class="user-menu" id="userMenu">
             <div class="user-name" id="userToggle">
@@ -68,11 +85,29 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
 
   /* ======================
+     BADGE NOTIFICACIONES
+  ====================== */
+  async function actualizarBadge() {
+    try {
+      const res  = await fetch(`/chat/no-leidos/${usuario._id}`);
+      const data = await res.json();
+      const badge = document.getElementById("chatBadge");
+      if (badge) {
+        badge.textContent = data.count;
+        badge.style.display = data.count > 0 ? "flex" : "none";
+      }
+    } catch(e) {}
+  }
+
+  actualizarBadge();
+  setInterval(actualizarBadge, 10000);
+
+  /* ======================
      DROPDOWN MENU
   ====================== */
-  const userMenu = document.getElementById("userMenu");
+  const userMenu   = document.getElementById("userMenu");
   const userToggle = document.getElementById("userToggle");
-  const logoutBtn = document.getElementById("logoutBtn");
+  const logoutBtn  = document.getElementById("logoutBtn");
 
   if (!userMenu || !userToggle || !logoutBtn) return;
 

@@ -238,6 +238,17 @@ async function cargarMensajes() {
     }).join("");
 
     cont.scrollTop = cont.scrollHeight;
+
+    // Marcar mensajes como leídos
+    fetch(`/chat/conversaciones/${conversacionId}/leer`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ userId: usuario._id })
+    });
+
   } catch(e) {
     console.error(e);
   }

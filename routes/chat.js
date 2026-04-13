@@ -18,6 +18,7 @@ const MensajeSchema = new mongoose.Schema({
   conversacionId: String,
   userId:         String,
   texto:          String,
+  leido:          { type: Boolean, default: false },
   creado: { type: Date, default: Date.now }
 });
 
@@ -91,6 +92,45 @@ router.get("/conversaciones/:id", async (req, res) => {
     res.json({ ...conv.toObject(), propiedadTitulo });
   } catch(e) {
     res.status(400).json({ error: "ID inválido" });
+  }
+});
+
+// GET mensajes no leídos de un usuario
+router.get("/no-leidos/:userId", async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    // Conversaciones donde el usuario participa
+    const convs = await Conversacion.find({
+      $or: [{ anuncianteId: userId }, { compradorId: userId }]
+    });
+
+    const convIds = convs.map(c => c._id.toString());
+
+    // Mensajes no leídos que NO son del propio usuario
+    const count = await Mensaje.countDocuments({
+      conversacionId: { $in: convIds },
+      userId:         { $ne: userId },
+      leido:          false
+    });
+
+    res.json({ count });
+  } catch(e) {
+    res.status(500).json({ error: "Error" });
+  }
+});
+
+// PUT marcar mensajes como leídos
+router.put("/conversaciones/:id/leer", async (req, res) => {
+  try {
+    const { userId } = req.body;
+    await Mensaje.updateMany(
+      { conversacionId: req.params.id, userId: { $ne: userId }, leido: false },
+      { leido: true }
+    );
+    res.json({ ok: true });
+  } catch(e) {
+    res.status(500).json({ error: "Error" });
   }
 });
 
