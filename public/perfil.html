@@ -153,6 +153,36 @@
       .perfil-card { flex-direction: column; text-align: center; }
       .perfil-acciones { justify-content: center; }
     }
+
+    .card-acciones {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.btn-editar, .btn-eliminar {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.btn-editar {
+  background: #f0fae5;
+  color: #7cc242;
+  border: 1.5px solid #7cc242;
+}
+
+.btn-eliminar {
+  background: #fff5f5;
+  color: #f87171;
+  border: 1.5px solid #f87171;
+}
+
   </style>
 </head>
 <body>
@@ -236,19 +266,23 @@ async function cargarPropiedades() {
     const hab     = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
 
     return `
-      <div class="card-propiedad" onclick="location.href='/propiedad.html?id=${p._id}'">
-        <div class="card-img-wrap">
-          <img src="${img}" alt="${p.titulo}" loading="lazy">
-          <span class="tag-tipo ${tipoCls}">${tipo}</span>
-        </div>
-        <div class="card-body">
-          <div class="card-precio">${precio}</div>
-          <div class="card-titulo">${p.titulo}</div>
-          <div class="card-direccion">📍 ${p.direccion}</div>
-          ${hab ? `<div class="card-hab">${hab}</div>` : ""}
-        </div>
-      </div>
-    `;
+     <div class="card-propiedad">
+       <div class="card-img-wrap" onclick="location.href='/propiedad.html?id=${p._id}'">
+         <img src="${img}" alt="${p.titulo}" loading="lazy">
+         <span class="tag-tipo ${tipoCls}">${tipo}</span>
+       </div>
+       <div class="card-body">
+         <div class="card-precio">${precio}</div>
+         <div class="card-titulo">${p.titulo}</div>
+         <div class="card-direccion">📍 ${p.direccion}</div>
+         ${hab ? `<div class="card-hab">${hab}</div>` : ""}
+         <div class="card-acciones">
+           <button class="btn-editar" onclick="editarPropiedad('${p._id}')">✏️ Editar</button>
+           <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}', this)">🗑️ Eliminar</button>
+         </div>
+       </div>
+     </div>
+   `;
   }).join("");
 }
 
@@ -292,6 +326,35 @@ function cerrarSesion() {
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");
   location.href = "/index.html";
+}
+
+function editarPropiedad(id) {
+  location.href = `/publicar.html?editar=${id}`;
+}
+
+async function eliminarPropiedad(id, btn) {
+  if (!confirm("¿Seguro que quieres eliminar este anuncio?")) return;
+
+  btn.disabled = true;
+  btn.textContent = "Eliminando...";
+
+  const res = await fetch(`/propiedades/${id}`, {
+    method: "DELETE",
+    headers: { "Authorization": "Bearer " + token }
+  });
+
+  if (res.ok) {
+    btn.closest(".card-propiedad").remove();
+    const restantes = document.querySelectorAll(".card-propiedad").length;
+    if (!restantes) {
+      document.getElementById("noProps").style.display = "block";
+      document.getElementById("countProps").textContent = "";
+    }
+  } else {
+    btn.disabled = false;
+    btn.textContent = "🗑️ Eliminar";
+    alert("Error al eliminar");
+  }
 }
 
 cargarPropiedades();

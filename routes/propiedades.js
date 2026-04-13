@@ -108,4 +108,53 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
   }
 });
 
+// ==================================================
+// PUT /propiedades/:id — editar propiedad
+// ==================================================
+router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
+  try {
+    const {
+      titulo, direccion, precio, descripcion,
+      tipoOperacion, habitaciones, lat, lng
+    } = req.body;
+
+    const propiedad = await Propiedad.findById(req.params.id);
+    if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+
+    propiedad.titulo       = titulo || propiedad.titulo;
+    propiedad.direccion    = direccion || propiedad.direccion;
+    propiedad.precio       = precio ? Number(precio) : propiedad.precio;
+    propiedad.descripcion  = descripcion || propiedad.descripcion;
+    propiedad.tipoOperacion = tipoOperacion || propiedad.tipoOperacion;
+    propiedad.habitaciones = habitaciones ? Number(habitaciones) : propiedad.habitaciones;
+    propiedad.lat          = lat ? Number(lat) : propiedad.lat;
+    propiedad.lng          = lng ? Number(lng) : propiedad.lng;
+
+    if (req.files?.length) {
+      propiedad.imagenes = req.files.map(f => f.path);
+    }
+
+    await propiedad.save();
+    res.json(propiedad);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error al editar propiedad" });
+  }
+});
+
+// ==================================================
+// DELETE /propiedades/:id — eliminar propiedad
+// ==================================================
+router.delete("/:id", async (req, res) => {
+  try {
+    const propiedad = await Propiedad.findByIdAndDelete(req.params.id);
+    if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Error al eliminar propiedad" });
+  }
+});
+
 export default router;

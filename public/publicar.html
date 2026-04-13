@@ -344,6 +344,44 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
+/* ================================
+   MODO EDICIÓN
+================================ */
+const propiedadIdEditar = new URLSearchParams(window.location.search).get("editar");
+
+if (propiedadIdEditar) {
+  document.querySelector(".publicar-wrap h1").textContent = "Editar propiedad";
+  document.querySelector(".publicar-wrap .subtitulo").textContent = "Modifica los datos de tu anuncio";
+  document.getElementById("btnPublicar").textContent = "Guardar cambios";
+
+  fetch(`/propiedades/${propiedadIdEditar}`)
+    .then(r => r.json())
+    .then(p => {
+      document.getElementById("titulo").value       = p.titulo || "";
+      document.getElementById("direccion").value    = p.direccion || "";
+      document.getElementById("precio").value       = p.precio || "";
+      document.getElementById("descripcion").value  = p.descripcion || "";
+      document.getElementById("tipoOperacion").value = p.tipoOperacion || "";
+      document.getElementById("habitaciones").value  = p.habitaciones || "";
+
+      if (p.lat && p.lng) {
+        latSel = p.lat;
+        lngSel = p.lng;
+        mostrarMapa(p.lat, p.lng);
+      }
+
+      if (p.imagenes?.length) {
+        const preview = document.getElementById("preview");
+        preview.innerHTML = p.imagenes.map((url, i) => `
+          <div class="preview-item">
+            <img src="${url}">
+            <button onclick="this.parentElement.remove()">×</button>
+          </div>
+        `).join("");
+      }
+    });
+}
+
 /* ========= AUTOCOMPLETADO DIRECCIÓN ========= */
 const inputDir = document.getElementById("direccion");
 const sugBox   = document.getElementById("sugerencias");
@@ -442,7 +480,7 @@ async function publicar() {
     return;
   }
 
-  if (!imgFiles.length) {
+  if (!imgFiles.length && !propiedadIdEditar) {
     mensaje.textContent = "⚠️ Añade al menos una foto";
     mensaje.style.color = "red";
     return;
@@ -464,11 +502,11 @@ async function publicar() {
   imgFiles.forEach(f => fd.append("imagenes", f));
 
   try {
-    const res  = await fetch("/propiedades", {
-      method: "POST",
-      headers: { "Authorization": "Bearer " + token },
-      body: fd
-    });
+    const res = await fetch(propiedadIdEditar ? `/propiedades/${propiedadIdEditar}` : "/propiedades", {
+  method: propiedadIdEditar ? "PUT" : "POST",
+  headers: { "Authorization": "Bearer " + token },
+  body: fd
+});
     const data = await res.json();
 
     if (res.ok) {
