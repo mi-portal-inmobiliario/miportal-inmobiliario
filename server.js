@@ -12,6 +12,11 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // =============================
+// MODELOS
+// =============================
+import Propiedad from "./models/Propiedad.js";
+
+// =============================
 // RUTAS API
 // =============================
 import usuariosRoutes from "./routes/usuarios.js";
@@ -59,13 +64,63 @@ app.get("/_debug", (req, res) => {
 });
 
 // =============================
+// ROBOTS.TXT
+// =============================
+app.get("/robots.txt", (req, res) => {
+  res.type("text/plain");
+  res.send(`User-agent: *
+Allow: /
+Disallow: /perfil.html
+Disallow: /publicar.html
+Disallow: /chat.html
+Disallow: /favoritos.html
+
+Sitemap: https://miportal-inmobiliario-server.onrender.com/sitemap.xml`);
+});
+
+// =============================
+// SITEMAP.XML
+// =============================
+app.get("/sitemap.xml", async (req, res) => {
+  try {
+    const propiedades = await Propiedad.find({}, { _id: 1, updatedAt: 1 });
+
+    const urls = [
+      { loc: "/", priority: "1.0" },
+      { loc: "/comprar.html", priority: "0.9" },
+      { loc: "/alquiler.html", priority: "0.9" },
+      { loc: "/registro.html", priority: "0.5" },
+      { loc: "/login.html", priority: "0.3" },
+      ...propiedades.map(p => ({
+        loc: `/propiedad.html?id=${p._id}`,
+        priority: "0.8",
+        lastmod: p.updatedAt ? p.updatedAt.toISOString().split("T")[0] : ""
+      }))
+    ];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.map(u => `  <url>
+    <loc>https://miportal-inmobiliario-server.onrender.com${u.loc}</loc>
+    ${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}
+    <priority>${u.priority}</priority>
+  </url>`).join("\n")}
+</urlset>`;
+
+    res.type("application/xml");
+    res.send(xml);
+  } catch(e) {
+    res.status(500).send("Error generando sitemap");
+  }
+});
+
+// =============================
 // RUTAS API
 // =============================
 app.use("/auth", authRoutes);
 app.use("/chat", chatRoutes);
 app.use("/propiedades", propiedadesRoutes);
 app.use("/usuarios", usuariosRoutes);
-
 
 // =============================
 // INDEX
@@ -75,16 +130,16 @@ app.get("/", (req, res) => {
 });
 
 // =============================
-// START
-// =============================
-const PORT = process.env.PORT || 3000;
-
-// =============================
 // 404
 // =============================
 app.use((req, res) => {
   res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
 });
+
+// =============================
+// START
+// =============================
+const PORT = process.env.PORT || 3000;
 
 mongoose
   .connect(process.env.MONGODB_URI)
