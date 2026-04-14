@@ -225,4 +225,21 @@ router.post("/reset", async (req, res) => {
   }
 });
 
+router.get("/test-email", async (req, res) => {
+  try {
+    const r = await resend.emails.send({
+      from: "Costa Hogar <onboarding@resend.dev>",
+      to: "tuemail@gmail.com"
+      subject: "TEST Costa Hogar",
+      html: "<h1>Email funcionando</h1>"
+    });
+
+    console.log("📧 OK:", r);
+    res.send("Email enviado");
+  } catch (err) {
+    console.error("❌ ERROR:", err);
+    res.status(500).send("Error");
+  }
+});
+
 export default router;
