@@ -229,7 +229,7 @@ router.get("/test-email", async (req, res) => {
   try {
     const r = await resend.emails.send({
       from: "Costa Hogar <onboarding@resend.dev>",
-      to: "tuemail@gmail.com"
+      to: "tuemail@gmail.com",
       subject: "TEST Costa Hogar",
       html: "<h1>Email funcionando</h1>"
     });
