@@ -304,15 +304,24 @@ async function cargarChats() {
 
     document.getElementById("countChats").textContent = `${chats.length} conversación${chats.length !== 1 ? "es" : ""}`;
 
-    cont.innerHTML = chats.map(c => `
-      <div class="chat-item" onclick="location.href='/chat.html?id=${c._id}'">
-        <div class="chat-icon">💬</div>
-        <div class="chat-info">
-          <strong>${c.propiedadTitulo || "Propiedad"}</strong>
-          <small>Ver conversación →</small>
+    cont.innerHTML = chats.map(c => {
+      const esAnunciante = String(c.anuncianteId) === String(usuario._id);
+      const otroNombre = esAnunciante
+        ? (c.compradorNombre || "Interesado")
+        : (c.anuncianteNombre || "Anunciante");
+
+      return `
+        <div class="chat-item" onclick="location.href='/chat.html?id=${c._id}'">
+          <div style="width:40px;height:40px;border-radius:50%;background:#2563eb;color:white;display:flex;align-items:center;justify-content:center;font-weight:bold;flex-shrink:0;">
+            ${otroNombre.charAt(0).toUpperCase()}
+          </div>
+          <div class="chat-info">
+            <strong>${otroNombre}</strong>
+            <small>🏠 ${c.propiedadTitulo || "Propiedad"}</small>
+          </div>
         </div>
-      </div>
-    `).join("");
+      `;
+    }).join("");
 
   } catch(e) {
     console.error(e);

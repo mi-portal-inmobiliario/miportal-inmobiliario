@@ -1,160 +1,167 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro - Costa Hogar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro - Costa Hogar</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: "Inter", sans-serif;
+  background: #f5f5f5;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.auth-wrap { width: 100%; max-width: 420px; }
+.auth-logo {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #7cc242;
+  margin-bottom: 28px;
+  cursor: pointer;
+}
+.auth-card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 36px 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+}
+.auth-card h1 { font-size: 1.5rem; font-weight: 800; color: #222; margin-bottom: 6px; }
+.auth-card .subtitulo { font-size: 0.9rem; color: #888; margin-bottom: 28px; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 6px; }
+.form-group input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #ddd;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
+}
+.form-group input:focus { border-color: #7cc242; outline: none; }
+.btn-auth {
+  width: 100%;
+  padding: 13px;
+  background: #7cc242;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: inherit;
+  margin-top: 8px;
+}
+.btn-auth:hover { background: #63a831; }
+.btn-auth:disabled { background: #aaa; cursor: not-allowed; }
+.auth-footer { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #666; }
+.auth-footer a { color: #7cc242; font-weight: 600; text-decoration: none; }
+.mensaje { text-align: center; margin-top: 14px; font-size: 0.9rem; font-weight: 600; min-height: 20px; }
 
-    body {
-      font-family: "Inter", sans-serif;
-      background: #f5f5f5;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .auth-wrap {
-      width: 100%;
-      max-width: 420px;
-    }
-
-    .auth-logo {
-      text-align: center;
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #7cc242;
-      margin-bottom: 28px;
-      cursor: pointer;
-    }
-
-    .auth-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 36px 32px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
-    }
-
-    .auth-card h1 {
-      font-size: 1.5rem;
-      font-weight: 800;
-      color: #222;
-      margin-bottom: 6px;
-    }
-
-    .auth-card .subtitulo {
-      font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 28px;
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #444;
-      margin-bottom: 6px;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #ddd;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      font-family: inherit;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
-    }
-
-    .form-group input:focus {
-      border-color: #7cc242;
-      outline: none;
-    }
-
-    .btn-auth {
-      width: 100%;
-      padding: 13px;
-      background: #7cc242;
-      color: #fff;
-      border: none;
-      border-radius: 10px;
-      font-size: 1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
-      font-family: inherit;
-      margin-top: 8px;
-    }
-
-    .btn-auth:hover { background: #63a831; }
-    .btn-auth:disabled { background: #aaa; cursor: not-allowed; }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-
-    .auth-footer a {
-      color: #7cc242;
-      font-weight: 600;
-      text-decoration: none;
-    }
-
-    .mensaje {
-      text-align: center;
-      margin-top: 14px;
-      font-size: 0.9rem;
-      font-weight: 600;
-      min-height: 20px;
-    }
-  </style>
+/* Pantalla de confirmación */
+.confirmacion {
+  display: none;
+  text-align: center;
+  padding: 12px 0;
+}
+.confirmacion .icono { font-size: 3rem; margin-bottom: 16px; }
+.confirmacion h2 { font-size: 1.3rem; font-weight: 800; color: #222; margin-bottom: 10px; }
+.confirmacion p { font-size: 0.95rem; color: #666; line-height: 1.5; }
+.confirmacion .email-resaltado { color: #7cc242; font-weight: 700; }
+</style>
 </head>
 <body>
-
 <div class="auth-wrap">
   <div class="auth-logo" onclick="location.href='/index.html'">Costa Hogar</div>
-
   <div class="auth-card">
-    <h1>Crear cuenta</h1>
-    <p class="subtitulo">Únete a Costa Hogar gratis</p>
 
-    <div class="form-group">
-      <label>Nombre completo</label>
-      <input type="text" id="nombre" placeholder="Tu nombre">
+    <!-- Formulario -->
+    <div id="formulario">
+      <h1>Crear cuenta</h1>
+      <p class="subtitulo">Únete a Costa Hogar gratis</p>
+      <div class="form-group">
+        <label>Nombre completo</label>
+        <input type="text" id="nombre" placeholder="Tu nombre">
+      </div>
+      <div class="form-group">
+        <label>Correo electrónico</label>
+        <input type="email" id="email" placeholder="tu@email.com"
+          onkeydown="if(event.key==='Enter') registro()">
+      </div>
+      <button class="btn-auth" id="btnRegistro" onclick="registro()">Crear cuenta</button>
+      <p class="mensaje" id="mensaje"></p>
     </div>
 
-    <div class="form-group">
-      <label>Correo electrónico</label>
-      <input type="email" id="email" placeholder="tu@email.com">
+    <!-- Confirmación -->
+    <div class="confirmacion" id="confirmacion">
+      <div class="icono">📬</div>
+      <h2>¡Revisa tu email!</h2>
+      <p>Hemos enviado un enlace de activación a<br>
+        <span class="email-resaltado" id="emailMostrado"></span>
+      </p>
+      <p style="margin-top:12px;font-size:0.85rem;color:#aaa;">
+        Haz clic en el enlace para crear tu contraseña y activar tu cuenta.<br>Caduca en 24 horas.
+      </p>
     </div>
 
-    <div class="form-group">
-      <label>Contraseña</label>
-      <input type="password" id="pass" placeholder="Mínimo 6 caracteres"
-             onkeydown="if(event.key==='Enter') registro()">
-    </div>
-
-    <button class="btn-auth" id="btnRegistro" onclick="registro()">Crear cuenta</button>
-
-    <p class="mensaje" id="mensaje"></p>
   </div>
-
   <div class="auth-footer">
     ¿Ya tienes cuenta? <a href="/login.html">Iniciar sesión</a>
   </div>
 </div>
 
-<script src="/js/auth.js"></script>
+<script>
+async function registro() {
+  const nombre = document.getElementById("nombre").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const mensaje = document.getElementById("mensaje");
+  const btn = document.getElementById("btnRegistro");
+
+  if (!nombre || !email) {
+    mensaje.style.color = "#e74c3c";
+    mensaje.textContent = "Por favor, rellena todos los campos";
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "Enviando...";
+  mensaje.textContent = "";
+
+  try {
+    const res = await fetch("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, email })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      // Mostrar pantalla de confirmación
+      document.getElementById("formulario").style.display = "none";
+      document.getElementById("emailMostrado").textContent = email;
+      document.getElementById("confirmacion").style.display = "block";
+    } else {
+      mensaje.style.color = "#e74c3c";
+      mensaje.textContent = data.error || "Error al registrarse";
+      btn.disabled = false;
+      btn.textContent = "Crear cuenta";
+    }
+  } catch (err) {
+    mensaje.style.color = "#e74c3c";
+    mensaje.textContent = "Error de conexión";
+    btn.disabled = false;
+    btn.textContent = "Crear cuenta";
+  }
+}
+</script>
 </body>
 </html>

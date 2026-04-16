@@ -2,11 +2,19 @@ import "dotenv/config";
 import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 import Usuario from "../models/Usuario.js";
-import { Resend } from "resend";
 
 const router = express.Router();
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+// Configuración de Nodemailer con Gmail
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.GMAIL_USER,
+    pass: process.env.GMAIL_PASS
+  }
+});
 
 /* ============================
    REGISTRO (EMAIL + TOKEN)
@@ -24,14 +32,12 @@ router.post("/register", async (req, res) => {
       return res.status(400).json({ error: "El email ya está registrado" });
     }
 
-    // 🔐 generar token
     const token = jwt.sign(
       { email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // 👤 crear usuario SIN password
     const usuario = new Usuario({
       nombre,
       email,
@@ -41,12 +47,10 @@ router.post("/register", async (req, res) => {
 
     await usuario.save();
 
-    // 🔗 enlace para crear contraseña
-    const enlace = `${process.env.APP_URL || "https://miportal-inmobiliario-server.onrender.com"}/set-password.html?token=${token}`;
+    const enlace = `${process.env.APP_URL}/set-password.html?token=${token}`;
 
-    // ✉️ enviar email con Resend
-    await resend.emails.send({
-      from: "Costa Hogar <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: "Activa tu cuenta - Costa Hogar",
       html: `
@@ -116,19 +120,16 @@ router.post("/login", async (req, res) => {
 
     const usuario = await Usuario.findOne({ email });
 
-    // 🔥 comprobar si existe
     if (!usuario) {
       return res.status(400).json({ error: "Credenciales incorrectas" });
     }
 
-    // 🔥 comprobar verificación
     if (!usuario.verificado) {
       return res.status(401).json({
         error: "Debes activar tu cuenta desde el email"
       });
     }
 
-    // 🔥 comprobar password
     if (!usuario.password) {
       return res.status(400).json({
         error: "Debes crear tu contraseña desde el email"
@@ -179,10 +180,10 @@ router.post("/recuperar", async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    const enlace = `${process.env.APP_URL || "https://miportal-inmobiliario-server.onrender.com"}/reset.html?token=${token}`;
+    const enlace = `${process.env.APP_URL}/reset.html?token=${token}`;
 
-    await resend.emails.send({
-      from: "Costa Hogar <onboarding@resend.dev>",
+    await transporter.sendMail({
+      from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
       to: email,
       subject: "Recupera tu contraseña - Costa Hogar",
       html: `
@@ -225,20 +226,21 @@ router.post("/reset", async (req, res) => {
   }
 });
 
+/* ============================
+   TEST EMAIL
+============================ */
 router.get("/test-email", async (req, res) => {
   try {
-    const r = await resend.emails.send({
-      from: "Costa Hogar <onboarding@resend.dev>",
-      to: "tuemail@gmail.com",
+    await transporter.sendMail({
+      from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
+      to: process.env.GMAIL_USER,
       subject: "TEST Costa Hogar",
-      html: "<h1>Email funcionando</h1>"
+      html: "<h1>Email funcionando ✅</h1>"
     });
-
-    console.log("📧 OK:", r);
-    res.send("Email enviado");
+    res.send("Email enviado correctamente");
   } catch (err) {
     console.error("❌ ERROR:", err);
-    res.status(500).send("Error");
+    res.status(500).send("Error: " + err.message);
   }
 });
 

@@ -345,3 +345,24 @@ p {
     position: static;
   }
 }
+
+/* ================================
+   WHATSAPP
+================================ */
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: #25d366;
+  color: #fff;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 1rem;
+  margin-top: 10px;
+  transition: background 0.2s;
+}
+.btn-whatsapp:hover { background: #1ebe5d; }

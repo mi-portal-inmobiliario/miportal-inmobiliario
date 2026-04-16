@@ -106,6 +106,11 @@ function renderPropiedad() {
             💬 Contactar con el anunciante
           </button>
 
+          <a class="btn-whatsapp" href="${generarEnlaceWhatsapp()}" target="_blank" rel="noopener">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="20" height="20" alt="WhatsApp">
+            Compartir en WhatsApp
+          </a>
+
           <div class="propiedad-aviso">
             <p>🔒 Tus datos están protegidos</p>
             <p>✅ Anuncio verificado por Costa Hogar</p>
@@ -234,4 +239,14 @@ async function contactar() {
   const data = await res.json();
   if (!res.ok || !data._id) { alert("No se pudo abrir el chat"); return; }
   window.location.href = `/chat.html?id=${data._id}`;
+}
+
+/* ================================
+   WHATSAPP
+================================ */
+function generarEnlaceWhatsapp() {
+  const texto = encodeURIComponent(
+    `🏠 *${propiedad.titulo}*\n📍 ${propiedad.direccion}\n💶 ${propiedad.precio?.toLocaleString("es-ES")} €\n\n${window.location.href}`
+  );
+  return `https://wa.me/?text=${texto}`;
 }

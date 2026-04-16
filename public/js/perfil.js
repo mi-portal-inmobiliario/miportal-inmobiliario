@@ -76,11 +76,23 @@ async function cargarChats() {
   }
 
   chats.forEach(c => {
+    // Determinar quién es el otro usuario
+    const esAnunciante = String(c.anuncianteId) === String(usuario._id);
+    const otroNombre = esAnunciante
+      ? (c.compradorNombre || "Interesado")
+      : (c.anuncianteNombre || "Anunciante");
+
     cont.innerHTML += `
-      <div class="chat-item"
-           onclick="location.href='propiedad.html?id=${c.propiedadId._id}'">
-        <div class="titulo">${c.propiedadId.titulo}</div>
-        <small>${c.propiedadId.direccion}</small>
+      <div class="chat-item" onclick="location.href='chat.html?conv=${c._id}'">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:40px; height:40px; border-radius:50%; background:#2563eb; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
+            ${otroNombre.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <div style="font-weight:600;">${otroNombre}</div>
+            <div style="font-size:13px; color:#6b7280;">🏠 ${c.propiedadTitulo || "Propiedad"}</div>
+          </div>
+        </div>
       </div>
     `;
   });
