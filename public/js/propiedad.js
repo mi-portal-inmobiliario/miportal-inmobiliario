@@ -34,10 +34,51 @@ async function cargarPropiedad() {
 ================================ */
 function actualizarSEO() {
   document.title = `${propiedad.titulo} · ${propiedad.precio?.toLocaleString("es-ES")} € | Costa Hogar`;
+  
   const metaDesc = document.querySelector("meta[name='description']");
   if (metaDesc) metaDesc.setAttribute("content",
     `${propiedad.titulo}. Precio ${propiedad.precio} €. ${propiedad.direccion || ""}`
   );
+
+  // Open Graph
+  document.querySelector("meta[property='og:title']")
+    ?.setAttribute("content", propiedad.titulo);
+  document.querySelector("meta[property='og:description']")
+    ?.setAttribute("content", `${propiedad.precio?.toLocaleString("es-ES")} € · ${propiedad.direccion}`);
+
+  // Schema.org
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "RealEstateListing",
+    "name": propiedad.titulo,
+    "description": propiedad.descripcion || "",
+    "url": window.location.href,
+    "price": propiedad.precio,
+    "priceCurrency": "EUR",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": propiedad.direccion || "",
+      "addressCountry": "ES"
+    },
+    "numberOfRooms": propiedad.habitaciones || null,
+    "image": fotos[0] || "",
+    "offers": {
+      "@type": "Offer",
+      "price": propiedad.precio,
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock"
+    }
+  };
+
+  // Eliminar schema anterior si existe
+  const schemaAnterior = document.getElementById("schema-propiedad");
+  if (schemaAnterior) schemaAnterior.remove();
+
+  const script = document.createElement("script");
+  script.type = "application/ld+json";
+  script.id = "schema-propiedad";
+  script.textContent = JSON.stringify(schema);
+  document.head.appendChild(script);
 }
 
 /* ================================
