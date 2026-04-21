@@ -75,8 +75,6 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
         const comprador  = await Usuario.findById(userId);
         const propiedad  = await Propiedad.findById(conv.propiedadId);
 
-        console.log("📧 Intentando enviar email a:", anunciante?.email);
-        console.log("📧 GMAIL_USER:", process.env.GMAIL_USER);
         if (anunciante?.email) {
           await transporter.sendMail({
             from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
