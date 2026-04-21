@@ -77,7 +77,7 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
 
         if (anunciante?.email) {
           await transporter.sendMail({
-            from: `"Costa Hogar" <${process.env.EMAIL_USER}>`,
+            from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
             to: anunciante.email,
             subject: "💬 Tienes un nuevo mensaje en Costa Hogar",
             html: `
