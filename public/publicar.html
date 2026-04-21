@@ -283,9 +283,60 @@
         <input type="number" id="precio" placeholder="Ej: 185000" required>
       </div>
 
-      <div class="form-group">
+     <div class="form-group">
         <label>Descripción</label>
         <textarea id="descripcion" rows="3" placeholder="Describe tu propiedad..."></textarea>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de inmueble *</label>
+        <select id="tipoInmueble">
+          <option value="piso">Piso</option>
+          <option value="casa">Casa</option>
+          <option value="chalet">Chalet</option>
+          <option value="apartamento">Apartamento</option>
+          <option value="local">Local</option>
+          <option value="oficina">Oficina</option>
+          <option value="terreno">Terreno</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select id="estado">
+          <option value="segunda_mano">Segunda mano</option>
+          <option value="obra_nueva">Obra nueva</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Baños</label>
+        <select id="banos">
+          <option value="1">1 baño</option>
+          <option value="2">2 baños</option>
+          <option value="3">3 baños</option>
+          <option value="4">4 o más</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Superficie (m²)</label>
+        <input type="number" id="superficie" placeholder="Ej: 90">
+      </div>
+
+      <div class="form-group full">
+        <label>Extras</label>
+        <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:6px;">
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+            <input type="checkbox" id="garaje"> 🚗 Garaje
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+            <input type="checkbox" id="piscina"> 🏊 Piscina
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+            <input type="checkbox" id="terraza"> 🌿 Terraza/Jardín
+          </label>
+        </div>
       </div>
 
     </div>
@@ -363,6 +414,13 @@ if (propiedadIdEditar) {
       document.getElementById("descripcion").value  = p.descripcion || "";
       document.getElementById("tipoOperacion").value = p.tipoOperacion || "";
       document.getElementById("habitaciones").value  = p.habitaciones || "";
+      document.getElementById("banos").value       = p.banos || "1";
+      document.getElementById("superficie").value  = p.superficie || "";
+      document.getElementById("tipoInmueble").value = p.tipoInmueble || "piso";
+      document.getElementById("estado").value      = p.estado || "segunda_mano";
+      document.getElementById("garaje").checked    = p.garaje || false;
+      document.getElementById("piscina").checked   = p.piscina || false;
+      document.getElementById("terraza").checked   = p.terraza || false;
 
       if (p.lat && p.lng) {
         latSel = p.lat;
@@ -496,6 +554,13 @@ async function publicar() {
   fd.append("descripcion", descripcion);
   fd.append("tipoOperacion", tipoOperacion);
   fd.append("habitaciones", habitaciones);
+  fd.append("banos", document.getElementById("banos").value);
+  fd.append("superficie", document.getElementById("superficie").value);
+  fd.append("tipoInmueble", document.getElementById("tipoInmueble").value);
+  fd.append("estado", document.getElementById("estado").value);
+  fd.append("garaje", document.getElementById("garaje").checked);
+  fd.append("piscina", document.getElementById("piscina").checked);
+  fd.append("terraza", document.getElementById("terraza").checked);
   fd.append("usuarioId", usuario._id);
   if (latSel) fd.append("lat", latSel);
   if (lngSel) fd.append("lng", lngSel);

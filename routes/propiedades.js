@@ -87,6 +87,8 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
 
     const imagenes = req.files?.map(f => f.path) || [];
 
+    const { banos, superficie, tipoInmueble, estado, garaje, piscina, terraza } = req.body;
+
     const propiedad = await Propiedad.create({
       titulo,
       direccion,
@@ -94,6 +96,13 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       descripcion,
       tipoOperacion,
       habitaciones:  Number(habitaciones),
+      banos:         Number(banos) || 1,
+      superficie:    superficie ? Number(superficie) : null,
+      tipoInmueble:  tipoInmueble || "piso",
+      estado:        estado || "segunda_mano",
+      garaje:        garaje === "true",
+      piscina:       piscina === "true",
+      terraza:       terraza === "true",
       usuarioId:     usuarioId || null,
       lat:           lat ? Number(lat) : null,
       lng:           lng ? Number(lng) : null,
@@ -126,10 +135,18 @@ router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
     propiedad.precio       = precio ? Number(precio) : propiedad.precio;
     propiedad.descripcion  = descripcion || propiedad.descripcion;
     propiedad.tipoOperacion = tipoOperacion || propiedad.tipoOperacion;
+    const { banos, superficie, tipoInmueble, estado, garaje, piscina, terraza } = req.body;
+
     propiedad.habitaciones = habitaciones ? Number(habitaciones) : propiedad.habitaciones;
+    propiedad.banos        = banos ? Number(banos) : propiedad.banos;
+    propiedad.superficie   = superficie ? Number(superficie) : propiedad.superficie;
+    propiedad.tipoInmueble = tipoInmueble || propiedad.tipoInmueble;
+    propiedad.estado       = estado || propiedad.estado;
+    propiedad.garaje       = garaje !== undefined ? garaje === "true" : propiedad.garaje;
+    propiedad.piscina      = piscina !== undefined ? piscina === "true" : propiedad.piscina;
+    propiedad.terraza      = terraza !== undefined ? terraza === "true" : propiedad.terraza;
     propiedad.lat          = lat ? Number(lat) : propiedad.lat;
     propiedad.lng          = lng ? Number(lng) : propiedad.lng;
-
     if (req.files?.length) {
       propiedad.imagenes = req.files.map(f => f.path);
     }

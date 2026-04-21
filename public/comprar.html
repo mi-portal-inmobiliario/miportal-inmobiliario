@@ -55,7 +55,53 @@
       <option value="4">4+</option>
     </select>
 
-    <label>Ordenar por</label>
+    <label>Baños</label>
+    <select id="f_banos">
+      <option value="">Todos</option>
+      <option value="1">1+</option>
+      <option value="2">2+</option>
+      <option value="3">3+</option>
+    </select>
+
+    <label>Superficie mínima (m²)</label>
+    <input type="number" id="f_sup_min" placeholder="m²">
+
+    <label>Superficie máxima (m²)</label>
+    <input type="number" id="f_sup_max" placeholder="m²">
+
+    <label>Tipo de inmueble</label>
+    <select id="f_tipo_inmueble">
+      <option value="">Todos</option>
+      <option value="piso">Piso</option>
+      <option value="casa">Casa</option>
+      <option value="chalet">Chalet</option>
+      <option value="apartamento">Apartamento</option>
+      <option value="local">Local</option>
+      <option value="oficina">Oficina</option>
+      <option value="terreno">Terreno</option>
+    </select>
+
+    <label>Estado</label>
+    <select id="f_estado">
+      <option value="">Todos</option>
+      <option value="obra_nueva">Obra nueva</option>
+      <option value="segunda_mano">Segunda mano</option>
+    </select>
+
+    <label>Extras</label>
+    <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+        <input type="checkbox" id="f_garaje"> 🚗 Garaje
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+        <input type="checkbox" id="f_piscina"> 🏊 Piscina
+      </label>
+      <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+        <input type="checkbox" id="f_terraza"> 🌿 Terraza/Jardín
+      </label>
+    </div>
+
+    <label style="margin-top:12px;">Ordenar por</label>
     <select id="f_sort">
       <option value="">Relevancia</option>
       <option value="precio_asc">Precio: menor a mayor</option>
@@ -65,7 +111,7 @@
     <button onclick="cargarPropiedades()">Aplicar filtros</button>
     <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
   </aside>
-
+  
   <!-- LISTA -->
   <section>
     <div class="lista-propiedades" id="lista"></div>

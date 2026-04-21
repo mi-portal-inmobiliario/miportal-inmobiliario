@@ -19,7 +19,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <header class="header">
         <div class="header-container">
           <div class="header-logo" onclick="location.href='/index.html'">
-            Costa Hogar
+            Casa<span>Click24</span>
           </div>
           <div class="header-actions">
             <a href="/comprar.html" class="btn-outline">Comprar</a>
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <header class="header">
       <div class="header-container">
         <div class="header-logo" onclick="location.href='/index.html'">
-          Costa Hogar
+          Casa<span>Click24</span>
         </div>
         <div class="header-actions">
           <a href="/comprar.html" class="btn-outline">Comprar</a>

@@ -16,14 +16,30 @@ async function cargarPropiedades() {
     const min   = document.getElementById("f_min")?.value;
     const max   = document.getElementById("f_max")?.value;
     const hab   = document.getElementById("f_hab")?.value;
-    const sort  = document.getElementById("f_sort")?.value;
+    const sort       = document.getElementById("f_sort")?.value;
+    const banos      = document.getElementById("f_banos")?.value;
+    const supMin     = document.getElementById("f_sup_min")?.value;
+    const supMax     = document.getElementById("f_sup_max")?.value;
+    const tipoInmueble = document.getElementById("f_tipo_inmueble")?.value;
+    const estado     = document.getElementById("f_estado")?.value;
+    const garaje     = document.getElementById("f_garaje")?.checked;
+    const piscina    = document.getElementById("f_piscina")?.checked;
+    const terraza    = document.getElementById("f_terraza")?.checked;
 
     const params = new URLSearchParams();
-    if (tipo)   params.append("tipo", tipo);
-    if (texto)  params.append("texto", texto);
-    if (min)    params.append("min", min);
-    if (max)    params.append("max", max);
-    if (hab)    params.append("hab", hab);
+    if (tipo)         params.append("tipo", tipo);
+    if (texto)        params.append("texto", texto);
+    if (min)          params.append("min", min);
+    if (max)          params.append("max", max);
+    if (hab)          params.append("hab", hab);
+    if (banos)        params.append("banos", banos);
+    if (supMin)       params.append("sup_min", supMin);
+    if (supMax)       params.append("sup_max", supMax);
+    if (tipoInmueble) params.append("tipoInmueble", tipoInmueble);
+    if (estado)       params.append("estado", estado);
+    if (garaje)       params.append("garaje", "true");
+    if (piscina)      params.append("piscina", "true");
+    if (terraza)      params.append("terraza", "true");
 
     const res = await fetch("/propiedades?" + params.toString());
     if (!res.ok) throw new Error("Error");
@@ -66,7 +82,14 @@ function renderLista(lista) {
   cont.innerHTML = lista.map(p => {
     const img = p.imagenes?.[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600";
     const precio = p.precio?.toLocaleString("es-ES") + " €";
-    const hab = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
+    const hab        = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
+    const banos      = p.banos ? `🚿 ${p.banos} baño${p.banos > 1 ? "s" : ""}` : "";
+    const superficie = p.superficie ? `📐 ${p.superficie} m²` : "";
+    const extras     = [
+      p.garaje  ? "🚗 Garaje"  : "",
+      p.piscina ? "🏊 Piscina" : "",
+      p.terraza ? "🌿 Terraza" : ""
+    ].filter(Boolean).join(" · ");
     const tipo = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
 
@@ -81,7 +104,11 @@ function renderLista(lista) {
         <div class="card-precio">${precio}</div>
         <div class="card-titulo">${p.titulo}</div>
         <div class="card-direccion">📍 ${p.direccion}</div>
-        ${hab ? `<div class="card-hab">${hab}</div>` : ""}
+        ${hab || banos || superficie ? `
+          <div class="card-hab">
+            ${hab} ${banos} ${superficie}
+          </div>` : ""}
+        ${extras ? `<div class="card-extras" style="font-size:0.8rem;color:#888;margin-top:4px;">${extras}</div>` : ""}
       </div>
     </div>
   `;
@@ -96,10 +123,19 @@ function resetFiltros() {
     const el = document.getElementById(id);
     if (el) el.value = "";
   });
-  ["f_hab", "f_sort"].forEach(id => {
+  ["f_hab", "f_sort", "f_banos", "f_tipo_inmueble", "f_estado"].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.selectedIndex = 0;
   });
+  ["f_sup_min", "f_sup_max"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  ["f_garaje", "f_piscina", "f_terraza"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = false;
+  });
+  
   cargarPropiedades();
 }
 
