@@ -44,6 +44,22 @@ router.get("/", async (req, res) => {
 
     if (hab) filtro.habitaciones = { $gte: Number(hab) };
 
+    const { banos, sup_min, sup_max, tipoInmueble, estado, garaje, piscina, terraza } = req.query;
+
+    if (banos) filtro.banos = { $gte: Number(banos) };
+
+    if (sup_min || sup_max) {
+      filtro.superficie = {};
+      if (sup_min) filtro.superficie.$gte = Number(sup_min);
+      if (sup_max) filtro.superficie.$lte = Number(sup_max);
+    }
+
+    if (tipoInmueble) filtro.tipoInmueble = tipoInmueble;
+    if (estado)       filtro.estado = estado;
+    if (garaje === "true")  filtro.garaje = true;
+    if (piscina === "true") filtro.piscina = true;
+    if (terraza === "true") filtro.terraza = true;
+
     if (texto) {
       filtro.$or = [
         { titulo: { $regex: texto, $options: "i" } },

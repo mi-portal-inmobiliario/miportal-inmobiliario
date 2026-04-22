@@ -67,6 +67,39 @@
       text-decoration: none;
       border: none;
       font-family: inherit;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+    }
+    
+    .btn-perfil:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      opacity: 0.9;
+    }
+
+    .btn-perfil:active {
+      transform: translateY(0px);
+      box-shadow: none;
+    }
+
+    .btn-editar, .btn-eliminar {
+      transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease;
+    }
+
+    .btn-editar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(124,194,66,0.3);
+      filter: brightness(1.05);
+    }
+
+    .btn-eliminar:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(248,113,113,0.3);
+      filter: brightness(1.05);
+    }
+
+    .btn-editar:active, .btn-eliminar:active {
+      transform: translateY(0px);
+      box-shadow: none;
     }
 
     .btn-perfil.green {
