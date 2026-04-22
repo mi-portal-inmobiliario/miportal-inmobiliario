@@ -21,17 +21,34 @@ body {
 /* ================= HEADER DESKTOP ================= */
 .header {
   width: 100%;
-  background: #fff;
-  border-bottom: 1px solid #eee;
+  backdrop-filter: blur(8px);
+  background: rgba(255,255,255,0.85);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
   position: sticky;
   top: 0;
   z-index: 1000;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  transition: all 0.3s ease;
+}
+
+.header.scrolled {
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.header.scrolled .header-container {
+  height: 65px;
+}
+
+.header.scrolled .header-logo img {
+  height: 45px;
 }
 
 .header-container {
   max-width: 1200px;
   margin: auto;
-  padding: 14px 20px;
+  padding: 0px 30px;
+  height: 75px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -39,28 +56,39 @@ body {
 
 /* ===== LOGO ===== */
 .header-logo {
-  font-size: 24px;
-  font-weight: 700;
-  color: #2c3e50;
   cursor: pointer;
-  letter-spacing: -0.5px;
-  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   transition: opacity 0.2s;
-}
-
-.header-logo span {
-  color: #7cc242;
 }
 
 .header-logo:hover {
   opacity: 0.8;
 }
 
+.logo-icon {
+  height: 42px;
+  width: auto;
+  display: block;
+}
+
+.logo-text {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #2c3e50;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+.logo-green {
+  color: #7cc242;
+}
 /* ===== ACCIONES ===== */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 18px;
 }
 
 .header-actions a {
@@ -80,6 +108,7 @@ body {
 }
 
 .btn-outline {
+  background: #fff;
   text-decoration: none;
   font-weight: 600;
   color: #333;
@@ -90,6 +119,7 @@ body {
 }
 
 .btn-outline:hover {
+  background: #f7f7f7;
   border-color: #7cc242;
   color: #7cc242;
 }
@@ -274,48 +304,6 @@ body {
   .mobile-nav a.active {
     color: #7cc242;
   }
-}
-
-/* ================= HEADER MEJORADO ================= */
-.btn-outline {
-  text-decoration: none;
-  font-weight: 600;
-  color: #333;
-  border: 1.5px solid #ccc;
-  padding: 7px 16px;
-  border-radius: 8px;
-  transition: border-color 0.2s;
-}
-
-.btn-outline:hover {
-  border-color: #7cc242;
-  color: #7cc242;
-}
-
-.btn-publish {
-  text-decoration: none;
-  font-weight: 700;
-  color: #fff;
-  background: #7cc242;
-  padding: 8px 18px;
-  border-radius: 8px;
-  transition: background 0.2s;
-}
-
-.btn-publish:hover {
-  background: #6aad35;
-}
-
-.btn-icon {
-  text-decoration: none;
-  font-size: 1.3rem;
-  padding: 4px 6px;
-  border-radius: 6px;
-  transition: background 0.2s;
-}
-
-.btn-icon:hover {
-  background: #f0f0f0;
 }
 
 /* ================= SECCIÓN ¿QUÉ QUIERES HACER HOY? ================= */
