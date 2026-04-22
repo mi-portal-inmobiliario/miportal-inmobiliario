@@ -37,11 +37,15 @@ body {
 }
 
 .header.scrolled .header-container {
-  height: 65px;
+  height: 52px;
 }
 
 .header.scrolled .header-logo img {
-  height: 45px;
+  height: 28px;
+}
+
+.header.scrolled .logo-text {
+  font-size: 1.1rem;
 }
 
 .header-container {
@@ -52,6 +56,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  transition: height 0.3s ease;
 }
 
 /* ===== LOGO ===== */
@@ -71,6 +76,7 @@ body {
   height: 42px;
   width: auto;
   display: block;
+  transition: height 0.3s ease;
 }
 
 .logo-text {
@@ -79,6 +85,7 @@ body {
   color: #2c3e50;
   letter-spacing: -0.5px;
   line-height: 1;
+  transition: font-size 0.3s ease;
 }
 
 .logo-green {
@@ -99,31 +106,7 @@ body {
   align-items: center;
 }
 
-/* ===== BOTONES ===== */
-.btn-primary {
-  background: #7cc242;
-  color: #fff !important;
-  padding: 8px 14px;
-  border-radius: 8px;
-}
-
-.btn-outline {
-  background: #fff;
-  text-decoration: none;
-  font-weight: 600;
-  color: #333;
-  border: 1.5px solid #ccc;
-  padding: 7px 16px;
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.btn-outline:hover {
-  background: #f7f7f7;
-  border-color: #7cc242;
-  color: #7cc242;
-}
-
+/* ===== BOTONES VIVOS ===== */
 .btn-publish {
   text-decoration: none;
   font-weight: 700;
@@ -131,12 +114,60 @@ body {
   background: #7cc242;
   padding: 8px 18px;
   border-radius: 8px;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(124, 194, 66, 0.35);
 }
 
 .btn-publish:hover {
   background: #6aad35;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 194, 66, 0.5);
+}
+
+.btn-publish:active {
+  transform: translateY(0px);
+  box-shadow: 0 2px 6px rgba(124, 194, 66, 0.3);
+}
+
+.btn-outline {
+  text-decoration: none;
+  font-weight: 600;
+  color: #333;
+  border: 1.5px solid #ccc;
+  padding: 7px 16px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  border-color: #7cc242;
+  color: #7cc242;
   transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+}
+
+.btn-outline:active {
+  transform: translateY(0px);
+}
+
+.btn-primary {
+  background: #7cc242;
+  color: #fff !important;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(124, 194, 66, 0.35);
+}
+
+.btn-primary:hover {
+  background: #6aad35;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(124, 194, 66, 0.5);
+}
+
+.search-box button:hover {
+  background: #6aad35 !important;
+  transform: none;
 }
 
 .btn-icon {
@@ -729,4 +760,37 @@ body {
 
 .btn-fav.active {
   background: #fff;
+}
+
+/* ================= BUSCADOR ANIMADO ================= */
+.search-box {
+  transition: all 0.3s ease;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 10px 0 0 10px;
+  border: none;
+  outline: none;
+  transition: all 0.3s ease;
+  box-shadow: none;
+}
+
+.search-box:focus-within {
+  transform: scaleX(1.04);
+  filter: drop-shadow(0 4px 16px rgba(124, 194, 66, 0.35));
+}
+
+.search-box:focus-within input {
+  background: #fff;
+}
+
+.search-box:focus-within button {
+  background: #6aad35;
+  transform: none;
+}
+
+.search-box button {
+  transition: background 0.2s ease;
 }

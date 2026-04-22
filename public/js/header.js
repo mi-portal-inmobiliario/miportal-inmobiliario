@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <div class="header-logo" onclick="location.href='/index.html'">
             <img src="/CasaClick.png" alt="" class="logo-icon" />
             <span class="logo-text">Casa<span class="logo-green">Click24</span></span>
-         </div>
+          </div>
           <div class="header-actions">
             <a href="/comprar.html" class="btn-outline">Comprar</a>
             <a href="/alquiler.html" class="btn-outline">Alquilar</a>
@@ -33,6 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       </header>
     `;
+    iniciarScroll();
     return;
   }
 
@@ -45,7 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="header-logo" onclick="location.href='/index.html'">
           <img src="/CasaClick.png" alt="" class="logo-icon" />
           <span class="logo-text">Casa<span class="logo-green">Click24</span></span>
-       </div>
+        </div>
         <div class="header-actions">
           <a href="/comprar.html" class="btn-outline">Comprar</a>
           <a href="/alquiler.html" class="btn-outline">Alquilar</a>
@@ -85,6 +86,8 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     </header>
   `;
+
+  iniciarScroll();
 
   /* ======================
      BADGE NOTIFICACIONES
@@ -128,4 +131,20 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem("token");
     location.href = "/index.html";
   });
+
+  /* ======================
+     HEADER SCROLL
+  ====================== */
+  function iniciarScroll() {
+    const header = document.querySelector(".header");
+    if (!header) return;
+    window.addEventListener("scroll", () => {
+      if (window.scrollY > 50) {
+        header.classList.add("scrolled");
+      } else {
+        header.classList.remove("scrolled");
+      }
+    });
+  }
+
 });
