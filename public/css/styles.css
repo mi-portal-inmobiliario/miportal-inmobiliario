@@ -556,27 +556,41 @@ body {
 /* ===== TARJETAS ===== */
 .lista-propiedades {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .lista-propiedades {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .lista-propiedades {
+    grid-template-columns: 1fr;
+  }
 }
 
 .card-propiedad {
   background: #fff;
-  border-radius: 14px;
+  border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+  box-shadow: 0 2px 16px rgba(0,0,0,0.07);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  border: 1px solid rgba(0,0,0,0.04);
 }
 
 .card-propiedad:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.13);
 }
 
+/* IMAGEN */
 .card-img-wrap {
   position: relative;
-  height: 190px;
+  height: 210px;
   overflow: hidden;
 }
 
@@ -584,64 +598,113 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s;
+  transition: transform 0.4s ease;
 }
 
 .card-propiedad:hover .card-img-wrap img {
-  transform: scale(1.04);
+  transform: scale(1.06);
 }
 
+/* TAGS */
 .tag-tipo {
   position: absolute;
   top: 12px;
   left: 12px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 20px;
   font-size: 0.75rem;
   font-weight: 700;
   color: #fff;
+  letter-spacing: 0.3px;
 }
 
 .tag-venta    { background: #7cc242; }
 .tag-alquiler { background: #f59e0b; }
 
+/* BODY */
 .card-body {
-  padding: 14px 16px 18px;
+  padding: 16px 18px 20px;
 }
 
 .card-precio {
-  font-size: 1.2rem;
-  font-weight: 700;
+  font-size: 1.35rem;
+  font-weight: 800;
   color: #222;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  letter-spacing: -0.5px;
 }
 
 .card-titulo {
   font-size: 0.95rem;
   font-weight: 600;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 5px;
+  line-height: 1.4;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-direccion {
   font-size: 0.82rem;
-  color: #888;
-  margin-bottom: 6px;
+  color: #999;
+  margin-bottom: 10px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .card-hab {
   font-size: 0.82rem;
   color: #666;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 1px solid #f0f0f0;
 }
 
+.card-extras {
+  font-size: 0.78rem;
+  color: #aaa;
+  margin-top: 6px;
+}
+
+/* FAVORITO */
+.btn-fav {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: rgba(255,255,255,0.92);
+  border: none;
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  z-index: 10;
+}
+
+.btn-fav:hover {
+  transform: scale(1.18);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+}
+
+/* LOADING */
 .loading {
   grid-column: 1 / -1;
   text-align: center;
   padding: 60px;
-  color: #888;
+  color: #aaa;
   font-size: 1rem;
 }
 
+/* SIN RESULTADOS */
 .no-resultados {
   grid-column: 1 / -1;
   text-align: center;
@@ -658,6 +721,11 @@ body {
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  transition: background 0.2s;
+}
+
+.no-resultados button:hover {
+  background: #6aad35;
 }
 
 /* ===== MÓVIL ===== */
@@ -732,34 +800,6 @@ body {
   .btn-filtros-mobile {
     display: none;
   }
-}
-
-/* ================= BOTÓN FAVORITO ================= */
-.btn-fav {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: rgba(255,255,255,0.9);
-  border: none;
-  border-radius: 50%;
-  width: 36px;
-  height: 36px;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: transform 0.2s;
-  z-index: 10;
-}
-
-.btn-fav:hover {
-  transform: scale(1.15);
-}
-
-.btn-fav.active {
-  background: #fff;
 }
 
 /* ================= BUSCADOR ANIMADO ================= */

@@ -8,50 +8,338 @@
 }
 
 /* ===========================
+   VOLVER LINK
+=========================== */
+.volver-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #7cc242;
+  font-weight: 600;
+  text-decoration: none;
+  margin-bottom: 20px;
+  font-size: 0.95rem;
+  transition: gap 0.2s ease;
+}
+
+.volver-link:hover {
+  gap: 10px;
+}
+
+/* ===========================
+   LAYOUT DOS COLUMNAS
+=========================== */
+.propiedad-layout {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 30px;
+  align-items: start;
+}
+
+/* ===========================
    SLIDER PRINCIPAL
 =========================== */
 .slider-container {
   position: relative;
   width: 100%;
-  height: 450px;
-  border-radius: 14px;
+  height: 460px;
+  border-radius: 16px;
   overflow: hidden;
   background: #eaeaea;
-  margin-bottom: 18px;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.10);
 }
 
 .slider-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  cursor: zoom-in;
+  transition: transform 0.4s ease, opacity 0.3s ease;
+}
+
+.slider-img:hover {
+  transform: scale(1.02);
 }
 
 /* Flechas */
 .slider-btn {
   position: absolute;
   top: 50%;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   transform: translateY(-50%);
-  background: rgba(0,0,0,0.45);
-  color: white;
-  font-size: 28px;
+  background: rgba(255,255,255,0.9);
+  color: #222;
+  font-size: 22px;
   border: none;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   z-index: 20;
-  transition: .2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.15);
 }
 
 .slider-btn:hover {
-  background: rgba(0,0,0,0.65);
+  background: #fff;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+  transform: translateY(-50%) scale(1.08);
 }
 
-.slider-btn.left { left: 15px; }
-.slider-btn.right { right: 15px; }
+.slider-btn.left  { left: 14px; }
+.slider-btn.right { right: 14px; }
+
+.slider-count {
+  position: absolute;
+  bottom: 14px;
+  right: 14px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+}
+
+.tag-tipo {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.3px;
+}
+
+/* ===========================
+   MINIATURAS
+=========================== */
+.miniaturas {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.miniaturas::-webkit-scrollbar {
+  height: 4px;
+}
+.miniaturas::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 4px;
+}
+
+.miniatura {
+  width: 80px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  border: 2px solid transparent;
+}
+
+.miniatura.active,
+.miniatura:hover {
+  opacity: 1;
+  border-color: #7cc242;
+  transform: translateY(-2px);
+}
+
+/* ===========================
+   DESCRIPCIÓN
+=========================== */
+.propiedad-descripcion {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-top: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.propiedad-descripcion h2,
+.propiedad-mapa-wrap h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+  color: #222;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.propiedad-descripcion h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #eee;
+}
+
+.propiedad-descripcion p {
+  font-size: 0.95rem;
+  color: #555;
+  line-height: 1.8;
+}
+
+/* ===========================
+   MAPA
+=========================== */
+.propiedad-mapa-wrap {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  margin-top: 20px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+.propiedad-mapa-wrap h2::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #eee;
+  margin-left: 10px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+#mapa {
+  width: 100%;
+  height: 320px;
+  border-radius: 12px;
+  margin-top: 10px;
+  background: #ddd;
+  overflow: hidden;
+}
+
+/* ===========================
+   CARD INFO (COLUMNA DERECHA)
+=========================== */
+.propiedad-card-info {
+  background: #fff;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.10);
+  position: sticky;
+  top: 90px;
+  border: 1px solid rgba(0,0,0,0.05);
+}
+
+.propiedad-precio {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #222;
+  margin: 12px 0 4px;
+  letter-spacing: -1px;
+}
+
+.propiedad-titulo {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 8px;
+  line-height: 1.4;
+}
+
+.propiedad-dir {
+  font-size: 0.88rem;
+  color: #999;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.propiedad-hab {
+  font-size: 0.92rem;
+  color: #555;
+  margin-bottom: 18px;
+  font-weight: 500;
+}
+
+.propiedad-card-info hr {
+  border: none;
+  border-top: 1px solid #f0f0f0;
+  margin: 18px 0;
+}
+
+/* ===========================
+   BOTÓN CONTACTAR
+=========================== */
+.chat-open-btn {
+  background: #7cc242;
+  color: white;
+  padding: 15px 20px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  font-weight: 700;
+  margin-top: 4px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(124, 194, 66, 0.35);
+  letter-spacing: 0.2px;
+}
+
+.chat-open-btn:hover {
+  background: #6aad35;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(124, 194, 66, 0.45);
+}
+
+.chat-open-btn:active {
+  transform: translateY(0);
+}
+
+/* ===========================
+   BOTÓN WHATSAPP
+=========================== */
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px;
+  background: #25d366;
+  color: #fff;
+  border-radius: 12px;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-top: 10px;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 14px rgba(37, 211, 102, 0.3);
+}
+
+.btn-whatsapp:hover {
+  background: #1ebe5d;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+/* ===========================
+   AVISO
+=========================== */
+.propiedad-aviso {
+  margin-top: 18px;
+  padding: 14px 16px;
+  background: #f9fdf5;
+  border-radius: 10px;
+  border: 1px solid #e8f5e0;
+  font-size: 0.82rem;
+  color: #6a6a6a;
+  line-height: 2;
+}
 
 /* ===========================
    MODAL IMÁGENES
@@ -59,7 +347,7 @@
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  background: rgba(0,0,0,0.94);
   display: none;
   justify-content: center;
   align-items: center;
@@ -70,105 +358,46 @@
   max-width: 95%;
   max-height: 90vh;
   object-fit: contain;
+  border-radius: 8px;
 }
 
 .modal-cerrar {
   position: absolute;
-  top: 25px;
-  right: 35px;
-  font-size: 48px;
+  top: 20px;
+  right: 30px;
+  font-size: 42px;
   color: white;
   cursor: pointer;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+  line-height: 1;
 }
 
-/* ===========================
-   INFORMACIÓN PROPIEDAD
-=========================== */
-h1 {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 14px 0 8px;
-}
-
-.price {
-  font-size: 2rem;
-  font-weight: 700;
-  color: #7cc242;
-  margin-bottom: 10px;
-}
-
-p {
-  font-size: 1rem;
-  margin: 8px 0;
-  line-height: 1.5;
-}
-
-/* ===========================
-   MAPA LEAFLET (CLAVE)
-=========================== */
-#mapa {
-  width: 100%;
-  height: 350px;
-  border-radius: 14px;
-  margin: 22px 0;
-  background: #ddd;
-  overflow: hidden;
-}
-
-/* ===========================
-   BOTÓN CHAT
-=========================== */
-.chat-open-btn {
-  background: #7cc242;
-  color: white;
-  padding: 14px 20px;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  cursor: pointer;
-  width: 100%;
-  font-weight: 700;
-  margin-top: 20px;
-  transition: .2s;
-}
-
-.chat-open-btn:hover {
-  background: #63a831;
-}
-
-/* ===========================
-   BOTÓN VOLVER
-=========================== */
-.volver-btn {
-  display: inline-block;
-  background: #7cc242;
-  padding: 12px 18px;
-  border-radius: 10px;
-  color: white;
-  font-weight: 600;
-  text-decoration: none;
-  margin-top: 25px;
-  transition: .2s;
-}
-
-.volver-btn:hover {
-  background: #63a831;
+.modal-cerrar:hover {
+  opacity: 1;
 }
 
 /* ===========================
    RESPONSIVE
 =========================== */
+@media (max-width: 900px) {
+  .propiedad-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .propiedad-card-info {
+    position: static;
+    order: -1;
+  }
+}
+
 @media (max-width: 768px) {
   .slider-container {
     height: 300px;
   }
 
-  h1 {
-    font-size: 1.6rem;
-  }
-
-  .price {
-    font-size: 1.6rem;
+  .propiedad-precio {
+    font-size: 1.8rem;
   }
 }
 
@@ -177,192 +406,3 @@ p {
     height: 240px;
   }
 }
-
-/* ================================
-   LAYOUT DOS COLUMNAS
-================================ */
-.volver-link {
-  display: inline-block;
-  color: #7cc242;
-  font-weight: 600;
-  text-decoration: none;
-  margin-bottom: 16px;
-  font-size: 0.95rem;
-}
-
-.propiedad-layout {
-  display: grid;
-  grid-template-columns: 1fr 380px;
-  gap: 30px;
-  align-items: start;
-}
-
-/* ================================
-   COLUMNA DERECHA - CARD INFO
-================================ */
-.propiedad-card-info {
-  background: #fff;
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.09);
-  position: sticky;
-  top: 90px;
-}
-
-.propiedad-precio {
-  font-size: 2rem;
-  font-weight: 800;
-  color: #222;
-  margin: 10px 0 6px;
-}
-
-.propiedad-titulo {
-  font-size: 1.2rem;
-  font-weight: 700;
-  color: #222;
-  margin-bottom: 8px;
-}
-
-.propiedad-dir {
-  font-size: 0.9rem;
-  color: #888;
-  margin-bottom: 8px;
-}
-
-.propiedad-hab {
-  font-size: 0.9rem;
-  color: #555;
-  margin-bottom: 16px;
-}
-
-.propiedad-card-info hr {
-  border: none;
-  border-top: 1px solid #eee;
-  margin: 16px 0;
-}
-
-.propiedad-aviso {
-  margin-top: 16px;
-  font-size: 0.82rem;
-  color: #888;
-  line-height: 1.8;
-}
-
-/* ================================
-   SLIDER MEJORADO
-================================ */
-.slider-count {
-  position: absolute;
-  bottom: 14px;
-  right: 14px;
-  background: rgba(0,0,0,0.5);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-}
-
-.tag-tipo {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: #fff;
-}
-
-/* ================================
-   MINIATURAS
-================================ */
-.miniaturas {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-  overflow-x: auto;
-}
-
-.miniatura {
-  width: 80px;
-  height: 60px;
-  object-fit: cover;
-  border-radius: 8px;
-  cursor: pointer;
-  opacity: 0.6;
-  transition: opacity 0.2s;
-  flex-shrink: 0;
-}
-
-.miniatura.active,
-.miniatura:hover {
-  opacity: 1;
-  outline: 2px solid #7cc242;
-}
-
-/* ================================
-   DESCRIPCIÓN Y MAPA
-================================ */
-.propiedad-descripcion {
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px 24px;
-  margin-top: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-}
-
-.propiedad-descripcion h2,
-.propiedad-mapa-wrap h2 {
-  font-size: 1.1rem;
-  font-weight: 700;
-  margin-bottom: 12px;
-  color: #222;
-}
-
-.propiedad-descripcion p {
-  font-size: 0.95rem;
-  color: #555;
-  line-height: 1.7;
-}
-
-.propiedad-mapa-wrap {
-  background: #fff;
-  border-radius: 14px;
-  padding: 20px 24px;
-  margin-top: 20px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
-}
-
-/* ================================
-   RESPONSIVE
-================================ */
-@media (max-width: 900px) {
-  .propiedad-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .propiedad-card-info {
-    position: static;
-  }
-}
-
-/* ================================
-   WHATSAPP
-================================ */
-.btn-whatsapp {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 13px;
-  background: #25d366;
-  color: #fff;
-  border-radius: 10px;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 1rem;
-  margin-top: 10px;
-  transition: background 0.2s;
-}
-.btn-whatsapp:hover { background: #1ebe5d; }

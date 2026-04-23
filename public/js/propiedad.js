@@ -33,7 +33,7 @@ async function cargarPropiedad() {
    SEO
 ================================ */
 function actualizarSEO() {
-  document.title = `${propiedad.titulo} · ${propiedad.precio?.toLocaleString("es-ES")} € | Costa Hogar`;
+  document.title = `${propiedad.titulo} · ${propiedad.precio?.toLocaleString("es-ES")} € | CasaClick24`;
   
   const metaDesc = document.querySelector("meta[name='description']");
   if (metaDesc) metaDesc.setAttribute("content",
@@ -154,7 +154,7 @@ function renderPropiedad() {
 
           <div class="propiedad-aviso">
             <p>🔒 Tus datos están protegidos</p>
-            <p>✅ Anuncio verificado por Costa Hogar</p>
+            <p>✅ Anuncio verificado por CasaClick24</p>
           </div>
         </div>
       </div>

@@ -94,23 +94,23 @@ function renderLista(lista) {
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
 
    return `
-    <div class="card-propiedad" onclick="abrirPropiedad('${p._id}')">
-      <div class="card-img-wrap">
-        <img src="${img}" alt="${p.titulo}" loading="lazy">
-        <span class="tag-tipo ${tipoCls}">${tipo}</span>
-        <button class="btn-fav" onclick="toggleFavorito(event, '${p._id}', this)">🤍</button>
-      </div>
-      <div class="card-body">
-        <div class="card-precio">${precio}</div>
-        <div class="card-titulo">${p.titulo}</div>
-        <div class="card-direccion">📍 ${p.direccion}</div>
-        ${hab || banos || superficie ? `
-          <div class="card-hab">
-            ${hab} ${banos} ${superficie}
-          </div>` : ""}
-        ${extras ? `<div class="card-extras" style="font-size:0.8rem;color:#888;margin-top:4px;">${extras}</div>` : ""}
-      </div>
+  <div class="card-propiedad" onclick="abrirPropiedad('${p._id}')">
+    <div class="card-img-wrap">
+      <img src="${img}" alt="${p.titulo}" loading="lazy">
+      <span class="tag-tipo ${tipoCls}">${tipo}</span>
+      <button class="btn-fav" onclick="toggleFavorito(event, '${p._id}', this)">🤍</button>
     </div>
+    <div class="card-body">
+      <div class="card-precio">${precio}</div>
+      <div class="card-titulo">${p.titulo}</div>
+      <div class="card-direccion">📍 ${p.direccion}</div>
+      ${hab || banos || superficie ? `
+        <div class="card-hab">
+          ${[hab, banos, superficie].filter(Boolean).join('<span style="color:#ddd">|</span>')}
+        </div>` : ""}
+      ${extras ? `<div class="card-extras">${extras}</div>` : ""}
+    </div>
+  </div>
   `;
   }).join("");
 }
