@@ -1,30 +1,560 @@
-<!-- index.html - CasaClick24 A1 limpio, sin listar propiedades reales -->
+<!-- index.html - CasaClick24 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>CasaClick24 - Inicio</title>
-  <!-- Importante: ruta correcta al CSS -->
   <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 
-   <!-- SEO -->
-<meta name="description" content="CasaClick24 — Encuentra tu vivienda ideal en la Costa. Pisos, casas y apartamentos en venta y alquiler.">
-<meta name="keywords" content="inmobiliaria, pisos, casas, venta, alquiler, costa, vivienda">
-<meta name="author" content="CasaClick24">
+  <!-- SEO -->
+  <meta name="description" content="CasaClick24 — Encuentra tu vivienda ideal en España. Pisos, casas y apartamentos en venta y alquiler.">
+  <meta name="keywords" content="inmobiliaria, pisos, casas, venta, alquiler, vivienda, España">
+  <meta name="author" content="CasaClick24">
 
-<!-- Open Graph -->
-<meta property="og:title" content="CasaClick24 — Viviendas en la Costa">
-<meta property="og:description" content="Encuentra tu vivienda ideal. Pisos y casas en venta y alquiler.">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://miportal-inmobiliario-server.onrender.com">
-<meta property="og:image" content="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200">
+  <!-- Open Graph -->
+  <meta property="og:title" content="CasaClick24 — Viviendas en España">
+  <meta property="og:description" content="Encuentra tu vivienda ideal. Pisos y casas en venta y alquiler.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://miportal-inmobiliario-server.onrender.com">
+  <meta property="og:image" content="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200">
 
-<!-- Twitter Card -->
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="CasaClick24 — Viviendas en la Costa">
-<meta name="twitter:description" content="Encuentra tu vivienda ideal en la Costa.">
-<meta name="twitter:image" content="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200">
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="CasaClick24 — Viviendas en España">
+  <meta name="twitter:description" content="Encuentra tu vivienda ideal en España.">
+  <meta name="twitter:image" content="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200">
+
+  <style>
+    /* ==============================
+       HERO
+    ============================== */
+    .hero {
+      height: 88vh;
+      min-height: 580px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-slider, .slide {
+      position: absolute;
+      inset: 0;
+    }
+
+    .slide {
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 1.2s ease;
+    }
+
+    .slide.active { opacity: 1; }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        to bottom,
+        rgba(0,0,0,0.15) 0%,
+        rgba(0,0,0,0.45) 60%,
+        rgba(0,0,0,0.65) 100%
+      );
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #7cc242;
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.2s forwards;
+    }
+
+    .hero-content h1 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 800;
+      margin-bottom: 30px;
+      line-height: 1.15;
+      text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.4s forwards;
+      max-width: 700px;
+      min-height: 1.4em;
+      transition: opacity 0.4s ease;
+    }
+
+    /* BUSCADOR */
+    .search-wrap {
+      width: 100%;
+      max-width: 600px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.6s forwards;
+      position: relative;
+    }
+
+    .search-box {
+      display: flex;
+      width: 100%;
+      border-radius: 14px;
+      overflow: visible;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      transition: all 0.3s ease;
+    }
+
+    .search-box:focus-within {
+      transform: scaleX(1.03);
+      filter: drop-shadow(0 6px 20px rgba(124,194,66,0.4));
+    }
+
+    .search-box input {
+      flex: 1;
+      padding: 18px 20px;
+      border-radius: 14px 0 0 14px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+      background: rgba(255,255,255,0.97);
+      color: #222;
+    }
+
+    .search-box input::placeholder { color: #aaa; }
+
+    .search-box button {
+      padding: 18px 28px;
+      border: none;
+      background: #7cc242;
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 0 14px 14px 0;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .search-box button:hover { background: #6aad35; }
+
+    /* SUGERENCIAS */
+    .sugerencias {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      z-index: 100;
+      display: none;
+      overflow: hidden;
+    }
+
+    .sugerencias div {
+      padding: 12px 18px;
+      font-size: 0.9rem;
+      color: #333;
+      cursor: pointer;
+      border-bottom: 1px solid #f5f5f5;
+      text-align: left;
+      transition: background 0.15s;
+    }
+
+    .sugerencias div:last-child { border-bottom: none; }
+    .sugerencias div:hover { background: #f0f9e8; color: #7cc242; }
+
+    /* STATS HERO */
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 36px;
+      opacity: 0;
+      animation: fadeUp 0.8s ease 0.8s forwards;
+    }
+
+    .hero-stat {
+      text-align: center;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #7cc242;
+      line-height: 1;
+    }
+
+    .hero-stat span {
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.75);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* SCROLL INDICATOR */
+    .scroll-indicator {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.7;
+      animation: bounce 2s infinite;
+    }
+
+    .scroll-indicator span {
+      width: 1px;
+      height: 36px;
+      background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.8));
+    }
+
+    /* ==============================
+       SECCIÓN QUÉ QUIERES HACER
+    ============================== */
+    .destacadas-section {
+      max-width: 1200px;
+      margin: 70px auto;
+      padding: 0 20px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+
+    .section-header h2 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .section-header a {
+      font-size: 0.9rem;
+      color: #7cc242;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .section-header a:hover { text-decoration: underline; }
+
+    .lista {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-bottom: 70px;
+    }
+
+    .lista .item {
+      position: relative;
+      border-radius: 18px;
+      overflow: hidden;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.10);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      aspect-ratio: 4/3;
+    }
+
+    .lista .item:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 14px 36px rgba(0,0,0,0.18);
+    }
+
+    .lista .item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.5s ease;
+    }
+
+    .lista .item:hover img {
+      transform: scale(1.06);
+    }
+
+    .lista .item::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);
+    }
+
+    .lista .item .info {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 28px 22px 22px;
+      z-index: 1;
+    }
+
+    .lista .item .titulo {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+
+    .lista .item .direccion {
+      font-size: 0.85rem;
+      color: rgba(255,255,255,0.8);
+    }
+
+    .item-arrow {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 36px;
+      height: 36px;
+      background: rgba(255,255,255,0.2);
+      backdrop-filter: blur(6px);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 1rem;
+      z-index: 2;
+      transition: background 0.2s;
+    }
+
+    .lista .item:hover .item-arrow {
+      background: #7cc242;
+    }
+
+    /* ==============================
+       TESTIMONIOS
+    ============================== */
+    .testimonios-section {
+      background: #f9fdf5;
+      padding: 70px 20px;
+      margin: 0 0 70px;
+    }
+
+    .testimonios-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .testimonios-inner h2 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 36px;
+    }
+
+    .testimonios {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .testimonio {
+      background: #fff;
+      border-radius: 18px;
+      padding: 30px 28px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      position: relative;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .testimonio:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.1);
+    }
+
+    .testimonio-comilla {
+      font-size: 4rem;
+      line-height: 1;
+      color: #7cc242;
+      font-family: Georgia, serif;
+      margin-bottom: 8px;
+      display: block;
+      opacity: 0.5;
+    }
+
+    .testimonio .texto {
+      font-size: 0.95rem;
+      color: #444;
+      margin-bottom: 22px;
+      line-height: 1.75;
+      font-style: italic;
+    }
+
+    .testimonio .cliente {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-top: 18px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .testimonio .cliente img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #e8f5e0;
+    }
+
+    .testimonio .cliente h4 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #222;
+      margin-bottom: 2px;
+    }
+
+    .testimonio .cliente span {
+      font-size: 0.8rem;
+      color: #999;
+    }
+
+    /* ESTRELLAS */
+    .stars {
+      color: #f59e0b;
+      font-size: 0.85rem;
+      margin-bottom: 12px;
+    }
+
+    /* ==============================
+       FOOTER
+    ============================== */
+    .footer {
+      background: #1a2332;
+      color: #ccc;
+      padding: 50px 20px 30px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-brand .logo-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .footer-brand .logo-green { color: #7cc242; }
+
+    .footer-brand p {
+      font-size: 0.88rem;
+      color: #8a9ab0;
+      margin-top: 12px;
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .footer-col a {
+      display: block;
+      font-size: 0.88rem;
+      color: #8a9ab0;
+      text-decoration: none;
+      margin-bottom: 10px;
+      transition: color 0.2s;
+    }
+
+    .footer-col a:hover { color: #7cc242; }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: #5a6a7a;
+    }
+
+    /* ==============================
+       ANIMACIONES
+    ============================== */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50%       { transform: translateX(-50%) translateY(8px); }
+    }
+
+    /* ==============================
+       RESPONSIVE
+    ============================== */
+    @media (max-width: 900px) {
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .lista {
+        grid-template-columns: 1fr;
+      }
+
+      .testimonios {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-stats {
+        gap: 24px;
+      }
+
+      .footer-inner {
+        grid-template-columns: 1fr 1fr;
+        gap: 28px;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 8px;
+        text-align: center;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .hero-stats { display: none; }
+      .footer-inner { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 
 <body>
@@ -32,39 +562,64 @@
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
 
-
 <!-- ================================
-     HERO + CARRUSEL CON FRASES
+     HERO
 ================================ -->
 <section class="hero">
 
   <div class="hero-slider">
-    <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1200');"></div>
-    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200');"></div>
-    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200');"></div>
+    <div class="slide active" style="background-image:url('https://images.unsplash.com/photo-1507089947368-19c1da9775ae?w=1400');"></div>
+    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1400');"></div>
+    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1400');"></div>
+    <div class="slide" style="background-image:url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1400');"></div>
   </div>
 
   <div class="hero-content">
+    <p class="hero-eyebrow">Portal Inmobiliario en España</p>
     <h1 id="heroFrase">Encuentra tu hogar ideal</h1>
 
-    <div class="search-box">
-      <input type="text" id="busqueda" placeholder="Buscar ciudad, zona o dirección...">
-      <button onclick="buscar()">Buscar</button>
+    <div class="search-wrap">
+      <div class="search-box">
+        <input type="text" id="busqueda" placeholder="Buscar ciudad, zona o dirección...">
+        <button onclick="buscar()">🔍 Buscar</button>
+      </div>
+      <div class="sugerencias" id="sugerencias"></div>
     </div>
 
-    <div class="sugerencias" id="sugerencias"></div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <strong>+500</strong>
+        <span>Propiedades</span>
+      </div>
+      <div class="hero-stat">
+        <strong>+200</strong>
+        <span>Clientes felices</span>
+      </div>
+      <div class="hero-stat">
+        <strong>+50</strong>
+        <span>Ciudades</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-indicator">
+    <span></span>
   </div>
 
 </section>
 
 <!-- ================================
-     BLOQUES TIPO IDEALISTA
+     ¿QUÉ QUIERES HACER HOY?
 ================================ -->
 <section class="destacadas-section">
-  <h2>¿Qué quieres hacer hoy?</h2>
+  <div class="section-header">
+    <h2>¿Qué quieres hacer hoy?</h2>
+  </div>
+
   <div class="lista">
     <div class="item" onclick="location.href='comprar.html'">
-      <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800" alt="Comprar vivienda">
+      <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800" alt="Comprar vivienda" loading="lazy">
+      <div class="item-arrow">→</div>
       <div class="info">
         <div class="titulo">Comprar vivienda</div>
         <div class="direccion">Explora todas las viviendas en venta</div>
@@ -72,7 +627,8 @@
     </div>
 
     <div class="item" onclick="location.href='alquiler.html'">
-      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800" alt="Alquilar vivienda">
+      <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800" alt="Alquilar vivienda" loading="lazy">
+      <div class="item-arrow">→</div>
       <div class="info">
         <div class="titulo">Alquilar vivienda</div>
         <div class="direccion">Encuentra piso o casa de alquiler</div>
@@ -80,150 +636,200 @@
     </div>
 
     <div class="item" onclick="location.href='publicar.html'">
-      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Publicar anuncio">
+      <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Publicar anuncio" loading="lazy">
+      <div class="item-arrow">→</div>
       <div class="info">
         <div class="titulo">Publicar mi anuncio</div>
         <div class="direccion">Pon tu vivienda en CasaClick24 en minutos</div>
       </div>
     </div>
   </div>
+</section>
 
-  <h2 style="margin-top:40px;">Lo que dicen nuestros clientes</h2>
-  <div class="testimonios">
-    <div class="testimonio">
-      <p class="texto">“Vendimos nuestro piso en menos de un mes gracias a CasaClick24. El proceso fue muy sencillo.”</p>
-      <div class="cliente">
-        <img src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200" alt="Cliente 1">
-        <div>
-          <h4>María y Carlos</h4>
-          <span>Propietarios en Alicante</span>
+<!-- ================================
+     TESTIMONIOS
+================================ -->
+<section class="testimonios-section">
+  <div class="testimonios-inner">
+    <h2>Lo que dicen nuestros clientes</h2>
+    <div class="testimonios">
+
+      <div class="testimonio">
+        <span class="testimonio-comilla">"</span>
+        <div class="stars">★★★★★</div>
+        <p class="texto">Vendimos nuestro piso en menos de un mes gracias a CasaClick24. El proceso fue muy sencillo y el equipo siempre estuvo disponible.</p>
+        <div class="cliente">
+          <img src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200" alt="María y Carlos">
+          <div>
+            <h4>María y Carlos</h4>
+            <span>Propietarios en Alicante</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="testimonio">
-      <p class="texto">“Encontré un alquiler cerca del trabajo y con el presupuesto que buscaba. Muy recomendable.”</p>
-      <div class="cliente">
-        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200" alt="Cliente 2">
-        <div>
-          <h4>Lucía</h4>
-          <span>Inquilina en Torrevieja</span>
+      <div class="testimonio">
+        <span class="testimonio-comilla">"</span>
+        <div class="stars">★★★★★</div>
+        <p class="texto">Encontré un alquiler cerca del trabajo y con el presupuesto que buscaba. Muy recomendable para cualquiera que busque piso.</p>
+        <div class="cliente">
+          <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200" alt="Lucía">
+          <div>
+            <h4>Lucía</h4>
+            <span>Inquilina en Torrevieja</span>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="testimonio">
-      <p class="texto">“La web es muy cómoda y pude gestionar las visitas a mis propiedades sin complicaciones.”</p>
-      <div class="cliente">
-        <img src="https://images.unsplash.com/photo-1544723795-3fb0b90c07e4?w=200" alt="Cliente 3">
-        <div>
-          <h4>Javier</h4>
-          <span>Agente inmobiliario</span>
+      <div class="testimonio">
+        <span class="testimonio-comilla">"</span>
+        <div class="stars">★★★★★</div>
+        <p class="texto">La web es muy cómoda y pude gestionar las visitas a mis propiedades sin complicaciones. Una herramienta imprescindible.</p>
+        <div class="cliente">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200" alt="Javier">
+          <div>
+            <h4>Javier</h4>
+            <span>Agente inmobiliario</span>
+          </div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<footer style="text-align:center;padding:20px;color:#666;">
-  © 2025 CasaClick24. Todos los derechos reservados.
+<!-- ================================
+     FOOTER
+================================ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <span class="logo-text">Casa<span class="logo-green">Click24</span></span>
+      <p>Tu portal inmobiliario de confianza en España. Encuentra la vivienda de tus sueños o publica tu anuncio en minutos.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Explorar</h4>
+      <a href="/comprar.html">Comprar vivienda</a>
+      <a href="/alquiler.html">Alquilar vivienda</a>
+      <a href="/publicar.html">Publicar anuncio</a>
+    </div>
+    <div class="footer-col">
+      <h4>Mi cuenta</h4>
+      <a href="/login.html">Iniciar sesión</a>
+      <a href="/registro.html">Registrarse</a>
+      <a href="/perfil.html">Mi perfil</a>
+      <a href="/favoritos.html">Favoritos</a>
+    </div>
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="#">Aviso legal</a>
+      <a href="#">Política de privacidad</a>
+      <a href="#">Cookies</a>
+      <a href="#">Contacto</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 CasaClick24. Todos los derechos reservados.</span>
+    <span>Hecho con ❤️ en España</span>
+  </div>
 </footer>
+
+<!-- MENÚ MÓVIL -->
+<nav class="mobile-nav" id="mobileNav">
+  <a href="/index.html" class="active">
+    <span>🏠</span>
+    <small>Inicio</small>
+  </a>
+  <a href="/comprar.html">
+    <span>🔍</span>
+    <small>Buscar</small>
+  </a>
+  <a href="/favoritos.html">
+    <span>❤️</span>
+    <small>Favoritos</small>
+  </a>
+  <a href="/perfil.html#chats">
+    <span>💬</span>
+    <small>Chats</small>
+  </a>
+  <a href="/perfil.html">
+    <span>👤</span>
+    <small>Perfil</small>
+  </a>
+</nav>
 
 <!-- ================================
      JAVASCRIPT
 ================================ -->
 <script>
-/* 1. CARRUSEL AUTOMÁTICO */
+/* 1. CARRUSEL */
 let slideIndex = 0;
 setInterval(() => {
   const slides = document.querySelectorAll(".slide");
   if (!slides.length) return;
-  slides.forEach(s => s.classList.remove("active"));
+  slides[slideIndex].classList.remove("active");
   slideIndex = (slideIndex + 1) % slides.length;
   slides[slideIndex].classList.add("active");
-}, 4500);
+}, 5000);
 
-/* 2. FRASES AUTOMÁTICAS */
+/* 2. FRASES */
 const frases = [
   "Encuentra tu hogar ideal",
   "Viviendas hechas para ti",
   "Sueña en grande, vive mejor",
   "El lugar perfecto te espera"
 ];
-
 let fraseIndex = 0;
 setInterval(() => {
   fraseIndex = (fraseIndex + 1) % frases.length;
   const el = document.getElementById("heroFrase");
-  if (el) el.textContent = frases[fraseIndex];
-}, 4000);
+  if (!el) return;
+  el.style.opacity = "0";
+  setTimeout(() => {
+    el.textContent = frases[fraseIndex];
+    el.style.opacity = "1";
+  }, 300);
+}, 5000);
 
-/* 3. AUTOCOMPLETADO DIRECCIONES */
+/* 3. AUTOCOMPLETADO */
 const input = document.getElementById("busqueda");
 const sugerencias = document.getElementById("sugerencias");
 
 input.addEventListener("input", async () => {
   const t = input.value.trim();
   if (t.length < 3) { sugerencias.style.display = "none"; return; }
-
   const url = `https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=691dbf7ce0ac5786669402bgm8f835e`;
   try {
     const res = await fetch(url);
     const data = await res.json();
     sugerencias.innerHTML = "";
     if (!data.length) { sugerencias.style.display = "none"; return; }
-
     data.slice(0, 6).forEach(s => {
       const d = document.createElement("div");
       d.textContent = s.display_name;
-      d.onclick = () => {
-        input.value = s.display_name;
-        sugerencias.style.display = "none";
-      };
+      d.onclick = () => { input.value = s.display_name; sugerencias.style.display = "none"; };
       sugerencias.appendChild(d);
     });
     sugerencias.style.display = "block";
   } catch(e) {
-    console.error(e);
     sugerencias.style.display = "none";
   }
 });
 
-/* 4. BOTÓN DE BUSCAR → va a COMPRAR con filtro */
+document.addEventListener("click", (e) => {
+  if (!e.target.closest(".search-wrap")) sugerencias.style.display = "none";
+});
+
+/* 4. BUSCAR */
 function buscar() {
   const q = input.value.trim();
   if (!q) return;
   location.href = `comprar.html?search=${encodeURIComponent(q)}`;
 }
+
+input.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") buscar();
+});
 </script>
-
-<!-- MENÚ MÓVIL TIPO APP -->
-<nav class="mobile-nav" id="mobileNav">
-  <a href="/index.html" class="active">
-    <span>🏠</span>
-    <small>Inicio</small>
-  </a>
-
-  <a href="/comprar.html">
-    <span>🔍</span>
-    <small>Buscar</small>
-  </a>
-
-  <a href="/favoritos.html">
-    <span>❤️</span>
-    <small>Favoritos</small>
-  </a>
-
-  <a href="/perfil.html#chats">
-    <span>💬</span>
-    <small>Chats</small>
-  </a>
-
-  <a href="/perfil.html">
-    <span>👤</span>
-    <small>Perfil</small>
-  </a>
-</nav>
 
 </body>
 </html>
