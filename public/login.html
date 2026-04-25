@@ -3,167 +3,275 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Iniciar Sesión - Costa Hogar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <title>Iniciar Sesión - CasaClick24</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: "Inter", sans-serif;
-      background: #f5f5f5;
       min-height: 100vh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
     }
 
-    .auth-wrap {
-      width: 100%;
-      max-width: 420px;
+    /* PANEL IZQUIERDO - IMAGEN */
+    .auth-left {
+      flex: 1;
+      background: url('https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200') center/cover no-repeat;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px;
+    }
+
+    .auth-left::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+    }
+
+    .auth-left-content {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+    }
+
+    .auth-left-content h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .auth-left-content p {
+      font-size: 1rem;
+      opacity: 0.8;
+      line-height: 1.6;
+    }
+
+    .auth-left-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    /* PANEL DERECHO - FORMULARIO */
+    .auth-right {
+      width: 460px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 44px;
+      overflow-y: auto;
     }
 
     .auth-logo {
-      text-align: center;
-      font-size: 1.8rem;
-      font-weight: 800;
-      color: #7cc242;
-      margin-bottom: 28px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 40px;
       cursor: pointer;
     }
 
-    .auth-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 36px 32px;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.09);
+    .auth-logo img {
+      height: 36px;
+      width: auto;
+      margin-right: -18px;
     }
 
-    .auth-card h1 {
-      font-size: 1.5rem;
+    .auth-logo-text {
+      font-size: 1.3rem;
       font-weight: 800;
-      color: #222;
+      color: #1a1a1a;
+    }
+
+    .auth-logo-text span { color: #7cc242; }
+
+    .auth-right h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #1a1a1a;
       margin-bottom: 6px;
     }
 
-    .auth-card .subtitulo {
+    .auth-right .subtitulo {
       font-size: 0.9rem;
-      color: #888;
-      margin-bottom: 28px;
+      color: #999;
+      margin-bottom: 32px;
     }
 
     .form-group {
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
 
     .form-group label {
       display: block;
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: #444;
-      margin-bottom: 6px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 7px;
+    }
+
+    .input-wrap {
+      position: relative;
     }
 
     .form-group input {
       width: 100%;
-      padding: 12px 14px;
-      border: 1.5px solid #ddd;
-      border-radius: 10px;
+      padding: 13px 16px;
+      border: 1.5px solid #eee;
+      border-radius: 12px;
       font-size: 0.95rem;
       font-family: inherit;
-      transition: border-color 0.2s;
-      box-sizing: border-box;
+      transition: all 0.2s;
+      background: #fafafa;
+      color: #222;
     }
 
     .form-group input:focus {
       border-color: #7cc242;
       outline: none;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(124,194,66,0.1);
     }
 
     .olvidaste {
       text-align: right;
-      margin-top: -8px;
-      margin-bottom: 20px;
+      margin-top: -10px;
+      margin-bottom: 24px;
     }
 
     .olvidaste a {
-      font-size: 0.83rem;
+      font-size: 0.82rem;
       color: #7cc242;
       text-decoration: none;
       font-weight: 600;
     }
 
+    .olvidaste a:hover { text-decoration: underline; }
+
     .btn-auth {
       width: 100%;
-      padding: 13px;
+      padding: 14px;
       background: #7cc242;
       color: #fff;
       border: none;
-      border-radius: 10px;
+      border-radius: 12px;
       font-size: 1rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s ease;
       font-family: inherit;
+      box-shadow: 0 4px 14px rgba(124,194,66,0.35);
     }
 
-    .btn-auth:hover { background: #63a831; }
-    .btn-auth:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-auth:hover {
+      background: #6aad35;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(124,194,66,0.45);
+    }
+
+    .btn-auth:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
 
     .auth-footer {
       text-align: center;
-      margin-top: 20px;
+      margin-top: 24px;
       font-size: 0.9rem;
-      color: #666;
+      color: #999;
     }
 
     .auth-footer a {
       color: #7cc242;
-      font-weight: 600;
+      font-weight: 700;
       text-decoration: none;
     }
+
+    .auth-footer a:hover { text-decoration: underline; }
 
     .mensaje {
       text-align: center;
       margin-top: 14px;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
       font-weight: 600;
       min-height: 20px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .mensaje.ok { background: #f0f9e8; color: #5a9e2f; }
+    .mensaje.err { background: #fff0f0; color: #e53e3e; }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .auth-left { display: none; }
+      .auth-right { width: 100%; padding: 36px 24px; }
     }
   </style>
 </head>
 <body>
 
-<div class="auth-wrap">
-  <div class="auth-logo" onclick="location.href='/index.html'">Costa Hogar</div>
-
-  <div class="auth-card">
-    <h1>Bienvenido de nuevo</h1>
-    <p class="subtitulo">Inicia sesión para continuar</p>
-
-    <div class="form-group">
-      <label>Correo electrónico</label>
-      <input type="email" id="email" placeholder="tu@email.com">
-    </div>
-
-    <div class="form-group">
-      <label>Contraseña</label>
-      <input type="password" id="pass" placeholder="••••••••"
-             onkeydown="if(event.key==='Enter') login()">
-    </div>
-
-    <div class="olvidaste">
-      <a href="/recuperar.html">¿Olvidaste tu contraseña?</a>
-    </div>
-
-    <button class="btn-auth" id="btnLogin" onclick="login()">Iniciar sesión</button>
-
-    <p class="mensaje" id="mensaje"></p>
+<!-- PANEL IZQUIERDO -->
+<div class="auth-left">
+  <div class="auth-left-content">
+    <div class="auth-left-badge">🏠 Portal Inmobiliario en España</div>
+    <h2>Tu próximo hogar te está esperando</h2>
+    <p>Miles de propiedades en venta y alquiler en toda España. Encuentra la tuya hoy.</p>
   </div>
+</div>
+
+<!-- PANEL DERECHO -->
+<div class="auth-right">
+
+  <div class="auth-logo" onclick="location.href='/index.html'">
+    <img src="/CasaClick.png" alt="CasaClick24">
+    <span class="auth-logo-text">Casa<span>Click24</span></span>
+  </div>
+
+  <h1>Bienvenido de nuevo</h1>
+  <p class="subtitulo">Inicia sesión para continuar</p>
+
+  <div class="form-group">
+    <label>Correo electrónico</label>
+    <input type="email" id="email" placeholder="tu@email.com">
+  </div>
+
+  <div class="form-group">
+    <label>Contraseña</label>
+    <input type="password" id="pass" placeholder="••••••••"
+           onkeydown="if(event.key==='Enter') login()">
+  </div>
+
+  <div class="olvidaste">
+    <a href="/recuperar.html">¿Olvidaste tu contraseña?</a>
+  </div>
+
+  <button class="btn-auth" id="btnLogin" onclick="login()">Iniciar sesión</button>
+
+  <p class="mensaje" id="mensaje"></p>
 
   <div class="auth-footer">
     ¿No tienes cuenta? <a href="/registro.html">Crear cuenta gratis</a>
   </div>
+
 </div>
 
 <script src="/js/auth.js"></script>

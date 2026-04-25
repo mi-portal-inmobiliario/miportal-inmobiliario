@@ -1,165 +1,397 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro - Costa Hogar</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-<style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  font-family: "Inter", sans-serif;
-  background: #f5f5f5;
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.auth-wrap { width: 100%; max-width: 420px; }
-.auth-logo {
-  text-align: center;
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #7cc242;
-  margin-bottom: 28px;
-  cursor: pointer;
-}
-.auth-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 36px 32px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.09);
-}
-.auth-card h1 { font-size: 1.5rem; font-weight: 800; color: #222; margin-bottom: 6px; }
-.auth-card .subtitulo { font-size: 0.9rem; color: #888; margin-bottom: 28px; }
-.form-group { margin-bottom: 16px; }
-.form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #444; margin-bottom: 6px; }
-.form-group input {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1.5px solid #ddd;
-  border-radius: 10px;
-  font-size: 0.95rem;
-  font-family: inherit;
-  transition: border-color 0.2s;
-  box-sizing: border-box;
-}
-.form-group input:focus { border-color: #7cc242; outline: none; }
-.btn-auth {
-  width: 100%;
-  padding: 13px;
-  background: #7cc242;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s;
-  font-family: inherit;
-  margin-top: 8px;
-}
-.btn-auth:hover { background: #63a831; }
-.btn-auth:disabled { background: #aaa; cursor: not-allowed; }
-.auth-footer { text-align: center; margin-top: 20px; font-size: 0.9rem; color: #666; }
-.auth-footer a { color: #7cc242; font-weight: 600; text-decoration: none; }
-.mensaje { text-align: center; margin-top: 14px; font-size: 0.9rem; font-weight: 600; min-height: 20px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crear cuenta - CasaClick24</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* Pantalla de confirmación */
-.confirmacion {
-  display: none;
-  text-align: center;
-  padding: 12px 0;
-}
-.confirmacion .icono { font-size: 3rem; margin-bottom: 16px; }
-.confirmacion h2 { font-size: 1.3rem; font-weight: 800; color: #222; margin-bottom: 10px; }
-.confirmacion p { font-size: 0.95rem; color: #666; line-height: 1.5; }
-.confirmacion .email-resaltado { color: #7cc242; font-weight: 700; }
-</style>
+    body {
+      font-family: "Inter", sans-serif;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    .auth-left {
+      flex: 1;
+      background: url('https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200') center/cover no-repeat;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 48px;
+    }
+
+    .auth-left::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+    }
+
+    .auth-left-content {
+      position: relative;
+      z-index: 1;
+      color: #fff;
+    }
+
+    .auth-left-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .auth-left-content h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      line-height: 1.2;
+    }
+
+    .auth-left-content p {
+      font-size: 1rem;
+      opacity: 0.8;
+      line-height: 1.6;
+    }
+
+    .auth-benefits {
+      margin-top: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .auth-benefit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .auth-benefit span {
+      width: 24px;
+      height: 24px;
+      background: #7cc242;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .auth-right {
+      width: 460px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 48px 44px;
+      overflow-y: auto;
+    }
+
+    .auth-logo {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 40px;
+      cursor: pointer;
+    }
+
+    .auth-logo img { height: 36px; width: auto; margin-right: -20px; }
+
+    .auth-logo-text {
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .auth-logo-text span { color: #7cc242; }
+
+    .auth-right h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .auth-right .subtitulo {
+      font-size: 0.9rem;
+      color: #999;
+      margin-bottom: 32px;
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 7px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 13px 16px;
+      border: 1.5px solid #eee;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s;
+      background: #fafafa;
+      color: #222;
+    }
+
+    .form-group input:focus {
+      border-color: #7cc242;
+      outline: none;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(124,194,66,0.1);
+    }
+
+    .btn-auth {
+      width: 100%;
+      padding: 14px;
+      background: #7cc242;
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+      margin-top: 8px;
+      box-shadow: 0 4px 14px rgba(124,194,66,0.35);
+    }
+
+    .btn-auth:hover {
+      background: #6aad35;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(124,194,66,0.45);
+    }
+
+    .btn-auth:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    .auth-footer a {
+      color: #7cc242;
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .auth-footer a:hover { text-decoration: underline; }
+
+    .mensaje {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      min-height: 20px;
+      padding: 10px;
+      border-radius: 8px;
+    }
+
+    .mensaje.ok { background: #f0f9e8; color: #5a9e2f; }
+    .mensaje.err { background: #fff0f0; color: #e53e3e; }
+
+    /* CONFIRMACIÓN */
+    .confirmacion {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+    }
+
+    .confirmacion-icono {
+      width: 72px;
+      height: 72px;
+      background: #f0f9e8;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      margin: 0 auto 20px;
+    }
+
+    .confirmacion h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 10px;
+    }
+
+    .confirmacion p {
+      font-size: 0.92rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .email-resaltado {
+      color: #7cc242;
+      font-weight: 700;
+    }
+
+    .confirmacion-nota {
+      margin-top: 16px;
+      font-size: 0.82rem;
+      color: #bbb;
+      padding: 12px 16px;
+      background: #fafafa;
+      border-radius: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .auth-left { display: none; }
+      .auth-right { width: 100%; padding: 36px 24px; }
+    }
+  </style>
 </head>
 <body>
-<div class="auth-wrap">
-  <div class="auth-logo" onclick="location.href='/index.html'">Costa Hogar</div>
-  <div class="auth-card">
 
-    <!-- Formulario -->
-    <div id="formulario">
-      <h1>Crear cuenta</h1>
-      <p class="subtitulo">Únete a Costa Hogar gratis</p>
-      <div class="form-group">
-        <label>Nombre completo</label>
-        <input type="text" id="nombre" placeholder="Tu nombre">
+<!-- PANEL IZQUIERDO -->
+<div class="auth-left">
+  <div class="auth-left-content">
+    <div class="auth-left-badge">✨ Únete gratis hoy</div>
+    <h2>Empieza a encontrar tu hogar ideal</h2>
+    <p>Crea tu cuenta en segundos y accede a todas las funciones de CasaClick24.</p>
+    <div class="auth-benefits">
+      <div class="auth-benefit">
+        <span>✓</span>
+        Guarda tus propiedades favoritas
       </div>
-      <div class="form-group">
-        <label>Correo electrónico</label>
-        <input type="email" id="email" placeholder="tu@email.com"
-          onkeydown="if(event.key==='Enter') registro()">
+      <div class="auth-benefit">
+        <span>✓</span>
+        Contacta directamente con anunciantes
       </div>
-      <button class="btn-auth" id="btnRegistro" onclick="registro()">Crear cuenta</button>
-      <p class="mensaje" id="mensaje"></p>
+      <div class="auth-benefit">
+        <span>✓</span>
+        Publica tus propiedades gratis
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PANEL DERECHO -->
+<div class="auth-right">
+
+  <div class="auth-logo" onclick="location.href='/index.html'">
+    <img src="/CasaClick.png" alt="CasaClick24">
+    <span class="auth-logo-text">Casa<span>Click24</span></span>
+  </div>
+
+  <!-- FORMULARIO -->
+  <div id="formulario">
+    <h1>Crear cuenta</h1>
+    <p class="subtitulo">Únete a CasaClick24 gratis</p>
+
+    <div class="form-group">
+      <label>Nombre completo</label>
+      <input type="text" id="nombre" placeholder="Tu nombre">
     </div>
 
-    <!-- Confirmación -->
-    <div class="confirmacion" id="confirmacion">
-      <div class="icono">📬</div>
-      <h2>¡Revisa tu email!</h2>
-      <p>Hemos enviado un enlace de activación a<br>
-        <span class="email-resaltado" id="emailMostrado"></span>
-      </p>
-      <p style="margin-top:12px;font-size:0.85rem;color:#aaa;">
-        Haz clic en el enlace para crear tu contraseña y activar tu cuenta.<br>Caduca en 24 horas.
-      </p>
+    <div class="form-group">
+      <label>Correo electrónico</label>
+      <input type="email" id="email" placeholder="tu@email.com"
+             onkeydown="if(event.key==='Enter') registro()">
     </div>
 
+    <button class="btn-auth" id="btnRegistro" onclick="registro()">
+      Crear cuenta gratis
+    </button>
+
+    <p class="mensaje" id="mensaje"></p>
+
+    <div class="auth-footer">
+      ¿Ya tienes cuenta? <a href="/login.html">Iniciar sesión</a>
+    </div>
   </div>
-  <div class="auth-footer">
-    ¿Ya tienes cuenta? <a href="/login.html">Iniciar sesión</a>
+
+  <!-- CONFIRMACIÓN -->
+  <div class="confirmacion" id="confirmacion">
+    <div class="confirmacion-icono">📬</div>
+    <h2>¡Revisa tu email!</h2>
+    <p>Hemos enviado un enlace de activación a<br>
+      <span class="email-resaltado" id="emailMostrado"></span>
+    </p>
+    <div class="confirmacion-nota">
+      Haz clic en el enlace para crear tu contraseña y activar tu cuenta. Caduca en 24 horas.
+    </div>
+    <div class="auth-footer" style="margin-top:24px;">
+      ¿Ya tienes cuenta? <a href="/login.html">Iniciar sesión</a>
+    </div>
   </div>
+
 </div>
 
 <script>
 async function registro() {
-  const nombre = document.getElementById("nombre").value.trim();
-  const email = document.getElementById("email").value.trim();
+  const nombre  = document.getElementById("nombre").value.trim();
+  const email   = document.getElementById("email").value.trim();
   const mensaje = document.getElementById("mensaje");
-  const btn = document.getElementById("btnRegistro");
+  const btn     = document.getElementById("btnRegistro");
+
+  mensaje.className = "";
+  mensaje.textContent = "";
 
   if (!nombre || !email) {
-    mensaje.style.color = "#e74c3c";
-    mensaje.textContent = "Por favor, rellena todos los campos";
+    mensaje.textContent = "⚠️ Rellena todos los campos";
+    mensaje.className = "err";
     return;
   }
 
   btn.disabled = true;
   btn.textContent = "Enviando...";
-  mensaje.textContent = "";
 
   try {
-    const res = await fetch("/auth/register", {
+    const res  = await fetch("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, email })
     });
-
     const data = await res.json();
 
     if (res.ok) {
-      // Mostrar pantalla de confirmación
       document.getElementById("formulario").style.display = "none";
       document.getElementById("emailMostrado").textContent = email;
       document.getElementById("confirmacion").style.display = "block";
     } else {
-      mensaje.style.color = "#e74c3c";
       mensaje.textContent = data.error || "Error al registrarse";
+      mensaje.className = "err";
       btn.disabled = false;
-      btn.textContent = "Crear cuenta";
+      btn.textContent = "Crear cuenta gratis";
     }
-  } catch (err) {
-    mensaje.style.color = "#e74c3c";
-    mensaje.textContent = "Error de conexión";
+  } catch(err) {
+    mensaje.textContent = "❌ Error de conexión";
+    mensaje.className = "err";
     btn.disabled = false;
-    btn.textContent = "Crear cuenta";
+    btn.textContent = "Crear cuenta gratis";
   }
 }
 </script>
