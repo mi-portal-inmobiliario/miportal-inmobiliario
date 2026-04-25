@@ -145,7 +145,8 @@
       margin-bottom: 7px;
     }
 
-    .form-group input {
+    .form-group input,
+    .form-group select {
       width: 100%;
       padding: 13px 16px;
       border: 1.5px solid #eee;
@@ -155,13 +156,30 @@
       transition: all 0.2s;
       background: #fafafa;
       color: #222;
+      outline: none;
     }
 
-    .form-group input:focus {
+    .form-group input:focus,
+    .form-group select:focus {
       border-color: #7cc242;
-      outline: none;
       background: #fff;
       box-shadow: 0 0 0 3px rgba(124,194,66,0.1);
+    }
+
+    .doc-row {
+      display: grid;
+      grid-template-columns: 1fr 1.4fr;
+      gap: 10px;
+    }
+
+    .doc-nota {
+      font-size: 0.78rem;
+      color: #bbb;
+      margin-top: -10px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
 
     .btn-auth {
@@ -253,10 +271,7 @@
       line-height: 1.6;
     }
 
-    .email-resaltado {
-      color: #7cc242;
-      font-weight: 700;
-    }
+    .email-resaltado { color: #7cc242; font-weight: 700; }
 
     .confirmacion-nota {
       margin-top: 16px;
@@ -318,9 +333,23 @@
 
     <div class="form-group">
       <label>Correo electrónico</label>
-      <input type="email" id="email" placeholder="tu@email.com"
-             onkeydown="if(event.key==='Enter') registro()">
+      <input type="email" id="email" placeholder="tu@email.com">
     </div>
+
+    <div class="form-group">
+      <label>Documento de identidad</label>
+      <div class="doc-row">
+        <select id="tipoDoc">
+          <option value="">Tipo...</option>
+          <option value="dni">DNI</option>
+          <option value="nie">NIE</option>
+          <option value="pasaporte">Pasaporte</option>
+          <option value="otro">Otro</option>
+        </select>
+        <input type="text" id="numDoc" placeholder="Ej: 12345678A">
+      </div>
+    </div>
+    <p class="doc-nota">🔒 Solo para verificar tu identidad. No se comparte con terceros.</p>
 
     <button class="btn-auth" id="btnRegistro" onclick="registro()">
       Crear cuenta gratis
@@ -354,6 +383,8 @@
 async function registro() {
   const nombre  = document.getElementById("nombre").value.trim();
   const email   = document.getElementById("email").value.trim();
+  const tipoDoc = document.getElementById("tipoDoc").value;
+  const numDoc  = document.getElementById("numDoc").value.trim();
   const mensaje = document.getElementById("mensaje");
   const btn     = document.getElementById("btnRegistro");
 
@@ -366,14 +397,20 @@ async function registro() {
     return;
   }
 
+  if (!tipoDoc || !numDoc) {
+    mensaje.textContent = "⚠️ El documento de identidad es obligatorio";
+    mensaje.className = "err";
+    return;
+  }
+
   btn.disabled = true;
   btn.textContent = "Enviando...";
 
   try {
-    const res  = await fetch("/auth/register", {
+    const res = await fetch("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, email })
+      body: JSON.stringify({ nombre, email, tipoDoc, numDoc })
     });
     const data = await res.json();
 

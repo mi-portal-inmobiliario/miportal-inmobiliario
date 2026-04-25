@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
 ============================ */
 router.post("/register", async (req, res) => {
   try {
-    const { nombre, email } = req.body;
+    const { nombre, email, tipoDoc, numDoc } = req.body;
 
     if (!nombre || !email) {
       return res.status(400).json({ error: "Faltan datos" });
@@ -42,7 +42,9 @@ router.post("/register", async (req, res) => {
       nombre,
       email,
       verificado: false,
-      token
+      token,
+      tipoDoc: tipoDoc || "",
+      numDoc:  numDoc  || ""
     });
 
     await usuario.save();
@@ -50,12 +52,12 @@ router.post("/register", async (req, res) => {
     const enlace = `${process.env.APP_URL}/set-password.html?token=${token}`;
 
     await transporter.sendMail({
-      from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
+      from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: "Activa tu cuenta - Costa Hogar",
+      subject: "Activa tu cuenta - CasaClick24",
       html: `
         <div style="font-family:Inter,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border-radius:16px;">
-          <h2 style="color:#7cc242">Costa Hogar</h2>
+          <h2 style="color:#7cc242">CasaClick24</h2>
           <p>Hola <strong>${nombre}</strong>,</p>
           <p>Para activar tu cuenta, crea tu contraseña:</p>
           <a href="${enlace}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#7cc242;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
@@ -183,12 +185,12 @@ router.post("/recuperar", async (req, res) => {
     const enlace = `${process.env.APP_URL}/reset.html?token=${token}`;
 
     await transporter.sendMail({
-      from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
+      from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: "Recupera tu contraseña - Costa Hogar",
+      subject: "Recupera tu contraseña - CasaClick24",
       html: `
         <div style="font-family:Inter,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border-radius:16px;">
-          <h2 style="color:#7cc242">Costa Hogar</h2>
+          <h2 style="color:#7cc242">CasaClick24</h2>
           <p>Hola <strong>${usuario.nombre}</strong>,</p>
           <p>Recibimos una solicitud para restablecer tu contraseña.</p>
           <a href="${enlace}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#7cc242;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
@@ -232,9 +234,9 @@ router.post("/reset", async (req, res) => {
 router.get("/test-email", async (req, res) => {
   try {
     await transporter.sendMail({
-      from: `"Costa Hogar" <${process.env.GMAIL_USER}>`,
+      from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER,
-      subject: "TEST Costa Hogar",
+      subject: "TEST CasaClick24",
       html: "<h1>Email funcionando ✅</h1>"
     });
     res.send("Email enviado correctamente");
