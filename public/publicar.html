@@ -3,92 +3,216 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Publicar propiedad - Costa Hogar</title>
+  <title>Publicar propiedad - CasaClick24</title>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
   <style>
+    body { background: #f7f7f7; }
+
     .publicar-wrap {
-      max-width: 860px;
+      max-width: 780px;
       margin: 40px auto;
-      padding: 0 20px 60px;
+      padding: 0 20px 80px;
     }
 
-    .publicar-wrap h1 {
-      font-size: 1.8rem;
+    /* CABECERA */
+    .publicar-header {
+      margin-bottom: 32px;
+    }
+
+    .publicar-header h1 {
+      font-size: 1.9rem;
       font-weight: 800;
-      color: #222;
-      margin-bottom: 8px;
+      color: #1a1a1a;
+      margin-bottom: 6px;
     }
 
-    .publicar-wrap .subtitulo {
-      color: #888;
-      margin-bottom: 30px;
+    .publicar-header p {
+      color: #999;
       font-size: 0.95rem;
     }
 
+    /* PASOS */
+    .pasos {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin-bottom: 32px;
+      background: #fff;
+      border-radius: 14px;
+      padding: 16px 24px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+
+    .paso {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .paso-num {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #eee;
+      color: #aaa;
+      font-size: 0.82rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+
+    .paso.activo .paso-num {
+      background: #7cc242;
+      color: #fff;
+    }
+
+    .paso-label {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: #bbb;
+    }
+
+    .paso.activo .paso-label { color: #333; }
+
+    .paso-linea {
+      flex: 1;
+      height: 2px;
+      background: #eee;
+      margin: 0 8px;
+    }
+
+    /* CARDS */
     .form-card {
       background: #fff;
-      border-radius: 16px;
-      padding: 28px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+      border-radius: 18px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
       margin-bottom: 20px;
+      border: 1px solid rgba(0,0,0,0.04);
     }
 
-    .form-card h2 {
+    .form-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .form-card-icon {
+      width: 38px;
+      height: 38px;
+      background: #f0f9e8;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+
+    .form-card-header h2 {
       font-size: 1rem;
-      font-weight: 700;
-      color: #555;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 18px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #eee;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0;
     }
 
+    .form-card-header span {
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    /* GRID */
     .form-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 18px;
     }
 
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 7px;
     }
 
-    .form-group.full {
-      grid-column: 1 / -1;
-    }
+    .form-group.full { grid-column: 1 / -1; }
 
     .form-group label {
-      font-size: 0.88rem;
-      font-weight: 600;
-      color: #444;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
-      padding: 11px 14px;
-      border: 1.5px solid #ddd;
+      padding: 12px 14px;
+      border: 1.5px solid #eee;
       border-radius: 10px;
-      font-size: 0.95rem;
-      transition: border-color 0.2s;
+      font-size: 0.93rem;
+      transition: border-color 0.2s, background 0.2s;
       font-family: inherit;
+      background: #fafafa;
+      color: #222;
+      outline: none;
     }
 
     .form-group input:focus,
     .form-group textarea:focus,
     .form-group select:focus {
       border-color: #7cc242;
-      outline: none;
+      background: #fff;
     }
 
-    /* AUTOCOMPLETE */
-    .dir-wrap {
-      position: relative;
+    .form-group textarea { resize: vertical; min-height: 90px; }
+
+    /* EXTRAS */
+    .extras-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
     }
+
+    .extra-chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border: 1.5px solid #eee;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 0.88rem;
+      color: #555;
+      background: #fafafa;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .extra-chip:hover {
+      border-color: #7cc242;
+      color: #5a9e2f;
+    }
+
+    .extra-chip input { display: none; }
+
+    .extra-chip.checked {
+      border-color: #7cc242;
+      background: #f0f9e8;
+      color: #5a9e2f;
+      font-weight: 600;
+    }
+
+    /* AUTOCOMPLETADO */
+    .dir-wrap { position: relative; }
 
     #sugerencias {
       position: absolute;
@@ -96,67 +220,80 @@
       left: 0;
       right: 0;
       background: #fff;
-      border: 1px solid #ddd;
-      border-radius: 10px;
+      border: 1px solid #eee;
+      border-radius: 12px;
       z-index: 100;
       display: none;
       max-height: 220px;
       overflow-y: auto;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+      margin-top: 4px;
     }
 
     #sugerencias div {
-      padding: 10px 14px;
+      padding: 11px 16px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 0.88rem;
+      color: #444;
+      border-bottom: 1px solid #f5f5f5;
+      transition: background 0.15s;
     }
 
-    #sugerencias div:hover {
-      background: #f0fae5;
-    }
+    #sugerencias div:last-child { border-bottom: none; }
+    #sugerencias div:hover { background: #f0f9e8; color: #5a9e2f; }
 
     /* MAPA */
     #mapPreview {
       width: 100%;
-      height: 280px;
+      height: 260px;
       border-radius: 12px;
       background: #eee;
-      margin-top: 14px;
+      margin-top: 16px;
     }
 
     /* FOTOS */
     .upload-area {
-      border: 2px dashed #ccc;
-      border-radius: 12px;
-      padding: 30px;
+      border: 2px dashed #ddd;
+      border-radius: 14px;
+      padding: 36px 20px;
       text-align: center;
       cursor: pointer;
-      transition: border-color 0.2s;
+      transition: all 0.2s;
+      background: #fafafa;
     }
 
     .upload-area:hover {
       border-color: #7cc242;
+      background: #f7fdf2;
+    }
+
+    .upload-icon { font-size: 2.2rem; margin-bottom: 8px; }
+
+    .upload-area h3 {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 4px;
     }
 
     .upload-area p {
-      color: #888;
-      margin: 8px 0 0;
-      font-size: 0.9rem;
+      color: #aaa;
+      font-size: 0.83rem;
     }
 
     .preview-container {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
       gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 14px;
+      margin-top: 16px;
     }
 
     .preview-item {
-      width: 110px;
-      height: 110px;
+      aspect-ratio: 1;
       position: relative;
       border-radius: 10px;
       overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     .preview-item img {
@@ -169,23 +306,34 @@
       position: absolute;
       top: 5px;
       right: 5px;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.65);
       border: none;
       color: #fff;
-      font-size: 16px;
+      font-size: 14px;
       border-radius: 50%;
-      width: 26px;
-      height: 26px;
+      width: 24px;
+      height: 24px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: background 0.2s;
     }
 
-    /* BOTÓN SUBMIT */
+    .preview-item button:hover { background: #e53e3e; }
+
+    /* SUBMIT */
+    .submit-area {
+      background: #fff;
+      border-radius: 18px;
+      padding: 28px 32px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
     .btn-submit {
       width: 100%;
-      padding: 15px;
+      padding: 16px;
       font-size: 1.05rem;
       font-weight: 700;
       background: #7cc242;
@@ -193,25 +341,51 @@
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      transition: background 0.2s;
-      margin-top: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(124,194,66,0.35);
+      letter-spacing: 0.2px;
     }
 
-    .btn-submit:hover { background: #63a831; }
-    .btn-submit:disabled { background: #aaa; cursor: not-allowed; }
+    .btn-submit:hover {
+      background: #6aad35;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(124,194,66,0.45);
+    }
+
+    .btn-submit:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .submit-nota {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+      font-size: 0.82rem;
+      color: #aaa;
+      justify-content: center;
+    }
 
     #mensaje {
       text-align: center;
       margin-top: 14px;
       font-weight: 600;
-      font-size: 1rem;
+      font-size: 0.95rem;
+      padding: 12px;
+      border-radius: 10px;
     }
+
+    #mensaje.ok { background: #f0f9e8; color: #5a9e2f; }
+    #mensaje.err { background: #fff0f0; color: #e53e3e; }
 
     /* MODAL */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.88);
+      background: rgba(0,0,0,0.92);
       display: none;
       justify-content: center;
       align-items: center;
@@ -222,19 +396,26 @@
       max-width: 95%;
       max-height: 90vh;
       object-fit: contain;
+      border-radius: 8px;
     }
 
     .modal-cerrar {
       position: absolute;
       top: 20px;
       right: 30px;
-      font-size: 44px;
-      color: #fff;
+      font-size: 42px;
+      color: white;
       cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
     }
+
+    .modal-cerrar:hover { opacity: 1; }
 
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
+      .pasos { display: none; }
+      .form-card { padding: 20px 18px; }
     }
   </style>
 </head>
@@ -244,17 +425,55 @@
 <script src="/js/header.js" defer></script>
 
 <div class="publicar-wrap">
-  <h1>Publicar propiedad</h1>
-  <p class="subtitulo">Rellena los datos de tu vivienda para publicarla en Costa Hogar</p>
+
+  <div class="publicar-header">
+    <h1 id="titulo-pagina">Publicar propiedad</h1>
+    <p id="subtitulo-pagina">Rellena los datos de tu vivienda para publicarla en CasaClick24</p>
+  </div>
+
+  <!-- PASOS -->
+  <div class="pasos">
+    <div class="paso activo">
+      <div class="paso-num">1</div>
+      <span class="paso-label">Datos básicos</span>
+    </div>
+    <div class="paso-linea"></div>
+    <div class="paso">
+      <div class="paso-num">2</div>
+      <span class="paso-label">Ubicación</span>
+    </div>
+    <div class="paso-linea"></div>
+    <div class="paso">
+      <div class="paso-num">3</div>
+      <span class="paso-label">Fotos</span>
+    </div>
+    <div class="paso-linea"></div>
+    <div class="paso">
+      <div class="paso-num">4</div>
+      <span class="paso-label">Publicar</span>
+    </div>
+  </div>
 
   <!-- DATOS BÁSICOS -->
   <div class="form-card">
-    <h2>Datos básicos</h2>
+    <div class="form-card-header">
+      <div class="form-card-icon">🏠</div>
+      <div>
+        <h2>Datos básicos</h2>
+        <span>Información principal del anuncio</span>
+      </div>
+    </div>
+
     <div class="form-grid">
+
+      <div class="form-group full">
+        <label>Título del anuncio *</label>
+        <input type="text" id="titulo" placeholder="Ej: Ático con terraza y vistas al mar">
+      </div>
 
       <div class="form-group">
         <label>Tipo de operación *</label>
-        <select id="tipoOperacion" required>
+        <select id="tipoOperacion">
           <option value="">Selecciona...</option>
           <option value="venta">Venta</option>
           <option value="alquiler">Alquiler</option>
@@ -262,34 +481,12 @@
       </div>
 
       <div class="form-group">
-        <label>Habitaciones *</label>
-        <select id="habitaciones" required>
-          <option value="">Selecciona...</option>
-          <option value="1">1 habitación</option>
-          <option value="2">2 habitaciones</option>
-          <option value="3">3 habitaciones</option>
-          <option value="4">4 habitaciones</option>
-          <option value="5">5 o más</option>
-        </select>
-      </div>
-
-      <div class="form-group full">
-        <label>Título del anuncio *</label>
-        <input type="text" id="titulo" placeholder="Ej: Ático con terraza y vistas al mar" required>
-      </div>
-
-      <div class="form-group">
         <label>Precio (€) *</label>
-        <input type="number" id="precio" placeholder="Ej: 185000" required>
-      </div>
-
-     <div class="form-group">
-        <label>Descripción</label>
-        <textarea id="descripcion" rows="3" placeholder="Describe tu propiedad..."></textarea>
+        <input type="number" id="precio" placeholder="Ej: 185.000">
       </div>
 
       <div class="form-group">
-        <label>Tipo de inmueble *</label>
+        <label>Tipo de inmueble</label>
         <select id="tipoInmueble">
           <option value="piso">Piso</option>
           <option value="casa">Casa</option>
@@ -310,6 +507,18 @@
       </div>
 
       <div class="form-group">
+        <label>Habitaciones *</label>
+        <select id="habitaciones">
+          <option value="">Selecciona...</option>
+          <option value="1">1 habitación</option>
+          <option value="2">2 habitaciones</option>
+          <option value="3">3 habitaciones</option>
+          <option value="4">4 habitaciones</option>
+          <option value="5">5 o más</option>
+        </select>
+      </div>
+
+      <div class="form-group">
         <label>Baños</label>
         <select id="banos">
           <option value="1">1 baño</option>
@@ -325,16 +534,21 @@
       </div>
 
       <div class="form-group full">
+        <label>Descripción</label>
+        <textarea id="descripcion" placeholder="Describe tu propiedad: características, reformas, orientación, comunidad..."></textarea>
+      </div>
+
+      <div class="form-group full">
         <label>Extras</label>
-        <div style="display:flex; gap:24px; flex-wrap:wrap; margin-top:6px;">
-          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+        <div class="extras-row">
+          <label class="extra-chip" id="chip_garaje" onclick="toggleChip('chip_garaje')">
             <input type="checkbox" id="garaje"> 🚗 Garaje
           </label>
-          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
+          <label class="extra-chip" id="chip_piscina" onclick="toggleChip('chip_piscina')">
             <input type="checkbox" id="piscina"> 🏊 Piscina
           </label>
-          <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
-            <input type="checkbox" id="terraza"> 🌿 Terraza/Jardín
+          <label class="extra-chip" id="chip_terraza" onclick="toggleChip('chip_terraza')">
+            <input type="checkbox" id="terraza"> 🌿 Terraza / Jardín
           </label>
         </div>
       </div>
@@ -344,10 +558,17 @@
 
   <!-- UBICACIÓN -->
   <div class="form-card">
-    <h2>Ubicación</h2>
+    <div class="form-card-header">
+      <div class="form-card-icon">📍</div>
+      <div>
+        <h2>Ubicación</h2>
+        <span>Dirección exacta de la propiedad</span>
+      </div>
+    </div>
+
     <div class="form-group dir-wrap">
       <label>Dirección *</label>
-      <input type="text" id="direccion" placeholder="Escribe la dirección..." autocomplete="off" required>
+      <input type="text" id="direccion" placeholder="Escribe la dirección y selecciona una sugerencia..." autocomplete="off">
       <div id="sugerencias"></div>
     </div>
     <div id="mapPreview"></div>
@@ -355,20 +576,32 @@
 
   <!-- FOTOS -->
   <div class="form-card">
-    <h2>Fotos</h2>
+    <div class="form-card-header">
+      <div class="form-card-icon">📷</div>
+      <div>
+        <h2>Fotos</h2>
+        <span>Añade hasta 10 fotos de la propiedad</span>
+      </div>
+    </div>
+
     <div class="upload-area" onclick="document.getElementById('imagenes').click()">
-      <div style="font-size:2rem">📷</div>
-      <p>Haz clic para subir fotos</p>
-      <p>JPG, PNG · Máximo 10 fotos</p>
+      <div class="upload-icon">📸</div>
+      <h3>Haz clic para subir fotos</h3>
+      <p>JPG, PNG · Máximo 10 fotos · La primera será la portada</p>
     </div>
     <input type="file" id="imagenes" accept="image/*" multiple style="display:none">
     <div class="preview-container" id="preview"></div>
   </div>
 
-  <button class="btn-submit" id="btnPublicar" onclick="publicar()">
-    Publicar anuncio
-  </button>
-  <p id="mensaje"></p>
+  <!-- SUBMIT -->
+  <div class="submit-area">
+    <button class="btn-submit" id="btnPublicar" onclick="publicar()">
+      🚀 Publicar anuncio
+    </button>
+    <p class="submit-nota">🔒 Tu anuncio será revisado antes de publicarse</p>
+    <div id="mensaje"></div>
+  </div>
+
 </div>
 
 <!-- MODAL -->
@@ -385,7 +618,7 @@ let latSel = null;
 let lngSel = null;
 let imgFiles = [];
 
-/* ========= GUARD: requiere login ========= */
+/* GUARD */
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const token   = localStorage.getItem("token");
@@ -395,65 +628,65 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-/* ================================
-   MODO EDICIÓN
-================================ */
+/* MODO EDICIÓN */
 const propiedadIdEditar = new URLSearchParams(window.location.search).get("editar");
 
 if (propiedadIdEditar) {
-  document.querySelector(".publicar-wrap h1").textContent = "Editar propiedad";
-  document.querySelector(".publicar-wrap .subtitulo").textContent = "Modifica los datos de tu anuncio";
-  document.getElementById("btnPublicar").textContent = "Guardar cambios";
+  document.getElementById("titulo-pagina").textContent = "Editar propiedad";
+  document.getElementById("subtitulo-pagina").textContent = "Modifica los datos de tu anuncio";
+  document.getElementById("btnPublicar").textContent = "💾 Guardar cambios";
 
   fetch(`/propiedades/${propiedadIdEditar}`)
     .then(r => r.json())
     .then(p => {
-      document.getElementById("titulo").value       = p.titulo || "";
-      document.getElementById("direccion").value    = p.direccion || "";
-      document.getElementById("precio").value       = p.precio || "";
-      document.getElementById("descripcion").value  = p.descripcion || "";
+      document.getElementById("titulo").value        = p.titulo || "";
+      document.getElementById("direccion").value     = p.direccion || "";
+      document.getElementById("precio").value        = p.precio || "";
+      document.getElementById("descripcion").value   = p.descripcion || "";
       document.getElementById("tipoOperacion").value = p.tipoOperacion || "";
       document.getElementById("habitaciones").value  = p.habitaciones || "";
-      document.getElementById("banos").value       = p.banos || "1";
-      document.getElementById("superficie").value  = p.superficie || "";
-      document.getElementById("tipoInmueble").value = p.tipoInmueble || "piso";
-      document.getElementById("estado").value      = p.estado || "segunda_mano";
-      document.getElementById("garaje").checked    = p.garaje || false;
-      document.getElementById("piscina").checked   = p.piscina || false;
-      document.getElementById("terraza").checked   = p.terraza || false;
+      document.getElementById("banos").value         = p.banos || "1";
+      document.getElementById("superficie").value    = p.superficie || "";
+      document.getElementById("tipoInmueble").value  = p.tipoInmueble || "piso";
+      document.getElementById("estado").value        = p.estado || "segunda_mano";
 
-      if (p.lat && p.lng) {
-        latSel = p.lat;
-        lngSel = p.lng;
-        mostrarMapa(p.lat, p.lng);
-      }
+      if (p.garaje)  { document.getElementById("garaje").checked  = true; document.getElementById("chip_garaje").classList.add("checked"); }
+      if (p.piscina) { document.getElementById("piscina").checked = true; document.getElementById("chip_piscina").classList.add("checked"); }
+      if (p.terraza) { document.getElementById("terraza").checked = true; document.getElementById("chip_terraza").classList.add("checked"); }
+
+      if (p.lat && p.lng) { latSel = p.lat; lngSel = p.lng; mostrarMapa(p.lat, p.lng); }
 
       if (p.imagenes?.length) {
-        const preview = document.getElementById("preview");
-        preview.innerHTML = p.imagenes.map((url, i) => `
+        document.getElementById("preview").innerHTML = p.imagenes.map((url, i) => `
           <div class="preview-item">
             <img src="${url}">
             <button onclick="this.parentElement.remove()">×</button>
-          </div>
-        `).join("");
+          </div>`).join("");
       }
     });
 }
 
-/* ========= AUTOCOMPLETADO DIRECCIÓN ========= */
+/* CHIPS EXTRAS */
+function toggleChip(chipId) {
+  const chip = document.getElementById(chipId);
+  const cb   = chip.querySelector("input");
+  setTimeout(() => {
+    chip.classList.toggle("checked", cb.checked);
+  }, 0);
+}
+
+/* AUTOCOMPLETADO */
 const inputDir = document.getElementById("direccion");
 const sugBox   = document.getElementById("sugerencias");
 
 inputDir.addEventListener("input", async () => {
   const t = inputDir.value.trim();
   if (t.length < 3) { sugBox.style.display = "none"; return; }
-
   try {
     const res  = await fetch(`https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=${GEOCODE_KEY}`);
     const data = await res.json();
     sugBox.innerHTML = "";
     if (!data.length) { sugBox.style.display = "none"; return; }
-
     data.slice(0, 6).forEach(item => {
       const div = document.createElement("div");
       div.textContent = item.display_name;
@@ -470,7 +703,7 @@ inputDir.addEventListener("input", async () => {
   } catch(e) { sugBox.style.display = "none"; }
 });
 
-/* ========= MAPA PREVIEW ========= */
+/* MAPA */
 function mostrarMapa(lat, lng) {
   if (!mapaPrevio) {
     mapaPrevio = L.map("mapPreview").setView([lat, lng], 15);
@@ -480,7 +713,7 @@ function mostrarMapa(lat, lng) {
   L.marker([lat, lng]).addTo(mapaPrevio);
 }
 
-/* ========= PREVIEW FOTOS ========= */
+/* FOTOS */
 document.getElementById("imagenes").addEventListener("change", e => {
   imgFiles = Array.from(e.target.files).slice(0, 10);
   renderPreview();
@@ -504,54 +737,50 @@ function renderPreview() {
   });
 }
 
-function borrarImg(i) {
-  imgFiles.splice(i, 1);
-  renderPreview();
-}
+function borrarImg(i) { imgFiles.splice(i, 1); renderPreview(); }
 
-/* ========= MODAL ========= */
+/* MODAL */
 function abrirModal(src) {
   document.getElementById("modal-img").src = src;
   document.getElementById("modal").style.display = "flex";
 }
-function cerrarModal() {
-  document.getElementById("modal").style.display = "none";
-}
+function cerrarModal() { document.getElementById("modal").style.display = "none"; }
 
-/* ========= PUBLICAR ========= */
+/* PUBLICAR */
 async function publicar() {
   const token   = localStorage.getItem("token");
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-
   const titulo        = document.getElementById("titulo").value.trim();
   const direccion     = document.getElementById("direccion").value.trim();
   const precio        = document.getElementById("precio").value;
-  const descripcion   = document.getElementById("descripcion").value.trim();
   const tipoOperacion = document.getElementById("tipoOperacion").value;
   const habitaciones  = document.getElementById("habitaciones").value;
-  const mensaje       = document.getElementById("mensaje");
+  const mensajeEl     = document.getElementById("mensaje");
   const btn           = document.getElementById("btnPublicar");
 
+  mensajeEl.className = "";
+  mensajeEl.textContent = "";
+
   if (!titulo || !direccion || !precio || !tipoOperacion || !habitaciones) {
-    mensaje.textContent = "⚠️ Rellena todos los campos obligatorios";
-    mensaje.style.color = "red";
+    mensajeEl.textContent = "⚠️ Rellena todos los campos obligatorios";
+    mensajeEl.className = "err";
     return;
   }
 
   if (!imgFiles.length && !propiedadIdEditar) {
-    mensaje.textContent = "⚠️ Añade al menos una foto";
-    mensaje.style.color = "red";
+    mensajeEl.textContent = "⚠️ Añade al menos una foto";
+    mensajeEl.className = "err";
     return;
   }
 
   btn.disabled = true;
-  btn.textContent = "Publicando...";
+  btn.textContent = "⏳ Publicando...";
 
   const fd = new FormData();
   fd.append("titulo", titulo);
   fd.append("direccion", direccion);
   fd.append("precio", precio);
-  fd.append("descripcion", descripcion);
+  fd.append("descripcion", document.getElementById("descripcion").value.trim());
   fd.append("tipoOperacion", tipoOperacion);
   fd.append("habitaciones", habitaciones);
   fd.append("banos", document.getElementById("banos").value);
@@ -567,28 +796,27 @@ async function publicar() {
   imgFiles.forEach(f => fd.append("imagenes", f));
 
   try {
-    const res = await fetch(propiedadIdEditar ? `/propiedades/${propiedadIdEditar}` : "/propiedades", {
-  method: propiedadIdEditar ? "PUT" : "POST",
-  headers: { "Authorization": "Bearer " + token },
-  body: fd
-});
+    const res = await fetch(
+      propiedadIdEditar ? `/propiedades/${propiedadIdEditar}` : "/propiedades",
+      { method: propiedadIdEditar ? "PUT" : "POST", headers: { "Authorization": "Bearer " + token }, body: fd }
+    );
     const data = await res.json();
 
     if (res.ok) {
-      mensaje.textContent = "✅ ¡Propiedad publicada con éxito!";
-      mensaje.style.color = "green";
-      setTimeout(() => location.href = "/propiedad.html?id=" + data._id, 1500);
+      mensajeEl.textContent = "✅ ¡Propiedad publicada con éxito! Redirigiendo...";
+      mensajeEl.className = "ok";
+      setTimeout(() => location.href = "/propiedad.html?id=" + data._id, 1800);
     } else {
-      mensaje.textContent = "❌ " + (data.message || "Error al publicar");
-      mensaje.style.color = "red";
+      mensajeEl.textContent = "❌ " + (data.message || "Error al publicar");
+      mensajeEl.className = "err";
       btn.disabled = false;
-      btn.textContent = "Publicar anuncio";
+      btn.textContent = "🚀 Publicar anuncio";
     }
   } catch(e) {
-    mensaje.textContent = "❌ Error de conexión";
-    mensaje.style.color = "red";
+    mensajeEl.textContent = "❌ Error de conexión";
+    mensajeEl.className = "err";
     btn.disabled = false;
-    btn.textContent = "Publicar anuncio";
+    btn.textContent = "🚀 Publicar anuncio";
   }
 }
 </script>
