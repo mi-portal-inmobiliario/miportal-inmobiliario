@@ -1,21 +1,21 @@
-<!-- index.html - CasaClick24 -->
+<!-- index.html - HomeClick24 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CasaClick24 - Inicio</title>
+  <title>HomeClick24 - Inicio</title>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
 
   <!-- SEO -->
-  <meta name="description" content="CasaClick24 — Encuentra tu vivienda ideal en España. Pisos, casas y apartamentos en venta y alquiler.">
+  <meta name="description" content="HomeClick24 — Encuentra tu vivienda ideal en España. Pisos, casas y apartamentos en venta y alquiler.">
   <meta name="keywords" content="inmobiliaria, pisos, casas, venta, alquiler, vivienda, España">
-  <meta name="author" content="CasaClick24">
+  <meta name="author" content="HomeClick24">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="CasaClick24 — Viviendas en España">
+  <meta property="og:title" content="HomeClick24 — Viviendas en España">
   <meta property="og:description" content="Encuentra tu vivienda ideal. Pisos y casas en venta y alquiler.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://miportal-inmobiliario-server.onrender.com">
@@ -23,7 +23,7 @@
 
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="CasaClick24 — Viviendas en España">
+  <meta name="twitter:title" content="HomeClick24 — Viviendas en España">
   <meta name="twitter:description" content="Encuentra tu vivienda ideal en España.">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200">
 
@@ -555,6 +555,12 @@
       .footer-inner { grid-template-columns: 1fr; }
     }
   </style>
+    <!-- PWA -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#7cc242">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="HomeClick24">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.png">
 </head>
 
 <body>
@@ -640,7 +646,7 @@
       <div class="item-arrow">→</div>
       <div class="info">
         <div class="titulo">Publicar mi anuncio</div>
-        <div class="direccion">Pon tu vivienda en CasaClick24 en minutos</div>
+        <div class="direccion">Pon tu vivienda en HomeClick24 en minutos</div>
       </div>
     </div>
   </div>
@@ -657,7 +663,7 @@
       <div class="testimonio">
         <span class="testimonio-comilla">"</span>
         <div class="stars">★★★★★</div>
-        <p class="texto">Vendimos nuestro piso en menos de un mes gracias a CasaClick24. El proceso fue muy sencillo y el equipo siempre estuvo disponible.</p>
+        <p class="texto">Vendimos nuestro piso en menos de un mes gracias a HomeClick24. El proceso fue muy sencillo y el equipo siempre estuvo disponible.</p>
         <div class="cliente">
           <img src="https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=200" alt="María y Carlos">
           <div>
@@ -728,7 +734,7 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <span>© 2025 CasaClick24. Todos los derechos reservados.</span>
+    <span>© 2025 HomeClick24. Todos los derechos reservados.</span>
     <span>Hecho con ❤️ en España</span>
   </div>
 </footer>
@@ -830,6 +836,17 @@ input.addEventListener("keypress", (e) => {
   if (e.key === "Enter") buscar();
 });
 </script>
+
+ <!-- PWA Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/service-worker.js')
+        .then(reg => console.log('[HomeClick24] SW registrado:', reg.scope))
+        .catch(err => console.warn('[HomeClick24] SW error:', err));
+    });
+  }
+</script> 
 
 </body>
 </html>

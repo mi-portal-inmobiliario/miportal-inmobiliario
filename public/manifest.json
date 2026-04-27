@@ -1,6 +1,6 @@
 {
-  "name": "CasaClick24 - Portal Inmobiliario",
-  "short_name": "CasaClick24",
+  "name": "HomeClick24 - Portal Inmobiliario",
+  "short_name": "HomeClick24",
   "description": "Encuentra tu hogar ideal. Compra, vende y alquila propiedades en España.",
   "start_url": "/",
   "display": "standalone",
