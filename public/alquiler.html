@@ -3,13 +3,220 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Alquiler de propiedades - Costa Hogar</title>
+  <title>Alquiler de propiedades - CasaClick24</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
-  <meta name="description" content="Viviendas en alquiler en la Costa. Filtra por precio, habitaciones y zona. Costa Hogar.">
-  <meta property="og:title" content="Alquilar vivienda — Costa Hogar">
+  <meta name="description" content="Viviendas en alquiler en España. Filtra por precio, habitaciones y zona. CasaClick24.">
+  <meta property="og:title" content="Alquilar vivienda — CasaClick24">
   <meta property="og:description" content="Encuentra tu vivienda ideal en alquiler. Filtra por precio, habitaciones y zona.">
   <meta property="og:type" content="website">
+
+  <style>
+    /* ===== PÁGINA HEADER ===== */
+    .page-header {
+      background: #fff;
+      border-bottom: 1px solid #eee;
+      padding: 18px 20px;
+    }
+
+    .page-header-inner {
+      max-width: 1200px;
+      margin: auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .page-header-inner h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .result-count {
+      font-size: 0.88rem;
+      color: #aaa;
+      font-weight: 500;
+      background: #f5f5f5;
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    /* ===== FILTROS ===== */
+    .filtros {
+      background: #fff;
+      padding: 24px 20px;
+      border-radius: 16px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.07);
+      position: sticky;
+      top: 90px;
+      height: max-content;
+      border: 1px solid rgba(0,0,0,0.04);
+    }
+
+    .filtros-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .filtros-header h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filtros-reset {
+      font-size: 0.8rem;
+      color: #bbb;
+      cursor: pointer;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .filtros-reset:hover { color: #7cc242; }
+
+    .filtro-grupo { margin-bottom: 18px; }
+
+    .filtro-grupo label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 7px;
+    }
+
+    .filtro-grupo input,
+    .filtro-grupo select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      color: #333;
+      background: #fafafa;
+      transition: border-color 0.2s, background 0.2s;
+      outline: none;
+    }
+
+    .filtro-grupo input:focus,
+    .filtro-grupo select:focus {
+      border-color: #7cc242;
+      background: #fff;
+    }
+
+    .filtro-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .extras-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .check-item {
+      display: flex !important;
+      flex-direction: row !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 9px 12px !important;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.88rem;
+      color: #444;
+      background: #fafafa;
+    }
+
+    .check-item:hover {
+      border-color: #7cc242;
+      background: #f0f9e8;
+    }
+
+    .check-item input[type="checkbox"] {
+      width: 16px !important;
+      height: 16px !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      flex-shrink: 0;
+      accent-color: #7cc242;
+      cursor: pointer;
+    }
+
+    .check-item.checked {
+      border-color: #7cc242;
+      background: #f0f9e8;
+      color: #5a9e2f;
+      font-weight: 600;
+    }
+
+    .filtros-btns {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-aplicar {
+      width: 100%;
+      padding: 12px;
+      background: #7cc242;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(124,194,66,0.3);
+    }
+
+    .btn-aplicar:hover {
+      background: #6aad35;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(124,194,66,0.4);
+    }
+
+    aside.filtros .btn-limpiar {
+      width: 100%;
+      padding: 10px;
+      background: #f0f0f0 !important;
+      color: #777 !important;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.88rem;
+      transition: all 0.2s;
+      box-shadow: none !important;
+      transform: none !important;
+    }
+
+    aside.filtros .btn-limpiar:hover {
+      background: #e5e5e5 !important;
+      color: #555 !important;
+      transform: none !important;
+    }
+
+    .filtro-sep {
+      height: 1px;
+      background: #f0f0f0;
+      margin: 4px 0 18px;
+    }
+  </style>
 </head>
 
 <body>
@@ -33,120 +240,140 @@
 
 <div class="contenedor-comprar">
 
+  <!-- FILTROS -->
   <aside class="filtros">
-    <h3>Filtros</h3>
 
-    <label>Ciudad / Zona</label>
-    <input type="text" id="f_texto" placeholder="Buscar ubicación...">
-
-    <!-- FILTROS -->
-  <aside class="filtros">
-    <h3>Filtros</h3>
-
-    <label>Ciudad / Zona</label>
-    <input type="text" id="f_texto" placeholder="Buscar ubicación...">
-
-    <label>Precio mínimo</label>
-    <input type="number" id="f_min" placeholder="€/mes">
-
-    <label>Precio máximo</label>
-    <input type="number" id="f_max" placeholder="€/mes">
-
-    <label>Habitaciones</label>
-    <select id="f_hab">
-      <option value="">Todas</option>
-      <option value="1">1+</option>
-      <option value="2">2+</option>
-      <option value="3">3+</option>
-      <option value="4">4+</option>
-    </select>
-
-    <label>Baños</label>
-    <select id="f_banos">
-      <option value="">Todos</option>
-      <option value="1">1+</option>
-      <option value="2">2+</option>
-      <option value="3">3+</option>
-    </select>
-
-    <label>Superficie mínima (m²)</label>
-    <input type="number" id="f_sup_min" placeholder="m²">
-
-    <label>Superficie máxima (m²)</label>
-    <input type="number" id="f_sup_max" placeholder="m²">
-
-    <label>Tipo de inmueble</label>
-    <select id="f_tipo_inmueble">
-      <option value="">Todos</option>
-      <option value="piso">Piso</option>
-      <option value="casa">Casa</option>
-      <option value="chalet">Chalet</option>
-      <option value="apartamento">Apartamento</option>
-      <option value="local">Local</option>
-      <option value="oficina">Oficina</option>
-      <option value="terreno">Terreno</option>
-    </select>
-
-    <label>Estado</label>
-    <select id="f_estado">
-      <option value="">Todos</option>
-      <option value="obra_nueva">Obra nueva</option>
-      <option value="segunda_mano">Segunda mano</option>
-    </select>
-
-    <label>Extras</label>
-    <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
-      <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
-        <input type="checkbox" id="f_garaje"> 🚗 Garaje
-      </label>
-      <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
-        <input type="checkbox" id="f_piscina"> 🏊 Piscina
-      </label>
-      <label style="display:flex; align-items:center; gap:8px; font-weight:400; cursor:pointer;">
-        <input type="checkbox" id="f_terraza"> 🌿 Terraza/Jardín
-      </label>
+    <div class="filtros-header">
+      <h3>🔍 Filtros</h3>
+      <span class="filtros-reset" onclick="resetFiltros()">Limpiar todo</span>
     </div>
 
-    <label style="margin-top:12px;">Ordenar por</label>
-    <select id="f_sort">
-      <option value="">Relevancia</option>
-      <option value="precio_asc">Precio: menor a mayor</option>
-      <option value="precio_desc">Precio: mayor a menor</option>
-    </select>
+    <div class="filtro-grupo">
+      <label>Ciudad / Zona</label>
+      <input type="text" id="f_texto" placeholder="Buscar ubicación...">
+    </div>
 
-    <button onclick="cargarPropiedades()">Aplicar filtros</button>
-    <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
+    <div class="filtro-sep"></div>
+
+    <div class="filtro-grupo">
+      <label>Precio (€/mes)</label>
+      <div class="filtro-row">
+        <input type="number" id="f_min" placeholder="Mín €">
+        <input type="number" id="f_max" placeholder="Máx €">
+      </div>
+    </div>
+
+    <div class="filtro-grupo">
+      <label>Habitaciones</label>
+      <select id="f_hab">
+        <option value="">Todas</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+      </select>
+    </div>
+
+    <div class="filtro-grupo">
+      <label>Baños</label>
+      <select id="f_banos">
+        <option value="">Todos</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+      </select>
+    </div>
+
+    <div class="filtro-grupo">
+      <label>Superficie (m²)</label>
+      <div class="filtro-row">
+        <input type="number" id="f_sup_min" placeholder="Mín">
+        <input type="number" id="f_sup_max" placeholder="Máx">
+      </div>
+    </div>
+
+    <div class="filtro-sep"></div>
+
+    <div class="filtro-grupo">
+      <label>Tipo de inmueble</label>
+      <select id="f_tipo_inmueble">
+        <option value="">Todos</option>
+        <option value="piso">Piso</option>
+        <option value="casa">Casa</option>
+        <option value="chalet">Chalet</option>
+        <option value="apartamento">Apartamento</option>
+        <option value="local">Local</option>
+        <option value="oficina">Oficina</option>
+        <option value="terreno">Terreno</option>
+      </select>
+    </div>
+
+    <div class="filtro-grupo">
+      <label>Estado</label>
+      <select id="f_estado">
+        <option value="">Todos</option>
+        <option value="obra_nueva">Obra nueva</option>
+        <option value="segunda_mano">Segunda mano</option>
+      </select>
+    </div>
+
+    <div class="filtro-sep"></div>
+
+    <div class="filtro-grupo">
+      <label>Extras</label>
+      <div class="extras-grid">
+        <label class="check-item" id="label_garaje">
+          <input type="checkbox" id="f_garaje" onchange="toggleCheck('label_garaje')">
+          🚗 Garaje
+        </label>
+        <label class="check-item" id="label_piscina">
+          <input type="checkbox" id="f_piscina" onchange="toggleCheck('label_piscina')">
+          🏊 Piscina
+        </label>
+        <label class="check-item" id="label_terraza">
+          <input type="checkbox" id="f_terraza" onchange="toggleCheck('label_terraza')">
+          🌿 Terraza / Jardín
+        </label>
+      </div>
+    </div>
+
+    <div class="filtro-sep"></div>
+
+    <div class="filtro-grupo">
+      <label>Ordenar por</label>
+      <select id="f_sort">
+        <option value="">Relevancia</option>
+        <option value="precio_asc">Precio: menor a mayor</option>
+        <option value="precio_desc">Precio: mayor a menor</option>
+      </select>
+    </div>
+
+    <div class="filtros-btns">
+      <button class="btn-aplicar" onclick="cargarPropiedades()">Aplicar filtros</button>
+      <button class="btn-limpiar" onclick="resetFiltros()">Limpiar filtros</button>
+    </div>
+
   </aside>
 
-    <label>Habitaciones</label>
-    <select id="f_hab">
-      <option value="">Todas</option>
-      <option value="1">1+</option>
-      <option value="2">2+</option>
-      <option value="3">3+</option>
-      <option value="4">4+</option>
-    </select>
-
-    <label>Ordenar por</label>
-    <select id="f_sort">
-      <option value="">Relevancia</option>
-      <option value="precio_asc">Precio: menor a mayor</option>
-      <option value="precio_desc">Precio: mayor a menor</option>
-    </select>
-
-    <button onclick="cargarPropiedades()">Aplicar filtros</button>
-    <button class="btn-reset" onclick="resetFiltros()">Limpiar filtros</button>
-  </aside>
-
+  <!-- LISTA -->
   <section>
     <div class="lista-propiedades" id="lista"></div>
   </section>
 
 </div>
 
+<!-- FILTROS MÓVIL -->
 <button class="btn-filtros-mobile" onclick="toggleFiltrosMobile()">
   ⚙️ Filtros
 </button>
+
+<script>
+function toggleCheck(labelId) {
+  const label = document.getElementById(labelId);
+  const cb = label.querySelector('input[type="checkbox"]');
+  label.classList.toggle('checked', cb.checked);
+}
+</script>
 
 <script src="/js/filtros.js" defer></script>
 
