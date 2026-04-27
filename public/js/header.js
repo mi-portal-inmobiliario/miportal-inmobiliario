@@ -19,8 +19,8 @@ document.addEventListener("DOMContentLoaded", () => {
       <header class="header">
         <div class="header-container">
           <div class="header-logo" onclick="location.href='/index.html'">
-            <img src="/CasaClick.png" alt="" class="logo-icon" />
-            <span class="logo-text">Casa<span class="logo-green">Click24</span></span>
+            <img src="/HomeClick.png" alt="" class="logo-icon" />
+            <span class="logo-text">Home<span class="logo-green">Click24</span></span>
           </div>
           <div class="header-actions">
             <a href="/comprar.html" class="btn-outline">Comprar</a>
@@ -44,8 +44,8 @@ document.addEventListener("DOMContentLoaded", () => {
     <header class="header">
       <div class="header-container">
         <div class="header-logo" onclick="location.href='/index.html'">
-          <img src="/CasaClick.png" alt="" class="logo-icon" />
-          <span class="logo-text">Casa<span class="logo-green">Click24</span></span>
+          <img src="/HomeClick.png" alt="" class="logo-icon" />
+          <span class="logo-text">Home<span class="logo-green">Click24</span></span>
         </div>
         <div class="header-actions">
           <a href="/comprar.html" class="btn-outline">Comprar</a>

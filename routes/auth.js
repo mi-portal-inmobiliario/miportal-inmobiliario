@@ -52,12 +52,12 @@ router.post("/register", async (req, res) => {
     const enlace = `${process.env.APP_URL}/set-password.html?token=${token}`;
 
     await transporter.sendMail({
-      from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
+      from: `"HomeClick24" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: "Activa tu cuenta - CasaClick24",
+      subject: "Activa tu cuenta - HomeClick24",
       html: `
         <div style="font-family:Inter,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border-radius:16px;">
-          <h2 style="color:#7cc242">CasaClick24</h2>
+          <h2 style="color:#7cc242">HomeClick24</h2>
           <p>Hola <strong>${nombre}</strong>,</p>
           <p>Para activar tu cuenta, crea tu contraseña:</p>
           <a href="${enlace}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#7cc242;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
@@ -185,12 +185,12 @@ router.post("/recuperar", async (req, res) => {
     const enlace = `${process.env.APP_URL}/reset.html?token=${token}`;
 
     await transporter.sendMail({
-      from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
+      from: `"HomeClick24" <${process.env.GMAIL_USER}>`,
       to: email,
-      subject: "Recupera tu contraseña - CasaClick24",
+      subject: "Recupera tu contraseña - HomeClick24",
       html: `
         <div style="font-family:Inter,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border-radius:16px;">
-          <h2 style="color:#7cc242">CasaClick24</h2>
+          <h2 style="color:#7cc242">HomeClick24</h2>
           <p>Hola <strong>${usuario.nombre}</strong>,</p>
           <p>Recibimos una solicitud para restablecer tu contraseña.</p>
           <a href="${enlace}" style="display:inline-block;margin:20px 0;padding:14px 28px;background:#7cc242;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;">
@@ -234,9 +234,9 @@ router.post("/reset", async (req, res) => {
 router.get("/test-email", async (req, res) => {
   try {
     await transporter.sendMail({
-      from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
+      from: `"HomeClick24" <${process.env.GMAIL_USER}>`,
       to: process.env.GMAIL_USER,
-      subject: "TEST CasaClick24",
+      subject: "TEST HomeClick24",
       html: "<h1>Email funcionando ✅</h1>"
     });
     res.send("Email enviado correctamente");

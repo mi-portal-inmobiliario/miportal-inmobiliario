@@ -77,13 +77,13 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
 
         if (anunciante?.email) {
           await transporter.sendMail({
-            from: `"CasaClick24" <${process.env.GMAIL_USER}>`,
+            from: `"HomeClick24" <${process.env.GMAIL_USER}>`,
             to: anunciante.email,
-            subject: "💬 Tienes un nuevo mensaje en CasaClick24",
+            subject: "💬 Tienes un nuevo mensaje en HomeClick24",
             html: `
               <div style="font-family: Arial, sans-serif; max-width: 500px; margin: auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
                 <div style="background: #7cc242; padding: 20px; text-align: center;">
-                  <h2 style="color: white; margin: 0;">CasaClick24</h2>
+                  <h2 style="color: white; margin: 0;">HomeClick24</h2>
                 </div>
                 <div style="padding: 24px;">
                   <p style="font-size: 16px;">Hola <strong>${anunciante.nombre || "anunciante"}</strong>,</p>
@@ -99,7 +99,7 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
                      style="display: inline-block; background: #7cc242; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 8px;">
                    Ver mensaje
                   </a>
-                  <p style="font-size: 12px; color: #9ca3af; margin-top: 24px;">CasaClick24 · No respondas a este email</p>
+                  <p style="font-size: 12px; color: #9ca3af; margin-top: 24px;">HomeClick24 · No respondas a este email</p>
                 </div>
               </div>
             `

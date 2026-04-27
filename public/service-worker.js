@@ -1,4 +1,4 @@
-const CACHE_NAME = 'casaclick24-v1';
+const CACHE_NAME = 'HomeClick24-v1';
 
 const STATIC_ASSETS = [
   '/',
