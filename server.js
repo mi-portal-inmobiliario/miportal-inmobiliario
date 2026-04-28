@@ -75,7 +75,7 @@ Disallow: /publicar.html
 Disallow: /chat.html
 Disallow: /favoritos.html
 
-Sitemap: https://miportal-inmobiliario-server.onrender.com/sitemap.xml`);
+Sitemap: https://www.homeclick24.com/sitemap.xml`);
 });
 
 // =============================
@@ -101,7 +101,7 @@ app.get("/sitemap.xml", async (req, res) => {
     const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>
-    <loc>https://miportal-inmobiliario-server.onrender.com${u.loc}</loc>
+    <loc>https://www.homeclick24.com${u.loc}</loc>
     ${u.lastmod ? `<lastmod>${u.lastmod}</lastmod>` : ""}
     <priority>${u.priority}</priority>
   </url>`).join("\n")}
