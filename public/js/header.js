@@ -210,8 +210,13 @@ document.addEventListener("DOMContentLoaded", () => {
 ====================== */
 window.toggleLangMenu = function(e) {
   e.stopPropagation();
+  e.preventDefault();
   const menu = document.getElementById("topbarLangMenu");
-  if (menu) menu.classList.toggle("open");
+  if (menu) {
+    const isOpen = menu.classList.contains("open");
+    menu.classList.toggle("open");
+    menu.style.display = isOpen ? "none" : "block";
+  }
 };
 
 window.selectLang = function(flag, name) {
