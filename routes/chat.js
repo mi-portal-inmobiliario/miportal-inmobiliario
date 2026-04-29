@@ -1,6 +1,6 @@
 import express from "express";
 import mongoose from "mongoose";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import Propiedad from "../models/Propiedad.js";
 import Usuario from "../models/Usuario.js";
 
@@ -9,13 +9,7 @@ const router = express.Router();
 /* ======================
    NODEMAILER
 ====================== */
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.GMAIL_USER,
-    pass: process.env.GMAIL_PASS
-  }
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /* ======================
    SCHEMAS
@@ -76,8 +70,8 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
         const propiedad  = await Propiedad.findById(conv.propiedadId);
 
         if (anunciante?.email) {
-          await transporter.sendMail({
-            from: `"HomeClick24" <${process.env.GMAIL_USER}>`,
+          await resend.emails.send({
+            from: 'HomeClick24 <onboarding@resend.dev>',
             to: anunciante.email,
             subject: "💬 Tienes un nuevo mensaje en HomeClick24",
             html: `
