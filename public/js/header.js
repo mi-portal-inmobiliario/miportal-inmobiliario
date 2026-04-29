@@ -17,6 +17,16 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!usuario || !usuario._id) {
     cont.innerHTML = `
       <header class="header">
+        <div class="header-topbar">
+          <div class="header-topbar-inner">
+            <span class="topbar-brand">🏠 HomeClick24</span>
+            <div class="topbar-countries">
+              <a href="#" class="topbar-country active" title="España">🇪🇸 España</a>
+              <a href="#" class="topbar-country" title="Portugal">🇵🇹 Portugal</a>
+              <a href="#" class="topbar-country" title="United Kingdom">🇬🇧 UK</a>
+            </div>
+          </div>
+        </div>
         <div class="header-container">
           <div class="header-logo" onclick="location.href='/index.html'">
             <img src="/HomeClick.png" alt="" class="logo-icon" />
@@ -42,6 +52,16 @@ document.addEventListener("DOMContentLoaded", () => {
   ====================== */
   cont.innerHTML = `
     <header class="header">
+        <div class="header-topbar">
+          <div class="header-topbar-inner">
+            <span class="topbar-brand">🏠 HomeClick24</span>
+            <div class="topbar-countries">
+              <a href="#" class="topbar-country active" title="España">🇪🇸 España</a>
+              <a href="#" class="topbar-country" title="Portugal">🇵🇹 Portugal</a>
+              <a href="#" class="topbar-country" title="United Kingdom">🇬🇧 UK</a>
+            </div>
+          </div>
+        </div>
       <div class="header-container">
         <div class="header-logo" onclick="location.href='/index.html'">
           <img src="/HomeClick.png" alt="" class="logo-icon" />

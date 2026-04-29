@@ -835,3 +835,51 @@ body {
 .search-box button {
   transition: background 0.2s ease;
 }
+
+/* ==============================
+   TOPBAR PAÍSES
+============================== */
+.header-topbar {
+  background: #1a2332;
+  padding: 6px 0;
+  width: 100%;
+}
+
+.header-topbar-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.topbar-brand {
+  font-size: 0.8rem;
+  color: #8a9ab0;
+  font-weight: 600;
+}
+
+.topbar-countries {
+  display: flex;
+  gap: 12px;
+}
+
+.topbar-country {
+  font-size: 0.8rem;
+  color: #8a9ab0;
+  text-decoration: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.topbar-country:hover {
+  color: #fff;
+  background: rgba(255,255,255,0.1);
+}
+
+.topbar-country.active {
+  color: #7cc242;
+  font-weight: 700;
+}
