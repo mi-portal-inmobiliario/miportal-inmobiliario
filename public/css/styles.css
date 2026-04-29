@@ -313,9 +313,6 @@ body {
   .header-topbar {
     display: flex;
   }
-  .header {
-    display: none;
-  }
 
   .mobile-nav {
     position: fixed;
