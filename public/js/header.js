@@ -174,12 +174,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.addEventListener("click", (e) => {
-  if (!e.target.closest("#userMenu")) {
-    userMenu.classList.remove("open");
-  }
+  if (!e.target.closest("#topbarLang")) {
     const menu = document.getElementById("topbarLangMenu");
-    if (menu) menu.classList.remove("open");
-  });
+    if (menu) menu.style.display = "none";
+  }
+  if (!e.target.closest("#userMenu")) {
+    const userMenu = document.getElementById("userMenu");
+    if (userMenu) userMenu.classList.remove("open");
+  }
+});
 
   logoutBtn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -212,10 +215,15 @@ window.toggleLangMenu = function(e) {
   e.stopPropagation();
   e.preventDefault();
   const menu = document.getElementById("topbarLangMenu");
-  if (menu) {
-    const isOpen = menu.classList.contains("open");
-    menu.classList.toggle("open");
-    menu.style.display = isOpen ? "none" : "block";
+  if (!menu) return;
+  if (menu.style.display === "block") {
+    menu.style.display = "none";
+  } else {
+    menu.style.display = "block";
+    menu.style.position = "fixed";
+    menu.style.top = "75px";
+    menu.style.right = "20px";
+    menu.style.zIndex = "999999";
   }
 };
 
