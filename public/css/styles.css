@@ -303,6 +303,17 @@ body {
   }
 
   .header {
+    display: block;
+  }
+
+  .header-container {
+    display: none;
+  }
+
+  .header-topbar {
+    display: flex;
+  }
+  .header {
     display: none;
   }
 
