@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="header-topbar-inner">
         <span class="topbar-brand">🏠 HomeClick24</span>
         <div class="topbar-lang" id="topbarLang">
-          <button class="topbar-lang-btn" onclick="toggleLangMenu()">🇪🇸 España ▾</button>
+          <button class="topbar-lang-btn" onclick="toggleLangMenu(event)">🇪🇸 ▾</button>
           <div class="topbar-lang-menu" id="topbarLangMenu">
             <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
             <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const langSelector = `
     <div class="topbar-lang header-lang-desktop" id="topbarLang">
-      <button class="topbar-lang-btn" onclick="toggleLangMenu()">🇪🇸 ▾</button>
+      <button class="topbar-lang-btn" onclick="toggleLangMenu(event)">🇪🇸 ▾</button>
       <div class="topbar-lang-menu" id="topbarLangMenu">
         <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
         <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
@@ -173,8 +173,10 @@ document.addEventListener("DOMContentLoaded", () => {
     userMenu.classList.toggle("open");
   });
 
-  document.addEventListener("click", () => {
+  document.addEventListener("click", (e) => {
+  if (!e.target.closest("#userMenu")) {
     userMenu.classList.remove("open");
+  }
     const menu = document.getElementById("topbarLangMenu");
     if (menu) menu.classList.remove("open");
   });
@@ -206,7 +208,8 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ======================
    SELECTOR DE IDIOMA
 ====================== */
-window.toggleLangMenu = function() {
+window.toggleLangMenu = function(e) {
+  e.stopPropagation();
   const menu = document.getElementById("topbarLangMenu");
   if (menu) menu.classList.toggle("open");
 };
