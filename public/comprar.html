@@ -379,6 +379,11 @@ aside.filtros .btn-limpiar:hover {
 
     <div class="filtros-btns">
       <button class="btn-aplicar" onclick="cargarPropiedades()">Aplicar filtros</button>
+
+      <button class="btn-aplicar" onclick="crearAlerta()">
+        🔔 Crear alerta
+      </button>
+
       <button class="btn-limpiar" onclick="resetFiltros()">Limpiar filtros</button>
     </div>
 
@@ -401,6 +406,36 @@ function toggleCheck(labelId) {
   const label = document.getElementById(labelId);
   const cb = label.querySelector('input[type="checkbox"]');
   label.classList.toggle('checked', cb.checked);
+}
+
+async function crearAlerta() {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+
+  if (!usuario) {
+    alert("Debes iniciar sesión");
+    return;
+  }
+
+  const datos = {
+    usuarioId: usuario._id,
+    tipoOperacion: "venta",
+    ciudad: document.getElementById("f_texto").value,
+    precioMax: document.getElementById("f_max").value,
+    habitaciones: document.getElementById("f_hab").value
+  };
+
+  const res = await fetch("/alertas", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(datos)
+  });
+
+  const resultado = await res.json();
+  console.log(resultado);
+
+  alert("Alerta creada");
 }
 </script>
 
