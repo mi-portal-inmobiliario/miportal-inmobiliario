@@ -1,6 +1,6 @@
 const API_BASE = location.hostname.includes("localhost")
   ? "http://localhost:3000"
-  : "https://miportal-inmobiliario-server.onrender.com";
+  : "https://www.homeclick24.com";
 
 function mostrarMensaje(texto, color = "red") {
   const el = document.getElementById("mensaje");
