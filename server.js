@@ -39,6 +39,14 @@ const app = express();
 // MIDDLEWARE
 // =============================
 app.use(cors());
+// Redirigir URL antigua a dominio propio
+app.use((req, res, next) => {
+  if (req.hostname === 'miportal-inmobiliario-server.onrender.com' || 
+      req.hostname === 'homeclick24.onrender.com') {
+    return res.redirect(301, `https://www.homeclick24.com${req.originalUrl}`);
+  }
+  next();
+});
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
