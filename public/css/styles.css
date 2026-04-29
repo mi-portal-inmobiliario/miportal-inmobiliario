@@ -29,6 +29,7 @@ body {
   z-index: 1000;
   box-shadow: 0 6px 20px rgba(0,0,0,0.12);
   transition: all 0.3s ease;
+  overflow: visible;
 }
 
 .header.scrolled {
@@ -57,6 +58,7 @@ body {
   align-items: center;
   justify-content: space-between;
   transition: height 0.3s ease;
+  overflow: visible;
 }
 
 /* ===== LOGO ===== */

@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
             <a href="/login.html" class="btn-icon" title="Chats">💬</a>
             ${langSelector}
-            <a href="/login.html" class="btn-primary">Iniciar sesión</a>
+            <a href="/login.html" class="btn-primary">👤 Acceder</a>
           </div>
         </div>
       </header>
