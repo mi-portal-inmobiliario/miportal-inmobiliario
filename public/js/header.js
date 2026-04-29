@@ -11,22 +11,62 @@ document.addEventListener("DOMContentLoaded", () => {
     usuario = null;
   }
 
+  const topbar = `
+    <div class="header-topbar">
+      <div class="header-topbar-inner">
+        <span class="topbar-brand">🏠 HomeClick24</span>
+        <div class="topbar-lang" id="topbarLang">
+          <button class="topbar-lang-btn" onclick="toggleLangMenu()">🇪🇸 España ▾</button>
+          <div class="topbar-lang-menu" id="topbarLangMenu">
+            <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
+            <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
+            <a href="#" onclick="selectLang('🇬🇧','English')">🇬🇧 English</a>
+            <a href="#" onclick="selectLang('🇩🇪','Deutsch')">🇩🇪 Deutsch</a>
+            <a href="#" onclick="selectLang('🇫🇷','Français')">🇫🇷 Français</a>
+            <a href="#" onclick="selectLang('🇮🇹','Italiano')">🇮🇹 Italiano</a>
+            <a href="#" onclick="selectLang('🇵🇹','Português')">🇵🇹 Português</a>
+            <a href="#" onclick="selectLang('🇩🇰','Dansk')">🇩🇰 Dansk</a>
+            <a href="#" onclick="selectLang('🇺🇦','Українська')">🇺🇦 Українська</a>
+            <a href="#" onclick="selectLang('🇫🇮','Suomi')">🇫🇮 Suomi</a>
+            <a href="#" onclick="selectLang('🇳🇴','Norsk')">🇳🇴 Norsk</a>
+            <a href="#" onclick="selectLang('🇳🇱','Nederlands')">🇳🇱 Nederlands</a>
+            <a href="#" onclick="selectLang('🇵🇱','Polski')">🇵🇱 Polski</a>
+            <a href="#" onclick="selectLang('🇷🇴','Română')">🇷🇴 Română</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  const langSelector = `
+    <div class="topbar-lang header-lang-desktop" id="topbarLang">
+      <button class="topbar-lang-btn" onclick="toggleLangMenu()">🇪🇸 ▾</button>
+      <div class="topbar-lang-menu" id="topbarLangMenu">
+        <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
+        <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
+        <a href="#" onclick="selectLang('🇬🇧','English')">🇬🇧 English</a>
+        <a href="#" onclick="selectLang('🇩🇪','Deutsch')">🇩🇪 Deutsch</a>
+        <a href="#" onclick="selectLang('🇫🇷','Français')">🇫🇷 Français</a>
+        <a href="#" onclick="selectLang('🇮🇹','Italiano')">🇮🇹 Italiano</a>
+        <a href="#" onclick="selectLang('🇵🇹','Português')">🇵🇹 Português</a>
+        <a href="#" onclick="selectLang('🇩🇰','Dansk')">🇩🇰 Dansk</a>
+        <a href="#" onclick="selectLang('🇺🇦','Українська')">🇺🇦 Українська</a>
+        <a href="#" onclick="selectLang('🇫🇮','Suomi')">🇫🇮 Suomi</a>
+        <a href="#" onclick="selectLang('🇳🇴','Norsk')">🇳🇴 Norsk</a>
+        <a href="#" onclick="selectLang('🇳🇱','Nederlands')">🇳🇱 Nederlands</a>
+        <a href="#" onclick="selectLang('🇵🇱','Polski')">🇵🇱 Polski</a>
+        <a href="#" onclick="selectLang('🇷🇴','Română')">🇷🇴 Română</a>
+      </div>
+    </div>
+  `;
+
   /* ======================
      HEADER SIN SESIÓN
   ====================== */
   if (!usuario || !usuario._id) {
     cont.innerHTML = `
       <header class="header">
-        <div class="header-topbar">
-          <div class="header-topbar-inner">
-            <span class="topbar-brand">🏠 HomeClick24</span>
-            <div class="topbar-countries">
-              <a href="#" class="topbar-country active" title="España">🇪🇸 España</a>
-              <a href="#" class="topbar-country" title="Portugal">🇵🇹 Portugal</a>
-              <a href="#" class="topbar-country" title="United Kingdom">🇬🇧 UK</a>
-            </div>
-          </div>
-        </div>
+        ${topbar}
         <div class="header-container">
           <div class="header-logo" onclick="location.href='/index.html'">
             <img src="/HomeClick.png" alt="" class="logo-icon" />
@@ -38,6 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="/publicar.html" class="btn-publish">Pon tu anuncio</a>
             <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
             <a href="/login.html" class="btn-icon" title="Chats">💬</a>
+            ${langSelector}
             <a href="/login.html" class="btn-primary">Iniciar sesión</a>
           </div>
         </div>
@@ -52,16 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ====================== */
   cont.innerHTML = `
     <header class="header">
-        <div class="header-topbar">
-          <div class="header-topbar-inner">
-            <span class="topbar-brand">🏠 HomeClick24</span>
-            <div class="topbar-countries">
-              <a href="#" class="topbar-country active" title="España">🇪🇸 España</a>
-              <a href="#" class="topbar-country" title="Portugal">🇵🇹 Portugal</a>
-              <a href="#" class="topbar-country" title="United Kingdom">🇬🇧 UK</a>
-            </div>
-          </div>
-        </div>
+      ${topbar}
       <div class="header-container">
         <div class="header-logo" onclick="location.href='/index.html'">
           <img src="/HomeClick.png" alt="" class="logo-icon" />
@@ -90,7 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
               justify-content:center;
             ">0</span>
           </a>
-
+          ${langSelector}
           <div class="user-menu" id="userMenu">
             <div class="user-name" id="userToggle">
               ${usuario.nombre || "Usuario"}
@@ -143,6 +175,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("click", () => {
     userMenu.classList.remove("open");
+    const menu = document.getElementById("topbarLangMenu");
+    if (menu) menu.classList.remove("open");
   });
 
   logoutBtn.addEventListener("click", (e) => {
@@ -168,3 +202,23 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
 });
+
+/* ======================
+   SELECTOR DE IDIOMA
+====================== */
+window.toggleLangMenu = function() {
+  const menu = document.getElementById("topbarLangMenu");
+  if (menu) menu.classList.toggle("open");
+};
+
+window.selectLang = function(flag, name) {
+  const btns = document.querySelectorAll(".topbar-lang-btn");
+  btns.forEach(btn => {
+    btn.textContent = `${flag} ▾`;
+  });
+  const menus = document.querySelectorAll(".topbar-lang-menu");
+  menus.forEach(m => m.classList.remove("open"));
+  if (name !== "España") {
+    alert(`La versión en ${name} estará disponible próximamente 🌍`);
+  }
+};

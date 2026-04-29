@@ -4,6 +4,8 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Propiedad from "../models/Propiedad.js";
+import Alerta from "../models/Alerta.js";
+import Notificacion from "../models/Notificacion.js";
 
 const router = express.Router();
 
@@ -124,6 +126,44 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       lng:           lng ? Number(lng) : null,
       imagenes
     });
+
+    // Buscar alertas que coincidan
+    console.log("Nueva propiedad creada:", propiedad.titulo);
+
+    const alertasCoincidentes = await Alerta.find({
+      activa: true,
+      tipoOperacion: propiedad.tipoOperacion,
+      precioMax: { $gte: propiedad.precio },
+      habitaciones: { $lte: propiedad.habitaciones }
+    });
+
+    console.log("Alertas encontradas:", alertasCoincidentes);
+
+    if (alertasCoincidentes.length > 0) {
+      console.log("Hay usuarios interesados en esta propiedad");
+
+      for (const alerta of alertasCoincidentes) {
+        await Notificacion.create({
+          usuarioId: alerta.usuarioId,
+          propiedadId: propiedad._id,
+          mensaje: `Nueva propiedad que coincide con tu alerta: ${propiedad.titulo}`
+        });
+
+        console.log("Notificación creada para:", alerta.usuarioId);
+      }
+
+    } else {
+      console.log("No hay alertas compatibles");
+    }
+
+    for (const alerta of alertasCoincidentes) {
+      console.log(
+        "Coincidencia:",
+        alerta.usuarioId,
+        "→ propiedad:",
+        propiedad._id
+      );
+    }
 
     res.status(201).json(propiedad);
 

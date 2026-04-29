@@ -891,3 +891,68 @@ body {
   color: #7cc242;
   font-weight: 700;
 }
+
+/* ==============================
+   SELECTOR IDIOMA
+============================== */
+.topbar-lang {
+  position: relative;
+}
+
+.topbar-lang-btn {
+  background: none;
+  border: none;
+  color: #7cc242;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.topbar-lang-btn:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.topbar-lang-menu {
+  display: none;
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  background: #1a2332;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.topbar-lang-menu.open {
+  display: block;
+}
+
+.topbar-lang-menu a {
+  display: block;
+  padding: 10px 16px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.85rem;
+  transition: background 0.15s;
+}
+
+.topbar-lang-menu a:hover {
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+}
+
+/* Ocultar topbar en escritorio, mostrar selector en header */
+@media (min-width: 769px) {
+  .header-topbar { display: none; }
+  .header-lang-desktop { display: block; }
+}
+
+@media (max-width: 768px) {
+  .header-lang-desktop { display: none; }
+}

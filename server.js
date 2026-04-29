@@ -24,6 +24,7 @@ import authRoutes from "./routes/auth.js";
 import chatRoutes from "./routes/chat.js";
 import propiedadesRoutes from "./routes/propiedades.js";
 import alertasRoutes from "./routes/alertas.js";
+import notificacionesRoutes from "./routes/notificaciones.js";
 
 // =============================
 // FIX __dirname (ES MODULES)
@@ -131,6 +132,7 @@ app.use("/chat", chatRoutes);
 app.use("/propiedades", propiedadesRoutes);
 app.use("/usuarios", usuariosRoutes);
 app.use("/alertas", alertasRoutes);
+app.use("/notificaciones", notificacionesRoutes);
 
 // =============================
 // INDEX
