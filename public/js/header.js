@@ -231,18 +231,21 @@ window.toggleLangMenuDesktop = function(e) {
 /* ======================
    SELECTOR DE IDIOMA - MÓVIL
 ====================== */
-window.toggleLangMenuMobile = function(e) {
+window.toggleLangMenuDesktop = function(e) {
   e.stopPropagation();
   e.preventDefault();
-  const menu = document.getElementById("topbarLangMenuMobile");
+  const menu = document.getElementById("topbarLangMenuDesktop");
+  const btn = e.currentTarget;
   if (!menu) return;
   if (menu.style.display === "block") {
     menu.style.display = "none";
   } else {
+    const rect = btn.getBoundingClientRect();
     menu.style.display = "block";
     menu.style.position = "fixed";
-    menu.style.top = "38px";
-    menu.style.right = "8px";
+    menu.style.top = (rect.bottom + 6) + "px";
+    menu.style.left = (rect.left - 100) + "px";
+    menu.style.right = "auto";
     menu.style.zIndex = "999999";
     menu.style.minWidth = "180px";
     menu.style.background = "#1a2332";
