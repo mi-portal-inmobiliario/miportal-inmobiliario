@@ -11,51 +11,44 @@ document.addEventListener("DOMContentLoaded", () => {
     usuario = null;
   }
 
+  const langOptions = `
+    <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
+    <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
+    <a href="#" onclick="selectLang('🇬🇧','English')">🇬🇧 English</a>
+    <a href="#" onclick="selectLang('🇩🇪','Deutsch')">🇩🇪 Deutsch</a>
+    <a href="#" onclick="selectLang('🇫🇷','Français')">🇫🇷 Français</a>
+    <a href="#" onclick="selectLang('🇮🇹','Italiano')">🇮🇹 Italiano</a>
+    <a href="#" onclick="selectLang('🇵🇹','Português')">🇵🇹 Português</a>
+    <a href="#" onclick="selectLang('🇩🇰','Dansk')">🇩🇰 Dansk</a>
+    <a href="#" onclick="selectLang('🇺🇦','Українська')">🇺🇦 Українська</a>
+    <a href="#" onclick="selectLang('🇫🇮','Suomi')">🇫🇮 Suomi</a>
+    <a href="#" onclick="selectLang('🇳🇴','Norsk')">🇳🇴 Norsk</a>
+    <a href="#" onclick="selectLang('🇳🇱','Nederlands')">🇳🇱 Nederlands</a>
+    <a href="#" onclick="selectLang('🇵🇱','Polski')">🇵🇱 Polski</a>
+    <a href="#" onclick="selectLang('🇷🇴','Română')">🇷🇴 Română</a>
+  `;
+
+  // Topbar — solo visible en móvil
   const topbar = `
     <div class="header-topbar">
       <div class="header-topbar-inner">
         <span class="topbar-brand">🏠 HomeClick24</span>
-        <div class="topbar-lang" id="topbarLang">
-          <button class="topbar-lang-btn" onclick="toggleLangMenu(event)">🇪🇸 ▾</button>
-          <div class="topbar-lang-menu" id="topbarLangMenu">
-            <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
-            <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
-            <a href="#" onclick="selectLang('🇬🇧','English')">🇬🇧 English</a>
-            <a href="#" onclick="selectLang('🇩🇪','Deutsch')">🇩🇪 Deutsch</a>
-            <a href="#" onclick="selectLang('🇫🇷','Français')">🇫🇷 Français</a>
-            <a href="#" onclick="selectLang('🇮🇹','Italiano')">🇮🇹 Italiano</a>
-            <a href="#" onclick="selectLang('🇵🇹','Português')">🇵🇹 Português</a>
-            <a href="#" onclick="selectLang('🇩🇰','Dansk')">🇩🇰 Dansk</a>
-            <a href="#" onclick="selectLang('🇺🇦','Українська')">🇺🇦 Українська</a>
-            <a href="#" onclick="selectLang('🇫🇮','Suomi')">🇫🇮 Suomi</a>
-            <a href="#" onclick="selectLang('🇳🇴','Norsk')">🇳🇴 Norsk</a>
-            <a href="#" onclick="selectLang('🇳🇱','Nederlands')">🇳🇱 Nederlands</a>
-            <a href="#" onclick="selectLang('🇵🇱','Polski')">🇵🇱 Polski</a>
-            <a href="#" onclick="selectLang('🇷🇴','Română')">🇷🇴 Română</a>
+        <div class="topbar-lang" id="topbarLangMobile">
+          <button class="topbar-lang-btn" onclick="toggleLangMenuMobile(event)">🇪🇸 España ▾</button>
+          <div class="topbar-lang-menu" id="topbarLangMenuMobile">
+            ${langOptions}
           </div>
         </div>
       </div>
     </div>
   `;
 
+  // Selector — solo visible en escritorio
   const langSelector = `
-    <div class="topbar-lang header-lang-desktop" id="topbarLang">
-      <button class="topbar-lang-btn" onclick="toggleLangMenu(event)">🇪🇸 ▾</button>
-      <div class="topbar-lang-menu" id="topbarLangMenu">
-        <a href="#" onclick="selectLang('🇪🇸','España')">🇪🇸 España</a>
-        <a href="#" onclick="selectLang('🏴󠁧󠁢󠁣󠁴󠁿','Català')">🏴󠁧󠁢󠁣󠁴󠁿 Català</a>
-        <a href="#" onclick="selectLang('🇬🇧','English')">🇬🇧 English</a>
-        <a href="#" onclick="selectLang('🇩🇪','Deutsch')">🇩🇪 Deutsch</a>
-        <a href="#" onclick="selectLang('🇫🇷','Français')">🇫🇷 Français</a>
-        <a href="#" onclick="selectLang('🇮🇹','Italiano')">🇮🇹 Italiano</a>
-        <a href="#" onclick="selectLang('🇵🇹','Português')">🇵🇹 Português</a>
-        <a href="#" onclick="selectLang('🇩🇰','Dansk')">🇩🇰 Dansk</a>
-        <a href="#" onclick="selectLang('🇺🇦','Українська')">🇺🇦 Українська</a>
-        <a href="#" onclick="selectLang('🇫🇮','Suomi')">🇫🇮 Suomi</a>
-        <a href="#" onclick="selectLang('🇳🇴','Norsk')">🇳🇴 Norsk</a>
-        <a href="#" onclick="selectLang('🇳🇱','Nederlands')">🇳🇱 Nederlands</a>
-        <a href="#" onclick="selectLang('🇵🇱','Polski')">🇵🇱 Polski</a>
-        <a href="#" onclick="selectLang('🇷🇴','Română')">🇷🇴 Română</a>
+    <div class="topbar-lang header-lang-desktop" id="topbarLangDesktop">
+      <button class="topbar-lang-btn" onclick="toggleLangMenuDesktop(event)">🇪🇸 ▾</button>
+      <div class="topbar-lang-menu" id="topbarLangMenuDesktop">
+        ${langOptions}
       </div>
     </div>
   `;
@@ -174,15 +167,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   document.addEventListener("click", (e) => {
-  if (!e.target.closest("#topbarLang")) {
-    const menu = document.getElementById("topbarLangMenu");
-    if (menu) menu.style.display = "none";
-  }
-  if (!e.target.closest("#userMenu")) {
-    const userMenu = document.getElementById("userMenu");
-    if (userMenu) userMenu.classList.remove("open");
-  }
-});
+    if (!e.target.closest("#topbarLangDesktop")) {
+      const menu = document.getElementById("topbarLangMenuDesktop");
+      if (menu) menu.style.display = "none";
+    }
+    if (!e.target.closest("#topbarLangMobile")) {
+      const menu = document.getElementById("topbarLangMenuMobile");
+      if (menu) menu.style.display = "none";
+    }
+    if (!e.target.closest("#userMenu")) {
+      if (userMenu) userMenu.classList.remove("open");
+    }
+  });
 
   logoutBtn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -209,12 +205,12 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ======================
-   SELECTOR DE IDIOMA
+   SELECTOR DE IDIOMA - ESCRITORIO
 ====================== */
-window.toggleLangMenu = function(e) {
+window.toggleLangMenuDesktop = function(e) {
   e.stopPropagation();
   e.preventDefault();
-  const menu = document.getElementById("topbarLangMenu");
+  const menu = document.getElementById("topbarLangMenuDesktop");
   if (!menu) return;
   if (menu.style.display === "block") {
     menu.style.display = "none";
@@ -224,16 +220,51 @@ window.toggleLangMenu = function(e) {
     menu.style.top = "75px";
     menu.style.right = "20px";
     menu.style.zIndex = "999999";
+    menu.style.minWidth = "180px";
+    menu.style.background = "#1a2332";
+    menu.style.borderRadius = "10px";
+    menu.style.boxShadow = "0 8px 24px rgba(0,0,0,0.3)";
+    menu.style.overflow = "hidden";
   }
 };
 
+/* ======================
+   SELECTOR DE IDIOMA - MÓVIL
+====================== */
+window.toggleLangMenuMobile = function(e) {
+  e.stopPropagation();
+  e.preventDefault();
+  const menu = document.getElementById("topbarLangMenuMobile");
+  if (!menu) return;
+  if (menu.style.display === "block") {
+    menu.style.display = "none";
+  } else {
+    menu.style.display = "block";
+    menu.style.position = "fixed";
+    menu.style.top = "38px";
+    menu.style.right = "8px";
+    menu.style.zIndex = "999999";
+    menu.style.minWidth = "180px";
+    menu.style.background = "#1a2332";
+    menu.style.borderRadius = "10px";
+    menu.style.boxShadow = "0 8px 24px rgba(0,0,0,0.3)";
+    menu.style.overflow = "hidden";
+  }
+};
+
+/* ======================
+   SELECCIONAR IDIOMA
+====================== */
 window.selectLang = function(flag, name) {
   const btns = document.querySelectorAll(".topbar-lang-btn");
   btns.forEach(btn => {
-    btn.textContent = `${flag} ▾`;
+    const text = btn.textContent.includes("España") || btn.textContent.length > 5
+      ? `${flag} ${name} ▾`
+      : `${flag} ▾`;
+    btn.textContent = text;
   });
   const menus = document.querySelectorAll(".topbar-lang-menu");
-  menus.forEach(m => m.classList.remove("open"));
+  menus.forEach(m => m.style.display = "none");
   if (name !== "España") {
     alert(`La versión en ${name} estará disponible próximamente 🌍`);
   }
