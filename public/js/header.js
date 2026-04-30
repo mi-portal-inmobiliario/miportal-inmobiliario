@@ -30,18 +30,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Topbar — solo visible en móvil
   const topbar = `
-    <div class="header-topbar">
-      <div class="header-topbar-inner">
-        <span class="topbar-brand">🏠 HomeClick24</span>
-        <div class="topbar-lang" id="topbarLangMobile">
-          <button class="topbar-lang-btn" onclick="toggleLangMenuMobile(event)">🇪🇸 España ▾</button>
-          <div class="topbar-lang-menu" id="topbarLangMenuMobile">
-            ${langOptions}
-          </div>
+  <div class="header-topbar">
+    <div class="header-topbar-inner">
+      <div class="header-logo" onclick="location.href='/index.html'" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
+        <img src="/HomeClick.png" alt="" style="height:36px; width:auto;" />
+        <span style="font-size:1.4rem; font-weight:800; color:#fff;">Home<span style="color:#7cc242;">Click24</span></span>
+      </div>
+      <div class="topbar-lang" id="topbarLangMobile">
+        <button class="topbar-lang-btn" onclick="toggleLangMenuMobile(event)">🇪🇸 España ▾</button>
+        <div class="topbar-lang-menu" id="topbarLangMenuMobile">
+          ${langOptions}
         </div>
       </div>
     </div>
-  `;
+  </div>
+`;
 
   // Selector — solo visible en escritorio
   const langSelector = `
@@ -207,7 +210,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /* ======================
    SELECTOR DE IDIOMA - ESCRITORIO
 ====================== */
-window.toggleLangMenuDesktop = function(e) {
+window.topbarLangMenuMobile = function(e) {
   e.stopPropagation();
   e.preventDefault();
   const menu = document.getElementById("topbarLangMenuDesktop");
@@ -231,10 +234,10 @@ window.toggleLangMenuDesktop = function(e) {
 /* ======================
    SELECTOR DE IDIOMA - MÓVIL
 ====================== */
-window.toggleLangMenuDesktop = function(e) {
+window.toggleLangMenuMobile = function(e) {
   e.stopPropagation();
   e.preventDefault();
-  const menu = document.getElementById("topbarLangMenuDesktop");
+  const menu = document.getElementById("topbarLangMenuMobile");
   const btn = e.currentTarget;
   if (!menu) return;
   if (menu.style.display === "block") {

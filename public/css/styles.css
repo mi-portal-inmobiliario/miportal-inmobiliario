@@ -958,3 +958,9 @@ body {
 @media (max-width: 768px) {
   .header-lang-desktop { display: none; }
 }
+
+@media (max-width: 768px) {
+  .header-topbar {
+    padding: 10px 0;
+  }
+}
