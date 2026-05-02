@@ -1,133 +1,169 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planes y Precios - HomeClick24</title>
-    <link rel="stylesheet" href="/css/styles.css">
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Planes y Precios - HomeClick24</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+
+  <style>
+    .planes-wrap { font-family: 'DM Sans', sans-serif; max-width: 1000px; margin: 60px auto; padding: 0 20px; color: #1a1a1a; }
+    .planes-hero { text-align: center; margin-bottom: 60px; }
+    .planes-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #7cc242; margin-bottom: 12px; }
+    .planes-title { font-family: 'DM Serif Display', serif; font-size: 2.6rem; font-weight: 400; color: #1a1a1a; margin-bottom: 14px; line-height: 1.2; }
+    .planes-sub { font-size: 1rem; color: #888; font-weight: 300; }
+    .planes-section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #aaa; margin: 50px 0 20px; }
+    .planes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 10px; }
+    .planes-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 10px; }
+    .plan-card { border: 1px solid #eee; border-radius: 16px; padding: 32px 28px; position: relative; transition: border-color 0.2s, transform 0.2s; }
+    .plan-card:hover { border-color: #7cc242; transform: translateY(-4px); }
+    .plan-card.featured { border: 2px solid #7cc242; }
+    .plan-badge { position: absolute; top: -13px; left: 50%; transform: translateX(-50%); background: #7cc242; color: #fff; font-size: 0.68rem; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 4px 16px; border-radius: 20px; white-space: nowrap; }
+    .plan-name { font-size: 1rem; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+    .plan-price { font-family: 'DM Serif Display', serif; font-size: 2.2rem; color: #1a1a1a; line-height: 1; margin-bottom: 4px; }
+    .plan-price span { font-family: 'DM Sans', sans-serif; font-size: 0.85rem; font-weight: 400; color: #aaa; }
+    .plan-divider { height: 1px; background: #f0f0f0; margin: 20px 0; }
+    .plan-feature { display: flex; align-items: center; gap: 10px; font-size: 0.88rem; color: #555; margin-bottom: 12px; }
+    .plan-dot { width: 6px; height: 6px; border-radius: 50%; background: #7cc242; flex-shrink: 0; }
+    .plan-btn { display: block; width: 100%; padding: 13px; border-radius: 10px; font-size: 0.9rem; font-weight: 600; text-align: center; cursor: pointer; margin-top: 24px; border: none; font-family: 'DM Sans', sans-serif; transition: all 0.2s; }
+    .plan-btn-green { background: #7cc242; color: #fff; }
+    .plan-btn-green:hover { background: #6aad35; }
+    .plan-btn-outline { background: #fff; color: #1a1a1a; border: 1.5px solid #e0e0e0; }
+    .plan-btn-outline:hover { border-color: #7cc242; color: #7cc242; }
+
+    @media (max-width: 768px) {
+      .planes-grid { grid-template-columns: 1fr; }
+      .planes-grid-2 { grid-template-columns: 1fr; }
+      .planes-title { font-size: 1.9rem; }
+    }
+  </style>
 </head>
+
 <body>
 
-<div id="header-container"></div>
+<div id="main-header"></div>
+<script src="/js/header.js" defer></script>
 
-<main style="max-width:1100px;margin:40px auto;padding:0 20px;">
-    <h1 style="text-align:center;margin-bottom:10px;">Planes y Precios</h1>
-    <p style="text-align:center;color:#666;margin-bottom:40px;">Elige el plan que mejor se adapta a tus necesidades</p>
+<div class="planes-wrap">
 
-    <!-- PARTICULARES -->
-    <h2 style="margin-bottom:20px;">👤 Particulares</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:40px;">
-        
-        <div style="border:1px solid #ddd;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Gratis</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">0€</div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ 2 anuncios</li>
-                <li>✅ 10 fotos por anuncio</li>
-                <li>✅ 30 días de duración</li>
-            </ul>
-            <a href="/registro.html" style="display:block;background:#4CAF50;color:white;padding:12px;border-radius:8px;text-decoration:none;">Empezar gratis</a>
-        </div>
+  <div class="planes-hero">
+    <p class="planes-eyebrow">Planes y precios</p>
+    <h1 class="planes-title">Simple, transparente, sin sorpresas</h1>
+    <p class="planes-sub">Elige el plan que mejor se adapta a tus necesidades</p>
+  </div>
 
-        <div style="border:2px solid #2196F3;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Básico</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">9,90€<span style="font-size:0.5em;font-weight:normal;">/mes</span></div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ 3 anuncios</li>
-                <li>✅ 20 fotos por anuncio</li>
-                <li>✅ Activo mientras pagues</li>
-            </ul>
-            <button onclick="suscribirse('price_1TRzHwR2KhBUiuqwE7yWmba5')" style="width:100%;background:#2196F3;color:white;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:1em;">Suscribirse</button>
-        </div>
+  <!-- PARTICULARES -->
+  <p class="planes-section-label">Particulares</p>
+  <div class="planes-grid">
 
-        <div style="border:2px solid #FF9800;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Destacado</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">19,90€<span style="font-size:0.5em;font-weight:normal;">/mes</span></div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ 4 anuncios destacados</li>
-                <li>✅ 30 fotos por anuncio</li>
-                <li>✅ Activo mientras pagues</li>
-            </ul>
-            <button onclick="suscribirse('price_1TRzKfR2KhBUiuqwZmtbnkHW')" style="width:100%;background:#FF9800;color:white;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:1em;">Suscribirse</button>
-        </div>
+    <div class="plan-card">
+      <div class="plan-name">Gratis</div>
+      <div class="plan-price">0€</div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>2 anuncios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>10 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>30 días de duración</div>
+      <a href="/registro.html" class="plan-btn plan-btn-outline">Empezar gratis</a>
     </div>
 
-    <!-- AGENTES -->
-    <h2 style="margin-bottom:20px;">🧑‍💼 Agentes independientes</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:40px;">
-
-        <div style="border:1px solid #ddd;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Starter</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">29,90€<span style="font-size:0.5em;font-weight:normal;">/mes</span></div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ Hasta 15 anuncios</li>
-                <li>✅ 30 fotos por anuncio</li>
-                <li>✅ Perfil verificado</li>
-                <li>✅ Activo mientras pagues</li>
-            </ul>
-            <button onclick="suscribirse('price_1TRzLwR2KhBUiuqwdxvWLngL')" style="width:100%;background:#2196F3;color:white;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:1em;">Suscribirse</button>
-        </div>
-
-        <div style="border:2px solid #9C27B0;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Pro</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">59,90€<span style="font-size:0.5em;font-weight:normal;">/mes</span></div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ Hasta 40 anuncios</li>
-                <li>✅ 40 fotos por anuncio</li>
-                <li>✅ 2 destacados incluidos</li>
-                <li>✅ Activo mientras pagues</li>
-            </ul>
-            <button onclick="suscribirse('price_1TRzN1R2KhBUiuqwWZERfgqT')" style="width:100%;background:#9C27B0;color:white;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:1em;">Suscribirse</button>
-        </div>
+    <div class="plan-card featured">
+      <div class="plan-badge">Más popular</div>
+      <div class="plan-name">Básico</div>
+      <div class="plan-price">9,90€ <span>/mes</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>3 anuncios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>20 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
+      <button class="plan-btn plan-btn-green" onclick="suscribirse('price_1TRzHwR2KhBUiuqwE7yWmba5')">Suscribirse</button>
     </div>
 
-    <!-- AGENCIAS -->
-    <h2 style="margin-bottom:20px;">🏢 Agencias inmobiliarias</h2>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-bottom:40px;">
-
-        <div style="border:1px solid #ddd;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Agencia Básica</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">79,90€<span style="font-size:0.5em;font-weight:normal;">/mes</span></div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ Hasta 50 anuncios</li>
-                <li>✅ 40 fotos por anuncio</li>
-                <li>✅ 2 usuarios</li>
-                <li>✅ Activo mientras pagues</li>
-            </ul>
-            <button onclick="suscribirse('price_1TRzO0R2KhBUiuqwZvlU3gdU')" style="width:100%;background:#2196F3;color:white;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:1em;">Suscribirse</button>
-        </div>
-
-        <div style="border:2px solid #F44336;border-radius:12px;padding:30px;text-align:center;">
-            <h3>Agencia Pro</h3>
-            <div style="font-size:2em;font-weight:bold;margin:15px 0;">149,90€<span style="font-size:0.5em;font-weight:normal;">/mes</span></div>
-            <ul style="text-align:left;margin:20px 0;list-style:none;padding:0;">
-                <li>✅ Anuncios ilimitados</li>
-                <li>✅ 50 fotos por anuncio</li>
-                <li>✅ 5 usuarios</li>
-                <li>✅ Estadísticas avanzadas</li>
-                <li>✅ Activo mientras pagues</li>  
-            </ul>
-            <button onclick="suscribirse('price_1TRzPGR2KhBUiuqwGZVr6kR8')" style="width:100%;background:#F44336;color:white;padding:12px;border-radius:8px;border:none;cursor:pointer;font-size:1em;">Suscribirse</button>
-        </div>
+    <div class="plan-card">
+      <div class="plan-name">Destacado</div>
+      <div class="plan-price">19,90€ <span>/mes</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>4 anuncios destacados</div>
+      <div class="plan-feature"><div class="plan-dot"></div>30 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
+      <button class="plan-btn plan-btn-outline" onclick="suscribirse('price_1TRzKfR2KhBUiuqwZmtbnkHW')">Suscribirse</button>
     </div>
-</main>
+
+  </div>
+
+  <!-- AGENTES -->
+  <p class="planes-section-label">Agentes independientes</p>
+  <div class="planes-grid-2">
+
+    <div class="plan-card">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">29,90€ <span>/mes</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>Hasta 15 anuncios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>30 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Perfil verificado</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
+      <button class="plan-btn plan-btn-outline" onclick="suscribirse('price_1TRzLwR2KhBUiuqwdxvWLngL')">Suscribirse</button>
+    </div>
+
+    <div class="plan-card">
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">59,90€ <span>/mes</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>Hasta 40 anuncios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>40 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>2 destacados incluidos</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
+      <button class="plan-btn plan-btn-green" onclick="suscribirse('price_1TRzN1R2KhBUiuqwWZERfgqT')">Suscribirse</button>
+    </div>
+
+  </div>
+
+  <!-- AGENCIAS -->
+  <p class="planes-section-label">Agencias inmobiliarias</p>
+  <div class="planes-grid-2">
+
+    <div class="plan-card">
+      <div class="plan-name">Agencia Básica</div>
+      <div class="plan-price">79,90€ <span>/mes</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>Hasta 50 anuncios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>40 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>2 usuarios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
+      <button class="plan-btn plan-btn-outline" onclick="suscribirse('price_1TRzO0R2KhBUiuqwZvlU3gdU')">Suscribirse</button>
+    </div>
+
+    <div class="plan-card featured">
+      <div class="plan-badge">Más completo</div>
+      <div class="plan-name">Agencia Pro</div>
+      <div class="plan-price">149,90€ <span>/mes</span></div>
+      <div class="plan-divider"></div>
+      <div class="plan-feature"><div class="plan-dot"></div>Anuncios ilimitados</div>
+      <div class="plan-feature"><div class="plan-dot"></div>50 fotos por anuncio</div>
+      <div class="plan-feature"><div class="plan-dot"></div>5 usuarios</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Estadísticas avanzadas</div>
+      <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
+      <button class="plan-btn plan-btn-green" onclick="suscribirse('price_1TRzPGR2KhBUiuqwGZVr6kR8')">Suscribirse</button>
+    </div>
+
+  </div>
+
+</div>
 
 <script>
 async function suscribirse(priceId) {
-    try {
-        const response = await fetch('/pagos/crear-sesion', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ priceId })
-        });
-        const data = await response.json();
-        if (data.url) {
-            window.location.href = data.url;
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Ha ocurrido un error. Por favor inténtalo de nuevo.');
-    }
+  try {
+    const response = await fetch('/pagos/crear-sesion', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ priceId })
+    });
+    const data = await response.json();
+    if (data.url) window.location.href = data.url;
+  } catch (error) {
+    alert('Ha ocurrido un error. Por favor inténtalo de nuevo.');
+  }
 }
 </script>
 
