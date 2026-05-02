@@ -588,7 +588,7 @@
     <div class="upload-area" onclick="document.getElementById('imagenes').click()">
       <div class="upload-icon">📸</div>
       <h3>Haz clic para subir fotos</h3>
-      <p>JPG, PNG · Máximo 10 fotos · La primera será la portada</p>
+      <p id="textoFotos">JPG, PNG · La primera será la portada</p>
     </div>
     <input type="file" id="imagenes" accept="image/*" multiple style="display:none">
     <div class="preview-container" id="preview"></div>
@@ -620,6 +620,7 @@ let lngSel = null;
 let imgFiles = [];
 
 /* GUARD */
+
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const token   = localStorage.getItem("token");
@@ -627,6 +628,20 @@ document.addEventListener("DOMContentLoaded", () => {
     alert("Debes iniciar sesión para publicar un anuncio");
     location.href = "/login.html";
   }
+
+  const LIMITE_FOTOS = {
+    gratis: 10,
+    basico: 20,
+    destacado: 30,
+    starter: 30,
+    pro_agentes: 40,
+    agencia_basica: 40,
+    agencia_pro: 50
+  };
+  const plan = usuario?.plan || "gratis";
+  const maxFotos = LIMITE_FOTOS[plan] || 10;
+  const textoFotos = document.getElementById("textoFotos");
+  if (textoFotos) textoFotos.textContent = `JPG, PNG · Máximo ${maxFotos} fotos · La primera será la portada`;
 });
 
 /* MODO EDICIÓN */
@@ -716,7 +731,27 @@ function mostrarMapa(lat, lng) {
 
 /* FOTOS */
 document.getElementById("imagenes").addEventListener("change", e => {
-  imgFiles = Array.from(e.target.files).slice(0, 10);
+  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+  const LIMITE_FOTOS = {
+    gratis: 10,
+    basico: 20,
+    destacado: 30,
+    starter: 30,
+    pro_agentes: 40,
+    agencia_basica: 40,
+    agencia_pro: 50
+  };
+  const plan = usuario?.plan || "gratis";
+  const maxFotos = LIMITE_FOTOS[plan] || 10;
+  
+  imgFiles = Array.from(e.target.files).slice(0, maxFotos);
+  
+  if (e.target.files.length > maxFotos) {
+    const mensajeEl = document.getElementById("mensaje");
+    mensajeEl.textContent = `⚠️ Tu plan ${plan} permite un máximo de ${maxFotos} fotos. Se han seleccionado las primeras ${maxFotos}.`;
+    mensajeEl.className = "err";
+  }
+  
   renderPreview();
 });
 
