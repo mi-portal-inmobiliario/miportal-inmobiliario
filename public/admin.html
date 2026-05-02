@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Panel Admin - HomeClick24</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #f5f5f5; color: #1a1a1a; }
+
+    /* LOGIN */
+    .login-wrap {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #1a2332;
+    }
+
+    .login-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 48px 40px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    .login-card h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .login-card p {
+      color: #aaa;
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    .login-card input {
+      width: 100%;
+      padding: 14px;
+      border: 1.5px solid #eee;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      margin-bottom: 12px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .login-card input:focus { border-color: #7cc242; }
+
+    .login-card button {
+      width: 100%;
+      padding: 14px;
+      background: #7cc242;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.2s;
+    }
+
+    .login-card button:hover { background: #6aad35; }
+    .login-error { color: #e53e3e; font-size: 0.85rem; margin-top: 10px; }
+
+    /* PANEL */
+    .panel { display: none; }
+
+    .panel-header {
+      background: #1a2332;
+      padding: 20px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .panel-header h1 {
+      font-family: 'DM Serif Display', serif;
+      color: #fff;
+      font-size: 1.4rem;
+    }
+
+    .panel-header span { color: #7cc242; }
+
+    .btn-logout {
+      padding: 8px 18px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 0.85rem;
+      transition: background 0.2s;
+    }
+
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    .panel-body {
+      max-width: 1200px;
+      margin: 32px auto;
+      padding: 0 24px;
+    }
+
+    /* STATS */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: #fff;
+      border-radius: 14px;
+      padding: 24px;
+      border: 1px solid #eee;
+    }
+
+    .stat-card .label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #7cc242;
+      line-height: 1;
+    }
+
+    .stat-card .sub {
+      font-size: 0.82rem;
+      color: #bbb;
+      margin-top: 4px;
+    }
+
+    /* PLANES */
+    .planes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+      margin-bottom: 32px;
+    }
+
+    .plan-stat {
+      background: #fff;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      border: 1px solid #eee;
+    }
+
+    .plan-stat .plan-nombre {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+
+    .plan-stat .plan-total {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    /* TABLA */
+    .tabla-wrap {
+      background: #fff;
+      border-radius: 14px;
+      border: 1px solid #eee;
+      overflow: hidden;
+    }
+
+    .tabla-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .tabla-header h2 {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .tabla-header span {
+      font-size: 0.82rem;
+      color: #aaa;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 12px 24px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #aaa;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+    }
+
+    td {
+      padding: 14px 24px;
+      font-size: 0.88rem;
+      border-bottom: 1px solid #f5f5f5;
+      color: #444;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #fafafa; }
+
+    .badge-plan {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .badge-gratis { background: #f0f0f0; color: #888; }
+    .badge-pago { background: #f0f9e8; color: #5a9e2f; }
+
+    .badge-verificado {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #7cc242;
+    }
+
+    .badge-noverificado {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #ddd;
+    }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-card">
+    <h1>Home<span style="color:#7cc242">Click24</span></h1>
+    <p>Panel de administración</p>
+    <input type="email" id="adminEmail" placeholder="Email de administrador">
+    <input type="password" id="adminPass" placeholder="Contraseña">
+    <button onclick="loginAdmin()">Acceder</button>
+    <div class="login-error" id="loginError"></div>
+  </div>
+</div>
+
+<!-- PANEL -->
+<div class="panel" id="panel">
+  <div class="panel-header">
+    <h1>Home<span>Click24</span> · Admin</h1>
+    <button class="btn-logout" onclick="logout()">Cerrar sesión</button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Usuarios totales</div>
+        <div class="value" id="totalUsuarios">—</div>
+        <div class="sub">Registrados</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Usuarios de pago</div>
+        <div class="value" id="usuariosPago">—</div>
+        <div class="sub">Con suscripción activa</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Propiedades</div>
+        <div class="value" id="totalPropiedades">—</div>
+        <div class="sub">Anuncios publicados</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ingresos estimados</div>
+        <div class="value" id="ingresosMes">—</div>
+        <div class="sub">Al mes</div>
+      </div>
+    </div>
+
+    <!-- PLANES -->
+    <h2 style="font-size:1rem;font-weight:700;margin-bottom:14px;">Distribución de planes</h2>
+    <div class="planes-grid" id="planesGrid"></div>
+
+    <!-- USUARIOS -->
+    <div class="tabla-wrap">
+      <div class="tabla-header">
+        <h2>Usuarios</h2>
+        <span id="countUsuarios"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Plan</th>
+            <th>Verificado</th>
+            <th>Registro</th>
+          </tr>
+        </thead>
+        <tbody id="tablaUsuarios"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<script>
+let adminToken = localStorage.getItem('adminToken');
+if (adminToken) mostrarPanel();
+
+async function loginAdmin() {
+  const email = document.getElementById('adminEmail').value;
+  const pass = document.getElementById('adminPass').value;
+  const errorEl = document.getElementById('loginError');
+
+  try {
+    const res = await fetch('/admin/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+
+    if (res.ok) {
+      localStorage.setItem('adminToken', data.token);
+      adminToken = data.token;
+      mostrarPanel();
+    } else {
+      errorEl.textContent = data.error || 'Credenciales incorrectas';
+    }
+  } catch {
+    errorEl.textContent = 'Error de conexión';
+  }
+}
+
+function logout() {
+  localStorage.removeItem('adminToken');
+  location.reload();
+}
+
+async function mostrarPanel() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  await cargarStats();
+  await cargarUsuarios();
+}
+
+async function cargarStats() {
+  const res = await fetch('/admin/stats', {
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  const data = await res.json();
+
+  document.getElementById('totalUsuarios').textContent = data.totalUsuarios;
+  document.getElementById('usuariosPago').textContent = data.usuariosPago;
+  document.getElementById('totalPropiedades').textContent = data.totalPropiedades;
+  document.getElementById('ingresosMes').textContent = data.ingresosMes.toFixed(2) + '€';
+
+  const NOMBRES = {
+    gratis: 'Gratis', basico: 'Básico', destacado: 'Destacado',
+    starter: 'Starter', pro_agentes: 'Pro Agentes',
+    agencia_basica: 'Agencia Básica', agencia_pro: 'Agencia Pro'
+  };
+
+  document.getElementById('planesGrid').innerHTML = data.planes.map(p => `
+    <div class="plan-stat">
+      <div class="plan-nombre">${NOMBRES[p._id] || p._id}</div>
+      <div class="plan-total">${p.total}</div>
+    </div>
+  `).join('');
+}
+
+async function cargarUsuarios() {
+  const res = await fetch('/admin/usuarios', {
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  const usuarios = await res.json();
+
+  document.getElementById('countUsuarios').textContent = `${usuarios.length} usuarios`;
+
+  document.getElementById('tablaUsuarios').innerHTML = usuarios.map(u => {
+    const fecha = u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-ES') : '—';
+    const esPago = u.plan && u.plan !== 'gratis';
+    return `
+      <tr>
+        <td>${u.nombre}</td>
+        <td>${u.email}</td>
+        <td><span class="badge-plan ${esPago ? 'badge-pago' : 'badge-gratis'}">${u.plan || 'gratis'}</span></td>
+        <td><span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span></td>
+        <td>${fecha}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+document.addEventListener('keypress', e => {
+  if (e.key === 'Enter') loginAdmin();
+});
+</script>
+
+</body>
+</html>

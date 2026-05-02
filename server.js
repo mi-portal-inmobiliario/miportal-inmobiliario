@@ -27,6 +27,7 @@ import alertasRoutes from "./routes/alertas.js";
 import notificacionesRoutes from "./routes/notificaciones.js";
 import pagosRoutes from "./routes/pagos.js";
 import webhookRoutes from "./routes/webhook.js";
+import adminRoutes from "./routes/admin.js";
 
 // =============================
 // FIX __dirname (ES MODULES)
@@ -137,6 +138,7 @@ app.use("/usuarios", usuariosRoutes);
 app.use("/alertas", alertasRoutes);
 app.use("/notificaciones", notificacionesRoutes);
 app.use("/pagos", pagosRoutes);
+app.use("/admin", adminRoutes);
 
 // =============================
 // INDEX
