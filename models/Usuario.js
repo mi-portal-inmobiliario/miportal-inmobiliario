@@ -9,6 +9,13 @@ const UsuarioSchema = new mongoose.Schema({
   token:      { type: String },
   tipoDoc:    { type: String },
   numDoc:     { type: String },
+
+  // Suscripción Stripe
+  plan:                  { type: String, default: "gratis" },
+  stripeCustomerId:      { type: String },
+  stripeSubscriptionId:  { type: String },
+  planActivo:            { type: Boolean, default: false },
+  planFechaFin:          { type: Date },
 });
 
 export default mongoose.model("Usuario", UsuarioSchema);

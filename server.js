@@ -26,6 +26,7 @@ import propiedadesRoutes from "./routes/propiedades.js";
 import alertasRoutes from "./routes/alertas.js";
 import notificacionesRoutes from "./routes/notificaciones.js";
 import pagosRoutes from "./routes/pagos.js";
+import webhookRoutes from "./routes/webhook.js";
 
 // =============================
 // FIX __dirname (ES MODULES)
@@ -50,6 +51,7 @@ app.use((req, res, next) => {
   }
   next();
 });
+app.use("/webhook", webhookRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
