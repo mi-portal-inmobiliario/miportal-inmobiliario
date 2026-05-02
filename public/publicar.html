@@ -807,6 +807,12 @@ async function publicar() {
       mensajeEl.textContent = "✅ ¡Propiedad publicada con éxito! Redirigiendo...";
       mensajeEl.className = "ok";
       setTimeout(() => location.href = "/propiedad.html?id=" + data._id, 1800);
+    } else if (res.status === 403) {
+      mensajeEl.textContent = "⚠️ " + data.error + ". Mejora tu plan para publicar más anuncios.";
+      mensajeEl.className = "err";
+      btn.disabled = false;
+      btn.textContent = "🚀 Publicar anuncio";
+      setTimeout(() => location.href = "/planes.html", 3000);
     } else {
       mensajeEl.textContent = "❌ " + (data.message || "Error al publicar");
       mensajeEl.className = "err";

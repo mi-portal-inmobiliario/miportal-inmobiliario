@@ -6,6 +6,7 @@ import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Propiedad from "../models/Propiedad.js";
 import Alerta from "../models/Alerta.js";
 import Notificacion from "../models/Notificacion.js";
+import Usuario from "../models/Usuario.js";
 
 const router = express.Router();
 
@@ -102,6 +103,31 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       titulo, direccion, precio, descripcion,
       tipoOperacion, habitaciones, usuarioId, lat, lng
     } = req.body;
+
+    // Comprobar límite de plan
+    const LIMITES = {
+      gratis: 2,
+      basico: 3,
+      destacado: 4,
+      starter: 15,
+      pro_agentes: 40,
+      agencia_basica: 50,
+      agencia_pro: Infinity
+    };
+
+    if (usuarioId) {
+      const usuario = await Usuario.findById(usuarioId);
+      if (usuario) {
+        const plan = usuario.plan || "gratis";
+        const limite = LIMITES[plan] ?? 2;
+        const totalAnuncios = await Propiedad.countDocuments({ usuarioId });
+        if (totalAnuncios >= limite) {
+          return res.status(403).json({ 
+            error: `Has alcanzado el límite de anuncios de tu plan ${plan}. Mejora tu plan para publicar más.` 
+          });
+        }
+      }
+    }
 
     const imagenes = req.files?.map(f => f.path) || [];
 
