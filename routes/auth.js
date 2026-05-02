@@ -148,7 +148,10 @@ router.post("/login", async (req, res) => {
       usuario: {
         _id: usuario._id,
         nombre: usuario.nombre,
-        email: usuario.email
+        email: usuario.email,
+        plan: usuario.plan || "gratis",
+        planActivo: usuario.planActivo || false,
+        planFechaFin: usuario.planFechaFin || null
       }
     });
 

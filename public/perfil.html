@@ -371,6 +371,10 @@
           <strong id="statChats">0</strong>
           <span>Chats</span>
         </div>
+        <div class="perfil-stat">
+          <strong id="statPlan">Gratis</strong>
+          <span>Plan activo</span>
+        </div>
       </div>
     </div>
     <div class="perfil-acciones">
@@ -435,6 +439,16 @@ if (!usuario || !usuario._id || !token) location.replace("/login.html");
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
 document.getElementById("emailUsuario").textContent  = usuario.email;
 document.getElementById("avatar").textContent        = usuario.nombre.charAt(0).toUpperCase();
+const planes = {
+  gratis: "Gratis",
+  basico: "Básico",
+  destacado: "Destacado",
+  starter: "Starter",
+  pro_agentes: "Pro",
+  agencia_basica: "Agencia Básica",
+  agencia_pro: "Agencia Pro"
+};
+document.getElementById("statPlan").textContent = planes[usuario.plan] || "Gratis";
 
 /* ================================
    MIS PROPIEDADES
