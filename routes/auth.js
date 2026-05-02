@@ -46,7 +46,7 @@ router.post("/register", async (req, res) => {
     const enlace = `${process.env.APP_URL}/set-password.html?token=${token}`;
 
     await resend.emails.send({
-      from: 'HomeClick24 <onboarding@resend.dev>',
+      from: 'HomeClick24 <contacto@homeclick24.com>',
       to: email,
       subject: "Activa tu cuenta - HomeClick24",
       html: `
@@ -179,7 +179,7 @@ router.post("/recuperar", async (req, res) => {
     const enlace = `${process.env.APP_URL}/reset.html?token=${token}`;
 
     await resend.emails.send({
-      from: 'HomeClick24 <onboarding@resend.dev>',
+      from: 'HomeClick24 <contacto@homeclick24.com>',
       to: email,
       subject: "Recupera tu contraseña - HomeClick24",
       html: `
@@ -228,7 +228,7 @@ router.post("/reset", async (req, res) => {
 router.get("/test-email", async (req, res) => {
   try {
     await resend.emails.send({
-      from: 'HomeClick24 <onboarding@resend.dev>',
+      from: 'HomeClick24 <contacto@homeclick24.com>',
       to: process.env.GMAIL_USER,
       subject: "TEST HomeClick24",
       html: "<h1>Email funcionando ✅</h1>"
