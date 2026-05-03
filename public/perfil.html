@@ -5,116 +5,76 @@
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
   <title>Mi perfil - HomeClick24</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <style>
+    body { background: #f0f0ed; }
+
     .perfil-wrap {
       max-width: 1100px;
       margin: 30px auto;
       padding: 0 20px 80px;
     }
 
-    /* ===== HERO PERFIL ===== */
     .perfil-hero {
-      background: linear-gradient(135deg, #1a2332 0%, #2d3f55 100%);
-      border-radius: 20px;
-      padding: 36px;
-      margin-bottom: 24px;
+      background: #fff;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 16px;
       display: flex;
       align-items: center;
-      gap: 28px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .perfil-hero::before {
-      content: "";
-      position: absolute;
-      top: -40px;
-      right: -40px;
-      width: 200px;
-      height: 200px;
-      background: rgba(124,194,66,0.08);
-      border-radius: 50%;
-    }
-
-    .perfil-hero::after {
-      content: "";
-      position: absolute;
-      bottom: -60px;
-      right: 80px;
-      width: 160px;
-      height: 160px;
-      background: rgba(124,194,66,0.05);
-      border-radius: 50%;
+      gap: 24px;
+      border: 1px solid #e5e5e0;
     }
 
     .perfil-avatar {
-      width: 88px;
-      height: 88px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
       background: #7cc242;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2.2rem;
+      font-size: 2rem;
       color: #fff;
-      font-weight: 800;
+      font-weight: 600;
       flex-shrink: 0;
-      border: 3px solid rgba(255,255,255,0.15);
-      position: relative;
-      z-index: 1;
     }
 
-    .perfil-info {
-      flex: 1;
-      position: relative;
-      z-index: 1;
-    }
+    .perfil-info { flex: 1; }
 
     .perfil-info h2 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 4px;
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.8rem;
+      font-weight: 400;
+      color: #1a1a1a;
+      margin-bottom: 2px;
     }
 
     .perfil-info .email {
-      color: rgba(255,255,255,0.6);
-      font-size: 0.9rem;
-      margin-bottom: 16px;
+      color: #999;
+      font-size: 0.88rem;
+      margin-bottom: 12px;
     }
 
-    .perfil-stats {
-      display: flex;
-      gap: 24px;
-    }
+    .perfil-tags { display: flex; gap: 8px; flex-wrap: wrap; }
 
-    .perfil-stat {
-      text-align: center;
-    }
-
-    .perfil-stat strong {
-      display: block;
-      font-size: 1.4rem;
-      font-weight: 800;
-      color: #7cc242;
-      line-height: 1;
-    }
-
-    .perfil-stat span {
-      font-size: 0.75rem;
-      color: rgba(255,255,255,0.5);
+    .perfil-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 1px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      padding: 4px 12px;
+      border-radius: 20px;
     }
+
+    .perfil-tag.green { background: #f0f9e8; color: #5a9e2f; }
+    .perfil-tag.gray { background: #f0f0ed; color: #999; }
 
     .perfil-acciones {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      position: relative;
-      z-index: 1;
+      gap: 8px;
       flex-shrink: 0;
     }
 
@@ -122,7 +82,7 @@
       padding: 10px 20px;
       border-radius: 10px;
       font-size: 0.88rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       text-decoration: none;
       border: none;
@@ -132,72 +92,125 @@
       white-space: nowrap;
     }
 
-    .btn-perfil.green {
-      background: #7cc242;
-      color: #fff;
-      box-shadow: 0 4px 12px rgba(124,194,66,0.35);
+    .btn-perfil.green { background: #7cc242; color: #fff; }
+    .btn-perfil.green:hover { background: #6aad35; }
+    .btn-perfil.outline { background: #fff; color: #1a1a1a; border: 1px solid #e0e0e0; }
+    .btn-perfil.outline:hover { border-color: #7cc242; color: #7cc242; }
+    .btn-perfil.red { background: #fff; color: #e53e3e; border: 1px solid #fecaca; }
+    .btn-perfil.red:hover { background: #fff5f5; }
+
+    .seccion-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: #aaa;
+      margin: 24px 0 12px;
     }
 
-    .btn-perfil.green:hover {
-      background: #6aad35;
-      transform: translateY(-1px);
+    .perfil-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 4px;
     }
 
-    .btn-perfil.outline {
-      background: rgba(255,255,255,0.1);
-      border: 1.5px solid rgba(255,255,255,0.2);
-      color: #fff;
+    .perfil-stat {
+      background: #fff;
+      border: 1px solid #e5e5e0;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
     }
 
-    .btn-perfil.outline:hover {
-      background: rgba(255,255,255,0.15);
+    .perfil-stat strong {
+      display: block;
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #7cc242;
+      line-height: 1;
     }
 
-    .btn-perfil.red {
-      background: transparent;
-      border: 1.5px solid rgba(248,113,113,0.5);
-      color: #f87171;
+    .perfil-stat span {
+      font-size: 0.7rem;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+      display: block;
     }
 
-    .btn-perfil.red:hover {
-      background: rgba(248,113,113,0.1);
+    .plan-card {
+      background: #fff;
+      border: 1px solid #e5e5e0;
+      border-radius: 16px;
+      padding: 24px;
     }
 
-    /* ===== SECCIONES ===== */
-    .seccion {
-      margin-bottom: 32px;
-    }
-
-    .seccion-header {
+    .plan-card-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 18px;
+      margin-bottom: 20px;
     }
 
-    .seccion-titulo {
-      font-size: 1.15rem;
-      font-weight: 800;
+    .plan-nombre {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
       color: #1a1a1a;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
 
-    .seccion-badge {
-      font-size: 0.78rem;
-      font-weight: 700;
+    .plan-precio {
+      font-size: 0.85rem;
+      color: #aaa;
+      margin-top: 2px;
+    }
+
+    .plan-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .plan-stat {
+      background: #f9fdf5;
+      border: 1px solid #e5f0d8;
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+    }
+
+    .plan-stat-val {
+      font-size: 1.3rem;
+      font-weight: 600;
       color: #7cc242;
-      background: #f0f9e8;
-      padding: 3px 10px;
-      border-radius: 20px;
     }
 
-    /* ===== TARJETAS PROPIEDADES ===== */
+    .plan-stat-lab {
+      font-size: 0.7rem;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+
     .lista-propiedades {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      gap: 16px;
+    }
+
+    .card-propiedad {
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #e5e5e0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card-propiedad:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.08);
     }
 
     .card-acciones {
@@ -214,114 +227,66 @@
       border: none;
       border-radius: 8px;
       font-size: 0.82rem;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       font-family: inherit;
       transition: all 0.2s ease;
     }
 
-    .btn-editar {
-      background: #f0f9e8;
-      color: #7cc242;
-      border: 1.5px solid #d4edbb;
-    }
+    .btn-editar { background: #f0f9e8; color: #7cc242; }
+    .btn-editar:hover { background: #e2f5d0; }
+    .btn-eliminar { background: #fff5f5; color: #f87171; }
+    .btn-eliminar:hover { background: #fee2e2; }
 
-    .btn-editar:hover {
-      background: #e2f5d0;
-      transform: translateY(-1px);
-    }
-
-    .btn-eliminar {
-      background: #fff5f5;
-      color: #f87171;
-      border: 1.5px solid #fecaca;
-    }
-
-    .btn-eliminar:hover {
-      background: #fee2e2;
-      transform: translateY(-1px);
-    }
-
-    /* ===== CHATS ===== */
-    .chats-lista {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
+    .chats-lista { display: flex; flex-direction: column; gap: 10px; }
 
     .chat-item {
       background: #fff;
       border-radius: 14px;
       padding: 16px 20px;
       cursor: pointer;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.06);
       display: flex;
       align-items: center;
       gap: 16px;
       transition: all 0.2s ease;
-      border: 1px solid rgba(0,0,0,0.04);
+      border: 1px solid #e5e5e0;
     }
 
     .chat-item:hover {
-      background: #f0f9e8;
+      background: #f9fdf5;
+      border-color: #7cc242;
       transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(0,0,0,0.08);
     }
 
     .chat-avatar {
       width: 46px;
       height: 46px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #7cc242, #5a9e2f);
-      color: #fff;
+      background: #f0f9e8;
+      color: #7cc242;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 800;
+      font-weight: 700;
       font-size: 1rem;
       flex-shrink: 0;
     }
 
     .chat-info { flex: 1; }
+    .chat-info strong { display: block; font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
+    .chat-info small { color: #aaa; font-size: 0.82rem; }
+    .chat-arrow { color: #ccc; font-size: 1.1rem; }
 
-    .chat-info strong {
-      display: block;
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #1a1a1a;
-      margin-bottom: 3px;
-    }
-
-    .chat-info small {
-      color: #999;
-      font-size: 0.82rem;
-    }
-
-    .chat-arrow {
-      color: #ccc;
-      font-size: 1.1rem;
-    }
-
-    /* ===== VACÍO ===== */
     .estado-vacio {
       text-align: center;
       padding: 48px 20px;
       background: #fff;
       border-radius: 16px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      border: 1px solid #e5e5e0;
     }
 
-    .estado-vacio .icono {
-      font-size: 2.5rem;
-      margin-bottom: 12px;
-    }
-
-    .estado-vacio p {
-      color: #aaa;
-      font-size: 0.95rem;
-      margin-bottom: 16px;
-    }
-
+    .estado-vacio .icono { font-size: 2.5rem; margin-bottom: 12px; }
+    .estado-vacio p { color: #aaa; font-size: 0.95rem; margin-bottom: 16px; }
     .estado-vacio a {
       display: inline-block;
       padding: 10px 22px;
@@ -329,23 +294,19 @@
       color: #fff;
       border-radius: 10px;
       text-decoration: none;
-      font-weight: 700;
+      font-weight: 600;
       font-size: 0.9rem;
-      transition: background 0.2s;
     }
-
     .estado-vacio a:hover { background: #6aad35; }
 
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 900px) {
-      .lista-propiedades { grid-template-columns: repeat(2, 1fr); }
-    }
-
+    @media (max-width: 900px) { .lista-propiedades { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 600px) {
       .perfil-hero { flex-direction: column; text-align: center; }
-      .perfil-stats { justify-content: center; }
+      .perfil-tags { justify-content: center; }
       .perfil-acciones { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
       .lista-propiedades { grid-template-columns: 1fr; }
+      .perfil-stats { grid-template-columns: repeat(3, 1fr); }
+      .plan-stats { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -356,25 +317,15 @@
 
 <div class="perfil-wrap">
 
-  <!-- HERO PERFIL -->
+  <!-- HERO -->
   <div class="perfil-hero">
     <div class="perfil-avatar" id="avatar">U</div>
     <div class="perfil-info">
       <h2 id="nombreUsuario">Cargando...</h2>
       <p class="email" id="emailUsuario"></p>
-      <div class="perfil-stats">
-        <div class="perfil-stat">
-          <strong id="statProps">0</strong>
-          <span>Anuncios</span>
-        </div>
-        <div class="perfil-stat">
-          <strong id="statChats">0</strong>
-          <span>Chats</span>
-        </div>
-        <div class="perfil-stat">
-          <strong id="statPlan">Gratis</strong>
-          <span>Plan activo</span>
-        </div>
+      <div class="perfil-tags">
+        <span class="perfil-tag green" id="tagPlan">Gratis</span>
+        <span class="perfil-tag gray" id="tagVerificado">Verificado</span>
       </div>
     </div>
     <div class="perfil-acciones">
@@ -384,62 +335,55 @@
     </div>
   </div>
 
-  <!-- MI PLAN -->
-  <div class="seccion" id="seccionPlan">
-    <div class="seccion-header">
-      <div class="seccion-titulo">
-        💳 Mi plan
-      </div>
+  <!-- STATS -->
+  <div class="seccion-label">Resumen</div>
+  <div class="perfil-stats">
+    <div class="perfil-stat">
+      <strong id="statProps">0</strong>
+      <span>Anuncios</span>
     </div>
-    <div id="infoPlan" style="background:#fff;border-radius:16px;padding:28px;box-shadow:0 2px 10px rgba(0,0,0,0.05);border:1px solid #f0f0f0;">
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
-        <div>
-          <div style="font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#aaa;margin-bottom:6px;">Plan activo</div>
-          <div style="font-size:1.6rem;font-weight:800;color:#1a1a1a;" id="planNombre">Gratis</div>
-          <div style="font-size:0.88rem;color:#888;margin-top:4px;" id="planDetalle"></div>
-        </div>
-        <a href="/planes.html" style="display:inline-block;padding:12px 24px;background:#7cc242;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:0.9rem;transition:background 0.2s;" onmouseover="this.style.background='#6aad35'" onmouseout="this.style.background='#7cc242'">
-          Mejorar plan ↗
-        </a>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:24px;" id="planStats">
-      </div>
+    <div class="perfil-stat">
+      <strong id="statChats">0</strong>
+      <span>Chats</span>
+    </div>
+    <div class="perfil-stat">
+      <strong id="statPlan">Gratis</strong>
+      <span>Plan activo</span>
     </div>
   </div>
 
-  <!-- MIS PROPIEDADES -->
-  <div class="seccion">
-    <div class="seccion-header">
-      <div class="seccion-titulo">
-        🏠 Mis propiedades
-        <span class="seccion-badge" id="countProps" style="display:none"></span>
+  <!-- MI PLAN -->
+  <div class="seccion-label">Mi plan</div>
+  <div class="plan-card">
+    <div class="plan-card-top">
+      <div>
+        <div class="plan-nombre" id="planNombre">Gratis</div>
+        <div class="plan-precio" id="planDetalle">0€/mes</div>
       </div>
+      <a href="/planes.html" class="btn-perfil green">Mejorar plan ↗</a>
     </div>
-    <div id="listaPropiedades" class="lista-propiedades"></div>
-    <div id="noProps" style="display:none">
-      <div class="estado-vacio">
-        <div class="icono">🏠</div>
-        <p>Aún no has publicado ninguna propiedad</p>
-        <a href="/publicar.html">Publicar mi primera propiedad</a>
-      </div>
+    <div class="plan-stats" id="planStats"></div>
+  </div>
+
+  <!-- MIS PROPIEDADES -->
+  <div class="seccion-label">Mis propiedades <span id="countProps"></span></div>
+  <div id="listaPropiedades" class="lista-propiedades"></div>
+  <div id="noProps" style="display:none">
+    <div class="estado-vacio">
+      <div class="icono">🏠</div>
+      <p>Aún no has publicado ninguna propiedad</p>
+      <a href="/publicar.html">Publicar mi primera propiedad</a>
     </div>
   </div>
 
   <!-- MIS CHATS -->
-  <div class="seccion" id="chats">
-    <div class="seccion-header">
-      <div class="seccion-titulo">
-        💬 Mis conversaciones
-        <span class="seccion-badge" id="countChats" style="display:none"></span>
-      </div>
-    </div>
-    <div class="chats-lista" id="listaChats"></div>
-    <div id="noChats" style="display:none">
-      <div class="estado-vacio">
-        <div class="icono">💬</div>
-        <p>No tienes conversaciones activas</p>
-        <a href="/comprar.html">Explorar propiedades</a>
-      </div>
+  <div class="seccion-label" id="chats">Mis conversaciones <span id="countChats"></span></div>
+  <div class="chats-lista" id="listaChats"></div>
+  <div id="noChats" style="display:none">
+    <div class="estado-vacio">
+      <div class="icono">💬</div>
+      <p>No tienes conversaciones activas</p>
+      <a href="/comprar.html">Explorar propiedades</a>
     </div>
   </div>
 
@@ -462,49 +406,34 @@ if (!usuario || !usuario._id || !token) location.replace("/login.html");
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
 document.getElementById("emailUsuario").textContent  = usuario.email;
 document.getElementById("avatar").textContent        = usuario.nombre.charAt(0).toUpperCase();
-const planes = {
-  gratis: "Gratis",
-  basico: "Básico",
-  destacado: "Destacado",
-  starter: "Starter",
-  pro_agentes: "Pro",
-  agencia_basica: "Agencia Básica",
-  agencia_pro: "Agencia Pro"
-};
-document.getElementById("statPlan").textContent = planes[usuario.plan] || "Gratis";
 
-// Info plan
+const PLANES_NOMBRES = {
+  gratis: "Gratis", basico: "Básico", destacado: "Destacado",
+  starter: "Starter", pro_agentes: "Pro", agencia_basica: "Agencia Básica", agencia_pro: "Agencia Pro"
+};
+
+document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
+document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuario.plan] || "Gratis");
+
 const PLANES_INFO = {
-  gratis:        { nombre: "Gratis",        anuncios: 2,        fotos: 10, precio: "0€/mes" },
-  basico:        { nombre: "Básico",        anuncios: 3,        fotos: 20, precio: "9,90€/mes" },
-  destacado:     { nombre: "Destacado",     anuncios: 4,        fotos: 30, precio: "19,90€/mes" },
-  starter:       { nombre: "Starter",       anuncios: 15,       fotos: 30, precio: "29,90€/mes" },
-  pro_agentes:   { nombre: "Pro Agentes",   anuncios: 40,       fotos: 40, precio: "59,90€/mes" },
-  agencia_basica:{ nombre: "Agencia Básica",anuncios: 50,       fotos: 40, precio: "79,90€/mes" },
-  agencia_pro:   { nombre: "Agencia Pro",   anuncios: "∞",      fotos: 50, precio: "149,90€/mes" }
+  gratis:        { nombre: "Gratis",         anuncios: 2,   fotos: 10, precio: "0€/mes" },
+  basico:        { nombre: "Básico",         anuncios: 3,   fotos: 20, precio: "9,90€/mes" },
+  destacado:     { nombre: "Destacado",      anuncios: 4,   fotos: 30, precio: "19,90€/mes" },
+  starter:       { nombre: "Starter",        anuncios: 15,  fotos: 30, precio: "29,90€/mes" },
+  pro_agentes:   { nombre: "Pro Agentes",    anuncios: 40,  fotos: 40, precio: "59,90€/mes" },
+  agencia_basica:{ nombre: "Agencia Básica", anuncios: 50,  fotos: 40, precio: "79,90€/mes" },
+  agencia_pro:   { nombre: "Agencia Pro",    anuncios: "∞", fotos: 50, precio: "149,90€/mes" }
 };
 
 const planInfo = PLANES_INFO[usuario.plan] || PLANES_INFO.gratis;
 document.getElementById("planNombre").textContent = planInfo.nombre;
 document.getElementById("planDetalle").textContent = planInfo.precio;
 document.getElementById("planStats").innerHTML = `
-  <div style="background:#f9fdf5;border-radius:12px;padding:16px;text-align:center;">
-    <div style="font-size:1.4rem;font-weight:800;color:#7cc242;">${planInfo.anuncios}</div>
-    <div style="font-size:0.78rem;color:#888;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Anuncios</div>
-  </div>
-  <div style="background:#f9fdf5;border-radius:12px;padding:16px;text-align:center;">
-    <div style="font-size:1.4rem;font-weight:800;color:#7cc242;">${planInfo.fotos}</div>
-    <div style="font-size:0.78rem;color:#888;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Fotos por anuncio</div>
-  </div>
-  <div style="background:#f9fdf5;border-radius:12px;padding:16px;text-align:center;">
-    <div style="font-size:1.4rem;font-weight:800;color:#7cc242;">${planInfo.precio}</div>
-    <div style="font-size:0.78rem;color:#888;margin-top:4px;text-transform:uppercase;letter-spacing:1px;">Precio</div>
-  </div>
+  <div class="plan-stat"><div class="plan-stat-val">${planInfo.anuncios}</div><div class="plan-stat-lab">Anuncios</div></div>
+  <div class="plan-stat"><div class="plan-stat-val">${planInfo.fotos}</div><div class="plan-stat-lab">Fotos por anuncio</div></div>
+  <div class="plan-stat"><div class="plan-stat-val">${planInfo.precio}</div><div class="plan-stat-lab">Precio</div></div>
 `;
 
-/* ================================
-   MIS PROPIEDADES
-================================ */
 async function cargarPropiedades() {
   const res  = await fetch("/propiedades");
   const data = await res.json();
@@ -518,9 +447,7 @@ async function cargarPropiedades() {
     return;
   }
 
-  const badge = document.getElementById("countProps");
-  badge.textContent = `${mias.length} anuncio${mias.length !== 1 ? "s" : ""}`;
-  badge.style.display = "inline-block";
+  document.getElementById("countProps").textContent = `· ${mias.length} anuncio${mias.length !== 1 ? "s" : ""}`;
 
   cont.innerHTML = mias.map(p => {
     const img     = p.imagenes?.[0] || "https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=600";
@@ -528,7 +455,6 @@ async function cargarPropiedades() {
     const tipo    = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
     const hab     = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
-
     return `
       <div class="card-propiedad">
         <div class="card-img-wrap" onclick="location.href='/propiedad.html?id=${p._id}'" style="cursor:pointer;">
@@ -550,9 +476,6 @@ async function cargarPropiedades() {
   }).join("");
 }
 
-/* ================================
-   MIS CHATS
-================================ */
 async function cargarChats() {
   try {
     const res   = await fetch(`/chat/mis-conversaciones/${usuario._id}`, {
@@ -568,16 +491,11 @@ async function cargarChats() {
       return;
     }
 
-    const badge = document.getElementById("countChats");
-    badge.textContent = `${chats.length} conversación${chats.length !== 1 ? "es" : ""}`;
-    badge.style.display = "inline-block";
+    document.getElementById("countChats").textContent = `· ${chats.length} conversación${chats.length !== 1 ? "es" : ""}`;
 
     cont.innerHTML = chats.map(c => {
       const esAnunciante = String(c.anuncianteId) === String(usuario._id);
-      const otroNombre   = esAnunciante
-        ? (c.compradorNombre  || "Interesado")
-        : (c.anuncianteNombre || "Anunciante");
-
+      const otroNombre   = esAnunciante ? (c.compradorNombre || "Interesado") : (c.anuncianteNombre || "Anunciante");
       return `
         <div class="chat-item" onclick="location.href='/chat.html?id=${c._id}'">
           <div class="chat-avatar">${otroNombre.charAt(0).toUpperCase()}</div>
@@ -589,44 +507,30 @@ async function cargarChats() {
         </div>
       `;
     }).join("");
-
-  } catch(e) {
-    console.error(e);
-  }
+  } catch(e) { console.error(e); }
 }
 
-/* ================================
-   ACCIONES
-================================ */
 function cerrarSesion() {
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");
   location.href = "/index.html";
 }
 
-function editarPropiedad(id) {
-  location.href = `/publicar.html?editar=${id}`;
-}
+function editarPropiedad(id) { location.href = `/publicar.html?editar=${id}`; }
 
 async function eliminarPropiedad(id, btn) {
   if (!confirm("¿Seguro que quieres eliminar este anuncio?")) return;
-
   btn.disabled = true;
   btn.textContent = "Eliminando...";
-
   const res = await fetch(`/propiedades/${id}`, {
     method: "DELETE",
     headers: { "Authorization": "Bearer " + token }
   });
-
   if (res.ok) {
     btn.closest(".card-propiedad").remove();
     const restantes = document.querySelectorAll(".card-propiedad").length;
     document.getElementById("statProps").textContent = restantes;
-    if (!restantes) {
-      document.getElementById("noProps").style.display = "block";
-      document.getElementById("countProps").style.display = "none";
-    }
+    if (!restantes) document.getElementById("noProps").style.display = "block";
   } else {
     btn.disabled = false;
     btn.textContent = "🗑️ Eliminar";
