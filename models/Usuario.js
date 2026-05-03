@@ -16,6 +16,6 @@ const UsuarioSchema = new mongoose.Schema({
   stripeSubscriptionId:  { type: String },
   planActivo:            { type: Boolean, default: false },
   planFechaFin:          { type: Date },
-});
+}, { timestamps: true });
 
 export default mongoose.model("Usuario", UsuarioSchema);
