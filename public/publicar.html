@@ -685,9 +685,10 @@ if (propiedadIdEditar) {
 
         document.getElementById("preview").innerHTML = p.imagenes.map((url, i) => `
           <div class="preview-item">
-            <img src="${url}">
-            <button onclick="this.parentElement.remove()">×</button>
-          </div>`).join("");
+            <img src="${url}" onclick="abrirModal('${url}')">
+            <button onclick="borrarExistente(${i})">×</button>
+          </div>
+        `).join("");
       }
     });
 }
@@ -790,6 +791,17 @@ function renderPreview() {
 }
 
 function borrarImg(i) { imgFiles.splice(i, 1); renderPreview(); }
+
+function borrarExistente(i) {
+  imagenesExistentes.splice(i, 1);
+
+  document.getElementById("preview").innerHTML = imagenesExistentes.map((url, index) => `
+    <div class="preview-item">
+      <img src="${url}" onclick="abrirModal('${url}')">
+      <button onclick="borrarExistente(${index})">×</button>
+    </div>
+  `).join("");
+}
 
 /* MODAL */
 function abrirModal(src) {
