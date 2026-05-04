@@ -229,9 +229,17 @@ router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
     propiedad.terraza      = terraza !== undefined ? terraza === "true" : propiedad.terraza;
     propiedad.lat          = lat ? Number(lat) : propiedad.lat;
     propiedad.lng          = lng ? Number(lng) : propiedad.lng;
-    if (req.files?.length) {
-      propiedad.imagenes = req.files.map(f => f.path);
-    }
+    
+    const imagenesExistentes = req.body.imagenesExistentes
+      ? JSON.parse(req.body.imagenesExistentes)
+      : [];
+
+    const nuevasImagenes = req.files?.map(f => f.path) || [];
+
+    propiedad.imagenes = [
+      ...imagenesExistentes,
+      ...nuevasImagenes
+    ];
 
     await propiedad.save();
     res.json(propiedad);
