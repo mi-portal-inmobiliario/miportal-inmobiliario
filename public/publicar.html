@@ -12,8 +12,10 @@
 
     .publicar-wrap {
       max-width: 780px;
-      margin: 40px auto;
-      padding: 0 20px 80px;
+      margin: 40px auto 0;
+      padding: 0 20px 60px;
+      flex: 1;
+      width: 100%;
     }
 
     /* CABECERA */
@@ -423,7 +425,6 @@
 <body>
 
 <div id="main-header"></div>
-<script src="/js/header.js" defer></script>
 
 <div class="publicar-wrap">
 
@@ -863,5 +864,54 @@ async function publicar() {
 }
 </script>
 
+<footer class="footer">
+  <div class="footer-inner">
+
+    <div class="footer-brand">
+      <img 
+        src="/HomeClick-full.png" 
+        alt="HomeClick24"
+        style="height:140px; width:auto; margin-bottom:14px; filter:brightness(0) invert(1);"
+      >
+      <p>
+        Tu portal inmobiliario de confianza en España.
+        Encuentra la vivienda de tus sueños o publica tu anuncio en minutos.
+      </p>
+    </div>
+
+    <div class="footer-col">
+      <h4>Explorar</h4>
+      <a href="/comprar.html">Comprar vivienda</a>
+      <a href="/alquiler.html">Alquilar vivienda</a>
+      <a href="/planes.html">Planes y precios</a>
+      <a href="/publicar.html">Publicar anuncio</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Mi cuenta</h4>
+      <a href="/login.html">Iniciar sesión</a>
+      <a href="/registro.html">Registrarse</a>
+      <a href="/perfil.html">Mi perfil</a>
+      <a href="/favoritos.html">Favoritos</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/legal.html">Aviso legal</a>
+      <a href="/legal.html">Política de privacidad</a>
+      <a href="/legal.html">Cookies</a>
+      <a href="#">Contacto</a>
+      <a href="/integraciones.html">Integraciones</a>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 HomeClick24. Todos los derechos reservados.</span>
+    <span>Hecho con ❤️ en España</span>
+  </div>
+</footer>
+
+<script src="/js/header.js" defer></script>
 </body>
 </html>

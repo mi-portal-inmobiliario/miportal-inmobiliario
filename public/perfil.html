@@ -427,7 +427,11 @@ const PLANES_INFO = {
 
 const planInfo = PLANES_INFO[usuario.plan] || PLANES_INFO.gratis;
 document.getElementById("planNombre").textContent = planInfo.nombre;
-document.getElementById("planDetalle").textContent = planInfo.precio;
+const fechaFin = usuario.planFechaFin ? new Date(usuario.planFechaFin) : null;
+const fechaTexto = fechaFin
+  ? `Activo hasta el ${fechaFin.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`
+  : planInfo.precio;
+document.getElementById("planDetalle").textContent = fechaTexto;
 document.getElementById("planStats").innerHTML = `
   <div class="plan-stat"><div class="plan-stat-val">${planInfo.anuncios}</div><div class="plan-stat-lab">Anuncios</div></div>
   <div class="plan-stat"><div class="plan-stat-val">${planInfo.fotos}</div><div class="plan-stat-lab">Fotos por anuncio</div></div>

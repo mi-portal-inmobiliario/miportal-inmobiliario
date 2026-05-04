@@ -186,8 +186,8 @@
     }
 
     .btn-aplicar:hover {
-      background: #6aad35;
-      transform: translateY(-1px);
+      background: #e5e5e5;
+      transform: none;
       box-shadow: 0 6px 16px rgba(124,194,66,0.4);
     }
 
@@ -217,13 +217,85 @@
       background: #f0f0f0;
       margin: 4px 0 18px;
     }
+    .footer {
+      background: #1a2332;
+      color: #ccc;
+      padding: 50px 20px 30px;
+    }
+
+    .footer-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-brand p {
+      font-size: 0.88rem;
+      color: #8a9ab0;
+      margin-top: 12px;
+      line-height: 1.7;
+    }
+
+    .footer-col h4 {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .footer-col a {
+      display: block;
+      font-size: 0.88rem;
+      color: #8a9ab0;
+      text-decoration: none;
+      margin-bottom: 10px;
+    }
+
+    .footer-col a:hover {
+      color: #7cc242;
+    }
+
+    .footer-bottom {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: #5a6a7a;
+    }
+  
+   @media (max-width: 768px) {
+  .footer-inner {
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-inner {
+    grid-template-columns: 1fr;
+  }
+} 
   </style>
 </head>
 
 <body>
 
 <div id="main-header"></div>
-<script src="/js/header.js" defer></script>
 
 <!-- ACCESOS RÁPIDOS MÓVIL -->
 <div class="mobile-quick-actions">
@@ -376,7 +448,46 @@ function toggleCheck(labelId) {
 }
 </script>
 
-<script src="/js/filtros.js" defer></script>
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <img src="/HomeClick-full.png" alt="HomeClick24" style="height:140px; width:auto; margin-bottom:14px; filter:brightness(0) invert(1);">
+      <p>Tu portal inmobiliario de confianza en España. Encuentra la vivienda de tus sueños o publica tu anuncio en minutos.</p>
+    </div>
 
+    <div class="footer-col">
+      <h4>Explorar</h4>
+      <a href="/comprar.html">Comprar vivienda</a>
+      <a href="/alquiler.html">Alquilar vivienda</a>
+      <a href="/planes.html">Planes y precios</a>
+      <a href="/publicar.html">Publicar anuncio</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Mi cuenta</h4>
+      <a href="/login.html">Iniciar sesión</a>
+      <a href="/registro.html">Registrarse</a>
+      <a href="/perfil.html">Mi perfil</a>
+      <a href="/favoritos.html">Favoritos</a>
+    </div>
+
+    <div class="footer-col">
+      <h4>Legal</h4>
+      <a href="/legal.html">Aviso legal</a>
+      <a href="/legal.html">Política de privacidad</a>
+      <a href="/legal.html">Cookies</a>
+      <a href="#">Contacto</a>
+      <a href="/integraciones.html">Integraciones</a>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© 2025 HomeClick24. Todos los derechos reservados.</span>
+    <span>Hecho con ❤️ en España</span>
+  </div>
+</footer>
+
+<script src="/js/header.js" defer></script>
+<script src="/js/filtros.js" defer></script>
 </body>
 </html>

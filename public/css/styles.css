@@ -9,6 +9,8 @@ body {
   font-family: "Inter", sans-serif;
   background: #f7f7f7;
   color: #222;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ================= CONTENEDOR GLOBAL ================= */
@@ -963,4 +965,12 @@ body {
   .header-topbar {
     padding: 10px 0;
   }
+}
+
+html, body {
+  height: 100%;
+}
+
+.contenedor-comprar {
+  flex: 1;
 }
