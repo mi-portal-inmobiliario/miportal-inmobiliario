@@ -621,9 +621,11 @@
 <script>
 const GEOCODE_KEY = "691dbf7ce0ac5786669402bgm8f835e";
 let mapaPrevio = null;
+let markerPrevio = null;
 let latSel = null;
 let lngSel = null;
 let imgFiles = [];
+let imagenesExistentes = [];
 
 /* GUARD */
 
@@ -678,7 +680,9 @@ if (propiedadIdEditar) {
 
       if (p.lat && p.lng) { latSel = p.lat; lngSel = p.lng; mostrarMapa(p.lat, p.lng); }
 
-      if (p.imagenes?.length) {
+      if (p.imagenes?.length) { 
+        imagenesExistentes = p.imagenes || [];
+
         document.getElementById("preview").innerHTML = p.imagenes.map((url, i) => `
           <div class="preview-item">
             <img src="${url}">
@@ -731,8 +735,14 @@ function mostrarMapa(lat, lng) {
     mapaPrevio = L.map("mapPreview").setView([lat, lng], 15);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapaPrevio);
   }
+
   mapaPrevio.setView([lat, lng], 15);
-  L.marker([lat, lng]).addTo(mapaPrevio);
+
+  if (markerPrevio) {
+    mapaPrevio.removeLayer(markerPrevio);
+  }
+
+  markerPrevio = L.marker([lat, lng]).addTo(mapaPrevio);
 }
 
 /* FOTOS */
@@ -809,6 +819,12 @@ async function publicar() {
     return;
   }
 
+  if (!latSel || !lngSel) {
+    mensajeEl.textContent = "⚠️ Selecciona una dirección válida";
+    mensajeEl.className = "err";
+    return;
+  }
+
   if (!imgFiles.length && !propiedadIdEditar) {
     mensajeEl.textContent = "⚠️ Añade al menos una foto";
     mensajeEl.className = "err";
@@ -833,6 +849,7 @@ async function publicar() {
   fd.append("piscina", document.getElementById("piscina").checked);
   fd.append("terraza", document.getElementById("terraza").checked);
   fd.append("usuarioId", usuario._id);
+  fd.append("imagenesExistentes", JSON.stringify(imagenesExistentes));
   if (latSel) fd.append("lat", latSel);
   if (lngSel) fd.append("lng", lngSel);
   imgFiles.forEach(f => fd.append("imagenes", f));
