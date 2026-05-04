@@ -234,6 +234,8 @@ router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
       ? JSON.parse(req.body.imagenesExistentes)
       : [];
 
+    console.log("FILES:", req.files);
+
     const nuevasImagenes = req.files?.map(f => f.path) || [];
 
     propiedad.imagenes = [
