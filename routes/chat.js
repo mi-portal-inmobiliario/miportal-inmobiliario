@@ -71,7 +71,7 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
 
         if (anunciante?.email) {
           await resend.emails.send({
-            from: 'HomeClick24 <onboarding@resend.dev>',
+            from: 'HomeClick24 <contacto@homeclick24.com>',
             to: anunciante.email,
             subject: "💬 Tienes un nuevo mensaje en HomeClick24",
             html: `
