@@ -2,6 +2,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const cont = document.getElementById("main-header");
   if (!cont) return;
 
+// Canonical URL - evitar contenido duplicado
+  const canonical = document.createElement('link');
+  canonical.rel = 'canonical';
+  canonical.href = 'https://www.homeclick24.com' + window.location.pathname;
+  document.head.appendChild(canonical);
+
   const raw = localStorage.getItem("usuario");
   let usuario = null;
 
