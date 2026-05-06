@@ -33,14 +33,15 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0].price.id;
     const plan = PLANES[priceId] || 'gratis';
-    const fechaFin = new Date(subscription.current_period_end * 1000);
+    const timestamp = subscription.current_period_end;
+    const fechaFin = timestamp ? new Date(timestamp * 1000) : null;
 
     await Usuario.findOneAndUpdate(
       { email },
       {
         plan,
         planActivo: true,
-        planFechaFin: fechaFin,
+        ...(fechaFin && { planFechaFin: fechaFin }),
         stripeCustomerId: session.customer,
         stripeSubscriptionId: subscriptionId,
       }
