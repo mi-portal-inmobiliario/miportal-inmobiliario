@@ -34,7 +34,9 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
     const priceId = subscription.items.data[0].price.id;
     const plan = PLANES[priceId] || 'gratis';
     const timestamp = subscription.current_period_end;
+    console.log('timestamp:', timestamp, 'tipo:', typeof timestamp);
     const fechaFin = timestamp ? new Date(timestamp * 1000) : null;
+    console.log('fechaFin:', fechaFin);
 
     await Usuario.findOneAndUpdate(
       { email },
