@@ -24,4 +24,21 @@ router.post('/crear-sesion', async (req, res) => {
   }
 });
 
+// Portal de cliente Stripe
+router.post('/portal-cliente', async (req, res) => {
+  const { customerId } = req.body;
+  
+  try {
+    const session = await stripe.billingPortal.sessions.create({
+      customer: customerId,
+      return_url: `${process.env.APP_URL}/perfil.html`,
+    });
+    
+    res.json({ url: session.url });
+  } catch (error) {
+    console.error('Error portal Stripe:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

@@ -360,7 +360,8 @@
         <div class="plan-nombre" id="planNombre">Gratis</div>
         <div class="plan-precio" id="planDetalle">0€/mes</div>
       </div>
-      <a href="/planes.html" class="btn-perfil green">Mejorar plan ↗</a>
+      <a href="/planes.html" class="btn-perfil green" id="btnMejorarPlan">Mejorar plan ↗</a>
+      <button class="btn-perfil outline" id="btnGestionarPlan" style="display:none" onclick="gestionarSuscripcion()">⚙️ Gestionar suscripción</button>
     </div>
     <div class="plan-stats" id="planStats"></div>
   </div>
@@ -414,6 +415,12 @@ const PLANES_NOMBRES = {
 
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
 document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuario.plan] || "Gratis");
+
+// Mostrar botón gestionar si tiene plan de pago
+if (usuario.plan && usuario.plan !== 'gratis' && usuario.planActivo) {
+  document.getElementById('btnGestionarPlan').style.display = 'block';
+  document.getElementById('btnMejorarPlan').style.display = 'none';
+}
 
 const PLANES_INFO = {
   gratis:        { nombre: "Gratis",         anuncios: 2,   fotos: 10, precio: "0€/mes" },
@@ -539,6 +546,21 @@ async function eliminarPropiedad(id, btn) {
     btn.disabled = false;
     btn.textContent = "🗑️ Eliminar";
     alert("Error al eliminar");
+  }
+}
+
+async function gestionarSuscripcion() {
+  try {
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const res = await fetch('/pagos/portal-cliente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId: usuario.stripeCustomerId })
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+  } catch (error) {
+    alert('Error al abrir el portal de gestión');
   }
 }
 

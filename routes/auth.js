@@ -151,7 +151,8 @@ router.post("/login", async (req, res) => {
         email: usuario.email,
         plan: usuario.plan || "gratis",
         planActivo: usuario.planActivo || false,
-        planFechaFin: usuario.planFechaFin || null
+        planFechaFin: usuario.planFechaFin || null,
+        stripeCustomerId: usuario.stripeCustomerId || null
       }
     });
 
