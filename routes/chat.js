@@ -41,6 +41,8 @@ router.post("/conversaciones", async (req, res) => {
   let conv = await Conversacion.findOne({ propiedadId, anuncianteId, compradorId });
   if (!conv) {
     conv = await Conversacion.create({ propiedadId, anuncianteId, compradorId });
+    // Incrementar contactos solo cuando es una conversación nueva
+    await Propiedad.findByIdAndUpdate(propiedadId, { $inc: { contactos: 1 } });
   }
 
   res.json(conv);
