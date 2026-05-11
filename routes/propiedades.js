@@ -86,7 +86,11 @@ router.get("/", async (req, res) => {
 // ==================================================
 router.get("/:id", async (req, res) => {
   try {
-    const propiedad = await Propiedad.findById(req.params.id);
+    const propiedad = await Propiedad.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { visitas: 1 } },
+      { new: true }
+    );
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
     res.json(propiedad);
   } catch (err) {

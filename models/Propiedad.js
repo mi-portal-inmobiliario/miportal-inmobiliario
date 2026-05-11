@@ -21,7 +21,11 @@ const PropiedadSchema = new mongoose.Schema({
   estado:        { type: String, enum: ["obra_nueva", "segunda_mano"], default: "segunda_mano" },
 
   // Para saber quién publicó cada anuncio
-  usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" }
+  usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },
+
+  // Estadísticas
+  visitas:   { type: Number, default: 0 },
+  contactos: { type: Number, default: 0 },
 }, { timestamps: true });
 
 export default mongoose.model("Propiedad", PropiedadSchema);
