@@ -499,6 +499,16 @@ async function cargarPropiedades() {
       </div>
     `;
   }).join("");
+
+  // Cargar favoritos de cada propiedad
+  mias.forEach(async p => {
+    try {
+      const res = await fetch(`/usuarios/favoritos/count/${p._id}`);
+      const data = await res.json();
+      const el = document.getElementById(`favs-${p._id}`);
+      if (el) el.textContent = data.count;
+    } catch(e) {}
+  });
 }
 
 async function cargarChats() {

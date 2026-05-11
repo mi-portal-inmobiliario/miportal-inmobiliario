@@ -59,4 +59,16 @@ router.delete("/:id/favoritos/:propiedadId", auth, async (req, res) => {
   }
 });
 
+// Contar favoritos de una propiedad
+router.get("/favoritos/count/:propiedadId", async (req, res) => {
+  try {
+    const count = await Usuario.countDocuments({ 
+      favoritos: req.params.propiedadId 
+    });
+    res.json({ count });
+  } catch (e) {
+    res.status(500).json({ error: "Error en servidor" });
+  }
+});
+
 export default router;
