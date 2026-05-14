@@ -285,4 +285,9 @@ router.get("/test-email", async (req, res) => {
   res.send("Email enviado correctamente");
 });
 
+// ==================================================
+// GET /propiedades/:id
+// ==================================================
+router.get("/:id", async (req, res) => {
+
 export default router;
