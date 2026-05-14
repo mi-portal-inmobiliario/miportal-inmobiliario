@@ -289,5 +289,26 @@ router.get("/test-email", async (req, res) => {
 // GET /propiedades/:id
 // ==================================================
 router.get("/:id", async (req, res) => {
+  try {
+    const propiedad = await Propiedad.findByIdAndUpdate(
+      req.params.id,
+      { $inc: { visitas: 1 } },
+      { new: true }
+    );
+
+    if (!propiedad) {
+      return res.status(404).json({
+        message: "Propiedad no encontrada"
+      });
+    }
+
+    res.json(propiedad);
+
+  } catch (err) {
+    res.status(400).json({
+      message: "ID inválido"
+    });
+  }
+});
 
 export default router;
