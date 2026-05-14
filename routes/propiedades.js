@@ -83,6 +83,20 @@ router.get("/", async (req, res) => {
 });
 
 // ==================================================
+// TEST EMAIL
+// ==================================================
+router.get("/test-email", async (req, res) => {
+
+  await enviarCorreo(
+    "contacto@homeclick24.com",
+    "Prueba HomeClick24",
+    "<h1>Email funcionando 🚀</h1><p>Tu sistema de emails ya funciona.</p>"
+  );
+
+  res.send("Email enviado correctamente");
+});
+
+// ==================================================
 // GET /propiedades/:id
 // ==================================================
 router.get("/:id", async (req, res) => {
@@ -268,46 +282,6 @@ router.delete("/:id", async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error al eliminar propiedad" });
-  }
-});
-
-// ==================================================
-// TEST EMAIL
-// ==================================================
-router.get("/test-email", async (req, res) => {
-
-  await enviarCorreo(
-    "contacto@homeclick24.com",
-    "Prueba HomeClick24",
-    "<h1>Email funcionando 🚀</h1><p>Tu sistema de emails ya funciona.</p>"
-  );
-
-  res.send("Email enviado correctamente");
-});
-
-// ==================================================
-// GET /propiedades/:id
-// ==================================================
-router.get("/:id", async (req, res) => {
-  try {
-    const propiedad = await Propiedad.findByIdAndUpdate(
-      req.params.id,
-      { $inc: { visitas: 1 } },
-      { new: true }
-    );
-
-    if (!propiedad) {
-      return res.status(404).json({
-        message: "Propiedad no encontrada"
-      });
-    }
-
-    res.json(propiedad);
-
-  } catch (err) {
-    res.status(400).json({
-      message: "ID inválido"
-    });
   }
 });
 
