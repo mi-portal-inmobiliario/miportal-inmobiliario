@@ -7,6 +7,7 @@ import Propiedad from "../models/Propiedad.js";
 import Alerta from "../models/Alerta.js";
 import Notificacion from "../models/Notificacion.js";
 import Usuario from "../models/Usuario.js";
+import { enviarCorreo } from "../utils/email.js";
 
 const router = express.Router();
 
@@ -268,6 +269,20 @@ router.delete("/:id", async (req, res) => {
     console.error(err);
     res.status(500).json({ message: "Error al eliminar propiedad" });
   }
+});
+
+// ==================================================
+// TEST EMAIL
+// ==================================================
+router.get("/test-email", async (req, res) => {
+
+  await enviarCorreo(
+    "contacto@homeclick24.com",
+    "Prueba HomeClick24",
+    "<h1>Email funcionando 🚀</h1><p>Tu sistema de emails ya funciona.</p>"
+  );
+
+  res.send("Email enviado correctamente");
 });
 
 export default router;
