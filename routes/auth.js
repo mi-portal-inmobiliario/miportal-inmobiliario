@@ -244,4 +244,42 @@ router.get("/test-email", async (req, res) => {
   }
 });
 
+/* ============================
+   CONTACTO
+============================ */
+router.post("/contacto", async (req, res) => {
+  try {
+    const { nombre, email, asunto, mensaje } = req.body;
+
+    if (!nombre || !email || !asunto || !mensaje) {
+      return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    await resend.emails.send({
+      from: 'HomeClick24 <contacto@homeclick24.com>',
+      to: 'contacto@homeclick24.com',
+      subject: `📩 Nuevo mensaje de contacto: ${asunto}`,
+      html: `
+        <div style="font-family:Inter,sans-serif;max-width:480px;margin:auto;padding:32px;background:#fff;border-radius:16px;">
+          <h2 style="color:#7cc242">HomeClick24 · Contacto</h2>
+          <p><strong>Nombre:</strong> ${nombre}</p>
+          <p><strong>Email:</strong> ${email}</p>
+          <p><strong>Asunto:</strong> ${asunto}</p>
+          <p><strong>Mensaje:</strong></p>
+          <div style="background:#f9f9f9;padding:16px;border-radius:10px;margin-top:8px;">
+            ${mensaje}
+          </div>
+          <p style="color:#888;font-size:0.85rem;margin-top:24px;">Responde directamente a ${email}</p>
+        </div>
+      `,
+      replyTo: email
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error("❌ Error contacto:", err);
+    res.status(500).json({ error: "Error al enviar el mensaje" });
+  }
+});
+
 export default router;
