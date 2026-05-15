@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <div class="cookie-box">
       <p>
         HomeClick24 utiliza cookies para mejorar tu experiencia.
-        <a href="/cookies.html">Más información</a>
+        <a href="/legal.html#cookies">Más información</a>
       </p>
 
       <button id="aceptarCookies">
