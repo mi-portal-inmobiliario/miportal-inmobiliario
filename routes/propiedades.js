@@ -134,8 +134,11 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       agencia_pro: Infinity
     };
 
+    let usuario = null;
+
     if (usuarioId) {
-      const usuario = await Usuario.findById(usuarioId);
+      usuario = await Usuario.findById(usuarioId);
+
       if (usuario) {
         const plan = usuario.plan || "gratis";
         const limite = LIMITES[plan] ?? 2;
@@ -171,6 +174,37 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       lng:           lng ? Number(lng) : null,
       imagenes
     });
+
+    if (usuario?.email) {
+
+  await enviarCorreo(
+    usuario.email,
+    "Anuncio publicado en HomeClick24",
+    `
+      <h1>Tu anuncio ya está publicado 🏡</h1>
+
+      <p>Hola ${usuario.nombre || ""},</p>
+
+      <p>
+        Tu propiedad <strong>${propiedad.titulo}</strong>
+        ya está activa en HomeClick24.
+      </p>
+
+      <p>
+        Dirección: ${propiedad.direccion}
+      </p>
+
+      <p>
+        Precio: ${propiedad.precio} €
+      </p>
+
+      <br>
+
+      <p>Gracias por usar HomeClick24 🚀</p>
+    `
+  );
+
+}
 
     // Buscar alertas que coincidan
     console.log("Nueva propiedad creada:", propiedad.titulo);
