@@ -130,7 +130,6 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       destacado: 4,
       starter: 15,
       pro_agentes: 40,
-      agencia_basica: 50,
       vip: Infinity
     };
 
@@ -140,7 +139,6 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       destacado: 15,
       starter: 20,
       pro_agentes: 30,
-      agencia_basica: 40,
       vip: Infinity
     };
 
