@@ -483,10 +483,25 @@ body {
 }
 
 @media (max-width: 768px) {
+
   .mobile-quick-actions {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+
+    padding: 14px 16px;
     margin-top: 90px;
+
+    background: #fff;
+    position: relative;
+    z-index: 20;
+
+    min-height: 72px;
+
+    border-bottom: 1px solid #eee;
   }
+
 }
 
 .page-header-inner {
