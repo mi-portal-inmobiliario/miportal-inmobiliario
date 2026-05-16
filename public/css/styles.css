@@ -496,8 +496,6 @@ body {
     position: relative;
     z-index: 20;
 
-    min-height: 72px;
-
     border-bottom: 1px solid #eee;
     border-top: none;
   }
