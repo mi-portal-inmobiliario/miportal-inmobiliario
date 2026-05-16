@@ -35,22 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   `;
 
   // Topbar — solo visible en móvil
-  const topbar = `
-  <div class="header-topbar">
-    <div class="header-topbar-inner">
-      <div class="header-logo" onclick="location.href='/index.html'" style="cursor:pointer; display:flex; align-items:center; gap:8px;">
-        <img src="/HomeClick.png" alt="" style="height:36px; width:auto;" />
-        <span style="font-size:1.4rem; font-weight:800; color:#fff;">Home<span style="color:#7cc242;">Click24</span></span>
-      </div>
-      <div class="topbar-lang" id="topbarLangMobile">
-        <button class="topbar-lang-btn" onclick="toggleLangMenuMobile(event)">🇪🇸 España ▾</button>
-        <div class="topbar-lang-menu" id="topbarLangMenuMobile">
-          ${langOptions}
-        </div>
-      </div>
-    </div>
-  </div>
-`;
+  const topbar = ``;
 
   // Selector — solo visible en escritorio
   const langSelector = `
