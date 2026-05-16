@@ -15,7 +15,40 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 ============================ */
 router.post("/register", async (req, res) => {
   try {
-    const { nombre, email, tipoDoc, numDoc } = req.body;
+    const {
+      nombre,
+      email,
+      tipoDoc,
+      numDoc,
+      token: turnstileToken
+    } = req.body;
+
+     // ===============================
+    // CLOUDFLARE TURNSTILE
+    // ===============================
+
+    const verify = await fetch(
+      "https://challenges.cloudflare.com/turnstile/v0/siteverify",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type":
+            "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          secret: process.env.TURNSTILE_SECRET_KEY,
+          response: turnstileToken
+        })
+      }
+    );
+
+    const captcha = await verify.json();
+
+    if (!captcha.success) {
+      return res.status(400).json({
+        error: "Verificación anti-bot incorrecta"
+      });
+    }   
 
     if (!nombre || !email) {
       return res.status(400).json({ error: "Faltan datos" });

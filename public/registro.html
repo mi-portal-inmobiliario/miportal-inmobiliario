@@ -352,6 +352,10 @@
     </div>
     <p class="doc-nota">🔒 Solo para verificar tu identidad. No se comparte con terceros.</p>
 
+    <div class="cf-turnstile"
+     data-sitekey="0x4AAAAAADQhW7vF518gz2_e">
+    </div>
+
     <button class="btn-auth" id="btnRegistro" onclick="registro()">
       Crear cuenta gratis
     </button>
@@ -380,7 +384,10 @@
 
 </div>
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
 <script>
+
 async function registro() {
   const nombre  = document.getElementById("nombre").value.trim();
   const email   = document.getElementById("email").value.trim();
@@ -388,6 +395,9 @@ async function registro() {
   const numDoc  = document.getElementById("numDoc").value.trim();
   const mensaje = document.getElementById("mensaje");
   const btn     = document.getElementById("btnRegistro");
+  const token = document.querySelector(
+    '[name="cf-turnstile-response"]'
+  )?.value;
 
   mensaje.className = "";
   mensaje.textContent = "";
@@ -411,8 +421,15 @@ async function registro() {
     const res = await fetch("/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ nombre, email, tipoDoc, numDoc })
-    });
+      body: JSON.stringify({
+        nombre,
+        email,
+        tipoDoc,
+        numDoc,
+        token
+      })
+    });  
+
     const data = await res.json();
 
     if (res.ok) {
