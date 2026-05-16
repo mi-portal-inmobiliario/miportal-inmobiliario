@@ -1149,4 +1149,9 @@ html, body {
     width: 100%;
   }
 
+  .hero {
+    display: none;
+  }
+
+
 }
