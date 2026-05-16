@@ -532,6 +532,12 @@ body {
   padding: 0 20px;
 }
 
+@media (max-width: 768px) {
+  .contenedor-comprar {
+    margin: 0 auto;
+  }
+}
+
 .filtros {
   background: #fff;
   padding: 20px;
