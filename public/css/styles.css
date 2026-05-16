@@ -491,7 +491,6 @@ body {
     gap: 12px;
 
     padding: 14px 16px;
-    margin-top: 90px;
 
     background: #fff;
     position: relative;
@@ -500,6 +499,7 @@ body {
     min-height: 72px;
 
     border-bottom: 1px solid #eee;
+    border-top: none;
   }
 
 }
