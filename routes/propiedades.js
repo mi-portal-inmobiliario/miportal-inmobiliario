@@ -119,8 +119,16 @@ router.get("/:id", async (req, res) => {
 router.post("/", upload.array("imagenes", 10), async (req, res) => {
   try {
     const {
-      titulo, direccion, precio, descripcion,
-      tipoOperacion, habitaciones, usuarioId, lat, lng
+      titulo,
+      direccion,
+      precio,
+      descripcion,
+      tipoOperacion,
+      habitaciones,
+      usuarioId,
+      lat,
+      lng,
+      videoUrl
     } = req.body;
 
     // Comprobar límite de plan
@@ -186,6 +194,9 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       direccion,
       precio:        Number(precio),
       descripcion,
+
+      videoUrl: videoUrl || "",
+
       tipoOperacion,
       habitaciones:  Number(habitaciones),
       banos:         Number(banos) || 1,

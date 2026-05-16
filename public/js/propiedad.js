@@ -119,6 +119,20 @@ function renderPropiedad() {
         </div>` : ""}
 
         <!-- DESCRIPCIÓN -->
+        ${propiedad.videoUrl ? `
+          <div class="propiedad-video">
+            <h2>Vídeo</h2>
+
+            <div class="video-wrap">
+              <iframe
+                src="${convertirYoutubeEmbed(propiedad.videoUrl)}"
+                title="Vídeo de la propiedad"
+                frameborder="0"
+                allowfullscreen>
+              </iframe>
+            </div>
+          </div>
+        ` : ""}
         <div class="propiedad-descripcion">
           <h2>Descripción</h2>
           <p>${propiedad.descripcion || "Sin descripción disponible."}</p>
@@ -233,6 +247,24 @@ function abrirModal(src) {
 
 function cerrarModal() {
   document.getElementById("modal").style.display = "none";
+}
+
+function convertirYoutubeEmbed(url) {
+
+  try {
+
+    const videoId = new URL(url)
+      .searchParams
+      .get("v");
+
+    return `https://www.youtube.com/embed/${videoId}`;
+
+  } catch {
+
+    return "";
+
+  }
+
 }
 
 /* ================================

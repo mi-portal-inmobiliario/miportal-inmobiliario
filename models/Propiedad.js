@@ -27,6 +27,7 @@ const PropiedadSchema = new mongoose.Schema({
   visitas:   { type: Number, default: 0 },
   contactos: { type: Number, default: 0 },
   fechaExpiracion: { type: Date, default: null },
+  videoUrl: { type: String, default: "" },
 }, { timestamps: true });
 
 export default mongoose.model("Propiedad", PropiedadSchema);
