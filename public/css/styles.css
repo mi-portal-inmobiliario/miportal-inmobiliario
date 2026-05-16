@@ -482,6 +482,13 @@ body {
   padding: 16px 20px;
 }
 
+@media (max-width: 768px) {
+  .mobile-quick-actions {
+    display: flex;
+    margin-top: 90px;
+  }
+}
+
 .page-header-inner {
   max-width: 1200px;
   margin: auto;
