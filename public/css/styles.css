@@ -502,6 +502,8 @@ body {
   margin-top: 12px;
 
   border-bottom: 1px solid #eee;
+
+  overflow-x: auto;
 }
 
 }
@@ -773,15 +775,6 @@ body {
 }
 
 /* ===== MÓVIL ===== */
-@media (max-width: 768px) {
-  .mobile-quick-actions {
-    display: flex;
-    gap: 8px;
-    padding: 12px 16px;
-    background: #fff;
-    border-bottom: 1px solid #eee;
-    overflow-x: auto;
-  }
 
   .quick-btn {
     text-decoration: none;
@@ -838,7 +831,6 @@ body {
     cursor: pointer;
     z-index: 1000;
   }
-}
 
 @media (min-width: 769px) {
   .btn-filtros-mobile {
