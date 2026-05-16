@@ -145,12 +145,15 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
     };
 
     let usuario = null;
+    let plan = "gratis";
 
     if (usuarioId) {
       usuario = await Usuario.findById(usuarioId);
 
       if (usuario) {
-        const plan = usuario.plan || "gratis";
+
+        plan = usuario.plan || "gratis";
+        
         const limite = LIMITES[plan] ?? 2;
         // Límite de fotos
         const maxFotos = MAX_FOTOS[plan] ?? 7;
