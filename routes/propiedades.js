@@ -131,7 +131,17 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       starter: 15,
       pro_agentes: 40,
       agencia_basica: 50,
-      agencia_pro: Infinity
+      vip: Infinity
+    };
+
+    const MAX_FOTOS = {
+      gratis: 7,
+      basico: 10,
+      destacado: 15,
+      starter: 20,
+      pro_agentes: 30,
+      agencia_basica: 40,
+      vip: Infinity
     };
 
     let usuario = null;
@@ -142,6 +152,14 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       if (usuario) {
         const plan = usuario.plan || "gratis";
         const limite = LIMITES[plan] ?? 2;
+        // Límite de fotos
+        const maxFotos = MAX_FOTOS[plan] ?? 7;
+        const numFotos = req.files?.length || 0;
+        if (numFotos > maxFotos) {
+          return res.status(403).json({
+            error: `Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`
+          });
+        }
         const totalAnuncios = await Propiedad.countDocuments({ usuarioId });
         if (totalAnuncios >= limite) {
           return res.status(403).json({ 
@@ -154,6 +172,13 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
     const imagenes = req.files?.map(f => f.path) || [];
 
     const { banos, superficie, tipoInmueble, estado, garaje, piscina, terraza } = req.body;
+
+    // Calcular expiración
+    let fechaExpiracion = null;
+    if (plan === "gratis") {
+      fechaExpiracion = new Date();
+      fechaExpiracion.setDate(fechaExpiracion.getDate() + 15);
+    }
 
     const propiedad = await Propiedad.create({
       titulo,
@@ -172,7 +197,8 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       usuarioId:     usuarioId || null,
       lat:           lat ? Number(lat) : null,
       lng:           lng ? Number(lng) : null,
-      imagenes
+      imagenes,
+      fechaExpiracion
     });
 
     if (usuario?.email) {

@@ -26,6 +26,7 @@ const PropiedadSchema = new mongoose.Schema({
   // Estadísticas
   visitas:   { type: Number, default: 0 },
   contactos: { type: Number, default: 0 },
+  fechaExpiracion: { type: Date, default: null },
 }, { timestamps: true });
 
 export default mongoose.model("Propiedad", PropiedadSchema);
