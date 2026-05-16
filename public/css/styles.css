@@ -485,20 +485,24 @@ body {
 @media (max-width: 768px) {
 
   .mobile-quick-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 
-    padding: 14px 16px;
+  padding: 14px 16px;
 
-    background: #fff;
-    position: relative;
-    z-index: 20;
+  background: #fff;
 
-    border-bottom: 1px solid #eee;
-    border-top: none;
-  }
+  position: relative;
+  z-index: 20;
+
+  min-height: 72px;
+
+  margin-top: 12px;
+
+  border-bottom: 1px solid #eee;
+}
 
 }
 
