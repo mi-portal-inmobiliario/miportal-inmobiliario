@@ -30,22 +30,20 @@ const storage = new CloudinaryStorage({
 
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
 
-    transformation: [
+    transformation: {
 
-      {
-        overlay: "homeclick24_watermark",
-        gravity: "south_east",
+      overlay: "homeclick24_watermark",
+      gravity: "south_east",
 
-        opacity: 18,
+      opacity: 18,
 
-        width: 260,
-        crop: "scale",
+      width: 180,
+      crop: "scale",
 
-        x: 30,
-        y: 30
-      }
+      x: 30,
+      y: 30
 
-    ]
+    }
 
   })
 
