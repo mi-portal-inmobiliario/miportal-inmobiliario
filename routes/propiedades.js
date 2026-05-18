@@ -29,9 +29,9 @@ const storage = new CloudinaryStorage({
       { width: 1200, crop: "limit" },
       {
         overlay: "homeclick24_watermark",
-        width: 180,
+        width: 400,
         crop: "scale",
-        opacity: 40,
+        opacity: 70,
         gravity: "south_east",
         x: 30,
         y: 30,
