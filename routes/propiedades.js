@@ -21,29 +21,24 @@ cloudinary.config({
 });
 
 const storage = new CloudinaryStorage({
-
   cloudinary,
-
   params: async (req, file) => ({
-
     folder: "miportal_inmobiliario",
-
     allowed_formats: ["jpg", "jpeg", "png", "webp"],
-
     transformation: [
+      { width: 1200, crop: "limit" },
       {
         overlay: "homeclick24_watermark",
-        opacity: 18,
         width: 180,
         crop: "scale",
+        opacity: 18,
         gravity: "south_east",
         x: 30,
-        y: 30
+        y: 30,
+        flags: "layer_apply" 
       }
     ]
-
   })
-
 });
 
 const upload = multer({ storage });
