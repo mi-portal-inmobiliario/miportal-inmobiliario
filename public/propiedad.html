@@ -48,9 +48,11 @@
 </main>
 
 <!-- MODAL IMÁGENES -->
-<div class="modal" id="modal">
-  <span class="modal-cerrar" onclick="cerrarModal()">×</span>
-  <img id="modal-img" alt="Imagen de la propiedad">
+<div class="modal" id="modal" onclick="cerrarModal()">
+  <span class="modal-cerrar">×</span>
+  <button class="modal-btn left" onclick="event.stopPropagation(); modalPrev()">‹</button>
+  <img id="modal-img" alt="Imagen de la propiedad" onclick="event.stopPropagation()">
+  <button class="modal-btn right" onclick="event.stopPropagation(); modalNext()">›</button>
 </div>
 
 <!-- LIBRERÍAS -->

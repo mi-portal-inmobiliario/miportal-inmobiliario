@@ -239,6 +239,8 @@ function prevFoto()  { irFoto((indexFoto - 1 + fotos.length) % fotos.length); }
    MODAL
 ================================ */
 function abrirModal(src) {
+  indexFoto = fotos.indexOf(src);
+  if (indexFoto === -1) indexFoto = 0;
   const modal = document.getElementById("modal");
   const img   = document.getElementById("modal-img");
   img.src = src;
@@ -247,6 +249,16 @@ function abrirModal(src) {
 
 function cerrarModal() {
   document.getElementById("modal").style.display = "none";
+}
+
+function modalNext() {
+  indexFoto = (indexFoto + 1) % fotos.length;
+  document.getElementById("modal-img").src = fotos[indexFoto];
+}
+
+function modalPrev() {
+  indexFoto = (indexFoto - 1 + fotos.length) % fotos.length;
+  document.getElementById("modal-img").src = fotos[indexFoto];
 }
 
 function convertirYoutubeEmbed(url) {

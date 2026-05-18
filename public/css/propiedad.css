@@ -430,3 +430,26 @@
   }
 
 }
+
+.modal-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255,255,255,0.15);
+  border: none;
+  color: #fff;
+  font-size: 3rem;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 8px;
+  z-index: 10;
+  transition: background 0.2s;
+  line-height: 1;
+}
+
+.modal-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+.modal-btn.left  { left: 20px; }
+.modal-btn.right { right: 20px; }
