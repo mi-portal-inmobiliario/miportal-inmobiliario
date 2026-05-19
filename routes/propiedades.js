@@ -361,9 +361,28 @@ router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
 // ==================================================
 router.delete("/:id", async (req, res) => {
   try {
-    const propiedad = await Propiedad.findByIdAndDelete(req.params.id);
+    const propiedad = await Propiedad.findById(req.params.id);
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+
+    // Eliminar imágenes de Cloudinary
+    if (propiedad.imagenes && propiedad.imagenes.length > 0) {
+      for (const url of propiedad.imagenes) {
+        try {
+          // Extraer el public_id de la URL de Cloudinary
+          const partes = url.split("/");
+          const archivo = partes[partes.length - 1].split(".")[0];
+          const carpeta = partes[partes.length - 2];
+          const publicId = `${carpeta}/${archivo}`;
+          await cloudinary.uploader.destroy(publicId);
+        } catch (errImg) {
+          console.warn("No se pudo eliminar imagen:", errImg.message);
+        }
+      }
+    }
+
+    await Propiedad.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
+
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Error al eliminar propiedad" });
