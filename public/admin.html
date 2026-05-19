@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -277,6 +278,20 @@
     }
     .btn-eliminar:hover { background: #fecaca; }
 
+    .btn-exportar {
+      padding: 6px 14px;
+      background: #f0f9e8;
+      color: #5a9e2f;
+      border: 1px solid #c3e6a0;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .btn-exportar:hover { background: #e0f4d0; }
+
   </style>
 </head>
 <body>
@@ -344,6 +359,7 @@
      <div class="tabla-header">
        <h2>Usuarios</h2>
        <span id="countUsuarios"></span>
+       <button onclick="exportarUsuarios()" class="btn-exportar">⬇ Exportar Excel</button>
      </div>
      <div style="padding:12px 24px;border-bottom:1px solid #eee;">
        <input type="text" id="buscadorUsuarios" placeholder="🔍 Buscar por nombre o email..."
@@ -370,6 +386,7 @@
       <div class="tabla-header">
         <h2>Propiedades</h2>
         <span id="countPropiedades"></span>
+        <button onclick="exportarPropiedades()" class="btn-exportar">⬇ Exportar Excel</button>
       </div>
       <table>
         <thead>
@@ -619,6 +636,44 @@ async function cargarGrafica() {
       }
     }
   });
+}
+
+function exportarUsuarios() {
+  const datos = todosLosUsuarios.map(u => ({
+    Nombre: u.nombre || '',
+    Email: u.email || '',
+    Plan: u.plan || 'gratis',
+    Verificado: u.verificado ? 'Sí' : 'No',
+    Registro: u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-ES') : '—'
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(datos);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Usuarios');
+  XLSX.writeFile(wb, `homeclick24_usuarios_${new Date().toISOString().split('T')[0]}.xlsx`);
+}
+
+async function exportarPropiedades() {
+  const res = await fetch('/admin/propiedades', {
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  const propiedades = await res.json();
+
+  const datos = propiedades.map(p => ({
+    Título: p.titulo || '',
+    Dirección: p.direccion || '',
+    Precio: p.precio || 0,
+    Tipo: p.tipoOperacion || '',
+    Habitaciones: p.habitaciones || '',
+    Baños: p.banos || '',
+    Superficie: p.superficie || '',
+    Fecha: p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-ES') : '—'
+  }));
+
+  const ws = XLSX.utils.json_to_sheet(datos);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Propiedades');
+  XLSX.writeFile(wb, `homeclick24_propiedades_${new Date().toISOString().split('T')[0]}.xlsx`);
 }
 
 document.addEventListener('keypress', e => {
