@@ -90,4 +90,16 @@ router.delete('/propiedades/:id', verificarAdmin, async (req, res) => {
   }
 });
 
+// Cambiar plan de usuario
+router.put('/usuarios/:id/plan', verificarAdmin, async (req, res) => {
+  try {
+    const { plan } = req.body;
+    const planActivo = plan !== 'gratis';
+    await Usuario.findByIdAndUpdate(req.params.id, { plan, planActivo });
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;

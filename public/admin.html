@@ -339,25 +339,31 @@
     <h2 style="font-size:1rem;font-weight:700;margin-bottom:14px;">Distribución de planes</h2>
     <div class="planes-grid" id="planesGrid"></div>
 
-    <!-- USUARIOS -->
-    <div class="tabla-wrap">
-      <div class="tabla-header">
-        <h2>Usuarios</h2>
-        <span id="countUsuarios"></span>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Nombre</th>
-            <th>Email</th>
-            <th>Plan</th>
-            <th>Verificado</th>
-            <th>Registro</th>
-          </tr>
-        </thead>
-        <tbody id="tablaUsuarios"></tbody>
-      </table>
-    </div>
+   <!-- USUARIOS -->
+   <div class="tabla-wrap">
+     <div class="tabla-header">
+       <h2>Usuarios</h2>
+       <span id="countUsuarios"></span>
+     </div>
+     <div style="padding:12px 24px;border-bottom:1px solid #eee;">
+       <input type="text" id="buscadorUsuarios" placeholder="🔍 Buscar por nombre o email..."
+         oninput="filtrarUsuarios()"
+         style="width:100%;padding:10px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.88rem;outline:none;font-family:inherit;">
+     </div>
+     <table>
+       <thead>
+         <tr>
+           <th>Nombre</th>
+           <th>Email</th>
+           <th>Plan</th>
+           <th>Verificado</th>
+           <th>Registro</th>
+           <th>Acción</th>
+         </tr>
+       </thead>
+       <tbody id="tablaUsuarios"></tbody>
+     </table>
+   </div>
 
     <!-- PROPIEDADES -->
     <div class="tabla-wrap" style="margin-top:24px;">
@@ -442,13 +448,27 @@ async function cargarStats() {
   `).join('');
 }
 
+let todosLosUsuarios = [];
+
 async function cargarUsuarios() {
   const res = await fetch('/admin/usuarios', {
     headers: { 'Authorization': 'Bearer ' + adminToken }
   });
-  const usuarios = await res.json();
+  todosLosUsuarios = await res.json();
+  document.getElementById('countUsuarios').textContent = `${todosLosUsuarios.length} usuarios`;
+  renderUsuarios(todosLosUsuarios);
+}
 
-  document.getElementById('countUsuarios').textContent = `${usuarios.length} usuarios`;
+function filtrarUsuarios() {
+  const q = document.getElementById('buscadorUsuarios').value.toLowerCase();
+  const filtrados = todosLosUsuarios.filter(u =>
+    u.nombre?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q)
+  );
+  renderUsuarios(filtrados);
+}
+
+function renderUsuarios(usuarios) {
+  const PLANES = ['gratis', 'basico', 'destacado', 'starter', 'pro_agentes', 'agencia_basica', 'vip'];
 
   document.getElementById('tablaUsuarios').innerHTML = usuarios.map(u => {
     const fecha = u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-ES') : '—';
@@ -460,9 +480,37 @@ async function cargarUsuarios() {
         <td><span class="badge-plan ${esPago ? 'badge-pago' : 'badge-gratis'}">${u.plan || 'gratis'}</span></td>
         <td><span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span></td>
         <td>${fecha}</td>
+        <td>
+          <select onchange="cambiarPlan('${u._id}', this.value)"
+            style="padding:5px 8px;border:1.5px solid #eee;border-radius:6px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
+            ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
+          </select>
+        </td>
       </tr>
     `;
   }).join('');
+}
+
+async function cambiarPlan(usuarioId, nuevoPlan) {
+  if (!confirm(`¿Cambiar plan a "${nuevoPlan}"?`)) {
+    await cargarUsuarios();
+    return;
+  }
+  const res = await fetch(`/admin/usuarios/${usuarioId}/plan`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + adminToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ plan: nuevoPlan })
+  });
+  if (res.ok) {
+    await cargarUsuarios();
+    await cargarStats();
+  } else {
+    alert('Error al cambiar el plan');
+    await cargarUsuarios();
+  }
 }
 
 async function cargarPropiedades() {
