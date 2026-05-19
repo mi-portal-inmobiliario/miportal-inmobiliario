@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -325,6 +326,15 @@
       </div>
     </div>
 
+    <!-- GRÁFICA REGISTROS -->
+    <div class="tabla-wrap" style="margin-bottom:24px;padding:24px;">
+      <div class="tabla-header" style="border:none;padding:0 0 16px 0;">
+        <h2>Evolución de registros</h2>
+        <span id="countRegistros"></span>
+      </div>
+      <canvas id="graficaRegistros" height="80"></canvas>
+    </div>
+
     <!-- PLANES -->
     <h2 style="font-size:1rem;font-weight:700;margin-bottom:14px;">Distribución de planes</h2>
     <div class="planes-grid" id="planesGrid"></div>
@@ -407,14 +417,6 @@ function logout() {
   location.reload();
 }
 
-async function mostrarPanel() {
-  document.getElementById('loginWrap').style.display = 'none';
-  document.getElementById('panel').style.display = 'block';
-  await cargarStats();
-  await cargarUsuarios();
-  await cargarPropiedades();
-}
-
 async function cargarStats() {
   const res = await fetch('/admin/stats', {
     headers: { 'Authorization': 'Bearer ' + adminToken }
@@ -495,6 +497,80 @@ async function eliminarPropiedad(id) {
   });
   await cargarPropiedades();
   await cargarStats();
+}
+
+async function mostrarPanel() {
+  document.getElementById('loginWrap').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+  await cargarStats();
+  await cargarGrafica();
+  await cargarUsuarios();
+  await cargarPropiedades();
+}
+
+async function cargarGrafica() {
+  const res = await fetch('/admin/usuarios', {
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  const usuarios = await res.json();
+
+  // Agrupar por mes
+  const conteo = {};
+  usuarios.forEach(u => {
+    if (!u.createdAt) return;
+    const fecha = new Date(u.createdAt);
+    const clave = `${fecha.getFullYear()}-${String(fecha.getMonth() + 1).padStart(2, '0')}`;
+    conteo[clave] = (conteo[clave] || 0) + 1;
+  });
+
+  // Ordenar meses
+  const meses = Object.keys(conteo).sort();
+  const valores = meses.map(m => conteo[m]);
+
+  // Formatear etiquetas
+  const etiquetas = meses.map(m => {
+    const [year, month] = m.split('-');
+    const nombres = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    return `${nombres[parseInt(month) - 1]} ${year}`;
+  });
+
+  document.getElementById('countRegistros').textContent = `${usuarios.length} usuarios totales`;
+
+  const ctx = document.getElementById('graficaRegistros').getContext('2d');
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: etiquetas,
+      datasets: [{
+        label: 'Nuevos usuarios',
+        data: valores,
+        borderColor: '#7cc242',
+        backgroundColor: 'rgba(124, 194, 66, 0.08)',
+        borderWidth: 2,
+        pointBackgroundColor: '#7cc242',
+        pointRadius: 5,
+        tension: 0.4,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, color: '#aaa' },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          ticks: { color: '#aaa' },
+          grid: { display: false }
+        }
+      }
+    }
+  });
 }
 
 document.addEventListener('keypress', e => {
