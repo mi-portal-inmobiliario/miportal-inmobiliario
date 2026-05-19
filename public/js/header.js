@@ -78,8 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
             <a href="/comprar.html" class="btn-outline">Comprar</a>
             <a href="/alquiler.html" class="btn-outline">Alquilar</a>
             <a href="/planes.html" class="btn-publish">Pon tu anuncio</a>
-            <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
-            <a href="/login.html" class="btn-icon" title="Chats">💬</a>
             ${langSelector}
             <a href="/login.html" class="btn-primary">👤 Acceder</a>
           </div>
