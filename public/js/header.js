@@ -122,6 +122,43 @@ document.addEventListener("DOMContentLoaded", () => {
               justify-content:center;
             ">0</span>
           </a>
+          <div class="notif-menu" id="notifMenu">
+            <button class="btn-icon" onclick="toggleNotifMenu(event)" style="position:relative;">
+              🔔
+              <span id="notifBadge" style="
+                display:none;
+                position:absolute;
+                top:-6px;
+                right:-6px;
+                background:#f87171;
+                color:#fff;
+                border-radius:50%;
+                width:18px;
+                height:18px;
+                font-size:0.7rem;
+                font-weight:700;
+                align-items:center;
+                justify-content:center;
+              ">0</span>
+            </button>
+            <div class="notif-dropdown" id="notifDropdown" style="
+              display:none;
+              position:absolute;
+              right:0;
+              top:130%;
+              background:#fff;
+              min-width:300px;
+              border-radius:12px;
+              box-shadow:0 6px 24px rgba(0,0,0,0.15);
+              overflow:hidden;
+              z-index:9999;
+            ">
+              <div style="padding:14px 16px;border-bottom:1px solid #f0f0f0;font-weight:700;font-size:0.9rem;color:#222;">
+                🔔 Notificaciones
+              </div>
+              <div id="notifLista" style="max-height:320px;overflow-y:auto;"></div>
+            </div>
+          </div>
           ${langSelector}
           <div class="user-menu" id="userMenu">
             <div class="user-name" id="userToggle">
@@ -158,6 +195,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   actualizarBadge();
   setInterval(actualizarBadge, 10000);
+  actualizarBadgeNotif();
+  setInterval(actualizarBadgeNotif, 30000);
 
   /* ======================
      DROPDOWN MENU
@@ -184,6 +223,10 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!e.target.closest("#userMenu")) {
       if (userMenu) userMenu.classList.remove("open");
+    }
+    if (!e.target.closest("#notifMenu")) {
+      const dropdown = document.getElementById("notifDropdown");
+      if (dropdown) dropdown.style.display = "none";
     }
   });
 
@@ -279,3 +322,65 @@ window.selectLang = function(flag, name) {
     alert(`La versión en ${name} estará disponible próximamente 🌍`);
   }
 };
+
+window.toggleNotifMenu = function(e) {
+  e.stopPropagation();
+  const dropdown = document.getElementById("notifDropdown");
+  if (!dropdown) return;
+  const abierto = dropdown.style.display === "block";
+  dropdown.style.display = abierto ? "none" : "block";
+  if (!abierto) cargarNotificaciones();
+};
+
+async function cargarNotificaciones() {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (!usuario) return;
+
+  const res = await fetch(`/notificaciones/${usuario._id}`);
+  const notifs = await res.json();
+
+  const lista = document.getElementById("notifLista");
+  const badge = document.getElementById("notifBadge");
+  if (!lista) return;
+
+  const noLeidas = notifs.filter(n => !n.leida).length;
+  if (badge) {
+    badge.textContent = noLeidas;
+    badge.style.display = noLeidas > 0 ? "flex" : "none";
+  }
+
+  if (notifs.length === 0) {
+    lista.innerHTML = `<div style="padding:20px;text-align:center;color:#aaa;font-size:0.88rem;">Sin notificaciones</div>`;
+    return;
+  }
+
+  lista.innerHTML = notifs.map(n => `
+    <div onclick="marcarLeida('${n._id}', '${n.propiedadId?._id || ''}')"
+      style="padding:12px 16px;border-bottom:1px solid #f5f5f5;cursor:pointer;
+      background:${n.leida ? '#fff' : '#f0f9e8'};transition:background 0.2s;">
+      <div style="font-size:0.85rem;color:#222;margin-bottom:4px;">${n.mensaje}</div>
+      <div style="font-size:0.75rem;color:#aaa;">${new Date(n.createdAt).toLocaleDateString('es-ES')}</div>
+    </div>
+  `).join("");
+}
+
+window.marcarLeida = async function(id, propiedadId) {
+  await fetch(`/notificaciones/${id}/leida`, { method: "PUT" });
+  if (propiedadId) window.location.href = `/propiedad.html?id=${propiedadId}`;
+  else cargarNotificaciones();
+};
+
+async function actualizarBadgeNotif() {
+  const usuario = JSON.parse(localStorage.getItem("usuario"));
+  if (!usuario) return;
+  try {
+    const res = await fetch(`/notificaciones/${usuario._id}`);
+    const notifs = await res.json();
+    const noLeidas = notifs.filter(n => !n.leida).length;
+    const badge = document.getElementById("notifBadge");
+    if (badge) {
+      badge.textContent = noLeidas;
+      badge.style.display = noLeidas > 0 ? "flex" : "none";
+    }
+  } catch(e) {}
+}
