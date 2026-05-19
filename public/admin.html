@@ -262,6 +262,20 @@
     @media (max-width: 768px) {
       .stats-grid { grid-template-columns: repeat(2, 1fr); }
     }
+
+    .btn-eliminar {
+      padding: 5px 12px;
+      background: #fee2e2;
+      color: #e53e3e;
+      border: none;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-eliminar:hover { background: #fecaca; }
+
   </style>
 </head>
 <body>
@@ -335,6 +349,27 @@
       </table>
     </div>
 
+    <!-- PROPIEDADES -->
+    <div class="tabla-wrap" style="margin-top:24px;">
+      <div class="tabla-header">
+        <h2>Propiedades</h2>
+        <span id="countPropiedades"></span>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Título</th>
+            <th>Dirección</th>
+            <th>Precio</th>
+            <th>Tipo</th>
+            <th>Fecha</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody id="tablaPropiedades"></tbody>
+     </table>
+    </div>
+
   </div>
 </div>
 
@@ -377,6 +412,7 @@ async function mostrarPanel() {
   document.getElementById('panel').style.display = 'block';
   await cargarStats();
   await cargarUsuarios();
+  await cargarPropiedades();
 }
 
 async function cargarStats() {
@@ -425,6 +461,40 @@ async function cargarUsuarios() {
       </tr>
     `;
   }).join('');
+}
+
+async function cargarPropiedades() {
+  const res = await fetch('/admin/propiedades', {
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  const propiedades = await res.json();
+
+  document.getElementById('countPropiedades').textContent = `${propiedades.length} anuncios`;
+
+  document.getElementById('tablaPropiedades').innerHTML = propiedades.map(p => {
+    const fecha = p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-ES') : '—';
+    const tipo = p.tipoOperacion === 'venta' ? '🏠 Venta' : '🔑 Alquiler';
+    return `
+      <tr>
+        <td>${p.titulo}</td>
+        <td style="color:#aaa;font-size:0.82rem;">${p.direccion || '—'}</td>
+        <td>${p.precio?.toLocaleString('es-ES')} €</td>
+        <td>${tipo}</td>
+        <td>${fecha}</td>
+        <td><button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function eliminarPropiedad(id) {
+  if (!confirm('¿Seguro que quieres eliminar esta propiedad?')) return;
+  await fetch(`/admin/propiedades/${id}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  await cargarPropiedades();
+  await cargarStats();
 }
 
 document.addEventListener('keypress', e => {

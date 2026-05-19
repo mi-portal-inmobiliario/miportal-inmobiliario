@@ -68,4 +68,26 @@ router.get('/usuarios', verificarAdmin, async (req, res) => {
   }
 });
 
+// Lista de propiedades
+router.get('/propiedades', verificarAdmin, async (req, res) => {
+  try {
+    const propiedades = await Propiedad.find({})
+      .sort({ createdAt: -1 })
+      .limit(100);
+    res.json(propiedades);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Eliminar propiedad
+router.delete('/propiedades/:id', verificarAdmin, async (req, res) => {
+  try {
+    await Propiedad.findByIdAndDelete(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 export default router;
