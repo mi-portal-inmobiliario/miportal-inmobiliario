@@ -2,6 +2,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const cont = document.getElementById("main-header");
   if (!cont) return;
 
+// Google Analytics
+const gaScript = document.createElement('script');
+gaScript.async = true;
+gaScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-K06Q40JXYL';
+document.head.appendChild(gaScript);
+
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-K06Q40JXYL');
+
 // Canonical URL - evitar contenido duplicado
   const canonical = document.createElement('link');
   canonical.rel = 'canonical';
