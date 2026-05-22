@@ -183,34 +183,6 @@
     .sugerencias div:last-child { border-bottom: none; }
     .sugerencias div:hover { background: #f0f9e8; color: #7cc242; }
 
-    /* STATS HERO */
-    .hero-stats {
-      display: flex;
-      gap: 40px;
-      margin-top: 36px;
-      opacity: 0;
-      animation: fadeUp 0.8s ease 0.8s forwards;
-    }
-
-    .hero-stat {
-      text-align: center;
-    }
-
-    .hero-stat strong {
-      display: block;
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #7cc242;
-      line-height: 1;
-    }
-
-    .hero-stat span {
-      font-size: 0.78rem;
-      color: rgba(255,255,255,0.75);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
     /* SCROLL INDICATOR */
     .scroll-indicator {
       position: absolute;
@@ -556,10 +528,6 @@
         grid-template-columns: 1fr;
       }
 
-      .hero-stats {
-        gap: 24px;
-      }
-
       .footer-inner {
         grid-template-columns: 1fr 1fr;
         gap: 28px;
@@ -573,7 +541,6 @@
     }
 
     @media (max-width: 480px) {
-      .hero-stats { display: none; }
       .footer-inner { grid-template-columns: 1fr; }
     }
   </style>
@@ -611,21 +578,6 @@
         <button onclick="buscar()">🔍 Buscar</button>
       </div>
       <div class="sugerencias" id="sugerencias"></div>
-    </div>
-
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <strong>+500</strong>
-        <span>Propiedades</span>
-      </div>
-      <div class="hero-stat">
-        <strong>+200</strong>
-        <span>Clientes felices</span>
-      </div>
-      <div class="hero-stat">
-        <strong>+50</strong>
-        <span>Ciudades</span>
-      </div>
     </div>
   </div>
 
