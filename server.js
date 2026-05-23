@@ -150,9 +150,13 @@ app.get("/backup-now", async (req, res) => {
   }
   try {
     res.json({ mensaje: "Backup iniciado en segundo plano" });
-    const { default: runBackup } = await import('./backup.js');
+    const { execSync } = await import('child_process');
+    execSync(`node backup.js`, { 
+      stdio: 'inherit',
+      env: process.env 
+    });
   } catch (err) {
-    console.error("Error en backup:", err);
+    console.error("❌ Error en backup:", err.message);
   }
 });
 
