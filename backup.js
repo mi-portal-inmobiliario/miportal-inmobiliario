@@ -1,28 +1,18 @@
 // ===========================================
 // SCRIPT DE BACKUP - HomeClick24
-// Exporta colecciones MongoDB y sube a Google Drive
+// Exporta colecciones MongoDB y envía por email
 // ===========================================
 
-import { google } from 'googleapis';
 import mongoose from 'mongoose';
+import nodemailer from 'nodemailer';
 import { createGzip } from 'zlib';
-import { createWriteStream, createReadStream, unlinkSync, existsSync } from 'fs';
-import { pipeline } from 'stream/promises';
+import { createWriteStream, unlinkSync, existsSync, readFileSync } from 'fs';
 import path from 'path';
 
 // ---- CONFIGURACIÓN ----
-const FOLDER_ID = '13PRqMFBgmK8wJMN7yPDnUdzorsAVHqSJ';
 const MONGODB_URI = process.env.MONGODB_URI;
-const GOOGLE_CREDENTIALS = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT);
-
-// ---- AUTENTICACIÓN CON GOOGLE ----
-async function getGoogleAuth() {
-  const auth = new google.auth.GoogleAuth({
-    credentials: GOOGLE_CREDENTIALS,
-    scopes: ['https://www.googleapis.com/auth/drive.file'],
-  });
-  return auth;
-}
+const GMAIL_USER = process.env.GMAIL_USER;
+const GMAIL_PASS = process.env.GMAIL_PASS;
 
 // ---- EXPORTAR COLECCIONES ----
 async function exportarColecciones() {
@@ -35,8 +25,8 @@ async function exportarColecciones() {
 
   const db = mongoose.connection.db;
   const colecciones = await db.listCollections().toArray();
-  
-  console.log(`📂 Colecciones encontradas: ${colecciones.map(c => c.name).join(', ')}`);
+
+  console.log(`📂 Colecciones: ${colecciones.map(c => c.name).join(', ')}`);
 
   const datos = {};
   for (const col of colecciones) {
@@ -48,11 +38,11 @@ async function exportarColecciones() {
   await mongoose.disconnect();
 
   // Comprimir y guardar
-  console.log(`💾 Guardando backup comprimido...`);
+  console.log(`💾 Comprimiendo backup...`);
   const json = JSON.stringify(datos, null, 2);
   const writeStream = createWriteStream(rutaLocal);
   const gzip = createGzip();
-  
+
   await new Promise((resolve, reject) => {
     gzip.on('error', reject);
     writeStream.on('error', reject);
@@ -66,49 +56,34 @@ async function exportarColecciones() {
   return { rutaLocal, nombreArchivo };
 }
 
-// ---- SUBIR A GOOGLE DRIVE ----
-async function subirADrive(rutaLocal, nombreArchivo) {
-  console.log(`☁️  Subiendo a Google Drive...`);
+// ---- ENVIAR POR EMAIL ----
+async function enviarPorEmail(rutaLocal, nombreArchivo) {
+  console.log(`📧 Enviando backup por email...`);
 
-  const auth = await getGoogleAuth();
-  const drive = google.drive({ version: 'v3', auth });
-
-  const response = await drive.files.create({
-    requestBody: {
-      name: nombreArchivo,
-      parents: [FOLDER_ID],
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: GMAIL_USER,
+      pass: GMAIL_PASS,
     },
-    media: {
-      mimeType: 'application/gzip',
-      body: createReadStream(rutaLocal),
-    },
-    fields: 'id, name',
   });
 
-  console.log(`✅ Subido: ${response.data.name} (ID: ${response.data.id})`);
-  return response.data;
-}
-
-// ---- LIMPIAR BACKUPS ANTIGUOS (mantener últimos 30) ----
-async function limpiarBackupsAntiguos() {
-  const auth = await getGoogleAuth();
-  const drive = google.drive({ version: 'v3', auth });
-
-  const response = await drive.files.list({
-    q: `'${FOLDER_ID}' in parents and name contains 'backup-' and trashed=false`,
-    orderBy: 'createdTime desc',
-    fields: 'files(id, name)',
+  const fecha = new Date().toLocaleDateString('es-ES');
+  
+  await transporter.sendMail({
+    from: GMAIL_USER,
+    to: GMAIL_USER,
+    subject: `🗄️ Backup HomeClick24 - ${fecha}`,
+    text: `Backup automático de la base de datos de HomeClick24 del ${fecha}.\n\nColecciones incluidas en el adjunto.`,
+    attachments: [
+      {
+        filename: nombreArchivo,
+        content: readFileSync(rutaLocal),
+      },
+    ],
   });
 
-  const archivos = response.data.files;
-  console.log(`📂 Total backups en Drive: ${archivos.length}`);
-
-  if (archivos.length > 30) {
-    for (const archivo of archivos.slice(30)) {
-      await drive.files.delete({ fileId: archivo.id });
-      console.log(`🗑️  Eliminado: ${archivo.name}`);
-    }
-  }
+  console.log(`✅ Backup enviado a ${GMAIL_USER}`);
 }
 
 // ---- FUNCIÓN PRINCIPAL ----
@@ -121,8 +96,7 @@ async function main() {
   try {
     const { rutaLocal: ruta, nombreArchivo } = await exportarColecciones();
     rutaLocal = ruta;
-    await subirADrive(rutaLocal, nombreArchivo);
-    await limpiarBackupsAntiguos();
+    await enviarPorEmail(rutaLocal, nombreArchivo);
     console.log('----------------------------------------');
     console.log('✅ Backup completado con éxito');
   } catch (error) {
