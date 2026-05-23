@@ -1,11 +1,13 @@
 // ===========================================
 // SCRIPT DE BACKUP - HomeClick24
-// Hace backup de MongoDB y lo sube a Google Drive
+// Exporta colecciones MongoDB y sube a Google Drive
 // ===========================================
 
-import { execSync } from 'child_process';
 import { google } from 'googleapis';
-import fs from 'fs';
+import mongoose from 'mongoose';
+import { createGzip } from 'zlib';
+import { createWriteStream, createReadStream, unlinkSync, existsSync } from 'fs';
+import { pipeline } from 'stream/promises';
 import path from 'path';
 
 // ---- CONFIGURACIÓN ----
@@ -22,20 +24,45 @@ async function getGoogleAuth() {
   return auth;
 }
 
-// ---- HACER EL BACKUP ----
-async function crearBackup() {
+// ---- EXPORTAR COLECCIONES ----
+async function exportarColecciones() {
   const fecha = new Date().toISOString().split('T')[0];
-  const nombreArchivo = `backup-${fecha}.gz`;
+  const nombreArchivo = `backup-${fecha}.json.gz`;
   const rutaLocal = path.join('/tmp', nombreArchivo);
 
-  console.log(`📦 Creando backup: ${nombreArchivo}`);
+  console.log(`📦 Conectando a MongoDB...`);
+  await mongoose.connect(MONGODB_URI);
 
-  execSync(
-    `mongodump --uri="${MONGODB_URI}" --archive="${rutaLocal}" --gzip`,
-    { stdio: 'inherit' }
-  );
+  const db = mongoose.connection.db;
+  const colecciones = await db.listCollections().toArray();
+  
+  console.log(`📂 Colecciones encontradas: ${colecciones.map(c => c.name).join(', ')}`);
 
-  console.log(`✅ Backup creado en ${rutaLocal}`);
+  const datos = {};
+  for (const col of colecciones) {
+    const documentos = await db.collection(col.name).find({}).toArray();
+    datos[col.name] = documentos;
+    console.log(`  ✅ ${col.name}: ${documentos.length} documentos`);
+  }
+
+  await mongoose.disconnect();
+
+  // Comprimir y guardar
+  console.log(`💾 Guardando backup comprimido...`);
+  const json = JSON.stringify(datos, null, 2);
+  const writeStream = createWriteStream(rutaLocal);
+  const gzip = createGzip();
+  
+  await new Promise((resolve, reject) => {
+    gzip.on('error', reject);
+    writeStream.on('error', reject);
+    writeStream.on('finish', resolve);
+    gzip.pipe(writeStream);
+    gzip.write(json);
+    gzip.end();
+  });
+
+  console.log(`✅ Backup creado: ${rutaLocal}`);
   return { rutaLocal, nombreArchivo };
 }
 
@@ -46,23 +73,19 @@ async function subirADrive(rutaLocal, nombreArchivo) {
   const auth = await getGoogleAuth();
   const drive = google.drive({ version: 'v3', auth });
 
-  const fileMetadata = {
-    name: nombreArchivo,
-    parents: [FOLDER_ID],
-  };
-
-  const media = {
-    mimeType: 'application/gzip',
-    body: fs.createReadStream(rutaLocal),
-  };
-
   const response = await drive.files.create({
-    requestBody: fileMetadata,
-    media,
+    requestBody: {
+      name: nombreArchivo,
+      parents: [FOLDER_ID],
+    },
+    media: {
+      mimeType: 'application/gzip',
+      body: createReadStream(rutaLocal),
+    },
     fields: 'id, name',
   });
 
-  console.log(`✅ Subido correctamente: ${response.data.name} (ID: ${response.data.id})`);
+  console.log(`✅ Subido: ${response.data.name} (ID: ${response.data.id})`);
   return response.data;
 }
 
@@ -74,26 +97,17 @@ async function limpiarBackupsAntiguos() {
   const response = await drive.files.list({
     q: `'${FOLDER_ID}' in parents and name contains 'backup-' and trashed=false`,
     orderBy: 'createdTime desc',
-    fields: 'files(id, name, createdTime)',
+    fields: 'files(id, name)',
   });
 
   const archivos = response.data.files;
   console.log(`📂 Total backups en Drive: ${archivos.length}`);
 
   if (archivos.length > 30) {
-    const aEliminar = archivos.slice(30);
-    for (const archivo of aEliminar) {
+    for (const archivo of archivos.slice(30)) {
       await drive.files.delete({ fileId: archivo.id });
-      console.log(`🗑️  Eliminado backup antiguo: ${archivo.name}`);
+      console.log(`🗑️  Eliminado: ${archivo.name}`);
     }
-  }
-}
-
-// ---- LIMPIAR ARCHIVO LOCAL ----
-function limpiarLocal(rutaLocal) {
-  if (fs.existsSync(rutaLocal)) {
-    fs.unlinkSync(rutaLocal);
-    console.log(`🧹 Archivo temporal eliminado`);
   }
 }
 
@@ -105,25 +119,23 @@ async function main() {
 
   let rutaLocal;
   try {
-    const { rutaLocal: ruta, nombreArchivo } = await crearBackup();
+    const { rutaLocal: ruta, nombreArchivo } = await exportarColecciones();
     rutaLocal = ruta;
-
     await subirADrive(rutaLocal, nombreArchivo);
     await limpiarBackupsAntiguos();
-
     console.log('----------------------------------------');
     console.log('✅ Backup completado con éxito');
   } catch (error) {
     console.error('❌ Error en el backup:', error.message);
     process.exit(1);
   } finally {
-    if (rutaLocal) limpiarLocal(rutaLocal);
+    if (rutaLocal && existsSync(rutaLocal)) {
+      unlinkSync(rutaLocal);
+      console.log('🧹 Archivo temporal eliminado');
+    }
   }
 }
 
 export default main;
 
-// Solo ejecutar si se llama directamente
-if (process.argv[1].includes('backup.js')) {
-  main();
-}
+main();
