@@ -141,6 +141,22 @@ app.use("/pagos", pagosRoutes);
 app.use("/admin", adminRoutes);
 
 // =============================
+// BACKUP MANUAL (protegido)
+// =============================
+app.get("/backup-now", async (req, res) => {
+  const token = req.query.token;
+  if (token !== process.env.BACKUP_SECRET) {
+    return res.status(401).json({ error: "No autorizado" });
+  }
+  try {
+    res.json({ mensaje: "Backup iniciado en segundo plano" });
+    const { default: runBackup } = await import('./backup.js');
+  } catch (err) {
+    console.error("Error en backup:", err);
+  }
+});
+
+// =============================
 // INDEX
 // =============================
 app.get("/", (req, res) => {
