@@ -61,17 +61,19 @@ async function enviarPorEmail(rutaLocal, nombreArchivo) {
   console.log(`📧 Enviando backup por email...`);
 
   const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.resend.com',
+    port: 465,
+    secure: true,
     auth: {
-      user: GMAIL_USER,
-      pass: GMAIL_PASS,
+      user: 'resend',
+      pass: process.env.RESEND_API_KEY,
     },
   });
 
   const fecha = new Date().toLocaleDateString('es-ES');
   
   await transporter.sendMail({
-    from: GMAIL_USER,
+    from: 'backup@homeclick24.com',
     to: GMAIL_USER,
     subject: `🗄️ Backup HomeClick24 - ${fecha}`,
     text: `Backup automático de la base de datos de HomeClick24 del ${fecha}.\n\nColecciones incluidas en el adjunto.`,
