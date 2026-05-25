@@ -9,8 +9,81 @@ import Notificacion from "../models/Notificacion.js";
 import Usuario from "../models/Usuario.js";
 import { enviarCorreo } from "../utils/email.js";
 import { requireAuth } from "../middleware/auth.js";
+import {
+  cleanString,
+  isObjectId,
+  numberFromInput,
+  optionalCleanString,
+  optionalNumberFromInput,
+  validateBody,
+  validateQuery,
+  z
+} from "../utils/validation.js";
 
 const router = express.Router();
+
+const tipoOperacionSchema = z.enum(["venta", "alquiler"]);
+const tipoInmuebleSchema = z.enum([
+  "piso", "casa", "chalet", "apartamento",
+  "local", "oficina", "terreno",
+  "garaje", "plaza_aparcamiento", "trastero"
+]);
+const estadoSchema = z.enum(["obra_nueva", "segunda_mano"]);
+const booleanInput = z
+  .preprocess(value => typeof value === "boolean" ? String(value) : value, z.enum(["true", "false"]))
+  .optional();
+
+const propiedadesQuerySchema = z.object({
+  tipo: tipoOperacionSchema.optional(),
+  min: optionalNumberFromInput,
+  max: optionalNumberFromInput,
+  hab: optionalNumberFromInput,
+  texto: optionalCleanString(120),
+  banos: optionalNumberFromInput,
+  sup_min: optionalNumberFromInput,
+  sup_max: optionalNumberFromInput,
+  tipoInmueble: tipoInmuebleSchema.optional(),
+  estado: estadoSchema.optional(),
+  garaje: z.enum(["true"]).optional(),
+  piscina: z.enum(["true"]).optional(),
+  terraza: z.enum(["true"]).optional()
+});
+
+const propiedadBaseSchema = {
+  titulo: cleanString(160),
+  direccion: cleanString(300),
+  precio: numberFromInput.pipe(z.number().min(0)),
+  descripcion: optionalCleanString(5000),
+  tipoOperacion: tipoOperacionSchema,
+  habitaciones: numberFromInput.pipe(z.number().int().min(0)),
+  lat: optionalNumberFromInput,
+  lng: optionalNumberFromInput,
+  videoUrl: optionalCleanString(500),
+  banos: optionalNumberFromInput,
+  superficie: optionalNumberFromInput,
+  tipoInmueble: tipoInmuebleSchema.optional(),
+  estado: estadoSchema.optional(),
+  garaje: booleanInput,
+  piscina: booleanInput,
+  terraza: booleanInput,
+  escaparate: booleanInput,
+  usoPermitido: optionalCleanString(200),
+  plantaLocal: optionalCleanString(80),
+  tipoGaraje: optionalCleanString(40),
+  alturaMaxima: optionalNumberFromInput,
+  accesoTrastero: optionalCleanString(80),
+  imagenesExistentes: optionalCleanString(8000)
+};
+
+const propiedadCreateSchema = z.object(propiedadBaseSchema);
+const propiedadUpdateSchema = z.object({
+  ...propiedadBaseSchema,
+  titulo: propiedadBaseSchema.titulo.optional(),
+  direccion: propiedadBaseSchema.direccion.optional(),
+  precio: propiedadBaseSchema.precio.optional(),
+  tipoOperacion: tipoOperacionSchema.optional(),
+  habitaciones: propiedadBaseSchema.habitaciones.optional()
+});
 
 // ==================================================
 // CLOUDINARY CONFIG
@@ -47,7 +120,7 @@ const upload = multer({ storage });
 // ==================================================
 // GET /propiedades — con filtros
 // ==================================================
-router.get("/", async (req, res) => {
+router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
   try {
     const { tipo, min, max, hab, texto } = req.query;
     const filtro = {};
@@ -115,6 +188,10 @@ router.get("/test-email", async (req, res) => {
 // ==================================================
 router.get("/:id", async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+
     const propiedad = await Propiedad.findByIdAndUpdate(
       req.params.id,
       { $inc: { visitas: 1 } },
@@ -130,7 +207,7 @@ router.get("/:id", async (req, res) => {
 // ==================================================
 // POST /propiedades — crear propiedad con imágenes
 // ==================================================
-router.post("/", requireAuth, upload.array("imagenes", 10), async (req, res) => {
+router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propiedadCreateSchema), async (req, res) => {
   try {
     const {
       titulo,
@@ -305,8 +382,12 @@ router.post("/", requireAuth, upload.array("imagenes", 10), async (req, res) => 
 // ==================================================
 // PUT /propiedades/:id — editar propiedad
 // ==================================================
-router.put("/:id", requireAuth, upload.array("imagenes", 10), async (req, res) => {
+router.put("/:id", requireAuth, upload.array("imagenes", 10), validateBody(propiedadUpdateSchema), async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+
     const {
       titulo, direccion, precio, descripcion,
       tipoOperacion, habitaciones, lat, lng
@@ -363,6 +444,10 @@ router.put("/:id", requireAuth, upload.array("imagenes", 10), async (req, res) =
 // ==================================================
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+
     const propiedad = await Propiedad.findById(req.params.id);
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
     if (String(propiedad.usuarioId) !== req.user.id) {
