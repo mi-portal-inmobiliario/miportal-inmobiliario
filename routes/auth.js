@@ -4,16 +4,60 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import Usuario from "../models/Usuario.js";
+import { cleanString, objectId, optionalCleanString, validateBody, z } from "../utils/validation.js";
 
 const router = express.Router();
 
 // Configuración de Nodemailer con Gmail
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email()
+  .max(254);
+
+const passwordSchema = z.string().min(6).max(200);
+
+const registerSchema = z.object({
+  nombre: cleanString(120),
+  email: emailSchema,
+  tipoDoc: optionalCleanString(40),
+  numDoc: optionalCleanString(80),
+  token: optionalCleanString(2048)
+});
+
+const setPasswordSchema = z.object({
+  token: cleanString(2048),
+  password: passwordSchema
+});
+
+const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1).max(200)
+});
+
+const recuperarSchema = z.object({
+  email: emailSchema
+});
+
+const resetSchema = z.object({
+  token: cleanString(2048),
+  password: passwordSchema
+});
+
+const contactoSchema = z.object({
+  nombre: cleanString(120),
+  email: emailSchema,
+  asunto: cleanString(160),
+  mensaje: cleanString(3000)
+});
+
 /* ============================
    REGISTRO (EMAIL + TOKEN)
 ============================ */
-router.post("/register", async (req, res) => {
+router.post("/register", validateBody(registerSchema), async (req, res) => {
   try {
     const {
       nombre,
@@ -106,7 +150,7 @@ router.post("/register", async (req, res) => {
 /* ============================
    CREAR CONTRASEÑA (ACTIVACIÓN)
 ============================ */
-router.post("/set-password", async (req, res) => {
+router.post("/set-password", validateBody(setPasswordSchema), async (req, res) => {
   try {
     const { token, password } = req.body;
 
@@ -139,7 +183,7 @@ router.post("/set-password", async (req, res) => {
 /* ============================
    LOGIN
 ============================ */
-router.post("/login", async (req, res) => {
+router.post("/login", validateBody(loginSchema), async (req, res) => {
   try {
     const { email, password } = req.body;
 
@@ -198,7 +242,7 @@ router.post("/login", async (req, res) => {
 /* ============================
    RECUPERAR CONTRASEÑA
 ============================ */
-router.post("/recuperar", async (req, res) => {
+router.post("/recuperar", validateBody(recuperarSchema), async (req, res) => {
   try {
     const { email } = req.body;
 
@@ -243,12 +287,16 @@ router.post("/recuperar", async (req, res) => {
 /* ============================
    RESET CONTRASEÑA
 ============================ */
-router.post("/reset", async (req, res) => {
+router.post("/reset", validateBody(resetSchema), async (req, res) => {
   try {
     const { token, password } = req.body;
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const hash = await bcrypt.hash(password, 10);
+
+    if (!objectId.safeParse(decoded.id).success) {
+      return res.status(400).json({ error: "Token inválido o expirado" });
+    }
 
     await Usuario.findByIdAndUpdate(decoded.id, { password: hash });
 
@@ -280,7 +328,7 @@ router.get("/test-email", async (req, res) => {
 /* ============================
    CONTACTO
 ============================ */
-router.post("/contacto", async (req, res) => {
+router.post("/contacto", validateBody(contactoSchema), async (req, res) => {
   try {
     const { nombre, email, asunto, mensaje } = req.body;
 
