@@ -456,6 +456,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const maxFotos = LIMITE_FOTOS[plan] || 10;
   const textoFotos = document.getElementById("textoFotos");
   if (textoFotos) textoFotos.textContent = `JPG, PNG · Máximo ${maxFotos} fotos · La primera será la portada`;
+
+  actualizarCampos();
 });
 
 /* ACTUALIZAR CAMPOS SEGÚN TIPO */
@@ -467,9 +469,9 @@ function actualizarCampos() {
   const esResidencial = ["piso", "casa", "chalet", "apartamento"].includes(tipo);
 
   // Habitaciones y baños
-  document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero) ? "none" : "";
-  document.getElementById("grupo-banos").style.display = (esGaraje || esTrastero || tipo === "terreno") ? "none" : "";
-
+  document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero || esLocal || tipo === "terreno") ? "none" : "";
+  document.getElementById("grupo-banos").style.display = (esGaraje || esTrastero || esLocal || tipo === "terreno") ? "none" : "";
+  
   // Campos locales/oficinas
   document.getElementById("grupo-local").style.display = esLocal ? "" : "none";
   document.getElementById("grupo-plantaLocal").style.display = esLocal ? "" : "none";
