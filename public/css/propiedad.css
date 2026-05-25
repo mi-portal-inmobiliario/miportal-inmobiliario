@@ -453,3 +453,27 @@
 
 .modal-btn.left  { left: 20px; }
 .modal-btn.right { right: 20px; }
+
+.propiedad-caracteristicas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 16px 0;
+}
+
+.caract-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: #f7fdf2;
+  border: 1.5px solid #e0f0cc;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  color: #444;
+}
+
+.caract-item span {
+  font-weight: 600;
+  color: #333;
+}

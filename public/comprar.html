@@ -404,13 +404,22 @@
       <label>Tipo de inmueble</label>
       <select id="f_tipo_inmueble">
         <option value="">Todos</option>
-        <option value="piso">Piso</option>
-        <option value="casa">Casa</option>
-        <option value="chalet">Chalet</option>
-        <option value="apartamento">Apartamento</option>
-        <option value="local">Local</option>
-        <option value="oficina">Oficina</option>
-        <option value="terreno">Terreno</option>
+        <optgroup label="Residencial">
+          <option value="piso">Piso</option>
+          <option value="casa">Casa</option>
+          <option value="chalet">Chalet</option>
+          <option value="apartamento">Apartamento</option>
+        </optgroup>
+        <optgroup label="Comercial">
+          <option value="local">Local comercial</option>
+          <option value="oficina">Oficina</option>
+          <option value="terreno">Terreno</option>
+        </optgroup>
+        <optgroup label="Otros">
+          <option value="garaje">Garaje</option>
+          <option value="plaza_aparcamiento">Plaza de aparcamiento</option>
+          <option value="trastero">Trastero</option>
+        </optgroup>
       </select>
     </div>
 

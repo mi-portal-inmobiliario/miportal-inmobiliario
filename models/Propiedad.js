@@ -6,19 +6,38 @@ const PropiedadSchema = new mongoose.Schema({
   precio:        { type: Number, required: true },
   descripcion:   { type: String },
   tipoOperacion: { type: String, enum: ["venta", "alquiler"], required: true },
-  habitaciones:  { type: Number, default: 1 },
+  habitaciones:  { type: Number, default: 0 },
   imagenes:      { type: [String], default: [] },
   lat:           { type: Number },
   lng:           { type: Number },
 
-  // NUEVOS CAMPOS
-  banos:         { type: Number, default: 1 },
+  banos:         { type: Number, default: 0 },
   superficie:    { type: Number },
   garaje:        { type: Boolean, default: false },
   piscina:       { type: Boolean, default: false },
   terraza:       { type: Boolean, default: false },
-  tipoInmueble:  { type: String, enum: ["piso", "casa", "chalet", "apartamento", "local", "oficina", "terreno"], default: "piso" },
-  estado:        { type: String, enum: ["obra_nueva", "segunda_mano"], default: "segunda_mano" },
+
+  tipoInmueble:  { 
+    type: String, 
+    enum: [
+      "piso", "casa", "chalet", "apartamento",  // Residencial
+      "local", "oficina", "terreno",              // Comercial
+      "garaje", "plaza_aparcamiento", "trastero"  // Otros
+    ], 
+    default: "piso" 
+  },
+
+  estado: { type: String, enum: ["obra_nueva", "segunda_mano"], default: "segunda_mano" },
+
+  // Campos específicos para locales y oficinas
+  usoPermitido:    { type: String, default: "" },  // ej: "hostelería, comercio, oficina"
+  escaparate:      { type: Boolean, default: false },
+  plantaLocal:     { type: String, default: "" },  // ej: "planta baja", "semisótano"
+
+  // Campos específicos para garajes y trasteros
+  alturaMaxima:    { type: Number, default: null }, // en metros
+  tipoGaraje:      { type: String, enum: ["individual", "multiple", ""], default: "" },
+  accesoTrastero:  { type: String, default: "" },  // ej: "ascensor", "escaleras"
 
   // Para saber quién publicó cada anuncio
   usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },

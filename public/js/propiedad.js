@@ -155,6 +155,31 @@ function renderPropiedad() {
           <div class="propiedad-dir">📍 ${propiedad.direccion}</div>
           ${hab ? `<div class="propiedad-hab">${hab}</div>` : ""}
 
+          <!-- CARACTERÍSTICAS -->
+          <div class="propiedad-caracteristicas">
+            ${propiedad.superficie ? `<div class="caract-item">📐 <span>${propiedad.superficie} m²</span></div>` : ""}
+            ${propiedad.banos ? `<div class="caract-item">🚿 <span>${propiedad.banos} baño${propiedad.banos > 1 ? "s" : ""}</span></div>` : ""}
+            ${propiedad.estado ? `<div class="caract-item">🏗 <span>${propiedad.estado === "obra_nueva" ? "Obra nueva" : "Segunda mano"}</span></div>` : ""}
+            ${propiedad.tipoInmueble ? `<div class="caract-item">🏠 <span>${formatearTipo(propiedad.tipoInmueble)}</span></div>` : ""}
+
+            <!-- Residencial -->
+            ${propiedad.garaje ? `<div class="caract-item">🚗 <span>Garaje incluido</span></div>` : ""}
+            ${propiedad.piscina ? `<div class="caract-item">🏊 <span>Piscina</span></div>` : ""}
+            ${propiedad.terraza ? `<div class="caract-item">🌿 <span>Terraza / Jardín</span></div>` : ""}
+
+            <!-- Locales y oficinas -->
+            ${propiedad.usoPermitido ? `<div class="caract-item">📋 <span>Uso: ${propiedad.usoPermitido}</span></div>` : ""}
+            ${propiedad.plantaLocal ? `<div class="caract-item">🏢 <span>${formatearPlanta(propiedad.plantaLocal)}</span></div>` : ""}
+            ${propiedad.escaparate ? `<div class="caract-item">🪟 <span>Con escaparate</span></div>` : ""}
+
+            <!-- Garajes -->
+            ${propiedad.tipoGaraje ? `<div class="caract-item">🅿️ <span>Garaje ${propiedad.tipoGaraje}</span></div>` : ""}
+            ${propiedad.alturaMaxima ? `<div class="caract-item">📏 <span>Altura máx. ${propiedad.alturaMaxima}m</span></div>` : ""}
+
+            <!-- Trasteros -->
+            ${propiedad.accesoTrastero ? `<div class="caract-item">🚪 <span>Acceso: ${propiedad.accesoTrastero}</span></div>` : ""}
+          </div>
+
           <hr>
 
           <button class="chat-open-btn" onclick="contactar()">
@@ -334,4 +359,21 @@ function generarEnlaceWhatsapp() {
     `🏠 *${propiedad.titulo}*\n📍 ${propiedad.direccion}\n💶 ${propiedad.precio?.toLocaleString("es-ES")} €\n\n${window.location.href}`
   );
   return `https://wa.me/?text=${texto}`;
+}
+
+function formatearTipo(tipo) {
+  const tipos = {
+    piso: "Piso", casa: "Casa", chalet: "Chalet", apartamento: "Apartamento",
+    local: "Local comercial", oficina: "Oficina", terreno: "Terreno",
+    garaje: "Garaje", plaza_aparcamiento: "Plaza de aparcamiento", trastero: "Trastero"
+  };
+  return tipos[tipo] || tipo;
+}
+
+function formatearPlanta(planta) {
+  const plantas = {
+    planta_baja: "Planta baja", semisotano: "Semisótano",
+    sotano: "Sótano", primera: "Primera planta"
+  };
+  return plantas[planta] || planta;
 }

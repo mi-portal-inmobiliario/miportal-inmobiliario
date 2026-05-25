@@ -23,24 +23,10 @@
       width: 100%;
     }
 
-    /* CABECERA */
-    .publicar-header {
-      margin-bottom: 32px;
-    }
+    .publicar-header { margin-bottom: 32px; }
+    .publicar-header h1 { font-size: 1.9rem; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
+    .publicar-header p { color: #999; font-size: 0.95rem; }
 
-    .publicar-header h1 {
-      font-size: 1.9rem;
-      font-weight: 800;
-      color: #1a1a1a;
-      margin-bottom: 6px;
-    }
-
-    .publicar-header p {
-      color: #999;
-      font-size: 0.95rem;
-    }
-
-    /* PASOS */
     .pasos {
       display: flex;
       align-items: center;
@@ -52,372 +38,130 @@
       box-shadow: 0 2px 12px rgba(0,0,0,0.06);
     }
 
-    .paso {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-    }
-
+    .paso { display: flex; align-items: center; gap: 10px; flex: 1; }
     .paso-num {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: #eee;
-      color: #aaa;
-      font-size: 0.82rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-      transition: all 0.2s;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #eee; color: #aaa; font-size: 0.82rem; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: all 0.2s;
     }
-
-    .paso.activo .paso-num {
-      background: #7cc242;
-      color: #fff;
-    }
-
-    .paso-label {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #bbb;
-    }
-
+    .paso.activo .paso-num { background: #7cc242; color: #fff; }
+    .paso-label { font-size: 0.82rem; font-weight: 600; color: #bbb; }
     .paso.activo .paso-label { color: #333; }
+    .paso-linea { flex: 1; height: 2px; background: #eee; margin: 0 8px; }
 
-    .paso-linea {
-      flex: 1;
-      height: 2px;
-      background: #eee;
-      margin: 0 8px;
-    }
-
-    /* CARDS */
     .form-card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 28px 32px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-      margin-bottom: 20px;
+      background: #fff; border-radius: 18px; padding: 28px 32px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06); margin-bottom: 20px;
       border: 1px solid rgba(0,0,0,0.04);
     }
 
     .form-card-header {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 22px;
-      padding-bottom: 16px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 22px; padding-bottom: 16px;
       border-bottom: 1px solid #f0f0f0;
     }
 
     .form-card-icon {
-      width: 38px;
-      height: 38px;
-      background: #f0f9e8;
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.1rem;
-      flex-shrink: 0;
+      width: 38px; height: 38px; background: #f0f9e8;
+      border-radius: 10px; display: flex; align-items: center;
+      justify-content: center; font-size: 1.1rem; flex-shrink: 0;
     }
 
-    .form-card-header h2 {
-      font-size: 1rem;
-      font-weight: 800;
-      color: #1a1a1a;
-      margin: 0;
-    }
+    .form-card-header h2 { font-size: 1rem; font-weight: 800; color: #1a1a1a; margin: 0; }
+    .form-card-header span { font-size: 0.82rem; color: #aaa; }
 
-    .form-card-header span {
-      font-size: 0.82rem;
-      color: #aaa;
-    }
-
-    /* GRID */
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 7px;
-    }
-
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .form-group { display: flex; flex-direction: column; gap: 7px; }
     .form-group.full { grid-column: 1 / -1; }
 
     .form-group label {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: #666;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
+      font-size: 0.82rem; font-weight: 700; color: #666;
+      text-transform: uppercase; letter-spacing: 0.4px;
     }
 
     .form-group input,
     .form-group textarea,
     .form-group select {
-      padding: 12px 14px;
-      border: 1.5px solid #eee;
-      border-radius: 10px;
-      font-size: 0.93rem;
-      transition: border-color 0.2s, background 0.2s;
-      font-family: inherit;
-      background: #fafafa;
-      color: #222;
-      outline: none;
+      padding: 12px 14px; border: 1.5px solid #eee; border-radius: 10px;
+      font-size: 0.93rem; transition: border-color 0.2s, background 0.2s;
+      font-family: inherit; background: #fafafa; color: #222; outline: none;
     }
 
     .form-group input:focus,
     .form-group textarea:focus,
-    .form-group select:focus {
-      border-color: #7cc242;
-      background: #fff;
-    }
-
+    .form-group select:focus { border-color: #7cc242; background: #fff; }
     .form-group textarea { resize: vertical; min-height: 90px; }
 
-    /* EXTRAS */
-    .extras-row {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .extras-row { display: flex; gap: 10px; flex-wrap: wrap; }
 
     .extra-chip {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      border: 1.5px solid #eee;
-      border-radius: 30px;
-      cursor: pointer;
-      font-size: 0.88rem;
-      color: #555;
-      background: #fafafa;
-      transition: all 0.2s;
-      user-select: none;
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 16px; border: 1.5px solid #eee; border-radius: 30px;
+      cursor: pointer; font-size: 0.88rem; color: #555; background: #fafafa;
+      transition: all 0.2s; user-select: none;
     }
-
-    .extra-chip:hover {
-      border-color: #7cc242;
-      color: #5a9e2f;
-    }
-
+    .extra-chip:hover { border-color: #7cc242; color: #5a9e2f; }
     .extra-chip input { display: none; }
+    .extra-chip.checked { border-color: #7cc242; background: #f0f9e8; color: #5a9e2f; font-weight: 600; }
 
-    .extra-chip.checked {
-      border-color: #7cc242;
-      background: #f0f9e8;
-      color: #5a9e2f;
-      font-weight: 600;
-    }
-
-    /* AUTOCOMPLETADO */
     .dir-wrap { position: relative; }
 
     #sugerencias {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: #fff;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      z-index: 100;
-      display: none;
-      max-height: 220px;
-      overflow-y: auto;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.1);
-      margin-top: 4px;
+      position: absolute; top: 100%; left: 0; right: 0;
+      background: #fff; border: 1px solid #eee; border-radius: 12px;
+      z-index: 100; display: none; max-height: 220px; overflow-y: auto;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.1); margin-top: 4px;
     }
-
-    #sugerencias div {
-      padding: 11px 16px;
-      cursor: pointer;
-      font-size: 0.88rem;
-      color: #444;
-      border-bottom: 1px solid #f5f5f5;
-      transition: background 0.15s;
-    }
-
+    #sugerencias div { padding: 11px 16px; cursor: pointer; font-size: 0.88rem; color: #444; border-bottom: 1px solid #f5f5f5; transition: background 0.15s; }
     #sugerencias div:last-child { border-bottom: none; }
     #sugerencias div:hover { background: #f0f9e8; color: #5a9e2f; }
 
-    /* MAPA */
-    #mapPreview {
-      width: 100%;
-      height: 260px;
-      border-radius: 12px;
-      background: #eee;
-      margin-top: 16px;
-    }
+    #mapPreview { width: 100%; height: 260px; border-radius: 12px; background: #eee; margin-top: 16px; }
 
-    /* FOTOS */
     .upload-area {
-      border: 2px dashed #ddd;
-      border-radius: 14px;
-      padding: 36px 20px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #fafafa;
+      border: 2px dashed #ddd; border-radius: 14px; padding: 36px 20px;
+      text-align: center; cursor: pointer; transition: all 0.2s; background: #fafafa;
     }
-
-    .upload-area:hover {
-      border-color: #7cc242;
-      background: #f7fdf2;
-    }
-
+    .upload-area:hover { border-color: #7cc242; background: #f7fdf2; }
     .upload-icon { font-size: 2.2rem; margin-bottom: 8px; }
+    .upload-area h3 { font-size: 0.95rem; font-weight: 700; color: #333; margin-bottom: 4px; }
+    .upload-area p { color: #aaa; font-size: 0.83rem; }
 
-    .upload-area h3 {
-      font-size: 0.95rem;
-      font-weight: 700;
-      color: #333;
-      margin-bottom: 4px;
-    }
-
-    .upload-area p {
-      color: #aaa;
-      font-size: 0.83rem;
-    }
-
-    .preview-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-      gap: 10px;
-      margin-top: 16px;
-    }
-
-    .preview-item {
-      aspect-ratio: 1;
-      position: relative;
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
-
-    .preview-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
+    .preview-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; margin-top: 16px; }
+    .preview-item { aspect-ratio: 1; position: relative; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .preview-item img { width: 100%; height: 100%; object-fit: cover; }
     .preview-item button {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: rgba(0,0,0,0.65);
-      border: none;
-      color: #fff;
-      font-size: 14px;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: background 0.2s;
+      position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.65);
+      border: none; color: #fff; font-size: 14px; border-radius: 50%;
+      width: 24px; height: 24px; cursor: pointer; display: flex;
+      align-items: center; justify-content: center; transition: background 0.2s;
     }
-
     .preview-item button:hover { background: #e53e3e; }
 
-    /* SUBMIT */
     .submit-area {
-      background: #fff;
-      border-radius: 18px;
-      padding: 28px 32px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-      border: 1px solid rgba(0,0,0,0.04);
+      background: #fff; border-radius: 18px; padding: 28px 32px;
+      box-shadow: 0 2px 16px rgba(0,0,0,0.06); border: 1px solid rgba(0,0,0,0.04);
     }
 
     .btn-submit {
-      width: 100%;
-      padding: 16px;
-      font-size: 1.05rem;
-      font-weight: 700;
-      background: #7cc242;
-      color: #fff;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      box-shadow: 0 4px 16px rgba(124,194,66,0.35);
-      letter-spacing: 0.2px;
+      width: 100%; padding: 16px; font-size: 1.05rem; font-weight: 700;
+      background: #7cc242; color: #fff; border: none; border-radius: 12px;
+      cursor: pointer; transition: all 0.2s ease;
+      box-shadow: 0 4px 16px rgba(124,194,66,0.35); letter-spacing: 0.2px;
     }
+    .btn-submit:hover { background: #6aad35; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(124,194,66,0.45); }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; transform: none; box-shadow: none; }
 
-    .btn-submit:hover {
-      background: #6aad35;
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(124,194,66,0.45);
-    }
+    .submit-nota { display: flex; align-items: center; gap: 8px; margin-top: 14px; font-size: 0.82rem; color: #aaa; justify-content: center; }
 
-    .btn-submit:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-      transform: none;
-      box-shadow: none;
-    }
-
-    .submit-nota {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-      font-size: 0.82rem;
-      color: #aaa;
-      justify-content: center;
-    }
-
-    #mensaje {
-      text-align: center;
-      margin-top: 14px;
-      font-weight: 600;
-      font-size: 0.95rem;
-      padding: 12px;
-      border-radius: 10px;
-    }
-
+    #mensaje { text-align: center; margin-top: 14px; font-weight: 600; font-size: 0.95rem; padding: 12px; border-radius: 10px; }
     #mensaje.ok { background: #f0f9e8; color: #5a9e2f; }
     #mensaje.err { background: #fff0f0; color: #e53e3e; }
 
-    /* MODAL */
-    .modal {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.92);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 2000;
-    }
-
-    .modal img {
-      max-width: 95%;
-      max-height: 90vh;
-      object-fit: contain;
-      border-radius: 8px;
-    }
-
-    .modal-cerrar {
-      position: absolute;
-      top: 20px;
-      right: 30px;
-      font-size: 42px;
-      color: white;
-      cursor: pointer;
-      opacity: 0.8;
-      transition: opacity 0.2s;
-    }
-
+    .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none; justify-content: center; align-items: center; z-index: 2000; }
+    .modal img { max-width: 95%; max-height: 90vh; object-fit: contain; border-radius: 8px; }
+    .modal-cerrar { position: absolute; top: 20px; right: 30px; font-size: 42px; color: white; cursor: pointer; opacity: 0.8; transition: opacity 0.2s; }
     .modal-cerrar:hover { opacity: 1; }
 
     @media (max-width: 600px) {
@@ -435,7 +179,7 @@
 
   <div class="publicar-header">
     <h1 id="titulo-pagina">Publicar propiedad</h1>
-    <p id="subtitulo-pagina">Rellena los datos de tu vivienda para publicarla en HomeClick24</p>
+    <p id="subtitulo-pagina">Rellena los datos de tu inmueble para publicarlo en HomeClick24</p>
   </div>
 
   <!-- PASOS -->
@@ -475,7 +219,7 @@
 
       <div class="form-group full">
         <label>Título del anuncio *</label>
-        <input type="text" id="titulo" placeholder="Ej: Ático con terraza y vistas al mar">
+        <input type="text" id="titulo" placeholder="Ej: Local comercial en planta baja con escaparate">
       </div>
 
       <div class="form-group">
@@ -494,14 +238,23 @@
 
       <div class="form-group">
         <label>Tipo de inmueble</label>
-        <select id="tipoInmueble">
-          <option value="piso">Piso</option>
-          <option value="casa">Casa</option>
-          <option value="chalet">Chalet</option>
-          <option value="apartamento">Apartamento</option>
-          <option value="local">Local</option>
-          <option value="oficina">Oficina</option>
-          <option value="terreno">Terreno</option>
+        <select id="tipoInmueble" onchange="actualizarCampos()">
+          <optgroup label="Residencial">
+            <option value="piso">Piso</option>
+            <option value="casa">Casa</option>
+            <option value="chalet">Chalet</option>
+            <option value="apartamento">Apartamento</option>
+          </optgroup>
+          <optgroup label="Comercial">
+            <option value="local">Local comercial</option>
+            <option value="oficina">Oficina</option>
+            <option value="terreno">Terreno</option>
+          </optgroup>
+          <optgroup label="Otros">
+            <option value="garaje">Garaje</option>
+            <option value="plaza_aparcamiento">Plaza de aparcamiento</option>
+            <option value="trastero">Trastero</option>
+          </optgroup>
         </select>
       </div>
 
@@ -513,10 +266,12 @@
         </select>
       </div>
 
-      <div class="form-group">
+      <!-- HABITACIONES — oculto para garaje/trastero -->
+      <div class="form-group" id="grupo-habitaciones">
         <label>Habitaciones *</label>
         <select id="habitaciones">
           <option value="">Selecciona...</option>
+          <option value="0">Estudio / Sin habitaciones</option>
           <option value="1">1 habitación</option>
           <option value="2">2 habitaciones</option>
           <option value="3">3 habitaciones</option>
@@ -525,7 +280,8 @@
         </select>
       </div>
 
-      <div class="form-group">
+      <!-- BAÑOS — oculto para garaje/trastero/terreno -->
+      <div class="form-group" id="grupo-banos">
         <label>Baños</label>
         <select id="banos">
           <option value="1">1 baño</option>
@@ -542,20 +298,68 @@
 
       <div class="form-group full">
         <label>Descripción</label>
-        <textarea id="descripcion" placeholder="Describe tu propiedad: características, reformas, orientación, comunidad..."></textarea>
+        <textarea id="descripcion" placeholder="Describe el inmueble: características, reformas, orientación, accesos..."></textarea>
       </div>
 
       <div class="form-group">
         <label>Vídeo YouTube (opcional)</label>
-
-        <input
-          type="url"
-          id="videoUrl"
-          placeholder="https://www.youtube.com/watch?v=..."
-         >
+        <input type="url" id="videoUrl" placeholder="https://www.youtube.com/watch?v=...">
       </div>
 
-      <div class="form-group full">
+      <!-- CAMPOS ESPECÍFICOS LOCALES Y OFICINAS -->
+      <div class="form-group full" id="grupo-local" style="display:none">
+        <label>Uso permitido</label>
+        <input type="text" id="usoPermitido" placeholder="Ej: hostelería, comercio, oficina...">
+      </div>
+
+      <div class="form-group" id="grupo-plantaLocal" style="display:none">
+        <label>Planta</label>
+        <select id="plantaLocal">
+          <option value="">Selecciona...</option>
+          <option value="planta_baja">Planta baja</option>
+          <option value="semisotano">Semisótano</option>
+          <option value="sotano">Sótano</option>
+          <option value="primera">Primera planta</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="grupo-escaparate" style="display:none">
+        <label>Extras local</label>
+        <div class="extras-row">
+          <label class="extra-chip" id="chip_escaparate" onclick="toggleChip('chip_escaparate')">
+            <input type="checkbox" id="escaparate"> 🪟 Escaparate
+          </label>
+        </div>
+      </div>
+
+      <!-- CAMPOS ESPECÍFICOS GARAJE -->
+      <div class="form-group" id="grupo-tipoGaraje" style="display:none">
+        <label>Tipo de garaje</label>
+        <select id="tipoGaraje">
+          <option value="">Selecciona...</option>
+          <option value="individual">Individual</option>
+          <option value="multiple">Múltiple</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="grupo-alturaMaxima" style="display:none">
+        <label>Altura máxima (m)</label>
+        <input type="number" id="alturaMaxima" placeholder="Ej: 2.2" step="0.1">
+      </div>
+
+      <!-- CAMPOS ESPECÍFICOS TRASTERO -->
+      <div class="form-group" id="grupo-accesoTrastero" style="display:none">
+        <label>Acceso</label>
+        <select id="accesoTrastero">
+          <option value="">Selecciona...</option>
+          <option value="ascensor">Ascensor</option>
+          <option value="escaleras">Escaleras</option>
+          <option value="rampa">Rampa</option>
+        </select>
+      </div>
+
+      <!-- EXTRAS — solo para residencial -->
+      <div class="form-group full" id="grupo-extras">
         <label>Extras</label>
         <div class="extras-row">
           <label class="extra-chip" id="chip_garaje" onclick="toggleChip('chip_garaje')">
@@ -579,10 +383,9 @@
       <div class="form-card-icon">📍</div>
       <div>
         <h2>Ubicación</h2>
-        <span>Dirección exacta de la propiedad</span>
+        <span>Dirección exacta del inmueble</span>
       </div>
     </div>
-
     <div class="form-group dir-wrap">
       <label>Dirección *</label>
       <input type="text" id="direccion" placeholder="Escribe la dirección y selecciona una sugerencia..." autocomplete="off">
@@ -597,10 +400,9 @@
       <div class="form-card-icon">📷</div>
       <div>
         <h2>Fotos</h2>
-        <span>Añade hasta 10 fotos de la propiedad</span>
+        <span>Añade hasta 10 fotos del inmueble</span>
       </div>
     </div>
-
     <div class="upload-area" onclick="document.getElementById('imagenes').click()">
       <div class="upload-icon">📸</div>
       <h3>Haz clic para subir fotos</h3>
@@ -638,7 +440,6 @@ let imgFiles = [];
 let imagenesExistentes = [];
 
 /* GUARD */
-
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const token   = localStorage.getItem("token");
@@ -648,19 +449,42 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const LIMITE_FOTOS = {
-    gratis: 10,
-    basico: 20,
-    destacado: 30,
-    starter: 30,
-    pro_agentes: 40,
-    agencia_basica: 40,
-    agencia_pro: 50
+    gratis: 10, basico: 20, destacado: 30, starter: 30,
+    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50
   };
   const plan = usuario?.plan || "gratis";
   const maxFotos = LIMITE_FOTOS[plan] || 10;
   const textoFotos = document.getElementById("textoFotos");
   if (textoFotos) textoFotos.textContent = `JPG, PNG · Máximo ${maxFotos} fotos · La primera será la portada`;
 });
+
+/* ACTUALIZAR CAMPOS SEGÚN TIPO */
+function actualizarCampos() {
+  const tipo = document.getElementById("tipoInmueble").value;
+  const esGaraje = ["garaje", "plaza_aparcamiento"].includes(tipo);
+  const esTrastero = tipo === "trastero";
+  const esLocal = ["local", "oficina"].includes(tipo);
+  const esResidencial = ["piso", "casa", "chalet", "apartamento"].includes(tipo);
+
+  // Habitaciones y baños
+  document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero) ? "none" : "";
+  document.getElementById("grupo-banos").style.display = (esGaraje || esTrastero || tipo === "terreno") ? "none" : "";
+
+  // Campos locales/oficinas
+  document.getElementById("grupo-local").style.display = esLocal ? "" : "none";
+  document.getElementById("grupo-plantaLocal").style.display = esLocal ? "" : "none";
+  document.getElementById("grupo-escaparate").style.display = esLocal ? "" : "none";
+
+  // Campos garaje
+  document.getElementById("grupo-tipoGaraje").style.display = esGaraje ? "" : "none";
+  document.getElementById("grupo-alturaMaxima").style.display = esGaraje ? "" : "none";
+
+  // Campos trastero
+  document.getElementById("grupo-accesoTrastero").style.display = esTrastero ? "" : "none";
+
+  // Extras solo residencial
+  document.getElementById("grupo-extras").style.display = esResidencial ? "" : "none";
+}
 
 /* MODO EDICIÓN */
 const propiedadIdEditar = new URLSearchParams(window.location.search).get("editar");
@@ -683,16 +507,24 @@ if (propiedadIdEditar) {
       document.getElementById("superficie").value    = p.superficie || "";
       document.getElementById("tipoInmueble").value  = p.tipoInmueble || "piso";
       document.getElementById("estado").value        = p.estado || "segunda_mano";
+      document.getElementById("videoUrl").value      = p.videoUrl || "";
 
-      if (p.garaje)  { document.getElementById("garaje").checked  = true; document.getElementById("chip_garaje").classList.add("checked"); }
-      if (p.piscina) { document.getElementById("piscina").checked = true; document.getElementById("chip_piscina").classList.add("checked"); }
-      if (p.terraza) { document.getElementById("terraza").checked = true; document.getElementById("chip_terraza").classList.add("checked"); }
+      // Campos específicos
+      if (p.usoPermitido) document.getElementById("usoPermitido").value = p.usoPermitido;
+      if (p.plantaLocal)  document.getElementById("plantaLocal").value  = p.plantaLocal;
+      if (p.tipoGaraje)   document.getElementById("tipoGaraje").value   = p.tipoGaraje;
+      if (p.alturaMaxima) document.getElementById("alturaMaxima").value = p.alturaMaxima;
+      if (p.accesoTrastero) document.getElementById("accesoTrastero").value = p.accesoTrastero;
+
+      if (p.garaje)    { document.getElementById("garaje").checked    = true; document.getElementById("chip_garaje").classList.add("checked"); }
+      if (p.piscina)   { document.getElementById("piscina").checked   = true; document.getElementById("chip_piscina").classList.add("checked"); }
+      if (p.terraza)   { document.getElementById("terraza").checked   = true; document.getElementById("chip_terraza").classList.add("checked"); }
+      if (p.escaparate){ document.getElementById("escaparate").checked= true; document.getElementById("chip_escaparate").classList.add("checked"); }
 
       if (p.lat && p.lng) { latSel = p.lat; lngSel = p.lng; mostrarMapa(p.lat, p.lng); }
 
-      if (p.imagenes?.length) { 
+      if (p.imagenes?.length) {
         imagenesExistentes = p.imagenes || [];
-
         document.getElementById("preview").innerHTML = p.imagenes.map((url, i) => `
           <div class="preview-item">
             <img src="${url}" onclick="abrirModal('${url}')">
@@ -700,6 +532,9 @@ if (propiedadIdEditar) {
           </div>
         `).join("");
       }
+
+      // Actualizar campos visibles según tipo
+      actualizarCampos();
     });
 }
 
@@ -746,13 +581,8 @@ function mostrarMapa(lat, lng) {
     mapaPrevio = L.map("mapPreview").setView([lat, lng], 15);
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(mapaPrevio);
   }
-
   mapaPrevio.setView([lat, lng], 15);
-
-  if (markerPrevio) {
-    mapaPrevio.removeLayer(markerPrevio);
-  }
-
+  if (markerPrevio) mapaPrevio.removeLayer(markerPrevio);
   markerPrevio = L.marker([lat, lng]).addTo(mapaPrevio);
 }
 
@@ -760,25 +590,17 @@ function mostrarMapa(lat, lng) {
 document.getElementById("imagenes").addEventListener("change", e => {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const LIMITE_FOTOS = {
-    gratis: 10,
-    basico: 20,
-    destacado: 30,
-    starter: 30,
-    pro_agentes: 40,
-    agencia_basica: 40,
-    agencia_pro: 50
+    gratis: 10, basico: 20, destacado: 30, starter: 30,
+    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50
   };
   const plan = usuario?.plan || "gratis";
   const maxFotos = LIMITE_FOTOS[plan] || 10;
-  
   imgFiles = Array.from(e.target.files).slice(0, maxFotos);
-  
   if (e.target.files.length > maxFotos) {
     const mensajeEl = document.getElementById("mensaje");
     mensajeEl.textContent = `⚠️ Tu plan ${plan} permite un máximo de ${maxFotos} fotos. Se han seleccionado las primeras ${maxFotos}.`;
     mensajeEl.className = "err";
   }
-  
   renderPreview();
 });
 
@@ -804,7 +626,6 @@ function borrarImg(i) { imgFiles.splice(i, 1); renderPreview(); }
 
 function borrarExistente(i) {
   imagenesExistentes.splice(i, 1);
-
   document.getElementById("preview").innerHTML = imagenesExistentes.map((url, index) => `
     <div class="preview-item">
       <img src="${url}" onclick="abrirModal('${url}')">
@@ -828,21 +649,31 @@ async function publicar() {
   const direccion     = document.getElementById("direccion").value.trim();
   const precio        = document.getElementById("precio").value;
   const tipoOperacion = document.getElementById("tipoOperacion").value;
-  const habitaciones  = document.getElementById("habitaciones").value;
+  const tipo          = document.getElementById("tipoInmueble").value;
   const mensajeEl     = document.getElementById("mensaje");
   const btn           = document.getElementById("btnPublicar");
+
+  // Habitaciones solo obligatorio para residencial
+  const esResidencial = ["piso", "casa", "chalet", "apartamento"].includes(tipo);
+  const habitaciones  = document.getElementById("habitaciones").value;
 
   mensajeEl.className = "";
   mensajeEl.textContent = "";
 
-  if (!titulo || !direccion || !precio || !tipoOperacion || !habitaciones) {
+  if (!titulo || !direccion || !precio || !tipoOperacion) {
     mensajeEl.textContent = "⚠️ Rellena todos los campos obligatorios";
     mensajeEl.className = "err";
     return;
   }
 
+  if (esResidencial && !habitaciones) {
+    mensajeEl.textContent = "⚠️ Selecciona el número de habitaciones";
+    mensajeEl.className = "err";
+    return;
+  }
+
   if (!latSel || !lngSel) {
-    mensajeEl.textContent = "⚠️ Selecciona una dirección válida";
+    mensajeEl.textContent = "⚠️ Selecciona una dirección válida del desplegable";
     mensajeEl.className = "err";
     return;
   }
@@ -861,20 +692,22 @@ async function publicar() {
   fd.append("direccion", direccion);
   fd.append("precio", precio);
   fd.append("descripcion", document.getElementById("descripcion").value.trim());
-
-  fd.append(
-    "videoUrl",
-    document.getElementById("videoUrl").value.trim()
-  );
+  fd.append("videoUrl", document.getElementById("videoUrl").value.trim());
   fd.append("tipoOperacion", tipoOperacion);
-  fd.append("habitaciones", habitaciones);
+  fd.append("habitaciones", habitaciones || 0);
   fd.append("banos", document.getElementById("banos").value);
   fd.append("superficie", document.getElementById("superficie").value);
-  fd.append("tipoInmueble", document.getElementById("tipoInmueble").value);
+  fd.append("tipoInmueble", tipo);
   fd.append("estado", document.getElementById("estado").value);
   fd.append("garaje", document.getElementById("garaje").checked);
   fd.append("piscina", document.getElementById("piscina").checked);
   fd.append("terraza", document.getElementById("terraza").checked);
+  fd.append("escaparate", document.getElementById("escaparate")?.checked || false);
+  fd.append("usoPermitido", document.getElementById("usoPermitido")?.value || "");
+  fd.append("plantaLocal", document.getElementById("plantaLocal")?.value || "");
+  fd.append("tipoGaraje", document.getElementById("tipoGaraje")?.value || "");
+  fd.append("alturaMaxima", document.getElementById("alturaMaxima")?.value || "");
+  fd.append("accesoTrastero", document.getElementById("accesoTrastero")?.value || "");
   fd.append("usuarioId", usuario._id);
   fd.append("imagenesExistentes", JSON.stringify(imagenesExistentes));
   if (latSel) fd.append("lat", latSel);
@@ -889,7 +722,7 @@ async function publicar() {
     const data = await res.json();
 
     if (res.ok) {
-      mensajeEl.textContent = "✅ ¡Propiedad publicada con éxito! Redirigiendo...";
+      mensajeEl.textContent = "✅ ¡Publicado con éxito! Redirigiendo...";
       mensajeEl.className = "ok";
       setTimeout(() => location.href = "/propiedad.html?id=" + data._id, 1800);
     } else if (res.status === 403) {
@@ -915,19 +748,10 @@ async function publicar() {
 
 <footer class="footer">
   <div class="footer-inner">
-
     <div class="footer-brand">
-      <img 
-        src="/HomeClick-full.png" 
-        alt="HomeClick24"
-        style="height:140px; width:auto; margin-bottom:14px; filter:brightness(0) invert(1);"
-      >
-      <p>
-        Tu portal inmobiliario de confianza en España.
-        Encuentra la vivienda de tus sueños o publica tu anuncio en minutos.
-      </p>
+      <img src="/HomeClick-full.png" alt="HomeClick24" style="height:140px; width:auto; margin-bottom:14px; filter:brightness(0) invert(1);">
+      <p>Tu portal inmobiliario de confianza en España. Encuentra la vivienda de tus sueños o publica tu anuncio en minutos.</p>
     </div>
-
     <div class="footer-col">
       <h4>Explorar</h4>
       <a href="/comprar.html">Comprar vivienda</a>
@@ -935,7 +759,6 @@ async function publicar() {
       <a href="/planes.html">Planes y precios</a>
       <a href="/publicar.html">Publicar anuncio</a>
     </div>
-
     <div class="footer-col">
       <h4>Mi cuenta</h4>
       <a href="/login.html">Iniciar sesión</a>
@@ -943,7 +766,6 @@ async function publicar() {
       <a href="/perfil.html">Mi perfil</a>
       <a href="/favoritos.html">Favoritos</a>
     </div>
-
     <div class="footer-col">
       <h4>Legal</h4>
       <a href="/legal.html">Aviso legal</a>
@@ -952,9 +774,7 @@ async function publicar() {
       <a href="#">Contacto</a>
       <a href="/integraciones.html">Integraciones</a>
     </div>
-
   </div>
-
   <div class="footer-bottom">
     <span>© 2025 HomeClick24. Todos los derechos reservados.</span>
     <span>Hecho con ❤️ en España</span>
