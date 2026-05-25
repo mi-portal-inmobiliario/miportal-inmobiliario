@@ -2,21 +2,9 @@ import express from 'express';
 import jwt from 'jsonwebtoken';
 import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
+import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
-
-// Middleware para verificar que es admin
-function verificarAdmin(req, res, next) {
-  const token = req.headers['authorization']?.split(' ')[1];
-  if (!token) return res.status(401).json({ error: 'No autorizado' });
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    if (!decoded.esAdmin) return res.status(403).json({ error: 'No tienes permisos' });
-    next();
-  } catch {
-    res.status(401).json({ error: 'Token inválido' });
-  }
-}
 
 // Login admin
 router.post('/login', async (req, res) => {
@@ -29,7 +17,7 @@ router.post('/login', async (req, res) => {
 });
 
 // Estadísticas generales
-router.get('/stats', verificarAdmin, async (req, res) => {
+router.get('/stats', requireAdmin, async (req, res) => {
   try {
     const totalUsuarios = await Usuario.countDocuments();
     const totalPropiedades = await Propiedad.countDocuments();
@@ -57,7 +45,7 @@ router.get('/stats', verificarAdmin, async (req, res) => {
 });
 
 // Lista de usuarios
-router.get('/usuarios', verificarAdmin, async (req, res) => {
+router.get('/usuarios', requireAdmin, async (req, res) => {
   try {
     const usuarios = await Usuario.find({}, {
       nombre: 1, email: 1, plan: 1, planActivo: 1, createdAt: 1, verificado: 1
@@ -69,7 +57,7 @@ router.get('/usuarios', verificarAdmin, async (req, res) => {
 });
 
 // Lista de propiedades
-router.get('/propiedades', verificarAdmin, async (req, res) => {
+router.get('/propiedades', requireAdmin, async (req, res) => {
   try {
     const propiedades = await Propiedad.find({})
       .sort({ createdAt: -1 })
@@ -81,7 +69,7 @@ router.get('/propiedades', verificarAdmin, async (req, res) => {
 });
 
 // Eliminar propiedad
-router.delete('/propiedades/:id', verificarAdmin, async (req, res) => {
+router.delete('/propiedades/:id', requireAdmin, async (req, res) => {
   try {
     await Propiedad.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
@@ -91,7 +79,7 @@ router.delete('/propiedades/:id', verificarAdmin, async (req, res) => {
 });
 
 // Cambiar plan de usuario
-router.put('/usuarios/:id/plan', verificarAdmin, async (req, res) => {
+router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
   try {
     const { plan } = req.body;
     const planActivo = plan !== 'gratis';
