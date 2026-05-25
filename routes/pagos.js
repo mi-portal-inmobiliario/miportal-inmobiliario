@@ -1,12 +1,21 @@
 import express from 'express';
 import Stripe from 'stripe';
 import { requireAuth } from '../middleware/auth.js';
+import { optionalCleanString, validateBody, z } from '../utils/validation.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
+const crearSesionSchema = z.object({
+  priceId: z.string().trim().min(3).max(120)
+});
+
+const portalClienteSchema = z.object({
+  customerId: optionalCleanString(120)
+});
+
 // Crear sesión de pago
-router.post('/crear-sesion', requireAuth, async (req, res) => {
+router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async (req, res) => {
   const { priceId } = req.body;
   
   try {
@@ -45,7 +54,7 @@ router.post('/crear-sesion', requireAuth, async (req, res) => {
 });
 
 // Portal de cliente Stripe
-router.post('/portal-cliente', requireAuth, async (req, res) => {
+router.post('/portal-cliente', requireAuth, validateBody(portalClienteSchema), async (req, res) => {
   const { customerId } = req.body;
   
   try {

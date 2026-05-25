@@ -4,6 +4,7 @@ import { Resend } from "resend";
 import Propiedad from "../models/Propiedad.js";
 import Usuario from "../models/Usuario.js";
 import { requireAuth } from "../middleware/auth.js";
+import { cleanString, isObjectId, objectId, validateBody, z } from "../utils/validation.js";
 
 const router = express.Router();
 
@@ -33,6 +34,21 @@ const MensajeSchema = new mongoose.Schema({
 const Conversacion = mongoose.model("Conversacion", ConversacionSchema);
 const Mensaje      = mongoose.model("Mensaje",      MensajeSchema);
 
+const crearConversacionSchema = z.object({
+  propiedadId: objectId,
+  anuncianteId: objectId,
+  compradorId: objectId.optional()
+});
+
+const mensajeSchema = z.object({
+  userId: objectId.optional(),
+  texto: cleanString(2000)
+});
+
+const leerSchema = z.object({
+  userId: objectId.optional()
+});
+
 function esParticipante(conv, userId) {
   return String(conv.anuncianteId) === userId || String(conv.compradorId) === userId;
 }
@@ -40,7 +56,7 @@ function esParticipante(conv, userId) {
 /* ======================
    CREAR / OBTENER CONVERSACIÓN
 ====================== */
-router.post("/conversaciones", requireAuth, async (req, res) => {
+router.post("/conversaciones", requireAuth, validateBody(crearConversacionSchema), async (req, res) => {
   try {
     const { propiedadId, anuncianteId } = req.body;
     const compradorId = req.user.id;
@@ -73,6 +89,10 @@ router.post("/conversaciones", requireAuth, async (req, res) => {
 ====================== */
 router.get("/conversaciones/:id/mensajes", requireAuth, async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
     const conv = await Conversacion.findById(req.params.id);
     if (!conv) return res.status(404).json({ error: "No encontrada" });
     if (!esParticipante(conv, req.user.id)) return res.status(403).json({ error: "No autorizado" });
@@ -84,8 +104,12 @@ router.get("/conversaciones/:id/mensajes", requireAuth, async (req, res) => {
   }
 });
 
-router.post("/conversaciones/:id/mensajes", requireAuth, async (req, res) => {
+router.post("/conversaciones/:id/mensajes", requireAuth, validateBody(mensajeSchema), async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
     const { texto } = req.body;
     const userId = req.user.id;
     if (req.body.userId && String(req.body.userId) !== userId) {
@@ -152,6 +176,7 @@ router.post("/conversaciones/:id/mensajes", requireAuth, async (req, res) => {
 ====================== */
 router.get("/mis-conversaciones/:userId", requireAuth, async (req, res) => {
   const { userId } = req.params;
+  if (!isObjectId(userId)) return res.status(400).json({ error: "ID inválido" });
   if (String(userId) !== req.user.id) return res.status(403).json({ error: "No autorizado" });
 
   const convs = await Conversacion.find({
@@ -189,6 +214,10 @@ router.get("/mis-conversaciones/:userId", requireAuth, async (req, res) => {
 ====================== */
 router.get("/conversaciones/:id", requireAuth, async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
     const conv = await Conversacion.findById(req.params.id);
     if (!conv) return res.status(404).json({ error: "No encontrada" });
     if (!esParticipante(conv, req.user.id)) return res.status(403).json({ error: "No autorizado" });
@@ -211,6 +240,7 @@ router.get("/conversaciones/:id", requireAuth, async (req, res) => {
 router.get("/no-leidos/:userId", requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
+    if (!isObjectId(userId)) return res.status(400).json({ error: "ID inválido" });
     if (String(userId) !== req.user.id) return res.status(403).json({ error: "No autorizado" });
 
     const convs = await Conversacion.find({
@@ -234,8 +264,12 @@ router.get("/no-leidos/:userId", requireAuth, async (req, res) => {
 /* ======================
    MARCAR COMO LEÍDOS
 ====================== */
-router.put("/conversaciones/:id/leer", requireAuth, async (req, res) => {
+router.put("/conversaciones/:id/leer", requireAuth, validateBody(leerSchema), async (req, res) => {
   try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
     const userId = req.user.id;
     if (req.body.userId && String(req.body.userId) !== userId) {
       return res.status(403).json({ error: "No autorizado" });
