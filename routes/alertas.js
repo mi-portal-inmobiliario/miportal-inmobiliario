@@ -1,12 +1,16 @@
 import express from "express";
 import Alerta from "../models/Alerta.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
 /* Crear alerta */
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
-    const nuevaAlerta = new Alerta(req.body);
+    const nuevaAlerta = new Alerta({
+      ...req.body,
+      usuarioId: req.user.id
+    });
     await nuevaAlerta.save();
     res.status(201).json(nuevaAlerta);
   } catch (error) {
@@ -15,8 +19,12 @@ router.post("/", async (req, res) => {
 });
 
 /* Obtener alertas de un usuario */
-router.get("/:usuarioId", async (req, res) => {
+router.get("/:usuarioId", requireAuth, async (req, res) => {
   try {
+    if (String(req.params.usuarioId) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
     const alertas = await Alerta.find({
       usuarioId: req.params.usuarioId,
       activa: true
@@ -29,8 +37,14 @@ router.get("/:usuarioId", async (req, res) => {
 });
 
 /* Eliminar alerta */
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   try {
+    const alerta = await Alerta.findById(req.params.id);
+    if (!alerta) return res.status(404).json({ error: "Alerta no encontrada" });
+    if (String(alerta.usuarioId) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
     await Alerta.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (error) {

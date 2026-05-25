@@ -8,6 +8,7 @@ import Alerta from "../models/Alerta.js";
 import Notificacion from "../models/Notificacion.js";
 import Usuario from "../models/Usuario.js";
 import { enviarCorreo } from "../utils/email.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -129,7 +130,7 @@ router.get("/:id", async (req, res) => {
 // ==================================================
 // POST /propiedades — crear propiedad con imágenes
 // ==================================================
-router.post("/", upload.array("imagenes", 10), async (req, res) => {
+router.post("/", requireAuth, upload.array("imagenes", 10), async (req, res) => {
   try {
     const {
       titulo,
@@ -138,11 +139,11 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
       descripcion,
       tipoOperacion,
       habitaciones,
-      usuarioId,
       lat,
       lng,
       videoUrl
     } = req.body;
+    const usuarioId = req.user.id;
 
     // Comprobar límite de plan
     const LIMITES = {
@@ -166,28 +167,26 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
     let usuario = null;
     let plan = "gratis";
 
-    if (usuarioId) {
-      usuario = await Usuario.findById(usuarioId);
+    usuario = await Usuario.findById(usuarioId);
 
-      if (usuario) {
+    if (usuario) {
 
-        plan = usuario.plan || "gratis";
-        
-        const limite = LIMITES[plan] ?? 2;
-        // Límite de fotos
-        const maxFotos = MAX_FOTOS[plan] ?? 7;
-        const numFotos = req.files?.length || 0;
-        if (numFotos > maxFotos) {
-          return res.status(403).json({
-            error: `Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`
-          });
-        }
-        const totalAnuncios = await Propiedad.countDocuments({ usuarioId });
-        if (totalAnuncios >= limite) {
-          return res.status(403).json({ 
-            error: `Has alcanzado el límite de anuncios de tu plan ${plan}. Mejora tu plan para publicar más.` 
-          });
-        }
+      plan = usuario.plan || "gratis";
+      
+      const limite = LIMITES[plan] ?? 2;
+      // Límite de fotos
+      const maxFotos = MAX_FOTOS[plan] ?? 7;
+      const numFotos = req.files?.length || 0;
+      if (numFotos > maxFotos) {
+        return res.status(403).json({
+          error: `Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`
+        });
+      }
+      const totalAnuncios = await Propiedad.countDocuments({ usuarioId });
+      if (totalAnuncios >= limite) {
+        return res.status(403).json({ 
+          error: `Has alcanzado el límite de anuncios de tu plan ${plan}. Mejora tu plan para publicar más.` 
+        });
       }
     }
 
@@ -306,7 +305,7 @@ router.post("/", upload.array("imagenes", 10), async (req, res) => {
 // ==================================================
 // PUT /propiedades/:id — editar propiedad
 // ==================================================
-router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
+router.put("/:id", requireAuth, upload.array("imagenes", 10), async (req, res) => {
   try {
     const {
       titulo, direccion, precio, descripcion,
@@ -315,6 +314,9 @@ router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
 
     const propiedad = await Propiedad.findById(req.params.id);
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+    if (String(propiedad.usuarioId) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
 
     propiedad.titulo       = titulo || propiedad.titulo;
     propiedad.direccion    = direccion || propiedad.direccion;
@@ -359,10 +361,13 @@ router.put("/:id", upload.array("imagenes", 10), async (req, res) => {
 // ==================================================
 // DELETE /propiedades/:id — eliminar propiedad
 // ==================================================
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const propiedad = await Propiedad.findById(req.params.id);
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+    if (String(propiedad.usuarioId) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
 
     // Eliminar imágenes de Cloudinary
     if (propiedad.imagenes && propiedad.imagenes.length > 0) {

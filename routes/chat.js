@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import { Resend } from "resend";
 import Propiedad from "../models/Propiedad.js";
 import Usuario from "../models/Usuario.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
@@ -32,39 +33,72 @@ const MensajeSchema = new mongoose.Schema({
 const Conversacion = mongoose.model("Conversacion", ConversacionSchema);
 const Mensaje      = mongoose.model("Mensaje",      MensajeSchema);
 
+function esParticipante(conv, userId) {
+  return String(conv.anuncianteId) === userId || String(conv.compradorId) === userId;
+}
+
 /* ======================
    CREAR / OBTENER CONVERSACIÓN
 ====================== */
-router.post("/conversaciones", async (req, res) => {
-  const { propiedadId, anuncianteId, compradorId } = req.body;
+router.post("/conversaciones", requireAuth, async (req, res) => {
+  try {
+    const { propiedadId, anuncianteId } = req.body;
+    const compradorId = req.user.id;
 
-  let conv = await Conversacion.findOne({ propiedadId, anuncianteId, compradorId });
-  if (!conv) {
-    conv = await Conversacion.create({ propiedadId, anuncianteId, compradorId });
-    // Incrementar contactos solo cuando es una conversación nueva
-    await Propiedad.findByIdAndUpdate(propiedadId, { $inc: { contactos: 1 } });
+    if (req.body.compradorId && String(req.body.compradorId) !== compradorId) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
+    const propiedad = await Propiedad.findById(propiedadId);
+    if (!propiedad) return res.status(404).json({ error: "Propiedad no encontrada" });
+    if (String(propiedad.usuarioId) !== String(anuncianteId)) {
+      return res.status(403).json({ error: "Anunciante no autorizado" });
+    }
+
+    let conv = await Conversacion.findOne({ propiedadId, anuncianteId, compradorId });
+    if (!conv) {
+      conv = await Conversacion.create({ propiedadId, anuncianteId, compradorId });
+      // Incrementar contactos solo cuando es una conversación nueva
+      await Propiedad.findByIdAndUpdate(propiedadId, { $inc: { contactos: 1 } });
+    }
+
+    res.json(conv);
+  } catch(e) {
+    res.status(400).json({ error: "Datos de conversación inválidos" });
   }
-
-  res.json(conv);
 });
 
 /* ======================
    MENSAJES
 ====================== */
-router.get("/conversaciones/:id/mensajes", async (req, res) => {
-  const msgs = await Mensaje.find({ conversacionId: req.params.id }).sort({ creado: 1 });
-  res.json(msgs);
+router.get("/conversaciones/:id/mensajes", requireAuth, async (req, res) => {
+  try {
+    const conv = await Conversacion.findById(req.params.id);
+    if (!conv) return res.status(404).json({ error: "No encontrada" });
+    if (!esParticipante(conv, req.user.id)) return res.status(403).json({ error: "No autorizado" });
+
+    const msgs = await Mensaje.find({ conversacionId: req.params.id }).sort({ creado: 1 });
+    res.json(msgs);
+  } catch(e) {
+    res.status(400).json({ error: "ID inválido" });
+  }
 });
 
-router.post("/conversaciones/:id/mensajes", async (req, res) => {
+router.post("/conversaciones/:id/mensajes", requireAuth, async (req, res) => {
   try {
-    const { userId, texto } = req.body;
+    const { texto } = req.body;
+    const userId = req.user.id;
+    if (req.body.userId && String(req.body.userId) !== userId) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+    const conv = await Conversacion.findById(req.params.id);
+    if (!conv) return res.status(404).json({ error: "No encontrada" });
+    if (!esParticipante(conv, userId)) return res.status(403).json({ error: "No autorizado" });
+
     const msg = await Mensaje.create({ conversacionId: req.params.id, userId, texto });
 
     // ── Notificación por email al anunciante ──
     try {
-      const conv = await Conversacion.findById(req.params.id);
-
       // Solo notificar si quien escribe es el comprador (no el anunciante a sí mismo)
       if (conv && conv.anuncianteId !== userId) {
         const anunciante = await Usuario.findById(conv.anuncianteId);
@@ -116,8 +150,9 @@ router.post("/conversaciones/:id/mensajes", async (req, res) => {
 /* ======================
    LISTAR CONVERSACIONES CON TÍTULO
 ====================== */
-router.get("/mis-conversaciones/:userId", async (req, res) => {
+router.get("/mis-conversaciones/:userId", requireAuth, async (req, res) => {
   const { userId } = req.params;
+  if (String(userId) !== req.user.id) return res.status(403).json({ error: "No autorizado" });
 
   const convs = await Conversacion.find({
     $or: [{ anuncianteId: userId }, { compradorId: userId }]
@@ -152,10 +187,11 @@ router.get("/mis-conversaciones/:userId", async (req, res) => {
 /* ======================
    OBTENER CONVERSACIÓN POR ID
 ====================== */
-router.get("/conversaciones/:id", async (req, res) => {
+router.get("/conversaciones/:id", requireAuth, async (req, res) => {
   try {
     const conv = await Conversacion.findById(req.params.id);
     if (!conv) return res.status(404).json({ error: "No encontrada" });
+    if (!esParticipante(conv, req.user.id)) return res.status(403).json({ error: "No autorizado" });
 
     let propiedadTitulo = "Propiedad";
     try {
@@ -172,9 +208,10 @@ router.get("/conversaciones/:id", async (req, res) => {
 /* ======================
    MENSAJES NO LEÍDOS
 ====================== */
-router.get("/no-leidos/:userId", async (req, res) => {
+router.get("/no-leidos/:userId", requireAuth, async (req, res) => {
   try {
     const { userId } = req.params;
+    if (String(userId) !== req.user.id) return res.status(403).json({ error: "No autorizado" });
 
     const convs = await Conversacion.find({
       $or: [{ anuncianteId: userId }, { compradorId: userId }]
@@ -197,9 +234,16 @@ router.get("/no-leidos/:userId", async (req, res) => {
 /* ======================
    MARCAR COMO LEÍDOS
 ====================== */
-router.put("/conversaciones/:id/leer", async (req, res) => {
+router.put("/conversaciones/:id/leer", requireAuth, async (req, res) => {
   try {
-    const { userId } = req.body;
+    const userId = req.user.id;
+    if (req.body.userId && String(req.body.userId) !== userId) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+    const conv = await Conversacion.findById(req.params.id);
+    if (!conv) return res.status(404).json({ error: "No encontrada" });
+    if (!esParticipante(conv, userId)) return res.status(403).json({ error: "No autorizado" });
+
     await Mensaje.updateMany(
       { conversacionId: req.params.id, userId: { $ne: userId }, leido: false },
       { leido: true }

@@ -1,18 +1,19 @@
 import "dotenv/config";
 import express from "express";
 import Usuario from "../models/Usuario.js";
-import Propiedad from "../models/Propiedad.js";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import auth from "../middleware/auth.js";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // ============================
 // GET favoritos
 // ============================
-router.get("/:id/favoritos", auth, async (req, res) => {
+router.get("/:id/favoritos", requireAuth, async (req, res) => {
   try {
+    if (String(req.params.id) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
     const usuario = await Usuario.findById(req.params.id).populate("favoritos");
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
     res.json(usuario.favoritos);
@@ -24,8 +25,12 @@ router.get("/:id/favoritos", auth, async (req, res) => {
 // ============================
 // POST añadir favorito
 // ============================
-router.post("/:id/favoritos/:propiedadId", auth, async (req, res) => {
+router.post("/:id/favoritos/:propiedadId", requireAuth, async (req, res) => {
   try {
+    if (String(req.params.id) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
     const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
 
@@ -44,8 +49,12 @@ router.post("/:id/favoritos/:propiedadId", auth, async (req, res) => {
 // ============================
 // DELETE quitar favorito
 // ============================
-router.delete("/:id/favoritos/:propiedadId", auth, async (req, res) => {
+router.delete("/:id/favoritos/:propiedadId", requireAuth, async (req, res) => {
   try {
+    if (String(req.params.id) !== req.user.id) {
+      return res.status(403).json({ error: "No autorizado" });
+    }
+
     const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
 
