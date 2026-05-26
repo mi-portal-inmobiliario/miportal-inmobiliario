@@ -553,28 +553,33 @@ function toggleChip(chipId) {
 const inputDir = document.getElementById("direccion");
 const sugBox   = document.getElementById("sugerencias");
 
+let geocodeTimer = null;
 inputDir.addEventListener("input", async () => {
   const t = inputDir.value.trim();
   if (t.length < 3) { sugBox.style.display = "none"; return; }
-  try {
-    const res  = await fetch(`https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=${GEOCODE_KEY}`);
-    const data = await res.json();
-    sugBox.innerHTML = "";
-    if (!data.length) { sugBox.style.display = "none"; return; }
-    data.slice(0, 6).forEach(item => {
-      const div = document.createElement("div");
-      div.textContent = item.display_name;
-      div.onclick = () => {
-        inputDir.value = item.display_name;
-        latSel = parseFloat(item.lat);
-        lngSel = parseFloat(item.lon);
-        sugBox.style.display = "none";
-        mostrarMapa(latSel, lngSel);
-      };
-      sugBox.appendChild(div);
-    });
-    sugBox.style.display = "block";
-  } catch(e) { sugBox.style.display = "none"; }
+  
+  clearTimeout(geocodeTimer);
+  geocodeTimer = setTimeout(async () => {
+    try {
+      const res  = await fetch(`https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=${GEOCODE_KEY}`);
+      const data = await res.json();
+      sugBox.innerHTML = "";
+      if (!data.length) { sugBox.style.display = "none"; return; }
+      data.slice(0, 6).forEach(item => {
+        const div = document.createElement("div");
+        div.textContent = item.display_name;
+        div.onclick = () => {
+          inputDir.value = item.display_name;
+          latSel = parseFloat(item.lat);
+          lngSel = parseFloat(item.lon);
+          sugBox.style.display = "none";
+          mostrarMapa(latSel, lngSel);
+        };
+        sugBox.appendChild(div);
+      });
+      sugBox.style.display = "block";
+    } catch(e) { sugBox.style.display = "none"; }
+  }, 600);
 });
 
 /* MAPA */
