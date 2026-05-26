@@ -235,8 +235,6 @@ function renderPropiedad() {
 
     </div>
   `;
-}
-
 // =========================
 // COMPARTIR
 // =========================
@@ -263,6 +261,8 @@ if (btnCompartir) {
     }
 
   });
+
+}
 
 }
 
