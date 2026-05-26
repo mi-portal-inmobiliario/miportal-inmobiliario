@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", cargarPropiedad);
 ================================ */
 async function cargarPropiedad() {
   const id = new URLSearchParams(window.location.search).get("id");
+  const publicado =
+  new URLSearchParams(window.location.search)
+    .get("publicado");
   if (!id) return mostrarError("ID de propiedad inválido");
 
   try {
@@ -92,7 +95,38 @@ function renderPropiedad() {
   const hab = propiedad.habitaciones ? `🛏 ${propiedad.habitaciones} habitaciones` : "";
 
   contenedor.innerHTML = `
+
     <a class="volver-link" href="javascript:history.back()">← Volver</a>
+
+    ${publicado === "1" ? `
+
+    <div class="banner-publicado">
+
+      <div class="banner-publicado-texto">
+        ✅ Tu anuncio se ha publicado correctamente
+      </div>
+
+      <div class="banner-publicado-acciones">
+
+        <a
+          href="/publicar.html"
+          class="btn-banner-publicar"
+        >
+          ➕ Publicar otro
+        </a>
+
+        <button
+          id="btnCompartir"
+          class="btn-banner-compartir"
+        >
+          📤 Compartir
+        </button>
+
+      </div>
+
+    </div>
+
+` : ""}
 
     <div class="propiedad-layout">
 
@@ -200,6 +234,35 @@ function renderPropiedad() {
 
     </div>
   `;
+}
+
+// =========================
+// COMPARTIR
+// =========================
+
+const btnCompartir =
+  document.getElementById("btnCompartir");
+
+if (btnCompartir) {
+
+  btnCompartir.addEventListener("click", async () => {
+
+    try {
+
+      await navigator.share({
+        title: document.title,
+        text: "Mira este anuncio en HomeClick24",
+        url: window.location.href
+      });
+
+    } catch(err) {
+
+      console.log(err);
+
+    }
+
+  });
+
 }
 
 /* ================================

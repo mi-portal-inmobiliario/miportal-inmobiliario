@@ -477,3 +477,91 @@
   font-weight: 600;
   color: #333;
 }
+
+/* =========================
+   BANNER PUBLICACIÓN OK
+========================= */
+
+.banner-publicado{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:20px;
+
+  background:#eef9e8;
+  border:1px solid #cfe8bf;
+
+  padding:18px 22px;
+  border-radius:16px;
+
+  margin:20px auto;
+
+  max-width:1400px;
+}
+
+.banner-publicado-texto{
+  font-size:18px;
+  font-weight:700;
+  color:#2d7a18;
+}
+
+.banner-publicado-acciones{
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+
+.btn-banner-publicar,
+.btn-banner-compartir{
+  border:none;
+  text-decoration:none;
+
+  padding:12px 18px;
+  border-radius:12px;
+
+  font-weight:700;
+  cursor:pointer;
+
+  transition:.2s;
+}
+
+/* Botón publicar */
+.btn-banner-publicar{
+  background:#7cc242;
+  color:#fff;
+}
+
+.btn-banner-publicar:hover{
+  transform:translateY(-2px);
+}
+
+/* Botón compartir */
+.btn-banner-compartir{
+  background:#fff;
+  color:#333;
+  border:1px solid #ddd;
+}
+
+.btn-banner-compartir:hover{
+  background:#f5f5f5;
+}
+
+/* MOBILE */
+@media (max-width:768px){
+
+  .banner-publicado{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .banner-publicado-acciones{
+    width:100%;
+  }
+
+  .btn-banner-publicar,
+  .btn-banner-compartir{
+    flex:1;
+    text-align:center;
+  }
+
+}
