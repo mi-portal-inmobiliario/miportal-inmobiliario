@@ -3,6 +3,10 @@ let fotos = [];
 let indexFoto = 0;
 let mapa = null;
 
+const publicado =
+  new URLSearchParams(window.location.search)
+    .get("publicado");
+
 document.addEventListener("DOMContentLoaded", cargarPropiedad);
 
 /* ================================
@@ -10,9 +14,6 @@ document.addEventListener("DOMContentLoaded", cargarPropiedad);
 ================================ */
 async function cargarPropiedad() {
   const id = new URLSearchParams(window.location.search).get("id");
-  const publicado =
-  new URLSearchParams(window.location.search)
-    .get("publicado");
   if (!id) return mostrarError("ID de propiedad inválido");
 
   try {
