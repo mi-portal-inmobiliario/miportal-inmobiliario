@@ -192,7 +192,8 @@ function renderPropiedad() {
 
           <!-- CARACTERÍSTICAS -->
           <div class="propiedad-caracteristicas">
-            ${propiedad.superficie ? `<div class="caract-item">📐 <span>${propiedad.superficie} m²</span></div>` : ""}
+            ${propiedad.superficie ? `<div class="caract-item">📐 <span>Construida: ${propiedad.superficie} m²</span></div>` : ""}
+            ${propiedad.superficieParcela ? `<div class="caract-item">🌿 <span>Parcela: ${propiedad.superficieParcela} m²</span></div>` : ""} 
             ${propiedad.banos ? `<div class="caract-item">🚿 <span>${propiedad.banos} baño${propiedad.banos > 1 ? "s" : ""}</span></div>` : ""}
             ${propiedad.estado ? `<div class="caract-item">🏗 <span>${propiedad.estado === "obra_nueva" ? "Obra nueva" : "Segunda mano"}</span></div>` : ""}
             ${propiedad.tipoInmueble ? `<div class="caract-item">🏠 <span>${formatearTipo(propiedad.tipoInmueble)}</span></div>` : ""}
