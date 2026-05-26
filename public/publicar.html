@@ -726,7 +726,6 @@ async function publicar() {
     if (res.ok) {
       mensajeEl.textContent = "✅ ¡Publicado con éxito! Redirigiendo...";
       mensajeEl.className = "ok";
-      setTimeout(() => location.href = "/propiedad.html?id=" + data._id, 1800);
     } else if (res.status === 403) {
       mensajeEl.textContent = "⚠️ " + data.error + ". Mejora tu plan para publicar más anuncios.";
       mensajeEl.className = "err";
