@@ -725,66 +725,81 @@ async function publicar() {
 
     console.log(JSON.stringify(data, null, 2));
 
-    if (res.ok) {
+   if (res.ok) {
 
-      btn.disabled = false;
-      btn.textContent = "🚀 Publicar anuncio";
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
 
-      mensajeEl.innerHTML = `
-        <div class="publicacion-exitosa">
+  mensajeEl.innerHTML = `
+    <div class="publicacion-exitosa">
 
-          <div class="titulo-exito">
-            ✅ ¡Propiedad publicada con éxito!
-          </div>
+      <div class="titulo-exito">
+        ✅ ¡Propiedad publicada con éxito!
+      </div>
 
-          <div class="acciones-exito">
+      <div class="acciones-exito">
 
-            <a 
-              href="/propiedad.html?id=${data._id || data.id}" 
-              class="btn-exito btn-ver"
-            >
-              👁 Ver anuncio
-            </a>
+        <a 
+          href="/propiedad.html?id=${data._id || data.id}" 
+          class="btn-exito btn-ver"
+        >
+          👁 Ver anuncio
+        </a>
 
-            <button 
-              type="button"
-              id="btnPublicarOtra"
-              class="btn-exito btn-otra"
-            >
-              ➕ Publicar otra
-            </button>
+        <button 
+          type="button"
+          id="btnPublicarOtra"
+          class="btn-exito btn-otra"
+        >
+          ➕ Publicar otra
+        </button>
 
-          </div>
+      </div>
 
-        </div>
-      `;
+    </div>
+  `;
 
-      document
-        .getElementById("btnPublicarOtra")
-        .addEventListener("click", () => {
+  document
+    .getElementById("btnPublicarOtra")
+    .addEventListener("click", () => {
 
-          location.reload();
+      location.reload();
 
-        });
+    });
 
-    } else if (res.status === 403) {
-      mensajeEl.textContent = "⚠️ " + data.error + ". Mejora tu plan para publicar más anuncios.";
-      mensajeEl.className = "err";
-      btn.disabled = false;
-      btn.textContent = "🚀 Publicar anuncio";
-      setTimeout(() => location.href = "/planes.html", 3000);
-    } else {
-      mensajeEl.textContent = "❌ " + (data.message || "Error al publicar");
-      mensajeEl.className = "err";
-      btn.disabled = false;
-      btn.textContent = "🚀 Publicar anuncio";
-    }
+} else if (res.status === 403) {
+
+  mensajeEl.textContent =
+    "⚠️ " + data.error +
+    ". Mejora tu plan para publicar más anuncios.";
+
+  mensajeEl.className = "err";
+
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
+
+  setTimeout(() => {
+    location.href = "/planes.html";
+  }, 3000);
+
+} else {
+
+  mensajeEl.textContent =
+    "❌ " + (data.message || "Error al publicar");
+
+  mensajeEl.className = "err";
+
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
+
+}
   } catch(e) {
     mensajeEl.textContent = "❌ Error de conexión";
     mensajeEl.className = "err";
     btn.disabled = false;
     btn.textContent = "🚀 Publicar anuncio";
   }
+
 }
 </script>
 
