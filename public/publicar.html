@@ -561,13 +561,10 @@ inputDir.addEventListener("input", async () => {
   clearTimeout(geocodeTimer);
   geocodeTimer = setTimeout(async () => {
     try {
-      console.log("Buscando:", t);
       const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(t)}&format=json&limit=6&addressdetails=1`, {
         headers: { "Accept-Language": "es" }
       });
-      console.log("Status:", res.status);
       const data = await res.json();
-      console.log("Resultados:", data.length);
       sugBox.innerHTML = "";
       if (!data.length) { sugBox.style.display = "none"; return; }
       data.forEach(item => {
@@ -584,7 +581,6 @@ inputDir.addEventListener("input", async () => {
       });
       sugBox.style.display = "block";
     } catch(e) { 
-      console.log("Error:", e);
       sugBox.style.display = "none"; 
     }
   }, 600);
