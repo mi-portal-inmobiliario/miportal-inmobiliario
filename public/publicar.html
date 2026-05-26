@@ -725,12 +725,10 @@ async function publicar() {
 
     console.log(JSON.stringify(data, null, 2));
 
-   if (res.ok) {
+ if (res.ok) {
 
   btn.disabled = false;
   btn.textContent = "🚀 Publicar anuncio";
-
-  console.log("HTML SUCCESS");
 
   mensajeEl.style.display = "block";
   mensajeEl.style.height = "auto";
@@ -739,40 +737,18 @@ async function publicar() {
 
   mensajeEl.innerHTML = `
     <div class="publicacion-exitosa">
-
-      <div class="titulo-exito">
-        ✅ ¡Propiedad publicada con éxito!
-      </div>
-
-      <div class="acciones-exito" style="display:block;">
-
-        <a 
-          href="/propiedad.html?id=${data._id || data.id}" 
-          class="btn-exito btn-ver"
-        >
-          👁 Ver anuncio
-        </a>
-
-        <button 
-          type="button"
-          id="btnPublicarOtra"
-          class="btn-exito btn-otra"
-        >
-          ➕ Publicar otra
-        </button>
-
-      </div>
-
+      ✅ ¡Propiedad publicada con éxito!
     </div>
   `;
 
-  document
-    .getElementById("btnPublicarOtra")
-    .addEventListener("click", () => {
+  setTimeout(() => {
 
-      location.reload();
+    window.location.href =
+      "/propiedad.html?id=" +
+      data._id +
+      "&publicado=1";
 
-    });
+  }, 1200);
 
 } else if (res.status === 403) {
 
