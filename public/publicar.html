@@ -292,8 +292,13 @@
       </div>
 
       <div class="form-group">
-        <label>Superficie (m²)</label>
+        <label>Superficie construida (m²)</label>
         <input type="number" id="superficie" placeholder="Ej: 90">
+      </div>
+
+      <div class="form-group" id="grupo-parcela" style="display:none">
+        <label>Superficie de parcela (m²)</label>
+        <input type="number" id="superficieParcela" placeholder="Ej: 300">
       </div>
 
       <div class="form-group full">
@@ -485,7 +490,11 @@ function actualizarCampos() {
   document.getElementById("grupo-accesoTrastero").style.display = esTrastero ? "" : "none";
 
   // Extras solo residencial
-  document.getElementById("grupo-extras").style.display = esResidencial ? "" : "none";
+document.getElementById("grupo-extras").style.display = esResidencial ? "" : "none";
+
+// Parcela solo para casa, chalet y terreno
+const tieneParcela = ["casa", "chalet", "terreno"].includes(tipo);
+document.getElementById("grupo-parcela").style.display = tieneParcela ? "" : "none";
 }
 
 /* MODO EDICIÓN */
@@ -507,6 +516,7 @@ if (propiedadIdEditar) {
       document.getElementById("habitaciones").value  = p.habitaciones || "";
       document.getElementById("banos").value         = p.banos || "1";
       document.getElementById("superficie").value    = p.superficie || "";
+      document.getElementById("superficieParcela").value = p.superficieParcela || "";
       document.getElementById("tipoInmueble").value  = p.tipoInmueble || "piso";
       document.getElementById("estado").value        = p.estado || "segunda_mano";
       document.getElementById("videoUrl").value      = p.videoUrl || "";
