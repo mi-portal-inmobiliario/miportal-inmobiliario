@@ -723,6 +723,8 @@ async function publicar() {
     );
     const data = await res.json();
 
+    console.log(data);
+
     if (res.ok) {
 
       btn.disabled = false;
@@ -738,7 +740,7 @@ async function publicar() {
           <div class="acciones-exito">
 
             <a 
-              href="/propiedad.html?id=${data._id}" 
+              href="/propiedad.html?id=${data._id || data.id}" 
               class="btn-exito btn-ver"
             >
               👁 Ver anuncio
