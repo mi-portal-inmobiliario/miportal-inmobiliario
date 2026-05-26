@@ -561,11 +561,13 @@ inputDir.addEventListener("input", async () => {
   clearTimeout(geocodeTimer);
   geocodeTimer = setTimeout(async () => {
     try {
-      const res  = await fetch(`https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=${GEOCODE_KEY}`);
+      const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(t)}&format=json&limit=6&addressdetails=1`, {
+        headers: { "Accept-Language": "es" }
+      });
       const data = await res.json();
       sugBox.innerHTML = "";
       if (!data.length) { sugBox.style.display = "none"; return; }
-      data.slice(0, 6).forEach(item => {
+      data.forEach(item => {
         const div = document.createElement("div");
         div.textContent = item.display_name;
         div.onclick = () => {

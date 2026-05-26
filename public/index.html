@@ -778,7 +778,7 @@ const sugerencias = document.getElementById("sugerencias");
 input.addEventListener("input", async () => {
   const t = input.value.trim();
   if (t.length < 3) { sugerencias.style.display = "none"; return; }
-  const url = `https://geocode.maps.co/search?q=${encodeURIComponent(t)}&api_key=691dbf7ce0ac5786669402bgm8f835e`;
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(t)}&format=json&limit=6`;
   try {
     const res = await fetch(url);
     const data = await res.json();
