@@ -61,6 +61,7 @@ const propiedadBaseSchema = {
   videoUrl: optionalCleanString(500),
   banos: optionalNumberFromInput,
   superficie: optionalNumberFromInput,
+  superficieParcela: optionalNumberFromInput,
   tipoInmueble: tipoInmuebleSchema.optional(),
   estado: estadoSchema.optional(),
   garaje: booleanInput,
@@ -290,6 +291,7 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
       habitaciones:  Number(habitaciones),
       banos:         Number(banos) || 1,
       superficie:    superficie ? Number(superficie) : null,
+      superficieParcela:  req.body.superficieParcela ? Number(req.body.superficieParcela) : null,
       tipoInmueble:  tipoInmueble || "piso",
       estado:        estado || "segunda_mano",
       garaje:        garaje === "true",
@@ -408,6 +410,7 @@ router.put("/:id", requireAuth, upload.array("imagenes", 10), validateBody(propi
 
     propiedad.habitaciones = habitaciones ? Number(habitaciones) : propiedad.habitaciones;
     propiedad.banos        = banos ? Number(banos) : propiedad.banos;
+    propiedad.superficieParcela = req.body.superficieParcela ? Number(req.body.superficieParcela) : propiedad.superficieParcela;
     propiedad.superficie   = superficie ? Number(superficie) : propiedad.superficie;
     propiedad.tipoInmueble = tipoInmueble || propiedad.tipoInmueble;
     propiedad.estado       = estado || propiedad.estado;

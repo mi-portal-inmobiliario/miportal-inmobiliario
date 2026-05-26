@@ -13,6 +13,7 @@ const PropiedadSchema = new mongoose.Schema({
 
   banos:         { type: Number, default: 0 },
   superficie:    { type: Number },
+  superficieParcela: { type: Number },
   garaje:        { type: Boolean, default: false },
   piscina:       { type: Boolean, default: false },
   terraza:       { type: Boolean, default: false },
