@@ -724,8 +724,47 @@ async function publicar() {
     const data = await res.json();
 
     if (res.ok) {
-      mensajeEl.textContent = "✅ ¡Publicado con éxito! Redirigiendo...";
-      mensajeEl.className = "ok";
+
+      btn.disabled = false;
+      btn.textContent = "🚀 Publicar anuncio";
+
+      mensajeEl.innerHTML = `
+        <div class="publicacion-exitosa">
+
+          <div class="titulo-exito">
+            ✅ ¡Propiedad publicada con éxito!
+          </div>
+
+          <div class="acciones-exito">
+
+            <a 
+              href="/propiedad.html?id=${data._id}" 
+              class="btn-exito btn-ver"
+            >
+              👁 Ver anuncio
+            </a>
+
+            <button 
+              type="button"
+              id="btnPublicarOtra"
+              class="btn-exito btn-otra"
+            >
+              ➕ Publicar otra
+            </button>
+
+          </div>
+
+        </div>
+      `;
+
+      document
+        .getElementById("btnPublicarOtra")
+        .addEventListener("click", () => {
+
+          location.reload();
+
+        });
+
     } else if (res.status === 403) {
       mensajeEl.textContent = "⚠️ " + data.error + ". Mejora tu plan para publicar más anuncios.";
       mensajeEl.className = "err";
