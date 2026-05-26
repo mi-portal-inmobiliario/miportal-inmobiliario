@@ -675,9 +675,11 @@ async function publicar() {
   }
 
   if (!latSel || !lngSel) {
-    mensajeEl.textContent = "⚠️ Selecciona una dirección válida del desplegable";
-    mensajeEl.className = "err";
-    return;
+    if (!propiedadIdEditar) {
+      mensajeEl.textContent = "⚠️ Selecciona una dirección válida del desplegable";
+      mensajeEl.className = "err";
+      return;
+    }
   }
 
   if (!imgFiles.length && !propiedadIdEditar) {
