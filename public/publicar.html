@@ -730,6 +730,8 @@ async function publicar() {
   btn.disabled = false;
   btn.textContent = "🚀 Publicar anuncio";
 
+  console.log("HTML SUCCESS");
+
   mensajeEl.innerHTML = `
     <div class="publicacion-exitosa">
 
@@ -737,7 +739,7 @@ async function publicar() {
         ✅ ¡Propiedad publicada con éxito!
       </div>
 
-      <div class="acciones-exito">
+      <div class="acciones-exito" style="display:block;">
 
         <a 
           href="/propiedad.html?id=${data._id || data.id}" 
