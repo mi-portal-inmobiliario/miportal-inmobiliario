@@ -410,14 +410,15 @@ document.getElementById("avatar").textContent        = usuario.nombre.charAt(0).
 
 const PLANES_NOMBRES = {
   gratis: "Gratis", basico: "Básico", destacado: "Destacado",
-  starter: "Starter", pro_agentes: "Pro", agencia_basica: "Agencia Básica", agencia_pro: "Agencia Pro"
+  starter: "Starter", pro_agentes: "Pro", agencia_basica: "Agencia Básica",
+  agencia_pro: "Agencia Pro", vip: "VIP", vip_trial: "Prueba VIP"
 };
 
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
 document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuario.plan] || "Gratis");
 
 // Mostrar botón gestionar si tiene plan de pago
-if (usuario.plan && usuario.plan !== 'gratis' && usuario.planActivo) {
+if (usuario.plan && usuario.plan !== 'gratis' && usuario.plan !== 'vip_trial' && usuario.planActivo) {
   document.getElementById('btnGestionarPlan').style.display = 'block';
   document.getElementById('btnMejorarPlan').style.display = 'none';
 }
@@ -429,7 +430,9 @@ const PLANES_INFO = {
   starter:       { nombre: "Starter",        anuncios: 15,  fotos: 30, precio: "29,90€/mes" },
   pro_agentes:   { nombre: "Pro Agentes",    anuncios: 40,  fotos: 40, precio: "59,90€/mes" },
   agencia_basica:{ nombre: "Agencia Básica", anuncios: 50,  fotos: 40, precio: "79,90€/mes" },
-  agencia_pro:   { nombre: "Agencia Pro",    anuncios: "∞", fotos: 50, precio: "149,90€/mes" }
+  agencia_pro:   { nombre: "Agencia Pro",    anuncios: "∞", fotos: 50, precio: "149,90€/mes" },
+  vip:           { nombre: "VIP",            anuncios: "∞", fotos: "∞", precio: "VIP" },
+  vip_trial:     { nombre: "Prueba VIP",     anuncios: "∞", fotos: "∞", precio: "30 días gratis" }
 };
 
 const planInfo = PLANES_INFO[usuario.plan] || PLANES_INFO.gratis;
@@ -446,7 +449,9 @@ document.getElementById("planStats").innerHTML = `
 `;
 
 async function cargarPropiedades() {
-  const res  = await fetch("/propiedades");
+  const res  = await fetch("/propiedades/mias", {
+    headers: { "Authorization": "Bearer " + token }
+  });
   const data = await res.json();
   const mias = data.filter(p => String(p.usuarioId) === String(usuario._id));
   const cont = document.getElementById("listaPropiedades");

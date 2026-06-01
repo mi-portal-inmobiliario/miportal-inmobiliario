@@ -462,7 +462,8 @@ async function cargarStats() {
   const NOMBRES = {
     gratis: 'Gratis', basico: 'Básico', destacado: 'Destacado',
     starter: 'Starter', pro_agentes: 'Pro Agentes',
-    agencia_basica: 'Agencia Básica', agencia_pro: 'Agencia Pro'
+    agencia_basica: 'Agencia Básica', agencia_pro: 'Agencia Pro',
+    vip: 'VIP', vip_trial: 'Prueba VIP'
   };
 
   document.getElementById('planesGrid').innerHTML = data.planes.map(p => `
@@ -493,7 +494,7 @@ function filtrarUsuarios() {
 }
 
 function renderUsuarios(usuarios) {
-  const PLANES = ['gratis', 'basico', 'destacado', 'starter', 'pro_agentes', 'agencia_basica', 'vip'];
+  const PLANES = ['gratis', 'basico', 'destacado', 'starter', 'pro_agentes', 'agencia_basica', 'vip', 'vip_trial'];
 
   document.getElementById('tablaUsuarios').innerHTML = usuarios.map(u => {
     const fecha = u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-ES') : '—';

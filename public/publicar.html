@@ -455,7 +455,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const LIMITE_FOTOS = {
     gratis: 10, basico: 20, destacado: 30, starter: 30,
-    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50
+    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50,
+    vip: 99, vip_trial: 99
   };
   const plan = usuario?.plan || "gratis";
   const maxFotos = LIMITE_FOTOS[plan] || 10;
@@ -612,7 +613,8 @@ document.getElementById("imagenes").addEventListener("change", e => {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const LIMITE_FOTOS = {
     gratis: 10, basico: 20, destacado: 30, starter: 30,
-    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50
+    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50,
+    vip: 99, vip_trial: 99
   };
   const plan = usuario?.plan || "gratis";
   const maxFotos = LIMITE_FOTOS[plan] || 10;

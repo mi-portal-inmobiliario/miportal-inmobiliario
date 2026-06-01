@@ -29,7 +29,10 @@ function cargarUsuario() {
 ========================= */
 async function cargarPropiedades() {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
-  const res = await fetch("/propiedades");
+  const token = localStorage.getItem("token");
+  const res = await fetch("/propiedades/mias", {
+    headers: { "Authorization": "Bearer " + token }
+  });
   const data = await res.json();
 
   const mias = data.filter(p => String(p.usuarioId) === String(usuario._id));
