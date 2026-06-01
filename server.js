@@ -10,6 +10,7 @@ import cors from "cors";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { scheduleVipTrialExpiration } from "./utils/trials.js";
 
 // =============================
 // MODELOS
@@ -183,6 +184,7 @@ mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("✅ MongoDB conectado");
+    scheduleVipTrialExpiration();
     app.listen(PORT, () => {
       console.log(`🚀 Servidor activo en http://localhost:${PORT}`);
     });
