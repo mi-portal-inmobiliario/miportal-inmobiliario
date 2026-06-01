@@ -16,6 +16,12 @@ const UsuarioSchema = new mongoose.Schema({
   stripeSubscriptionId:  { type: String },
   planActivo:            { type: Boolean, default: false },
   planFechaFin:          { type: Date },
+
+  // Prueba gratuita VIP
+  trialAccepted:         { type: Boolean, default: false },
+  trialStartDate:        { type: Date },
+  trialEndDate:          { type: Date },
+  trialReminderSent:     { type: Boolean, default: false },
 }, { timestamps: true });
 
 export default mongoose.model("Usuario", UsuarioSchema);

@@ -42,6 +42,7 @@ const PropiedadSchema = new mongoose.Schema({
 
   // Para saber quién publicó cada anuncio
   usuarioId: { type: mongoose.Schema.Types.ObjectId, ref: "Usuario" },
+  visiblePublicamente: { type: Boolean, default: true },
 
   // Estadísticas
   visitas:   { type: Number, default: 0 },
