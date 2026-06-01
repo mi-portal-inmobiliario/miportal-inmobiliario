@@ -98,7 +98,10 @@ Sitemap: https://www.homeclick24.com/sitemap.xml`);
 // =============================
 app.get("/sitemap.xml", async (req, res) => {
   try {
-    const propiedades = await Propiedad.find({}, { _id: 1, updatedAt: 1 });
+    const propiedades = await Propiedad.find(
+      { visiblePublicamente: { $ne: false } },
+      { _id: 1, updatedAt: 1 }
+    );
 
     const urls = [
       { loc: "/", priority: "1.0" },

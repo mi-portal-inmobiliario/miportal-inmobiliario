@@ -124,7 +124,7 @@ const upload = multer({ storage });
 router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
   try {
     const { tipo, min, max, hab, texto } = req.query;
-    const filtro = {};
+    const filtro = { visiblePublicamente: { $ne: false } };
 
     if (tipo) filtro.tipoOperacion = tipo;
 
@@ -171,6 +171,18 @@ router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
 });
 
 // ==================================================
+// GET /propiedades/mias — anuncios del propietario
+// ==================================================
+router.get("/mias", requireAuth, async (req, res) => {
+  try {
+    const propiedades = await Propiedad.find({ usuarioId: req.user.id }).sort({ createdAt: -1 });
+    res.json(propiedades);
+  } catch (err) {
+    res.status(500).json({ message: "Error al obtener propiedades" });
+  }
+});
+
+// ==================================================
 // TEST EMAIL
 // ==================================================
 router.get("/test-email", async (req, res) => {
@@ -199,6 +211,9 @@ router.get("/:id", async (req, res) => {
       { new: true }
     );
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+    if (propiedad.visiblePublicamente === false) {
+      return res.status(404).json({ message: "Propiedad no encontrada" });
+    }
     res.json(propiedad);
   } catch (err) {
     res.status(400).json({ message: "ID inválido" });
