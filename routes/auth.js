@@ -229,6 +229,10 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
         plan: usuario.plan || "gratis",
         planActivo: usuario.planActivo || false,
         planFechaFin: usuario.planFechaFin || null,
+        trialAccepted: usuario.trialAccepted || false,
+        trialStartDate: usuario.trialStartDate || null,
+        trialEndDate: usuario.trialEndDate || null,
+        trialReminderSent: usuario.trialReminderSent || false,
         stripeCustomerId: usuario.stripeCustomerId || null
       }
     });

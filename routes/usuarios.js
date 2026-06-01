@@ -80,4 +80,42 @@ router.get("/favoritos/count/:propiedadId", async (req, res) => {
   }
 });
 
+// Aceptar condiciones de prueba gratuita VIP
+router.post("/trial/accept", requireAuth, async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.user.id);
+    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    if (usuario.plan !== "vip_trial") {
+      return res.status(400).json({ error: "La prueba VIP no está asignada a este usuario" });
+    }
+
+    if (!usuario.trialAccepted || !usuario.trialStartDate || !usuario.trialEndDate) {
+      const inicio = new Date();
+      const fin = new Date(inicio);
+      fin.setDate(fin.getDate() + 30);
+
+      usuario.trialAccepted = true;
+      usuario.trialStartDate = inicio;
+      usuario.trialEndDate = fin;
+      usuario.trialReminderSent = false;
+      usuario.planActivo = true;
+      usuario.planFechaFin = fin;
+      await usuario.save();
+    }
+
+    res.json({
+      ok: true,
+      plan: usuario.plan,
+      planActivo: usuario.planActivo,
+      trialAccepted: usuario.trialAccepted,
+      trialStartDate: usuario.trialStartDate,
+      trialEndDate: usuario.trialEndDate,
+      trialReminderSent: usuario.trialReminderSent
+    });
+  } catch (e) {
+    res.status(500).json({ error: "Error al aceptar la prueba VIP" });
+  }
+});
+
 export default router;

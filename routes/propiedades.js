@@ -230,6 +230,7 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
       destacado: 4,
       starter: 15,
       pro_agentes: 40,
+      vip_trial: Infinity,
       vip: Infinity
     };
 
@@ -239,6 +240,7 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
       destacado: 15,
       starter: 20,
       pro_agentes: 30,
+      vip_trial: Infinity,
       vip: Infinity
     };
 
@@ -250,6 +252,9 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
     if (usuario) {
 
       plan = usuario.plan || "gratis";
+      if (plan === "vip_trial" && (!usuario.trialAccepted || !usuario.planActivo)) {
+        plan = "gratis";
+      }
       
       const limite = LIMITES[plan] ?? 2;
       // Límite de fotos

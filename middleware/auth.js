@@ -30,6 +30,9 @@ export async function requireAuth(req, res, next) {
       email: usuario.email,
       plan: usuario.plan || "gratis",
       planActivo: usuario.planActivo || false,
+      trialAccepted: usuario.trialAccepted || false,
+      trialStartDate: usuario.trialStartDate || null,
+      trialEndDate: usuario.trialEndDate || null,
       stripeCustomerId: usuario.stripeCustomerId || null,
       esAdmin: false
     };

@@ -5,6 +5,11 @@ import Propiedad from '../models/Propiedad.js';
 import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
+const PLANES_VALIDOS = [
+  'gratis', 'basico', 'destacado', 'starter',
+  'pro_agentes', 'agencia_basica', 'agencia_pro',
+  'vip', 'vip_trial'
+];
 
 // Login admin
 router.post('/login', async (req, res) => {
@@ -30,7 +35,8 @@ router.get('/stats', requireAdmin, async (req, res) => {
     const PRECIOS = {
       gratis: 0, basico: 9.90, destacado: 19.90,
       starter: 29.90, pro_agentes: 59.90,
-      agencia_basica: 79.90, agencia_pro: 149.90
+      agencia_basica: 79.90, agencia_pro: 149.90,
+      vip: 0, vip_trial: 0
     };
 
     let ingresosMes = 0;
@@ -48,7 +54,8 @@ router.get('/stats', requireAdmin, async (req, res) => {
 router.get('/usuarios', requireAdmin, async (req, res) => {
   try {
     const usuarios = await Usuario.find({}, {
-      nombre: 1, email: 1, plan: 1, planActivo: 1, createdAt: 1, verificado: 1
+      nombre: 1, email: 1, plan: 1, planActivo: 1, createdAt: 1, verificado: 1,
+      trialAccepted: 1, trialStartDate: 1, trialEndDate: 1, trialReminderSent: 1
     }).sort({ createdAt: -1 });
     res.json(usuarios);
   } catch (err) {
@@ -82,8 +89,31 @@ router.delete('/propiedades/:id', requireAdmin, async (req, res) => {
 router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
   try {
     const { plan } = req.body;
-    const planActivo = plan !== 'gratis';
-    await Usuario.findByIdAndUpdate(req.params.id, { plan, planActivo });
+    if (!PLANES_VALIDOS.includes(plan)) {
+      return res.status(400).json({ error: 'Plan inválido' });
+    }
+
+    const update = { plan, planActivo: plan !== 'gratis' && plan !== 'vip_trial' };
+
+    if (plan === 'vip_trial') {
+      Object.assign(update, {
+        planActivo: false,
+        trialAccepted: false,
+        trialStartDate: null,
+        trialEndDate: null,
+        trialReminderSent: false,
+        planFechaFin: null
+      });
+    } else {
+      Object.assign(update, {
+        trialAccepted: false,
+        trialStartDate: null,
+        trialEndDate: null,
+        trialReminderSent: false
+      });
+    }
+
+    await Usuario.findByIdAndUpdate(req.params.id, update);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
