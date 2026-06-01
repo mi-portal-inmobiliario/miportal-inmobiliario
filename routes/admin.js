@@ -1,15 +1,39 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import { Resend } from 'resend';
 import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
 import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
+const resend = new Resend(process.env.RESEND_API_KEY);
 const PLANES_VALIDOS = [
   'gratis', 'basico', 'destacado', 'starter',
   'pro_agentes', 'agencia_basica', 'agencia_pro',
   'vip', 'vip_trial'
 ];
+
+async function enviarInvitacionVipTrial(usuario) {
+  const enlace = `${process.env.APP_URL}/vip-trial.html`;
+
+  await resend.emails.send({
+    from: 'HomeClick24 <contacto@homeclick24.com>',
+    to: usuario.email,
+    subject: 'Has sido invitado a una prueba gratuita VIP de 30 días',
+    html: `
+      <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;">
+        <h2 style="color:#7cc242;margin:0 0 18px;">HomeClick24</h2>
+        <p>Hola <strong>${usuario.nombre || ""}</strong>,</p>
+        <p>Has sido invitado a una <strong>prueba gratuita VIP de 30 días</strong> en HomeClick24.</p>
+        <p>La prueba empezará cuando aceptes las condiciones desde tu cuenta.</p>
+        <a href="${enlace}" style="display:inline-block;margin:22px 0;padding:14px 24px;background:#7cc242;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;">
+          Aceptar prueba VIP
+        </a>
+        <p style="color:#777;font-size:0.9rem;">Por seguridad, inicia sesión con este mismo email antes de aceptar la prueba.</p>
+      </div>
+    `
+  });
+}
 
 // Login admin
 router.post('/login', async (req, res) => {
@@ -113,8 +137,20 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
       });
     }
 
-    await Usuario.findByIdAndUpdate(req.params.id, update);
-    res.json({ ok: true });
+    const usuario = await Usuario.findByIdAndUpdate(req.params.id, update, { new: true });
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    let warning = null;
+    if (plan === 'vip_trial') {
+      try {
+        await enviarInvitacionVipTrial(usuario);
+      } catch (emailErr) {
+        console.error('Error enviando invitación VIP Trial:', emailErr.message);
+        warning = 'Plan cambiado, pero no se pudo enviar el email de invitación.';
+      }
+    }
+
+    res.json({ ok: true, warning });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
