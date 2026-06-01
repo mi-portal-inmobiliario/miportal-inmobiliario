@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aceptar prueba VIP - HomeClick24</title>
+  <link rel="icon" type="image/png" href="/favicon.png?v=2">
+  <style>
+    body { margin:0; font-family:Inter,Arial,sans-serif; background:#f7f8f5; color:#1a1a1a; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .box { width:100%; max-width:520px; background:#fff; border:1px solid #edf0e8; border-radius:14px; padding:32px; box-shadow:0 10px 30px rgba(0,0,0,0.06); }
+    img { height:58px; margin-bottom:18px; }
+    h1 { font-size:1.6rem; margin:0 0 12px; }
+    p { color:#555; line-height:1.6; }
+    button, a.btn { display:inline-block; border:0; background:#7cc242; color:#fff; padding:13px 20px; border-radius:8px; font-weight:700; text-decoration:none; cursor:pointer; font-size:0.95rem; }
+    button:disabled { opacity:0.6; cursor:not-allowed; }
+    #mensaje { margin-top:18px; font-weight:600; }
+    .err { color:#b91c1c; }
+    .ok { color:#4a7c24; }
+  </style>
+</head>
+<body>
+  <main class="box">
+    <img src="/HomeClick-full.png" alt="HomeClick24">
+    <h1>Prueba gratuita VIP</h1>
+    <p>Has sido invitado a activar una prueba VIP de 30 días. La prueba empezará cuando aceptes desde tu cuenta.</p>
+    <p>Durante la prueba podrás usar las ventajas VIP. Al finalizar, tus anuncios se guardarán y dejarán de verse públicamente si no continúas con un plan activo.</p>
+    <button id="btnAceptar">Aceptar prueba VIP</button>
+    <div id="mensaje"></div>
+  </main>
+
+  <script>
+    const token = localStorage.getItem("token");
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    const btn = document.getElementById("btnAceptar");
+    const mensaje = document.getElementById("mensaje");
+
+    if (!token || !usuario) {
+      btn.outerHTML = '<a class="btn" href="/login.html">Iniciar sesión</a>';
+      mensaje.className = "err";
+      mensaje.textContent = "Inicia sesión con tu cuenta para aceptar la prueba.";
+    } else {
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        btn.textContent = "Activando...";
+        mensaje.textContent = "";
+        mensaje.className = "";
+
+        try {
+          const res = await fetch("/usuarios/trial/accept", {
+            method: "POST",
+            headers: { "Authorization": "Bearer " + token }
+          });
+          const data = await res.json();
+
+          if (!res.ok) {
+            mensaje.className = "err";
+            mensaje.textContent = data.error || "No se pudo activar la prueba.";
+            btn.disabled = false;
+            btn.textContent = "Aceptar prueba VIP";
+            return;
+          }
+
+          localStorage.setItem("usuario", JSON.stringify({ ...usuario, ...data }));
+          mensaje.className = "ok";
+          mensaje.textContent = "Prueba VIP activada correctamente. Redirigiendo...";
+          setTimeout(() => location.href = "/perfil.html", 1500);
+        } catch (e) {
+          mensaje.className = "err";
+          mensaje.textContent = "Error de conexión.";
+          btn.disabled = false;
+          btn.textContent = "Aceptar prueba VIP";
+        }
+      });
+    }
+  </script>
+</body>
+</html>

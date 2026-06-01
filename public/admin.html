@@ -531,6 +531,8 @@ async function cambiarPlan(usuarioId, nuevoPlan) {
     body: JSON.stringify({ plan: nuevoPlan })
   });
   if (res.ok) {
+    const data = await res.json();
+    if (data.warning) alert(data.warning);
     await cargarUsuarios();
     await cargarStats();
   } else {
