@@ -182,6 +182,24 @@ router.get("/mias", requireAuth, async (req, res) => {
   }
 });
 
+router.get("/mias/:id", requireAuth, async (req, res) => {
+  try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+
+    const propiedad = await Propiedad.findOne({
+      _id: req.params.id,
+      usuarioId: req.user.id
+    });
+
+    if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
+    res.json(propiedad);
+  } catch (err) {
+    res.status(400).json({ message: "ID inválido" });
+  }
+});
+
 // ==================================================
 // TEST EMAIL
 // ==================================================
