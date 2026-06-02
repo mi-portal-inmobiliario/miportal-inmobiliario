@@ -209,9 +209,21 @@ router.get("/mis-conversaciones/:userId", requireAuth, async (req, res) => {
       leido: false
     });
 
-    return { ...c.toObject(), propiedadTitulo, anuncianteNombre, compradorNombre, noLeidos };
+    const ultimo = await Mensaje.findOne({ conversacionId: c._id.toString() }).sort({ creado: -1 });
+    const ultimaActividad = ultimo?.creado || c.creado;
+
+    return {
+      ...c.toObject(),
+      propiedadTitulo,
+      anuncianteNombre,
+      compradorNombre,
+      noLeidos,
+      ultimoMensaje: ultimo?.texto || "Conversación iniciada",
+      ultimaActividad
+    };
   }));
 
+  convsConTitulo.sort((a, b) => new Date(b.ultimaActividad) - new Date(a.ultimaActividad));
   res.json(convsConTitulo);
 });
 

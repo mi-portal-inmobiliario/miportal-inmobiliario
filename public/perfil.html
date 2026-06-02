@@ -299,6 +299,19 @@
     .chat-info { flex: 1; }
     .chat-info strong { display: block; font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
     .chat-info small { color: #aaa; font-size: 0.82rem; }
+    .chat-last-message {
+      color: #4b5563;
+      font-size: 0.86rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 3px;
+    }
+    .chat-time {
+      color: #9ca3af;
+      font-size: 0.78rem;
+      margin-top: 3px;
+    }
     .chat-arrow { color: #ccc; font-size: 1.1rem; }
     .chat-item.unread {
       border-color: #ef4444;
@@ -564,6 +577,26 @@ async function cargarPropiedades() {
   });
 }
 
+function tiempoRelativo(fecha) {
+  const diffMs = Date.now() - new Date(fecha).getTime();
+  const min = Math.max(1, Math.floor(diffMs / 60000));
+  if (min < 60) return `Hace ${min} min`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `Hace ${horas} hora${horas !== 1 ? "s" : ""}`;
+  const dias = Math.floor(horas / 24);
+  return `Hace ${dias} día${dias !== 1 ? "s" : ""}`;
+}
+
+function escapeHtml(value = "") {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
 async function cargarChats() {
   try {
     const res   = await fetch(`/chat/mis-conversaciones/${usuario._id}`, {
@@ -592,12 +625,14 @@ async function cargarChats() {
       const esAnunciante = String(c.anuncianteId) === String(usuario._id);
       const otroNombre   = esAnunciante ? (c.compradorNombre || "Interesado") : (c.anuncianteNombre || "Anunciante");
       const noLeidos = Number(c.noLeidos) || 0;
+      const ultimoMensaje = escapeHtml(c.ultimoMensaje || "Conversación iniciada");
       return `
         <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='/chat.html?id=${c._id}'">
           <div class="chat-avatar">${otroNombre.charAt(0).toUpperCase()}</div>
           <div class="chat-info">
             <strong>${otroNombre}</strong>
-            <small>🏠 ${c.propiedadTitulo || "Propiedad"}</small>
+            <div class="chat-last-message">${ultimoMensaje}</div>
+            <div class="chat-time">${tiempoRelativo(c.ultimaActividad || c.creado)}</div>
           </div>
           ${noLeidos > 0 ? `<span class="chat-badge">${noLeidos > 99 ? "99+" : noLeidos}</span>` : ""}
           <div class="chat-arrow">›</div>

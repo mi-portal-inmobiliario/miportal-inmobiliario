@@ -63,6 +63,26 @@ async function cargarPropiedades() {
 /* =========================
    CHATS DEL USUARIO
 ========================= */
+function tiempoRelativo(fecha) {
+  const diffMs = Date.now() - new Date(fecha).getTime();
+  const min = Math.max(1, Math.floor(diffMs / 60000));
+  if (min < 60) return `Hace ${min} min`;
+  const horas = Math.floor(min / 60);
+  if (horas < 24) return `Hace ${horas} hora${horas !== 1 ? "s" : ""}`;
+  const dias = Math.floor(horas / 24);
+  return `Hace ${dias} día${dias !== 1 ? "s" : ""}`;
+}
+
+function escapeHtml(value = "") {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
 async function cargarChats() {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
   if (!usuario._id) return;
@@ -85,6 +105,7 @@ async function cargarChats() {
       ? (c.compradorNombre || "Interesado")
       : (c.anuncianteNombre || "Anunciante");
     const noLeidos = Number(c.noLeidos) || 0;
+    const ultimoMensaje = escapeHtml(c.ultimoMensaje || "Conversación iniciada");
 
     cont.innerHTML += `
       <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='chat.html?id=${c._id}'">
@@ -94,7 +115,8 @@ async function cargarChats() {
           </div>
           <div>
             <div style="font-weight:600;">${otroNombre}</div>
-            <div style="font-size:13px; color:#6b7280;">🏠 ${c.propiedadTitulo || "Propiedad"}</div>
+            <div style="font-size:13px; color:#4b5563;">${ultimoMensaje}</div>
+            <div style="font-size:12px; color:#9ca3af;">${tiempoRelativo(c.ultimaActividad || c.creado)}</div>
           </div>
         </div>
         ${noLeidos > 0 ? `<span class="chat-badge">${noLeidos > 99 ? "99+" : noLeidos}</span>` : ""}
