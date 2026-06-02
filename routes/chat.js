@@ -203,7 +203,13 @@ router.get("/mis-conversaciones/:userId", requireAuth, async (req, res) => {
       if (comprador) compradorNombre = comprador.nombre;
     } catch(e) {}
 
-    return { ...c.toObject(), propiedadTitulo, anuncianteNombre, compradorNombre };
+    const noLeidos = await Mensaje.countDocuments({
+      conversacionId: c._id.toString(),
+      userId: { $ne: userId },
+      leido: false
+    });
+
+    return { ...c.toObject(), propiedadTitulo, anuncianteNombre, compradorNombre, noLeidos };
   }));
 
   res.json(convsConTitulo);
