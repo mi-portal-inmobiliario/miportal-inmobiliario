@@ -229,12 +229,22 @@ router.get("/conversaciones/:id", requireAuth, async (req, res) => {
     if (!esParticipante(conv, req.user.id)) return res.status(403).json({ error: "No autorizado" });
 
     let propiedadTitulo = "Propiedad";
+    let propiedad = null;
     try {
       const prop = await Propiedad.findById(conv.propiedadId);
-      if (prop) propiedadTitulo = prop.titulo;
+      if (prop) {
+        propiedadTitulo = prop.titulo;
+        propiedad = {
+          _id: prop._id,
+          titulo: prop.titulo,
+          precio: prop.precio,
+          direccion: prop.direccion,
+          imagen: prop.imagenes?.[0] || ""
+        };
+      }
     } catch(e) {}
 
-    res.json({ ...conv.toObject(), propiedadTitulo });
+    res.json({ ...conv.toObject(), propiedadTitulo, propiedad });
   } catch(e) {
     res.status(400).json({ error: "ID inválido" });
   }

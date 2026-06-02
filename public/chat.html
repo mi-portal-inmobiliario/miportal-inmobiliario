@@ -152,9 +152,81 @@
       margin-bottom: 14px;
     }
 
+    .property-context {
+      display: none;
+      align-items: center;
+      gap: 14px;
+      background: #fff;
+      border: 1px solid #e8e8e3;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 8px rgba(0,0,0,0.05);
+    }
+
+    .property-context img {
+      width: 96px;
+      height: 72px;
+      object-fit: cover;
+      border-radius: 8px;
+      background: #f3f4f6;
+      flex-shrink: 0;
+    }
+
+    .property-context-info {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .property-context-info strong {
+      display: block;
+      color: #222;
+      font-size: 0.95rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-bottom: 4px;
+    }
+
+    .property-context-price {
+      color: #7cc242;
+      font-weight: 700;
+      font-size: 0.92rem;
+      margin-bottom: 3px;
+    }
+
+    .property-context-address {
+      color: #777;
+      font-size: 0.82rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .property-context-link {
+      padding: 9px 14px;
+      border-radius: 999px;
+      background: #f0fae5;
+      color: #5a9e2f;
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+
     @media (max-width: 768px) {
       .chat-wrap { padding: 0 10px 80px; margin: 10px auto; }
       .chat-container { height: calc(100vh - 180px); }
+      .property-context { align-items: flex-start; }
+      .property-context img { width: 82px; height: 66px; }
+      .property-context-link { align-self: center; padding: 8px 10px; font-size: 0.8rem; }
+    }
+
+    @media (max-width: 480px) {
+      .property-context { flex-wrap: wrap; }
+      .property-context-info { flex-basis: calc(100% - 96px); }
+      .property-context-link { width: 100%; text-align: center; }
     }
   </style>
 </head>
@@ -165,6 +237,7 @@
 
 <div class="chat-wrap">
   <a href="javascript:history.back()" class="volver-chat">← Volver</a>
+  <div class="property-context" id="propertyContext"></div>
 
   <div class="chat-container">
     <div class="chat-header">
@@ -202,6 +275,38 @@ const conversacionId = new URLSearchParams(window.location.search).get("id");
 if (!usuario || !usuario._id || !token) location.replace("/login.html");
 if (!conversacionId) location.replace("/perfil.html");
 
+function direccionCorta(direccion = "") {
+  return direccion.length > 90 ? direccion.slice(0, 87) + "..." : direccion;
+}
+
+function escapeHtml(value = "") {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function renderPropiedadContext(propiedad) {
+  const cont = document.getElementById("propertyContext");
+  if (!cont || !propiedad?._id) return;
+
+  const imagen = escapeHtml(propiedad.imagen || "https://via.placeholder.com/240x180?text=Sin+imagen");
+  const precio = Number(propiedad.precio || 0).toLocaleString("es-ES");
+  cont.innerHTML = `
+    <img src="${imagen}" alt="">
+    <div class="property-context-info">
+      <strong>${escapeHtml(propiedad.titulo || "Propiedad")}</strong>
+      <div class="property-context-price">${precio} €</div>
+      <div class="property-context-address">${escapeHtml(direccionCorta(propiedad.direccion || ""))}</div>
+    </div>
+    <a class="property-context-link" href="/propiedad.html?id=${escapeHtml(propiedad._id)}">Ver anuncio</a>
+  `;
+  cont.style.display = "flex";
+}
+
 /* ================================
    CARGAR INFO CONVERSACIÓN
 ================================ */
@@ -212,6 +317,7 @@ async function cargarConversacion() {
     });
     const data = await res.json();
     document.getElementById("chatTitulo").textContent = data.propiedadTitulo || "Conversación";
+    renderPropiedadContext(data.propiedad);
   } catch(e) {}
 }
 
