@@ -12,8 +12,10 @@ export async function enviarCorreo(to, subject, html) {
     });
 
     console.log("EMAIL ENVIADO:", data);
+    return true;
 
   } catch (err) {
     console.error("ERROR EMAIL:", err);
+    return false;
   }
 }
