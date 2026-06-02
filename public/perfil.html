@@ -276,6 +276,27 @@
     .chat-info strong { display: block; font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
     .chat-info small { color: #aaa; font-size: 0.82rem; }
     .chat-arrow { color: #ccc; font-size: 1.1rem; }
+    .chat-item.unread {
+      border-color: #ef4444;
+      background: #fffafa;
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.08);
+    }
+    .chat-item.unread .chat-info strong { color: #111827; font-weight: 700; }
+    .chat-badge {
+      min-width: 22px;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1;
+      flex-shrink: 0;
+    }
 
     .estado-vacio {
       text-align: center;
@@ -536,13 +557,15 @@ async function cargarChats() {
     cont.innerHTML = chats.map(c => {
       const esAnunciante = String(c.anuncianteId) === String(usuario._id);
       const otroNombre   = esAnunciante ? (c.compradorNombre || "Interesado") : (c.anuncianteNombre || "Anunciante");
+      const noLeidos = Number(c.noLeidos) || 0;
       return `
-        <div class="chat-item" onclick="location.href='/chat.html?id=${c._id}'">
+        <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='/chat.html?id=${c._id}'">
           <div class="chat-avatar">${otroNombre.charAt(0).toUpperCase()}</div>
           <div class="chat-info">
             <strong>${otroNombre}</strong>
             <small>🏠 ${c.propiedadTitulo || "Propiedad"}</small>
           </div>
+          ${noLeidos > 0 ? `<span class="chat-badge">${noLeidos > 99 ? "99+" : noLeidos}</span>` : ""}
           <div class="chat-arrow">›</div>
         </div>
       `;

@@ -84,9 +84,10 @@ async function cargarChats() {
     const otroNombre = esAnunciante
       ? (c.compradorNombre || "Interesado")
       : (c.anuncianteNombre || "Anunciante");
+    const noLeidos = Number(c.noLeidos) || 0;
 
     cont.innerHTML += `
-      <div class="chat-item" onclick="location.href='chat.html?conv=${c._id}'">
+      <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='chat.html?id=${c._id}'">
         <div style="display:flex; align-items:center; gap:10px;">
           <div style="width:40px; height:40px; border-radius:50%; background:#2563eb; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
             ${otroNombre.charAt(0).toUpperCase()}
@@ -96,6 +97,7 @@ async function cargarChats() {
             <div style="font-size:13px; color:#6b7280;">🏠 ${c.propiedadTitulo || "Propiedad"}</div>
           </div>
         </div>
+        ${noLeidos > 0 ? `<span class="chat-badge">${noLeidos > 99 ? "99+" : noLeidos}</span>` : ""}
       </div>
     `;
   });
