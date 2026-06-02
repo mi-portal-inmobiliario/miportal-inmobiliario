@@ -607,6 +607,21 @@ async function cargarChats() {
   } catch(e) { console.error(e); }
 }
 
+let ultimoRefreshChats = 0;
+function refrescarChatsSiVisible() {
+  if (!document.getElementById("listaChats")) return;
+  if (window.location.hash && window.location.hash !== "#chats") return;
+
+  const ahora = Date.now();
+  if (ahora - ultimoRefreshChats < 1200) return;
+  ultimoRefreshChats = ahora;
+  cargarChats();
+}
+
+window.addEventListener("pageshow", refrescarChatsSiVisible);
+window.addEventListener("focus", refrescarChatsSiVisible);
+window.addEventListener("hashchange", refrescarChatsSiVisible);
+
 function cerrarSesion() {
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");

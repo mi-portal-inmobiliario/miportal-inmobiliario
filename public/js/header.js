@@ -194,14 +194,25 @@ gtag('config', 'G-K06Q40JXYL');
   ====================== */
   async function actualizarBadge() {
     try {
-      const res  = await fetch(`/chat/no-leidos/${usuario._id}`);
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const res  = await fetch(`/chat/no-leidos/${usuario._id}`, {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (!res.ok) {
+        console.warn("No se pudo actualizar el badge de chats:", res.status);
+        return;
+      }
       const data = await res.json();
       const badge = document.getElementById("chatBadge");
       if (badge) {
         badge.textContent = data.count;
         badge.style.display = data.count > 0 ? "flex" : "none";
       }
-    } catch(e) {}
+    } catch(e) {
+      console.warn("No se pudo actualizar el badge de chats:", e.message);
+    }
   }
 
   actualizarBadge();
