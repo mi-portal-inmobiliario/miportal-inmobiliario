@@ -22,6 +22,12 @@ const UsuarioSchema = new mongoose.Schema({
   trialStartDate:        { type: Date },
   trialEndDate:          { type: Date },
   trialReminderSent:     { type: Boolean, default: false },
+  trialReminders: {
+    sevenDays:           { type: Boolean, default: false },
+    threeDays:           { type: Boolean, default: false },
+    lastDay:             { type: Boolean, default: false },
+    expired:             { type: Boolean, default: false }
+  },
 }, { timestamps: true });
 
 export default mongoose.model("Usuario", UsuarioSchema);

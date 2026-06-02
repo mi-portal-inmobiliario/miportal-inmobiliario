@@ -99,6 +99,12 @@ router.post("/trial/accept", requireAuth, async (req, res) => {
       usuario.trialStartDate = inicio;
       usuario.trialEndDate = fin;
       usuario.trialReminderSent = false;
+      usuario.trialReminders = {
+        sevenDays: false,
+        threeDays: false,
+        lastDay: false,
+        expired: false
+      };
       usuario.planActivo = true;
       usuario.planFechaFin = fin;
       await usuario.save();

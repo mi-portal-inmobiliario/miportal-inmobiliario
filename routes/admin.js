@@ -126,6 +126,12 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
         trialStartDate: null,
         trialEndDate: null,
         trialReminderSent: false,
+        trialReminders: {
+          sevenDays: false,
+          threeDays: false,
+          lastDay: false,
+          expired: false
+        },
         planFechaFin: null
       });
     } else {
@@ -133,7 +139,13 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
         trialAccepted: false,
         trialStartDate: null,
         trialEndDate: null,
-        trialReminderSent: false
+        trialReminderSent: false,
+        trialReminders: {
+          sevenDays: false,
+          threeDays: false,
+          lastDay: false,
+          expired: false
+        }
       });
     }
 
