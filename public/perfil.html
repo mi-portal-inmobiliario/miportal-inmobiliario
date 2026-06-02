@@ -140,6 +140,30 @@
       display: block;
     }
 
+    .stat-chat-line {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .stat-chat-line strong { margin: 0; }
+
+    .stat-unread-badge {
+      min-width: 22px;
+      height: 22px;
+      padding: 0 7px;
+      border-radius: 999px;
+      background: #ef4444;
+      color: #fff;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      line-height: 1;
+    }
+
     .plan-card {
       background: #fff;
       border: 1px solid #e5e5e0;
@@ -364,7 +388,10 @@
       <span>Anuncios</span>
     </div>
     <div class="perfil-stat">
-      <strong id="statChats">0</strong>
+      <div class="stat-chat-line">
+        <strong id="statChats">0</strong>
+        <span class="stat-unread-badge" id="statChatsPendientes">0</span>
+      </div>
       <span>Chats</span>
     </div>
     <div class="perfil-stat">
@@ -544,8 +571,15 @@ async function cargarChats() {
     });
     const chats = await res.json();
     const cont  = document.getElementById("listaChats");
+    const totalNoLeidos = chats.reduce((total, c) => total + (Number(c.noLeidos) || 0), 0);
+    const badgePendientes = document.getElementById("statChatsPendientes");
 
     document.getElementById("statChats").textContent = chats.length;
+    if (badgePendientes) {
+      badgePendientes.textContent = totalNoLeidos > 99 ? "99+" : totalNoLeidos;
+      badgePendientes.style.display = totalNoLeidos > 0 ? "inline-flex" : "none";
+      badgePendientes.title = `${totalNoLeidos} mensaje${totalNoLeidos !== 1 ? "s" : ""} pendiente${totalNoLeidos !== 1 ? "s" : ""}`;
+    }
 
     if (!chats.length) {
       document.getElementById("noChats").style.display = "block";
