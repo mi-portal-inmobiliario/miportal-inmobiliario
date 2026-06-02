@@ -86,6 +86,57 @@ const propiedadUpdateSchema = z.object({
   habitaciones: propiedadBaseSchema.habitaciones.optional()
 });
 
+const LIMITES_ANUNCIOS = {
+  gratis: 2,
+  basico: 3,
+  destacado: 4,
+  starter: 15,
+  pro_agentes: 40,
+  agencia_basica: 50,
+  agencia_pro: Infinity,
+  vip_trial: Infinity,
+  vip: Infinity
+};
+
+const MAX_FOTOS = {
+  gratis: 7,
+  basico: 10,
+  destacado: 15,
+  starter: 20,
+  pro_agentes: 30,
+  agencia_basica: 40,
+  agencia_pro: 50,
+  vip_trial: 99,
+  vip: 99
+};
+
+function getPlanParaLimites(usuario) {
+  let plan = usuario?.plan || "gratis";
+  if (plan === "vip_trial" && (!usuario.trialAccepted || !usuario.planActivo)) {
+    plan = "gratis";
+  }
+  return plan;
+}
+
+async function eliminarImagenCloudinary(url) {
+  const partes = url.split("/");
+  const archivo = partes[partes.length - 1].split(".")[0];
+  const carpeta = partes[partes.length - 2];
+  const publicId = `${carpeta}/${archivo}`;
+  await cloudinary.uploader.destroy(publicId);
+}
+
+async function limpiarImagenesSubidas(files = []) {
+  for (const file of files) {
+    if (!file?.path) continue;
+    try {
+      await eliminarImagenCloudinary(file.path);
+    } catch (errImg) {
+      console.warn("No se pudo limpiar imagen subida:", errImg.message);
+    }
+  }
+}
+
 // ==================================================
 // CLOUDINARY CONFIG
 // ==================================================
@@ -116,7 +167,32 @@ const storage = new CloudinaryStorage({
   })
 });
 
-const upload = multer({ storage });
+const upload = multer({
+  storage,
+  fileFilter: (req, file, cb) => {
+    const plan = getPlanParaLimites(req.user);
+    const maxFotos = MAX_FOTOS[plan] ?? MAX_FOTOS.gratis;
+    req.imagenesRecibidas = (req.imagenesRecibidas || 0) + 1;
+
+    if (req.imagenesRecibidas > maxFotos) {
+      const err = new Error(`Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`);
+      err.statusCode = 403;
+      return cb(err);
+    }
+
+    cb(null, true);
+  }
+});
+
+function uploadImagenes(req, res, next) {
+  upload.array("imagenes")(req, res, async err => {
+    if (!err) return next();
+    await limpiarImagenesSubidas(req.files);
+    return res.status(err.statusCode || 500).json({
+      error: err.message || "Error al subir imágenes"
+    });
+  });
+}
 
 // ==================================================
 // GET /propiedades — con filtros
@@ -241,7 +317,7 @@ router.get("/:id", async (req, res) => {
 // ==================================================
 // POST /propiedades — crear propiedad con imágenes
 // ==================================================
-router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propiedadCreateSchema), async (req, res) => {
+router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema), async (req, res) => {
   try {
     const {
       titulo,
@@ -256,27 +332,6 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
     } = req.body;
     const usuarioId = req.user.id;
 
-    // Comprobar límite de plan
-    const LIMITES = {
-      gratis: 2,
-      basico: 3,
-      destacado: 4,
-      starter: 15,
-      pro_agentes: 40,
-      vip_trial: Infinity,
-      vip: Infinity
-    };
-
-    const MAX_FOTOS = {
-      gratis: 7,
-      basico: 10,
-      destacado: 15,
-      starter: 20,
-      pro_agentes: 30,
-      vip_trial: Infinity,
-      vip: Infinity
-    };
-
     let usuario = null;
     let plan = "gratis";
 
@@ -284,14 +339,11 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
 
     if (usuario) {
 
-      plan = usuario.plan || "gratis";
-      if (plan === "vip_trial" && (!usuario.trialAccepted || !usuario.planActivo)) {
-        plan = "gratis";
-      }
+      plan = getPlanParaLimites(usuario);
       
-      const limite = LIMITES[plan] ?? 2;
+      const limite = LIMITES_ANUNCIOS[plan] ?? LIMITES_ANUNCIOS.gratis;
       // Límite de fotos
-      const maxFotos = MAX_FOTOS[plan] ?? 7;
+      const maxFotos = MAX_FOTOS[plan] ?? MAX_FOTOS.gratis;
       const numFotos = req.files?.length || 0;
       if (numFotos > maxFotos) {
         return res.status(403).json({
@@ -422,7 +474,7 @@ router.post("/", requireAuth, upload.array("imagenes", 10), validateBody(propied
 // ==================================================
 // PUT /propiedades/:id — editar propiedad
 // ==================================================
-router.put("/:id", requireAuth, upload.array("imagenes", 10), validateBody(propiedadUpdateSchema), async (req, res) => {
+router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSchema), async (req, res) => {
   try {
     if (!isObjectId(req.params.id)) {
       return res.status(400).json({ message: "ID inválido" });
@@ -499,12 +551,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     if (propiedad.imagenes && propiedad.imagenes.length > 0) {
       for (const url of propiedad.imagenes) {
         try {
-          // Extraer el public_id de la URL de Cloudinary
-          const partes = url.split("/");
-          const archivo = partes[partes.length - 1].split(".")[0];
-          const carpeta = partes[partes.length - 2];
-          const publicId = `${carpeta}/${archivo}`;
-          await cloudinary.uploader.destroy(publicId);
+          await eliminarImagenCloudinary(url);
         } catch (errImg) {
           console.warn("No se pudo eliminar imagen:", errImg.message);
         }
