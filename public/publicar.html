@@ -791,7 +791,7 @@ async function publicar() {
 } else {
 
   mensajeEl.textContent =
-    "❌ " + (data.message || "Error al publicar");
+    "❌ " + (data.error || data.message || "Error al publicar");
 
   mensajeEl.className = "err";
 

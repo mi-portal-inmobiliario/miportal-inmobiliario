@@ -317,7 +317,7 @@ router.get("/:id", async (req, res) => {
 // ==================================================
 // POST /propiedades — crear propiedad con imágenes
 // ==================================================
-router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema), async (req, res) => {
+router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema, { logLabel: "POST /propiedades" }), async (req, res) => {
   try {
     const {
       titulo,
