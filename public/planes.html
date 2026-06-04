@@ -160,19 +160,58 @@
 </div>
 
 <script>
+function irLoginPlanes(mensaje) {
+  if (mensaje) alert(mensaje);
+  window.location.href = "/login.html?returnUrl=/planes.html";
+}
+
 async function suscribirse(priceId) {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    localStorage.setItem("planPendiente", priceId);
+    irLoginPlanes("Inicia sesión para suscribirte");
+    return;
+  }
+
   try {
     const response = await fetch('/pagos/crear-sesion', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
       body: JSON.stringify({ priceId })
     });
     const data = await response.json();
+
+    if (response.status === 401) {
+      localStorage.removeItem("token");
+      localStorage.removeItem("usuario");
+      localStorage.setItem("planPendiente", priceId);
+      irLoginPlanes("Inicia sesión para suscribirte");
+      return;
+    }
+
+    if (!response.ok) {
+      alert(data.error || 'No se pudo iniciar la suscripción.');
+      return;
+    }
+
     if (data.url) window.location.href = data.url;
   } catch (error) {
     alert('Ha ocurrido un error. Por favor inténtalo de nuevo.');
   }
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  const token = localStorage.getItem("token");
+  const planPendiente = localStorage.getItem("planPendiente");
+  if (!token || !planPendiente) return;
+
+  localStorage.removeItem("planPendiente");
+  suscribirse(planPendiente);
+});
 </script>
 
 <footer class="footer">

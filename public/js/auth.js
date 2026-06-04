@@ -83,5 +83,7 @@ async function login() {
   localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
   mostrarMensaje("✅ Sesión iniciada. Redirigiendo...", "green");
-  setTimeout(() => location.href = "/index.html", 1000);
+  const returnUrl = new URLSearchParams(window.location.search).get("returnUrl");
+  const destino = returnUrl && returnUrl.startsWith("/") ? returnUrl : "/index.html";
+  setTimeout(() => location.href = destino, 1000);
 }
