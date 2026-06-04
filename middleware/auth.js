@@ -34,6 +34,7 @@ export async function requireAuth(req, res, next) {
       trialStartDate: usuario.trialStartDate || null,
       trialEndDate: usuario.trialEndDate || null,
       stripeCustomerId: usuario.stripeCustomerId || null,
+      stripeSubscriptionId: usuario.stripeSubscriptionId || null,
       esAdmin: false
     };
     req.usuarioId = req.user.id;

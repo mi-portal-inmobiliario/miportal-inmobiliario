@@ -460,10 +460,45 @@
 </nav>
 
 <script>
-const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+let usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 const token   = localStorage.getItem("token");
 
 if (!usuario || !usuario._id || !token) location.replace("/login.html");
+
+const pagoExitoso = new URLSearchParams(window.location.search).get("pago") === "exitoso";
+
+async function refrescarUsuarioTrasPago() {
+  const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+  let usuarioActualizado = null;
+
+  for (let intento = 0; intento < 6; intento++) {
+    try {
+      const res = await fetch("/usuarios/me", {
+        headers: { "Authorization": "Bearer " + token }
+      });
+      if (res.ok) {
+        usuarioActualizado = await res.json();
+        localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+        if (
+          usuarioActualizado.plan !== usuario.plan ||
+          usuarioActualizado.stripeSubscriptionId
+        ) {
+          window.location.replace("/perfil.html");
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn("No se pudo refrescar el usuario tras el pago", e);
+    }
+    await sleep(1200);
+  }
+
+  if (usuarioActualizado) {
+    window.location.replace("/perfil.html");
+  }
+}
+
+if (pagoExitoso) refrescarUsuarioTrasPago();
 
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
 document.getElementById("emailUsuario").textContent  = usuario.email;

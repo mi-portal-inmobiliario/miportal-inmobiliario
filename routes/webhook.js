@@ -19,6 +19,10 @@ const NOMBRES_PLANES = {
   pro_agentes: 'Pro Agentes', agencia_basica: 'Agencia Básica',
 };
 
+function esObjectId(id) {
+  return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
+}
+
 router.post('/', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -47,28 +51,55 @@ router.post('/', async (req, res) => {
     const session = event.data.object;
     const email = session.customer_details?.email;
     const subscriptionId = session.subscription;
+    const metadata = session.metadata || {};
+
+    console.log('Stripe webhook recibido', {
+      eventType: event.type,
+      sessionId: session.id,
+      metadata,
+      customer: session.customer,
+      subscription: subscriptionId
+    });
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id;
-    const plan = PLANES[priceId] || 'gratis';
+    const plan = metadata.plan || PLANES[priceId] || 'gratis';
+    const userId = metadata.userId || metadata.usuarioId || session.client_reference_id;
     const timestamp = subscription.current_period_end || subscription.billing_cycle_anchor;
     const fechaFin = timestamp ? new Date(timestamp * 1000) : null;
+    const update = {
+      plan,
+      planActivo: true,
+      ...(fechaFin && { planFechaFin: fechaFin }),
+      stripeCustomerId: session.customer,
+      stripeSubscriptionId: subscriptionId,
+    };
 
-    await Usuario.findOneAndUpdate(
-      { email },
-      {
-        plan,
-        planActivo: true,
-        ...(fechaFin && { planFechaFin: fechaFin }),
-        stripeCustomerId: session.customer,
-        stripeSubscriptionId: subscriptionId,
-      }
-    );
+    let usuarioActualizado = null;
+
+    if (esObjectId(userId)) {
+      usuarioActualizado = await Usuario.findByIdAndUpdate(userId, update, { new: true });
+    }
+
+    if (!usuarioActualizado && email) {
+      usuarioActualizado = await Usuario.findOneAndUpdate({ email }, update, { new: true });
+    }
+
+    console.log('Stripe webhook actualización usuario', {
+      sessionId: session.id,
+      userId,
+      priceId,
+      plan,
+      actualizado: Boolean(usuarioActualizado),
+      usuarioIdActualizado: usuarioActualizado?._id?.toString() || null,
+      stripeCustomerGuardado: Boolean(usuarioActualizado?.stripeCustomerId),
+      stripeSubscriptionGuardada: Boolean(usuarioActualizado?.stripeSubscriptionId)
+    });
 
     // Email de confirmación
-    if (email && fechaFin) {
+    if (usuarioActualizado?.email && fechaFin) {
       await enviarCorreo(
-        email,
+        usuarioActualizado.email,
         `✅ Tu plan ${NOMBRES_PLANES[plan]} está activo — HomeClick24`,
         `
           <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:32px;">

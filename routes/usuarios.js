@@ -5,6 +5,34 @@ import { requireAuth } from "../middleware/auth.js";
 
 const router = express.Router();
 
+function usuarioSeguro(usuario) {
+  return {
+    _id: usuario._id,
+    nombre: usuario.nombre,
+    email: usuario.email,
+    plan: usuario.plan || "gratis",
+    planActivo: usuario.planActivo || false,
+    planFechaFin: usuario.planFechaFin || null,
+    trialAccepted: usuario.trialAccepted || false,
+    trialStartDate: usuario.trialStartDate || null,
+    trialEndDate: usuario.trialEndDate || null,
+    trialReminderSent: usuario.trialReminderSent || false,
+    stripeCustomerId: usuario.stripeCustomerId || null,
+    stripeSubscriptionId: usuario.stripeSubscriptionId || null
+  };
+}
+
+// Usuario autenticado
+router.get("/me", requireAuth, async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.user.id);
+    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+    res.json(usuarioSeguro(usuario));
+  } catch (e) {
+    res.status(500).json({ error: "Error en servidor" });
+  }
+});
+
 // ============================
 // GET favoritos
 // ============================

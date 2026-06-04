@@ -233,7 +233,8 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
         trialStartDate: usuario.trialStartDate || null,
         trialEndDate: usuario.trialEndDate || null,
         trialReminderSent: usuario.trialReminderSent || false,
-        stripeCustomerId: usuario.stripeCustomerId || null
+        stripeCustomerId: usuario.stripeCustomerId || null,
+        stripeSubscriptionId: usuario.stripeSubscriptionId || null
       }
     });
 
