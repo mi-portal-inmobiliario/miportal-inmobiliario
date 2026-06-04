@@ -356,9 +356,12 @@ window.toggleNotifMenu = function(e) {
 
 async function cargarNotificaciones() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
-  if (!usuario) return;
+  const token = localStorage.getItem("token");
+  if (!usuario || !token) return;
 
-  const res = await fetch(`/notificaciones/${usuario._id}`);
+  const res = await fetch(`/notificaciones/${usuario._id}`, {
+    headers: { "Authorization": "Bearer " + token }
+  });
   const notifs = await res.json();
 
   const lista = document.getElementById("notifLista");
@@ -387,16 +390,23 @@ async function cargarNotificaciones() {
 }
 
 window.marcarLeida = async function(id, propiedadId) {
-  await fetch(`/notificaciones/${id}/leida`, { method: "PUT" });
+  const token = localStorage.getItem("token");
+  await fetch(`/notificaciones/${id}/leida`, {
+    method: "PUT",
+    headers: token ? { "Authorization": "Bearer " + token } : {}
+  });
   if (propiedadId) window.location.href = `/propiedad.html?id=${propiedadId}`;
   else cargarNotificaciones();
 };
 
 async function actualizarBadgeNotif() {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
-  if (!usuario) return;
+  const token = localStorage.getItem("token");
+  if (!usuario || !token) return;
   try {
-    const res = await fetch(`/notificaciones/${usuario._id}`);
+    const res = await fetch(`/notificaciones/${usuario._id}`, {
+      headers: { "Authorization": "Bearer " + token }
+    });
     const notifs = await res.json();
     const noLeidas = notifs.filter(n => !n.leida).length;
     const badge = document.getElementById("notifBadge");

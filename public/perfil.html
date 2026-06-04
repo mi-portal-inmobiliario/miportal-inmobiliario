@@ -753,14 +753,22 @@ async function eliminarPropiedad(id, btn) {
 async function gestionarSuscripcion() {
   try {
     const usuario = JSON.parse(localStorage.getItem('usuario'));
+    const token = localStorage.getItem('token');
     if (!usuario?.stripeCustomerId || !usuario?.stripeSubscriptionId) {
       window.location.href = '/planes.html';
+      return;
+    }
+    if (!token) {
+      window.location.href = '/login.html?returnUrl=/perfil.html';
       return;
     }
 
     const res = await fetch('/pagos/portal-cliente', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
       body: JSON.stringify({ customerId: usuario.stripeCustomerId })
     });
     const data = await res.json();
