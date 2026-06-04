@@ -23,6 +23,11 @@ function esObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
 }
 
+function fechaFinPeriodo(subscription) {
+  const timestamp = subscription.current_period_end || subscription.items?.data?.[0]?.current_period_end;
+  return timestamp ? new Date(timestamp * 1000) : null;
+}
+
 router.post('/', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -65,8 +70,7 @@ router.post('/', async (req, res) => {
     const priceId = subscription.items.data[0]?.price?.id;
     const plan = metadata.plan || PLANES[priceId] || 'gratis';
     const userId = metadata.userId || metadata.usuarioId || session.client_reference_id;
-    const timestamp = subscription.current_period_end || subscription.billing_cycle_anchor;
-    const fechaFin = timestamp ? new Date(timestamp * 1000) : null;
+    const fechaFin = fechaFinPeriodo(subscription);
     const update = {
       plan,
       planActivo: true,
@@ -93,7 +97,10 @@ router.post('/', async (req, res) => {
       actualizado: Boolean(usuarioActualizado),
       usuarioIdActualizado: usuarioActualizado?._id?.toString() || null,
       stripeCustomerGuardado: Boolean(usuarioActualizado?.stripeCustomerId),
-      stripeSubscriptionGuardada: Boolean(usuarioActualizado?.stripeSubscriptionId)
+      stripeSubscriptionGuardada: Boolean(usuarioActualizado?.stripeSubscriptionId),
+      currentPeriodEnd: subscription.current_period_end || null,
+      itemCurrentPeriodEnd: subscription.items?.data?.[0]?.current_period_end || null,
+      planFechaFin: fechaFin?.toISOString() || null
     });
 
     // Email de confirmación
@@ -130,14 +137,19 @@ router.post('/', async (req, res) => {
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id;
     const plan = PLANES[priceId] || 'gratis';
-    const fechaFin = new Date(subscription.current_period_end * 1000);
+    const fechaFin = fechaFinPeriodo(subscription);
+    const update = {
+      plan,
+      planActivo: true,
+      ...(fechaFin && { planFechaFin: fechaFin })
+    };
 
     const usuario = await Usuario.findOneAndUpdate(
       { stripeSubscriptionId: subscriptionId },
-      { plan, planActivo: true, planFechaFin: fechaFin }
+      update
     );
 
-    if (usuario?.email) {
+    if (usuario?.email && fechaFin) {
       await enviarCorreo(
         usuario.email,
         `🔄 Tu plan ${NOMBRES_PLANES[plan]} se ha renovado — HomeClick24`,
