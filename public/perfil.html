@@ -509,6 +509,17 @@ document.getElementById("planStats").innerHTML = `
   <div class="plan-stat"><div class="plan-stat-val">${planInfo.precio}</div><div class="plan-stat-lab">Precio</div></div>
 `;
 
+function estadoComercialBadge(estado = "Disponible") {
+  const actual = estado || "Disponible";
+  const estilos = {
+    Disponible: "background:#f0f9e8;color:#5a9e2f;",
+    Reservado: "background:#fff7ed;color:#c2410c;",
+    Vendido: "background:#fef2f2;color:#dc2626;",
+    Alquilado: "background:#eff6ff;color:#2563eb;"
+  };
+  return `<span class="tag-tipo" style="${estilos[actual] || estilos.Disponible}">${actual}</span>`;
+}
+
 async function cargarPropiedades() {
   const res  = await fetch("/propiedades/mias", {
     headers: { "Authorization": "Bearer " + token }
@@ -545,13 +556,11 @@ async function cargarPropiedades() {
           ${p.referencia ? `<div class="card-direccion">Ref. ${p.referencia}</div>` : ""}
           <div class="card-direccion">📍 ${p.direccion}</div>
           ${hab ? `<div class="card-hab">${hab}</div>` : ""}
-          ${estadoPropiedad || p.estadoComercial || p.certificadoEnergetico ? `
-            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
-              ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}
-              ${p.estadoComercial ? `<span class="tag-tipo">${p.estadoComercial}</span>` : ""}
-              ${p.certificadoEnergetico ? `<span class="tag-tipo">CEE ${p.certificadoEnergetico}</span>` : ""}
-            </div>
-          ` : ""}
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+            ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}
+            ${estadoComercialBadge(p.estadoComercial)}
+            ${p.certificadoEnergetico ? `<span class="tag-tipo">CEE ${p.certificadoEnergetico}</span>` : ""}
+          </div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;">
             <div style="text-align:center;">
               <div style="font-size:1rem;font-weight:600;color:#7cc242;">${p.visitas || 0}</div>

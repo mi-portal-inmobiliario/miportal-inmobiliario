@@ -1,5 +1,16 @@
 let propiedades = [];
 
+function estadoComercialBadge(estado = "Disponible") {
+  const actual = estado || "Disponible";
+  const estilos = {
+    Disponible: "background:#f0f9e8;color:#5a9e2f;",
+    Reservado: "background:#fff7ed;color:#c2410c;",
+    Vendido: "background:#fef2f2;color:#dc2626;",
+    Alquilado: "background:#eff6ff;color:#2563eb;"
+  };
+  return `<span class="tag-tipo" style="${estilos[actual] || estilos.Disponible}">${actual}</span>`;
+}
+
 // =====================================
 // CARGAR PROPIEDADES
 // =====================================
@@ -102,6 +113,7 @@ function renderLista(lista) {
     </div>
     <div class="card-body">
       <div class="card-precio">${precio}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">${estadoComercialBadge(p.estadoComercial)}</div>
       <div class="card-titulo">${p.titulo}</div>
       <div class="card-direccion">📍 ${p.direccion}</div>
       ${hab || banos || superficie ? `
@@ -184,4 +196,3 @@ async function toggleFavorito(e, propiedadId, btn) {
 
   btn.textContent = esFav ? "🤍" : "❤️";
 }
-

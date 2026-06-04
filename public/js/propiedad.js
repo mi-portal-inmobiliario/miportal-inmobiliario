@@ -9,6 +9,17 @@ const publicado =
 
 document.addEventListener("DOMContentLoaded", cargarPropiedad);
 
+function estadoComercialBadge(estado = "Disponible") {
+  const actual = estado || "Disponible";
+  const estilos = {
+    Disponible: "background:#f0f9e8;color:#5a9e2f;",
+    Reservado: "background:#fff7ed;color:#c2410c;",
+    Vendido: "background:#fef2f2;color:#dc2626;",
+    Alquilado: "background:#eff6ff;color:#2563eb;"
+  };
+  return `<span class="tag-tipo" style="${estilos[actual] || estilos.Disponible}">${actual}</span>`;
+}
+
 /* ================================
    CARGAR PROPIEDAD
 ================================ */
@@ -186,9 +197,9 @@ function renderPropiedad() {
       <div class="propiedad-right">
         <div class="propiedad-card-info">
           <span class="tag-tipo ${tipoCls}">${tipo}</span>
-          ${propiedad.estadoComercial ? `<span class="tag-tipo">${propiedad.estadoComercial}</span>` : ""}
           ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}
           <div class="propiedad-precio">${precio}</div>
+          <div style="margin:8px 0 10px;">${estadoComercialBadge(propiedad.estadoComercial)}</div>
           <h1 class="propiedad-titulo">${propiedad.titulo}</h1>
           <div class="propiedad-dir">📍 ${propiedad.direccion}</div>
           ${propiedad.referencia ? `<div class="propiedad-dir">Ref. ${propiedad.referencia}</div>` : ""}

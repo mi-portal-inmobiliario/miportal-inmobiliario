@@ -24,6 +24,17 @@ function cargarUsuario() {
     (usuario.nombre || "U").charAt(0).toUpperCase();
 }
 
+function estadoComercialBadge(estado = "Disponible") {
+  const actual = estado || "Disponible";
+  const estilos = {
+    Disponible: "background:#f0f9e8;color:#5a9e2f;",
+    Reservado: "background:#fff7ed;color:#c2410c;",
+    Vendido: "background:#fef2f2;color:#dc2626;",
+    Alquilado: "background:#eff6ff;color:#2563eb;"
+  };
+  return `<span style="display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:0.75rem;font-weight:700;${estilos[actual] || estilos.Disponible}">${actual}</span>`;
+}
+
 /* =========================
    PROPIEDADES PUBLICADAS
 ========================= */
@@ -56,9 +67,11 @@ async function cargarPropiedades() {
           <div class="precio">${p.precio} €</div>
           ${p.referencia ? `<div>Ref. ${p.referencia}</div>` : ""}
           <div>${p.direccion}</div>
-          ${estadoPropiedad || p.estadoComercial || p.certificadoEnergetico ? `
-            <div>${[estadoPropiedad, p.estadoComercial, p.certificadoEnergetico ? `CEE ${p.certificadoEnergetico}` : ""].filter(Boolean).join(" · ")}</div>
-          ` : ""}
+          <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+            ${estadoPropiedad ? `<span>${estadoPropiedad}</span>` : ""}
+            ${estadoComercialBadge(p.estadoComercial)}
+            ${p.certificadoEnergetico ? `<span>CEE ${p.certificadoEnergetico}</span>` : ""}
+          </div>
         </div>
       </div>
     `;
