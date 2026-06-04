@@ -478,10 +478,22 @@ const PLANES_NOMBRES = {
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
 document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuario.plan] || "Gratis");
 
-// Mostrar botón gestionar si tiene plan de pago
-if (usuario.plan && usuario.plan !== 'gratis' && usuario.plan !== 'vip_trial' && usuario.planActivo) {
-  document.getElementById('btnGestionarPlan').style.display = 'block';
-  document.getElementById('btnMejorarPlan').style.display = 'none';
+const btnMejorarPlan = document.getElementById('btnMejorarPlan');
+const btnGestionarPlan = document.getElementById('btnGestionarPlan');
+const tieneSuscripcionStripe = Boolean(usuario.stripeCustomerId && usuario.stripeSubscriptionId);
+
+btnGestionarPlan.style.display = 'none';
+btnMejorarPlan.style.display = 'inline-flex';
+
+if (tieneSuscripcionStripe) {
+  btnGestionarPlan.style.display = 'inline-flex';
+  btnMejorarPlan.style.display = 'none';
+} else if (usuario.plan === 'vip_trial') {
+  btnMejorarPlan.textContent = 'Continuar con un plan';
+} else if (usuario.plan && usuario.plan !== 'gratis') {
+  btnMejorarPlan.textContent = 'Contratar suscripción';
+} else {
+  btnMejorarPlan.textContent = 'Mejorar plan ↗';
 }
 
 const PLANES_INFO = {
@@ -706,6 +718,11 @@ async function eliminarPropiedad(id, btn) {
 async function gestionarSuscripcion() {
   try {
     const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario?.stripeCustomerId || !usuario?.stripeSubscriptionId) {
+      window.location.href = '/planes.html';
+      return;
+    }
+
     const res = await fetch('/pagos/portal-cliente', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
