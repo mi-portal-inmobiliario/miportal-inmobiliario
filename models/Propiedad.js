@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const PropiedadSchema = new mongoose.Schema({
   titulo:        { type: String, required: true },
+  referencia:    { type: String, default: "" },
   direccion:     { type: String, required: true },
   precio:        { type: Number, required: true },
   descripcion:   { type: String },
@@ -29,6 +30,21 @@ const PropiedadSchema = new mongoose.Schema({
   },
 
   estado: { type: String, enum: ["obra_nueva", "segunda_mano"], default: "segunda_mano" },
+  certificadoEnergetico: {
+    type: String,
+    enum: ["A", "B", "C", "D", "E", "F", "G", "No disponible", "Exento", "En trámite", ""],
+    default: ""
+  },
+  estadoPropiedad: {
+    type: String,
+    enum: ["Obra nueva", "Segunda mano", "Reformado", "A reformar", ""],
+    default: ""
+  },
+  estadoComercial: {
+    type: String,
+    enum: ["Disponible", "Reservado", "Vendido", "Alquilado", ""],
+    default: "Disponible"
+  },
 
   // Campos específicos para locales y oficinas
   usoPermitido:    { type: String, default: "" },  // ej: "hostelería, comercio, oficina"

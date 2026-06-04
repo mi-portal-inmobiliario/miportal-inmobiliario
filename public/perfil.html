@@ -532,6 +532,7 @@ async function cargarPropiedades() {
     const tipo    = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
     const hab     = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
+    const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
     return `
       <div class="card-propiedad">
         <div class="card-img-wrap" onclick="location.href='/propiedad.html?id=${p._id}'" style="cursor:pointer;">
@@ -541,8 +542,16 @@ async function cargarPropiedades() {
         <div class="card-body">
           <div class="card-precio">${precio}</div>
           <div class="card-titulo">${p.titulo}</div>
+          ${p.referencia ? `<div class="card-direccion">Ref. ${p.referencia}</div>` : ""}
           <div class="card-direccion">📍 ${p.direccion}</div>
           ${hab ? `<div class="card-hab">${hab}</div>` : ""}
+          ${estadoPropiedad || p.estadoComercial || p.certificadoEnergetico ? `
+            <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+              ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}
+              ${p.estadoComercial ? `<span class="tag-tipo">${p.estadoComercial}</span>` : ""}
+              ${p.certificadoEnergetico ? `<span class="tag-tipo">CEE ${p.certificadoEnergetico}</span>` : ""}
+            </div>
+          ` : ""}
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0;">
             <div style="text-align:center;">
               <div style="font-size:1rem;font-weight:600;color:#7cc242;">${p.visitas || 0}</div>

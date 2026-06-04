@@ -29,6 +29,12 @@ const tipoInmuebleSchema = z.enum([
   "garaje", "plaza_aparcamiento", "trastero"
 ]);
 const estadoSchema = z.enum(["obra_nueva", "segunda_mano"]);
+const certificadoEnergeticoSchema = z.enum([
+  "A", "B", "C", "D", "E", "F", "G",
+  "No disponible", "Exento", "En trámite"
+]);
+const estadoPropiedadSchema = z.enum(["Obra nueva", "Segunda mano", "Reformado", "A reformar"]);
+const estadoComercialSchema = z.enum(["Disponible", "Reservado", "Vendido", "Alquilado"]);
 const booleanInput = z
   .preprocess(value => typeof value === "boolean" ? String(value) : value, z.enum(["true", "false"]))
   .optional();
@@ -51,6 +57,7 @@ const propiedadesQuerySchema = z.object({
 
 const propiedadBaseSchema = {
   titulo: cleanString(160),
+  referencia: optionalCleanString(80),
   direccion: cleanString(300),
   precio: numberFromInput.pipe(z.number().min(0)),
   descripcion: optionalCleanString(5000),
@@ -64,6 +71,9 @@ const propiedadBaseSchema = {
   superficieParcela: optionalNumberFromInput,
   tipoInmueble: tipoInmuebleSchema.optional(),
   estado: estadoSchema.optional(),
+  certificadoEnergetico: certificadoEnergeticoSchema.optional(),
+  estadoPropiedad: estadoPropiedadSchema.optional(),
+  estadoComercial: estadoComercialSchema.optional(),
   garaje: booleanInput,
   piscina: booleanInput,
   terraza: booleanInput,
@@ -360,7 +370,18 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
 
     const imagenes = req.files?.map(f => f.path) || [];
 
-    const { banos, superficie, tipoInmueble, estado, garaje, piscina, terraza } = req.body;
+    const {
+      banos,
+      superficie,
+      tipoInmueble,
+      estado,
+      certificadoEnergetico,
+      estadoPropiedad,
+      estadoComercial,
+      garaje,
+      piscina,
+      terraza
+    } = req.body;
 
     // Calcular expiración
     let fechaExpiracion = null;
@@ -371,6 +392,7 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
 
     const propiedad = await Propiedad.create({
       titulo,
+      referencia:    req.body.referencia || "",
       direccion,
       precio:        Number(precio),
       descripcion,
@@ -384,6 +406,9 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       superficieParcela:  req.body.superficieParcela ? Number(req.body.superficieParcela) : null,
       tipoInmueble:  tipoInmueble || "piso",
       estado:        estado || "segunda_mano",
+      certificadoEnergetico: certificadoEnergetico || "",
+      estadoPropiedad: estadoPropiedad || "",
+      estadoComercial: estadoComercial || "Disponible",
       garaje:        garaje === "true",
       piscina:       piscina === "true",
       terraza:       terraza === "true",
@@ -492,11 +517,23 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
     }
 
     propiedad.titulo       = titulo || propiedad.titulo;
+    propiedad.referencia   = req.body.referencia !== undefined ? req.body.referencia : propiedad.referencia;
     propiedad.direccion    = direccion || propiedad.direccion;
     propiedad.precio       = precio ? Number(precio) : propiedad.precio;
     propiedad.descripcion  = descripcion || propiedad.descripcion;
     propiedad.tipoOperacion = tipoOperacion || propiedad.tipoOperacion;
-    const { banos, superficie, tipoInmueble, estado, garaje, piscina, terraza } = req.body;
+    const {
+      banos,
+      superficie,
+      tipoInmueble,
+      estado,
+      certificadoEnergetico,
+      estadoPropiedad,
+      estadoComercial,
+      garaje,
+      piscina,
+      terraza
+    } = req.body;
 
     propiedad.habitaciones = habitaciones ? Number(habitaciones) : propiedad.habitaciones;
     propiedad.banos        = banos ? Number(banos) : propiedad.banos;
@@ -504,6 +541,9 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
     propiedad.superficie   = superficie ? Number(superficie) : propiedad.superficie;
     propiedad.tipoInmueble = tipoInmueble || propiedad.tipoInmueble;
     propiedad.estado       = estado || propiedad.estado;
+    propiedad.certificadoEnergetico = certificadoEnergetico !== undefined ? certificadoEnergetico : propiedad.certificadoEnergetico;
+    propiedad.estadoPropiedad = estadoPropiedad !== undefined ? estadoPropiedad : propiedad.estadoPropiedad;
+    propiedad.estadoComercial = estadoComercial !== undefined ? estadoComercial : propiedad.estadoComercial;
     propiedad.garaje       = garaje !== undefined ? garaje === "true" : propiedad.garaje;
     propiedad.piscina      = piscina !== undefined ? piscina === "true" : propiedad.piscina;
     propiedad.terraza      = terraza !== undefined ? terraza === "true" : propiedad.terraza;

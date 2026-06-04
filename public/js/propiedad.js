@@ -94,6 +94,7 @@ function renderPropiedad() {
   const tipoCls = propiedad.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
   const precio = propiedad.precio?.toLocaleString("es-ES") + " €";
   const hab = propiedad.habitaciones ? `🛏 ${propiedad.habitaciones} habitaciones` : "";
+  const estadoPropiedad = propiedad.estadoPropiedad || (propiedad.estado === "obra_nueva" ? "Obra nueva" : propiedad.estado === "segunda_mano" ? "Segunda mano" : "");
 
   contenedor.innerHTML = `
 
@@ -185,9 +186,12 @@ function renderPropiedad() {
       <div class="propiedad-right">
         <div class="propiedad-card-info">
           <span class="tag-tipo ${tipoCls}">${tipo}</span>
+          ${propiedad.estadoComercial ? `<span class="tag-tipo">${propiedad.estadoComercial}</span>` : ""}
+          ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}
           <div class="propiedad-precio">${precio}</div>
           <h1 class="propiedad-titulo">${propiedad.titulo}</h1>
           <div class="propiedad-dir">📍 ${propiedad.direccion}</div>
+          ${propiedad.referencia ? `<div class="propiedad-dir">Ref. ${propiedad.referencia}</div>` : ""}
           ${hab ? `<div class="propiedad-hab">${hab}</div>` : ""}
 
           <!-- CARACTERÍSTICAS -->
@@ -195,7 +199,8 @@ function renderPropiedad() {
             ${propiedad.superficie ? `<div class="caract-item">📐 <span>Construida: ${propiedad.superficie} m²</span></div>` : ""}
             ${propiedad.superficieParcela ? `<div class="caract-item">🌿 <span>Parcela: ${propiedad.superficieParcela} m²</span></div>` : ""} 
             ${propiedad.banos ? `<div class="caract-item">🚿 <span>${propiedad.banos} baño${propiedad.banos > 1 ? "s" : ""}</span></div>` : ""}
-            ${propiedad.estado ? `<div class="caract-item">🏗 <span>${propiedad.estado === "obra_nueva" ? "Obra nueva" : "Segunda mano"}</span></div>` : ""}
+            ${estadoPropiedad ? `<div class="caract-item">🏗 <span>${estadoPropiedad}</span></div>` : ""}
+            ${propiedad.certificadoEnergetico ? `<div class="caract-item">⚡ <span>Certificado energético: ${propiedad.certificadoEnergetico}</span></div>` : ""}
             ${propiedad.tipoInmueble ? `<div class="caract-item">🏠 <span>${formatearTipo(propiedad.tipoInmueble)}</span></div>` : ""}
 
             <!-- Residencial -->

@@ -47,13 +47,18 @@ async function cargarPropiedades() {
 
   mias.forEach(p => {
     const img = p.imagenes?.[0] || "https://via.placeholder.com/500?text=Sin+imagen";
+    const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
 
     cont.innerHTML += `
       <div class="card" onclick="location.href='propiedad.html?id=${p._id}'">
         <img src="${img}">
         <div class="info">
           <div class="precio">${p.precio} €</div>
+          ${p.referencia ? `<div>Ref. ${p.referencia}</div>` : ""}
           <div>${p.direccion}</div>
+          ${estadoPropiedad || p.estadoComercial || p.certificadoEnergetico ? `
+            <div>${[estadoPropiedad, p.estadoComercial, p.certificadoEnergetico ? `CEE ${p.certificadoEnergetico}` : ""].filter(Boolean).join(" · ")}</div>
+          ` : ""}
         </div>
       </div>
     `;

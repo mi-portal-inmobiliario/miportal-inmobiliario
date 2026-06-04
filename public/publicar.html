@@ -223,6 +223,11 @@
       </div>
 
       <div class="form-group">
+        <label>Referencia</label>
+        <input type="text" id="referencia" placeholder="Ej: HC24-001">
+      </div>
+
+      <div class="form-group">
         <label>Tipo de operación *</label>
         <select id="tipoOperacion">
           <option value="">Selecciona...</option>
@@ -263,6 +268,44 @@
         <select id="estado">
           <option value="segunda_mano">Segunda mano</option>
           <option value="obra_nueva">Obra nueva</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Estado de la propiedad</label>
+        <select id="estadoPropiedad">
+          <option value="">Selecciona...</option>
+          <option value="Obra nueva">Obra nueva</option>
+          <option value="Segunda mano">Segunda mano</option>
+          <option value="Reformado">Reformado</option>
+          <option value="A reformar">A reformar</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Estado comercial</label>
+        <select id="estadoComercial">
+          <option value="Disponible">Disponible</option>
+          <option value="Reservado">Reservado</option>
+          <option value="Vendido">Vendido</option>
+          <option value="Alquilado">Alquilado</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Certificado energético</label>
+        <select id="certificadoEnergetico">
+          <option value="">Selecciona...</option>
+          <option value="A">A</option>
+          <option value="B">B</option>
+          <option value="C">C</option>
+          <option value="D">D</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="G">G</option>
+          <option value="No disponible">No disponible</option>
+          <option value="Exento">Exento</option>
+          <option value="En trámite">En trámite</option>
         </select>
       </div>
 
@@ -510,6 +553,7 @@ if (propiedadIdEditar) {
     .then(r => r.json())
     .then(p => {
       document.getElementById("titulo").value        = p.titulo || "";
+      document.getElementById("referencia").value    = p.referencia || "";
       document.getElementById("direccion").value     = p.direccion || "";
       document.getElementById("precio").value        = p.precio || "";
       document.getElementById("descripcion").value   = p.descripcion || "";
@@ -520,6 +564,9 @@ if (propiedadIdEditar) {
       document.getElementById("superficieParcela").value = p.superficieParcela || "";
       document.getElementById("tipoInmueble").value  = p.tipoInmueble || "piso";
       document.getElementById("estado").value        = p.estado || "segunda_mano";
+      document.getElementById("estadoPropiedad").value = p.estadoPropiedad || "";
+      document.getElementById("estadoComercial").value = p.estadoComercial || "Disponible";
+      document.getElementById("certificadoEnergetico").value = p.certificadoEnergetico || "";
       document.getElementById("videoUrl").value      = p.videoUrl || "";
 
       // Campos específicos
@@ -714,6 +761,7 @@ async function publicar() {
 
   const fd = new FormData();
   fd.append("titulo", titulo);
+  fd.append("referencia", document.getElementById("referencia").value.trim());
   fd.append("direccion", direccion);
   fd.append("precio", precio);
   fd.append("descripcion", document.getElementById("descripcion").value.trim());
@@ -724,6 +772,9 @@ async function publicar() {
   fd.append("superficie", document.getElementById("superficie").value);
   fd.append("tipoInmueble", tipo);
   fd.append("estado", document.getElementById("estado").value);
+  fd.append("estadoPropiedad", document.getElementById("estadoPropiedad").value);
+  fd.append("estadoComercial", document.getElementById("estadoComercial").value);
+  fd.append("certificadoEnergetico", document.getElementById("certificadoEnergetico").value);
   fd.append("garaje", document.getElementById("garaje").checked);
   fd.append("piscina", document.getElementById("piscina").checked);
   fd.append("terraza", document.getElementById("terraza").checked);
