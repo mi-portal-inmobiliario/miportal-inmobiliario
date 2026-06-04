@@ -94,7 +94,7 @@
       <div class="plan-feature"><div class="plan-dot"></div>3 anuncios</div>
       <div class="plan-feature"><div class="plan-dot"></div>20 fotos por anuncio</div>
       <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
-      <button class="plan-btn plan-btn-green" onclick="suscribirse('price_1TRzHwR2KhBUiuqwE7yWmba5')">Suscribirse</button>
+      <button class="plan-btn plan-btn-green" data-plan="basico" data-price-id="price_1TRzHwR2KhBUiuqwE7yWmba5" onclick="suscribirse('price_1TRzHwR2KhBUiuqwE7yWmba5')">Suscribirse</button>
     </div>
 
     <div class="plan-card">
@@ -104,7 +104,7 @@
       <div class="plan-feature"><div class="plan-dot"></div>4 anuncios destacados</div>
       <div class="plan-feature"><div class="plan-dot"></div>30 fotos por anuncio</div>
       <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
-      <button class="plan-btn plan-btn-outline" onclick="suscribirse('price_1TRzKfR2KhBUiuqwZmtbnkHW')">Suscribirse</button>
+      <button class="plan-btn plan-btn-outline" data-plan="destacado" data-price-id="price_1TRzKfR2KhBUiuqwZmtbnkHW" onclick="suscribirse('price_1TRzKfR2KhBUiuqwZmtbnkHW')">Suscribirse</button>
     </div>
 
   </div>
@@ -122,7 +122,7 @@
       <div class="plan-feature"><div class="plan-dot"></div>✅ Permite publicar fotos con tu marca de agua</div>
       <div class="plan-feature"><div class="plan-dot"></div>Perfil verificado</div>
       <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
-      <button class="plan-btn plan-btn-outline" onclick="suscribirse('price_1TRzLwR2KhBUiuqwdxvWLngL')">Suscribirse</button>
+      <button class="plan-btn plan-btn-outline" data-plan="starter" data-price-id="price_1TRzLwR2KhBUiuqwdxvWLngL" onclick="suscribirse('price_1TRzLwR2KhBUiuqwdxvWLngL')">Suscribirse</button>
     </div>
 
     <div class="plan-card">
@@ -134,7 +134,7 @@
       <div class="plan-feature"><div class="plan-dot"></div>✅ Permite publicar fotos con tu marca de agua</div>
       <div class="plan-feature"><div class="plan-dot"></div>2 destacados incluidos</div>
       <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
-      <button class="plan-btn plan-btn-green" onclick="suscribirse('price_1TRzN1R2KhBUiuqwWZERfgqT')">Suscribirse</button>
+      <button class="plan-btn plan-btn-green" data-plan="pro_agentes" data-price-id="price_1TRzN1R2KhBUiuqwWZERfgqT" onclick="suscribirse('price_1TRzN1R2KhBUiuqwWZERfgqT')">Suscribirse</button>
     </div>
 
   </div>
@@ -152,7 +152,7 @@
       <div class="plan-feature"><div class="plan-dot"></div>✅ Permite publicar fotos con tu marca de agua</div>
       <div class="plan-feature"><div class="plan-dot"></div>2 usuarios</div>
       <div class="plan-feature"><div class="plan-dot"></div>Activo mientras pagues</div>
-      <button class="plan-btn plan-btn-outline" onclick="suscribirse('price_1TRzO0R2KhBUiuqwZvlU3gdU')">Suscribirse</button>
+      <button class="plan-btn plan-btn-outline" data-plan="agencia_basica" data-price-id="price_1TRzO0R2KhBUiuqwZvlU3gdU" onclick="suscribirse('price_1TRzO0R2KhBUiuqwZvlU3gdU')">Suscribirse</button>
     </div>
 
   </div>
@@ -160,9 +160,58 @@
 </div>
 
 <script>
+const PLANES_POR_PRICE = {
+  price_1TRzHwR2KhBUiuqwE7yWmba5: "basico",
+  price_1TRzKfR2KhBUiuqwZmtbnkHW: "destacado",
+  price_1TRzLwR2KhBUiuqwdxvWLngL: "starter",
+  price_1TRzN1R2KhBUiuqwWZERfgqT: "pro_agentes",
+  price_1TRzO0R2KhBUiuqwZvlU3gdU: "agencia_basica"
+};
+
 function irLoginPlanes(mensaje) {
   if (mensaje) alert(mensaje);
   window.location.href = "/login.html?returnUrl=/planes.html";
+}
+
+function usuarioConSuscripcion(usuario) {
+  return Boolean(usuario?.stripeSubscriptionId && usuario.plan && usuario.plan !== "gratis");
+}
+
+function actualizarBotonesPlanes(usuario) {
+  document.querySelectorAll("[data-price-id]").forEach(btn => {
+    btn.disabled = false;
+    btn.style.opacity = "";
+    btn.style.cursor = "";
+
+    if (!usuarioConSuscripcion(usuario)) {
+      btn.textContent = "Suscribirse";
+      return;
+    }
+
+    if (btn.dataset.plan === usuario.plan) {
+      btn.textContent = "Plan actual";
+      btn.disabled = true;
+      btn.style.opacity = "0.75";
+      btn.style.cursor = "default";
+      return;
+    }
+
+    btn.textContent = "Cambiar a este plan";
+  });
+}
+
+async function cargarUsuarioActual(token) {
+  try {
+    const res = await fetch("/usuarios/me", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return JSON.parse(localStorage.getItem("usuario") || "null");
+    const usuarioActualizado = await res.json();
+    localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+    return usuarioActualizado;
+  } catch (error) {
+    return JSON.parse(localStorage.getItem("usuario") || "null");
+  }
 }
 
 async function suscribirse(priceId) {
@@ -175,6 +224,13 @@ async function suscribirse(priceId) {
   }
 
   try {
+    const usuario = await cargarUsuarioActual(token);
+
+    if (usuarioConSuscripcion(usuario)) {
+      await cambiarPlan(priceId, token);
+      return;
+    }
+
     const response = await fetch('/pagos/crear-sesion', {
       method: 'POST',
       headers: {
@@ -204,8 +260,52 @@ async function suscribirse(priceId) {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+async function cambiarPlan(priceId, token) {
+  const response = await fetch('/pagos/cambiar-plan', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + token
+    },
+    body: JSON.stringify({ priceId })
+  });
+  const data = await response.json();
+
+  if (response.status === 401) {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    localStorage.setItem("planPendiente", priceId);
+    irLoginPlanes("Inicia sesión para suscribirte");
+    return;
+  }
+
+  if (!response.ok) {
+    alert(data.error || 'No se pudo cambiar el plan.');
+    return;
+  }
+
+  if (data.usuario) {
+    localStorage.setItem("usuario", JSON.stringify(data.usuario));
+  } else {
+    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+    if (usuario) {
+      localStorage.setItem("usuario", JSON.stringify({
+        ...usuario,
+        plan: data.plan || PLANES_POR_PRICE[priceId],
+        planActivo: data.planActivo,
+        planFechaFin: data.planFechaFin || usuario.planFechaFin
+      }));
+    }
+  }
+
+  window.location.href = "/perfil.html";
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
   const token = localStorage.getItem("token");
+  const usuario = token ? await cargarUsuarioActual(token) : JSON.parse(localStorage.getItem("usuario") || "null");
+  actualizarBotonesPlanes(usuario);
+
   const planPendiente = localStorage.getItem("planPendiente");
   if (!token || !planPendiente) return;
 
