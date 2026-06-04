@@ -7,11 +7,11 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 const PLANES = {
-  'price_1TYt61JHqNDsI8RjIdrFaPUw': 'basico',
-  'price_1TYt5uJHqNDsI8Rj7nmGcamX': 'destacado',
-  'price_1TYt5pJHqNDsI8RjiklUaTSW': 'starter',
-  'price_1TYt5kJHqNDsI8Rjrne8RXYn': 'pro_agentes',
-  'price_1TYt5cJHqNDsI8RjT9UodqB5': 'agencia_basica',
+  'price_1TRzHwR2KhBUiuqwE7yWmba5': 'basico',
+  'price_1TRzKfR2KhBUiuqwZmtbnkHW': 'destacado',
+  'price_1TRzLwR2KhBUiuqwdxvWLngL': 'starter',
+  'price_1TRzN1R2KhBUiuqwWZERfgqT': 'pro_agentes',
+  'price_1TRzO0R2KhBUiuqwZvlU3gdU': 'agencia_basica',
 };
 
 const NOMBRES_PLANES = {
