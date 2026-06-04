@@ -17,7 +17,7 @@ function estadoComercialBadge(estado = "Disponible") {
     Vendido: "background:#fef2f2;color:#dc2626;",
     Alquilado: "background:#eff6ff;color:#2563eb;"
   };
-  return `<span class="tag-tipo" style="${estilos[actual] || estilos.Disponible}">${actual}</span>`;
+  return `<span class="estado-comercial-badge" style="${estilos[actual] || estilos.Disponible}">${actual}</span>`;
 }
 
 /* ================================

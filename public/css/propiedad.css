@@ -233,6 +233,18 @@
   border: 1px solid rgba(0,0,0,0.05);
 }
 
+.estado-comercial-badge {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  line-height: 1;
+  white-space: nowrap;
+}
+
 .propiedad-precio {
   font-size: 2.2rem;
   font-weight: 900;
@@ -383,15 +395,21 @@
 @media (max-width: 900px) {
   .propiedad-layout {
     grid-template-columns: 1fr;
+    min-width: 0;
   }
 
   .propiedad-card-info {
     position: static;
     order: -1;
+    overflow: hidden;
   }
 }
 
 @media (max-width: 768px) {
+  .container {
+    overflow-x: hidden;
+  }
+
   .slider-container {
     height: 300px;
   }
