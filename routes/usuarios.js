@@ -27,6 +27,14 @@ router.get("/me", requireAuth, async (req, res) => {
   try {
     const usuario = await Usuario.findById(req.user.id);
     if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+    console.log("DEBUG /usuarios/me", {
+      userId: usuario._id.toString(),
+      plan: usuario.plan || "gratis",
+      planActivo: Boolean(usuario.planActivo),
+      planFechaFin: usuario.planFechaFin || null,
+      stripeCustomerId: usuario.stripeCustomerId || null,
+      stripeSubscriptionId: usuario.stripeSubscriptionId || null
+    });
     res.json(usuarioSeguro(usuario));
   } catch (e) {
     res.status(500).json({ error: "Error en servidor" });

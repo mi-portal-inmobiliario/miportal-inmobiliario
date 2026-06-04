@@ -119,7 +119,24 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
 
     const update = { plan, planActivo: plan !== 'gratis' && plan !== 'vip_trial' };
 
-    if (plan === 'vip_trial') {
+    if (plan === 'gratis') {
+      Object.assign(update, {
+        planActivo: false,
+        planFechaFin: null,
+        stripeCustomerId: null,
+        stripeSubscriptionId: null,
+        trialAccepted: false,
+        trialStartDate: null,
+        trialEndDate: null,
+        trialReminderSent: false,
+        trialReminders: {
+          sevenDays: false,
+          threeDays: false,
+          lastDay: false,
+          expired: false
+        }
+      });
+    } else if (plan === 'vip_trial') {
       Object.assign(update, {
         planActivo: false,
         trialAccepted: false,

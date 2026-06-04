@@ -515,7 +515,7 @@ document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuar
 
 const btnMejorarPlan = document.getElementById('btnMejorarPlan');
 const btnGestionarPlan = document.getElementById('btnGestionarPlan');
-const tieneSuscripcionStripe = Boolean(usuario.stripeCustomerId && usuario.stripeSubscriptionId);
+const tieneSuscripcionStripe = usuario.plan !== 'gratis' && Boolean(usuario.stripeCustomerId && usuario.stripeSubscriptionId);
 
 btnGestionarPlan.style.display = 'none';
 btnMejorarPlan.style.display = 'inline-flex';
@@ -545,7 +545,7 @@ const PLANES_INFO = {
 
 const planInfo = PLANES_INFO[usuario.plan] || PLANES_INFO.gratis;
 document.getElementById("planNombre").textContent = planInfo.nombre;
-const fechaFin = usuario.planFechaFin ? new Date(usuario.planFechaFin) : null;
+const fechaFin = usuario.plan !== 'gratis' && usuario.planFechaFin ? new Date(usuario.planFechaFin) : null;
 const fechaTexto = fechaFin
   ? `Activo hasta el ${fechaFin.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}`
   : planInfo.precio;
