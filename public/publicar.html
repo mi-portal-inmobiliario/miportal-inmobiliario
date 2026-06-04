@@ -264,21 +264,10 @@
       </div>
 
       <div class="form-group">
-        <label>Estado</label>
+        <label>Estado de la propiedad</label>
         <select id="estado">
           <option value="segunda_mano">Segunda mano</option>
           <option value="obra_nueva">Obra nueva</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label>Estado de la propiedad</label>
-        <select id="estadoPropiedad">
-          <option value="">Selecciona...</option>
-          <option value="Obra nueva">Obra nueva</option>
-          <option value="Segunda mano">Segunda mano</option>
-          <option value="Reformado">Reformado</option>
-          <option value="A reformar">A reformar</option>
         </select>
       </div>
 
@@ -564,7 +553,6 @@ if (propiedadIdEditar) {
       document.getElementById("superficieParcela").value = p.superficieParcela || "";
       document.getElementById("tipoInmueble").value  = p.tipoInmueble || "piso";
       document.getElementById("estado").value        = p.estado || "segunda_mano";
-      document.getElementById("estadoPropiedad").value = p.estadoPropiedad || "";
       document.getElementById("estadoComercial").value = p.estadoComercial || "Disponible";
       document.getElementById("certificadoEnergetico").value = p.certificadoEnergetico || "";
       document.getElementById("videoUrl").value      = p.videoUrl || "";
@@ -772,7 +760,6 @@ async function publicar() {
   fd.append("superficie", document.getElementById("superficie").value);
   fd.append("tipoInmueble", tipo);
   fd.append("estado", document.getElementById("estado").value);
-  fd.append("estadoPropiedad", document.getElementById("estadoPropiedad").value);
   fd.append("estadoComercial", document.getElementById("estadoComercial").value);
   fd.append("certificadoEnergetico", document.getElementById("certificadoEnergetico").value);
   fd.append("garaje", document.getElementById("garaje").checked);
