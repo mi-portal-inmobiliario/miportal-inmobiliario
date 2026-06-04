@@ -53,7 +53,7 @@ app.use((req, res, next) => {
   }
   next();
 });
-app.use("/webhook", webhookRoutes);
+app.use("/webhook", express.raw({ type: "application/json" }), webhookRoutes);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -19,14 +19,26 @@ const NOMBRES_PLANES = {
   pro_agentes: 'Pro Agentes', agencia_basica: 'Agencia Básica',
 };
 
-router.post('/', express.raw({ type: 'application/json' }), async (req, res) => {
+router.post('/', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
+
+  if (!Buffer.isBuffer(req.body)) {
+    console.error('Webhook error: el body no llegó como Buffer', {
+      bodyType: typeof req.body,
+      isBuffer: Buffer.isBuffer(req.body)
+    });
+    return res.status(400).send('Webhook Error: invalid raw body');
+  }
 
   try {
     event = stripe.webhooks.constructEvent(req.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
-    console.error('Webhook error:', err.message);
+    console.error('Webhook error:', err.message, {
+      hasSignature: Boolean(sig),
+      bodyIsBuffer: Buffer.isBuffer(req.body),
+      bodyLength: req.body?.length
+    });
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
 
