@@ -15,6 +15,23 @@ const PLANES = {
   'price_1TRzO0R2KhBUiuqwZvlU3gdU': 'agencia_basica',
 };
 
+const PLAN_LABELS = {
+  basico: 'Básico',
+  destacado: 'Destacado',
+  starter: 'Starter',
+  pro_agentes: 'Pro',
+  agencia_basica: 'Agencia Básica'
+};
+
+const PLAN_RANKS = {
+  gratis: 0,
+  basico: 1,
+  destacado: 2,
+  starter: 3,
+  pro_agentes: 4,
+  agencia_basica: 5
+};
+
 const crearSesionSchema = z.object({
   priceId: z.string().trim().min(3).max(120)
 });
@@ -30,6 +47,27 @@ const portalClienteSchema = z.object({
 function fechaFinPeriodo(subscription) {
   const timestamp = subscription.current_period_end || subscription.items?.data?.[0]?.current_period_end;
   return timestamp ? new Date(timestamp * 1000) : null;
+}
+
+function usuarioSeguro(usuario) {
+  return {
+    _id: usuario._id,
+    nombre: usuario.nombre,
+    email: usuario.email,
+    plan: usuario.plan || 'gratis',
+    planActivo: usuario.planActivo || false,
+    planFechaFin: usuario.planFechaFin || null,
+    trialAccepted: usuario.trialAccepted || false,
+    trialStartDate: usuario.trialStartDate || null,
+    trialEndDate: usuario.trialEndDate || null,
+    trialReminderSent: usuario.trialReminderSent || false,
+    stripeCustomerId: usuario.stripeCustomerId || null,
+    stripeSubscriptionId: usuario.stripeSubscriptionId || null,
+    pendingPlan: usuario.pendingPlan || null,
+    pendingPriceId: usuario.pendingPriceId || null,
+    pendingPlanChangeAt: usuario.pendingPlanChangeAt || null,
+    pendingPlanLabel: usuario.pendingPlanLabel || null
+  };
 }
 
 // Crear sesión de pago
@@ -78,9 +116,9 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
 // Cambiar plan de una suscripción existente
 router.post('/cambiar-plan', requireAuth, validateBody(cambiarPlanSchema), async (req, res) => {
   const { priceId } = req.body;
-  const plan = PLANES[priceId];
+  const nuevoPlan = PLANES[priceId];
 
-  if (!plan) {
+  if (!nuevoPlan) {
     return res.status(400).json({ error: 'Plan inválido' });
   }
 
@@ -89,17 +127,51 @@ router.post('/cambiar-plan', requireAuth, validateBody(cambiarPlanSchema), async
   }
 
   try {
+    const usuarioActual = await Usuario.findById(req.user.id);
+    if (!usuarioActual) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const planActual = usuarioActual.plan || 'gratis';
+    const actualRank = PLAN_RANKS[planActual];
+    const nuevoRank = PLAN_RANKS[nuevoPlan];
+
+    if (actualRank === undefined || nuevoRank === undefined) {
+      return res.status(400).json({ error: 'No se puede cambiar este plan automáticamente' });
+    }
+
+    if (nuevoRank === actualRank) {
+      return res.status(400).json({ error: 'Ya tienes este plan activo' });
+    }
+
     const subscription = await stripe.subscriptions.retrieve(req.user.stripeSubscriptionId);
     const item = subscription.items?.data?.[0];
+    const fechaFinActual = fechaFinPeriodo(subscription) || usuarioActual.planFechaFin || null;
 
     if (!item?.id) {
       return res.status(400).json({ error: 'No se pudo localizar el plan actual en Stripe' });
     }
 
+    if (nuevoRank < actualRank) {
+      if (!fechaFinActual) {
+        return res.status(400).json({ error: 'No se pudo obtener la fecha de fin del periodo actual' });
+      }
+
+      usuarioActual.pendingPlan = nuevoPlan;
+      usuarioActual.pendingPriceId = priceId;
+      usuarioActual.pendingPlanChangeAt = fechaFinActual;
+      usuarioActual.pendingPlanLabel = PLAN_LABELS[nuevoPlan];
+      await usuarioActual.save();
+
+      return res.json({
+        ok: true,
+        tipoCambio: 'downgrade_programado',
+        usuario: usuarioSeguro(usuarioActual)
+      });
+    }
+
     const metadata = {
       userId: req.user.id,
       usuarioId: req.user.id,
-      plan,
+      plan: nuevoPlan,
       priceId
     };
 
@@ -113,34 +185,26 @@ router.post('/cambiar-plan', requireAuth, validateBody(cambiarPlanSchema), async
     const usuario = await Usuario.findByIdAndUpdate(
       req.user.id,
       {
-        plan,
+        plan: nuevoPlan,
         planActivo: true,
         ...(fechaFin && { planFechaFin: fechaFin }),
         stripeSubscriptionId: subscriptionActualizada.id,
-        stripeCustomerId: subscriptionActualizada.customer
+        stripeCustomerId: subscriptionActualizada.customer,
+        pendingPlan: null,
+        pendingPriceId: null,
+        pendingPlanChangeAt: null,
+        pendingPlanLabel: null
       },
       { new: true }
     );
 
     res.json({
       ok: true,
-      plan,
+      tipoCambio: 'upgrade',
+      plan: nuevoPlan,
       planActivo: true,
       planFechaFin: fechaFin,
-      usuario: usuario ? {
-        _id: usuario._id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        plan: usuario.plan || 'gratis',
-        planActivo: usuario.planActivo || false,
-        planFechaFin: usuario.planFechaFin || null,
-        trialAccepted: usuario.trialAccepted || false,
-        trialStartDate: usuario.trialStartDate || null,
-        trialEndDate: usuario.trialEndDate || null,
-        trialReminderSent: usuario.trialReminderSent || false,
-        stripeCustomerId: usuario.stripeCustomerId || null,
-        stripeSubscriptionId: usuario.stripeSubscriptionId || null
-      } : null
+      usuario: usuario ? usuarioSeguro(usuario) : null
     });
   } catch (error) {
     console.error('Error cambiando plan Stripe:', error);

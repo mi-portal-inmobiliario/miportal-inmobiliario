@@ -234,7 +234,11 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
         trialEndDate: usuario.trialEndDate || null,
         trialReminderSent: usuario.trialReminderSent || false,
         stripeCustomerId: usuario.stripeCustomerId || null,
-        stripeSubscriptionId: usuario.stripeSubscriptionId || null
+        stripeSubscriptionId: usuario.stripeSubscriptionId || null,
+        pendingPlan: usuario.pendingPlan || null,
+        pendingPriceId: usuario.pendingPriceId || null,
+        pendingPlanChangeAt: usuario.pendingPlanChangeAt || null,
+        pendingPlanLabel: usuario.pendingPlanLabel || null
       }
     });
 

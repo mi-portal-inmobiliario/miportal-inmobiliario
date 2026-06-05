@@ -214,6 +214,26 @@
       color: #888;
     }
 
+    .pending-plan-notice,
+    .modal-cambio-resumen {
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      color: #c2410c;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .pending-plan-notice {
+      display: none;
+      margin-top: 14px;
+    }
+
+    .modal-cambio-resumen {
+      margin-top: 12px;
+    }
+
     .seccion-label {
       font-size: 0.72rem;
       font-weight: 600;
@@ -540,6 +560,7 @@
       <button class="btn-perfil outline" id="btnGestionarPlan" style="display:none" onclick="gestionarSuscripcion()">⚙️ Gestionar suscripción</button>
     </div>
     <div class="plan-stats" id="planStats"></div>
+    <div class="pending-plan-notice" id="pendingPlanNotice"></div>
   </div>
 
   <!-- MIS PROPIEDADES -->
@@ -589,13 +610,14 @@
 
     <div class="modal-field">
       <label for="modalPlanSelect">Cambiar de plan</label>
-      <select id="modalPlanSelect">
+      <select id="modalPlanSelect" onchange="actualizarResumenCambioModal()">
         <option value="basico">Básico</option>
         <option value="destacado">Destacado</option>
         <option value="starter">Starter</option>
         <option value="pro_agentes">Pro</option>
         <option value="agencia_basica">Agencia Básica</option>
       </select>
+      <div class="modal-cambio-resumen" id="modalCambioResumen"></div>
     </div>
 
     <div class="modal-actions">
@@ -673,6 +695,21 @@ const PRICE_POR_PLAN = {
   agencia_basica: "price_1TRzO0R2KhBUiuqwZvlU3gdU"
 };
 
+const PLAN_RANKS = {
+  gratis: 0,
+  basico: 1,
+  destacado: 2,
+  starter: 3,
+  pro_agentes: 4,
+  agencia_basica: 5
+};
+
+function formatearFechaPlan(fecha) {
+  return fecha
+    ? new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    : 'la fecha de renovación';
+}
+
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
 document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuario.plan] || "Gratis");
 
@@ -718,6 +755,14 @@ document.getElementById("planStats").innerHTML = `
   <div class="plan-stat"><div class="plan-stat-val">${planInfo.fotos}</div><div class="plan-stat-lab">Fotos por anuncio</div></div>
   <div class="plan-stat"><div class="plan-stat-val">${planInfo.precio}</div><div class="plan-stat-lab">Precio</div></div>
 `;
+
+const pendingPlanNotice = document.getElementById("pendingPlanNotice");
+if (usuario.pendingPlan && usuario.pendingPlanChangeAt) {
+  const pendingName = usuario.pendingPlanLabel || PLANES_NOMBRES[usuario.pendingPlan] || usuario.pendingPlan;
+  const pendingDate = formatearFechaPlan(usuario.pendingPlanChangeAt);
+  pendingPlanNotice.textContent = `Tu cambio a ${pendingName} está programado para el ${pendingDate}. Hasta entonces mantienes tu plan actual.`;
+  pendingPlanNotice.style.display = "block";
+}
 
 function estadoComercialBadge(estado = "Disponible") {
   const actual = estado || "Disponible";
@@ -921,12 +966,12 @@ async function gestionarSuscripcion() {
   }
 
   document.getElementById('modalPlanActual').textContent = PLANES_NOMBRES[usuarioActual.plan] || 'Gratis';
-  const fecha = usuarioActual.planFechaFin ? new Date(usuarioActual.planFechaFin) : null;
-  document.getElementById('modalPlanFecha').textContent = fecha
-    ? fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+  document.getElementById('modalPlanFecha').textContent = usuarioActual.planFechaFin
+    ? formatearFechaPlan(usuarioActual.planFechaFin)
     : 'Sin fecha';
   document.getElementById('modalPlanSelect').value = PRICE_POR_PLAN[usuarioActual.plan] ? usuarioActual.plan : 'basico';
   document.getElementById('modalSuscripcionMensaje').textContent = '';
+  actualizarResumenCambioModal();
   document.getElementById('modalSuscripcion').classList.add('activo');
   document.getElementById('modalSuscripcion').setAttribute('aria-hidden', 'false');
 }
@@ -934,6 +979,22 @@ async function gestionarSuscripcion() {
 function cerrarModalSuscripcion() {
   document.getElementById('modalSuscripcion').classList.remove('activo');
   document.getElementById('modalSuscripcion').setAttribute('aria-hidden', 'true');
+}
+
+function actualizarResumenCambioModal() {
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario') || 'null');
+  const nuevoPlan = document.getElementById('modalPlanSelect').value;
+  const resumen = document.getElementById('modalCambioResumen');
+  const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
+  const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
+
+  if (nuevoPlan === usuarioActual?.plan) {
+    resumen.textContent = 'Ya tienes este plan activo.';
+  } else if (nuevoRank > actualRank) {
+    resumen.textContent = 'El cambio se aplicará ahora. Stripe calculará automáticamente el ajuste proporcional.';
+  } else {
+    resumen.textContent = 'Este cambio se aplicará al finalizar tu periodo actual. No perderás las ventajas de tu plan hasta entonces.';
+  }
 }
 
 async function cambiarPlanDesdeModal() {
@@ -982,6 +1043,12 @@ async function cambiarPlanDesdeModal() {
     }
 
     if (data.usuario) localStorage.setItem('usuario', JSON.stringify(data.usuario));
+    if (data.tipoCambio === 'downgrade_programado') {
+      mensaje.textContent = `Tu cambio a ${data.usuario?.pendingPlanLabel || PLANES_NOMBRES[nuevoPlan]} está programado para el ${formatearFechaPlan(data.usuario?.pendingPlanChangeAt)}.`;
+      mensaje.style.color = '#5a9e2f';
+      setTimeout(() => window.location.href = '/perfil.html', 1200);
+      return;
+    }
     window.location.href = '/perfil.html';
   } catch (error) {
     mensaje.textContent = 'Error al cambiar el plan. Inténtalo de nuevo.';

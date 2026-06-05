@@ -176,6 +176,21 @@ const NOMBRES_PLANES = {
   agencia_basica: "Agencia Básica"
 };
 
+const PLAN_RANKS = {
+  gratis: 0,
+  basico: 1,
+  destacado: 2,
+  starter: 3,
+  pro_agentes: 4,
+  agencia_basica: 5
+};
+
+function formatearFechaPlan(fecha) {
+  return fecha
+    ? new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    : 'la fecha de renovación';
+}
+
 function irLoginPlanes(mensaje) {
   if (mensaje) alert(mensaje);
   window.location.href = "/login.html?returnUrl=/planes.html";
@@ -276,7 +291,12 @@ async function cambiarPlan(priceId, token) {
 
   const actualNombre = NOMBRES_PLANES[usuarioActual?.plan] || "tu plan actual";
   const nuevoNombre = NOMBRES_PLANES[nuevoPlan] || "este plan";
-  if (!confirm(`¿Quieres cambiar de ${actualNombre} a ${nuevoNombre}?`)) return;
+  const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
+  const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
+  const detalle = nuevoRank > actualRank
+    ? "El cambio se aplicará ahora. Stripe calculará automáticamente el ajuste proporcional."
+    : "Este cambio se aplicará al finalizar tu periodo actual. No perderás las ventajas de tu plan hasta entonces.";
+  if (!confirm(`¿Quieres cambiar de ${actualNombre} a ${nuevoNombre}?\n\n${detalle}`)) return;
 
   const response = await fetch('/pagos/cambiar-plan', {
     method: 'POST',
@@ -310,9 +330,18 @@ async function cambiarPlan(priceId, token) {
         ...usuario,
         plan: data.plan || PLANES_POR_PRICE[priceId],
         planActivo: data.planActivo,
-        planFechaFin: data.planFechaFin || usuario.planFechaFin
+        planFechaFin: data.planFechaFin || usuario.planFechaFin,
+        pendingPlan: data.pendingPlan || usuario.pendingPlan || null,
+        pendingPriceId: data.pendingPriceId || usuario.pendingPriceId || null,
+        pendingPlanChangeAt: data.pendingPlanChangeAt || usuario.pendingPlanChangeAt || null,
+        pendingPlanLabel: data.pendingPlanLabel || usuario.pendingPlanLabel || null
       }));
     }
+  }
+
+  if (data.tipoCambio === "downgrade_programado") {
+    const usuarioNuevo = data.usuario || JSON.parse(localStorage.getItem("usuario") || "null");
+    alert(`Tu cambio a ${usuarioNuevo?.pendingPlanLabel || nuevoNombre} está programado para el ${formatearFechaPlan(usuarioNuevo?.pendingPlanChangeAt)}. Hasta entonces mantienes tu plan actual.`);
   }
 
   window.location.href = "/perfil.html";

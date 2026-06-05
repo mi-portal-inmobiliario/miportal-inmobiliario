@@ -11,6 +11,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { scheduleVipTrialExpiration } from "./utils/trials.js";
+import { schedulePendingPlanChanges } from "./utils/planChanges.js";
 
 // =============================
 // MODELOS
@@ -188,6 +189,7 @@ mongoose
   .then(() => {
     console.log("✅ MongoDB conectado");
     scheduleVipTrialExpiration();
+    schedulePendingPlanChanges();
     app.listen(PORT, () => {
       console.log(`🚀 Servidor activo en http://localhost:${PORT}`);
     });

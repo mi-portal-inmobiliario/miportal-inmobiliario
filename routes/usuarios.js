@@ -18,7 +18,11 @@ function usuarioSeguro(usuario) {
     trialEndDate: usuario.trialEndDate || null,
     trialReminderSent: usuario.trialReminderSent || false,
     stripeCustomerId: usuario.stripeCustomerId || null,
-    stripeSubscriptionId: usuario.stripeSubscriptionId || null
+    stripeSubscriptionId: usuario.stripeSubscriptionId || null,
+    pendingPlan: usuario.pendingPlan || null,
+    pendingPriceId: usuario.pendingPriceId || null,
+    pendingPlanChangeAt: usuario.pendingPlanChangeAt || null,
+    pendingPlanLabel: usuario.pendingPlanLabel || null
   };
 }
 
@@ -33,7 +37,11 @@ router.get("/me", requireAuth, async (req, res) => {
       planActivo: Boolean(usuario.planActivo),
       planFechaFin: usuario.planFechaFin || null,
       stripeCustomerId: usuario.stripeCustomerId || null,
-      stripeSubscriptionId: usuario.stripeSubscriptionId || null
+      stripeSubscriptionId: usuario.stripeSubscriptionId || null,
+      pendingPlan: usuario.pendingPlan || null,
+      pendingPriceId: usuario.pendingPriceId || null,
+      pendingPlanChangeAt: usuario.pendingPlanChangeAt || null,
+      pendingPlanLabel: usuario.pendingPlanLabel || null
     });
     res.json(usuarioSeguro(usuario));
   } catch (e) {

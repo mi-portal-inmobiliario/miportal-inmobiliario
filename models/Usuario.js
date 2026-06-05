@@ -16,6 +16,10 @@ const UsuarioSchema = new mongoose.Schema({
   stripeSubscriptionId:  { type: String },
   planActivo:            { type: Boolean, default: false },
   planFechaFin:          { type: Date },
+  pendingPlan:           { type: String },
+  pendingPriceId:        { type: String },
+  pendingPlanChangeAt:   { type: Date },
+  pendingPlanLabel:      { type: String },
 
   // Prueba gratuita VIP
   trialAccepted:         { type: Boolean, default: false },
