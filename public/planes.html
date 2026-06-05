@@ -256,7 +256,7 @@ function construirConfirmacionCambio(usuarioActual, priceId) {
     texto: esUpgrade
       ? `Vas a cambiar de ${actualNombre} a ${nuevoNombre}. Este cambio se aplicará ahora y Stripe puede cobrar o ajustar la diferencia proporcional del periodo actual.`
       : `El cambio a ${nuevoNombre} se aplicará el ${fecha}. Mantendrás tu plan actual hasta entonces.`,
-    boton: esUpgrade ? "Confirmar cambio y aceptar ajuste" : "Programar cambio"
+    boton: esUpgrade ? `Confirmar cambio a ${nuevoNombre}` : `Programar cambio a ${nuevoNombre}`
   };
 }
 
