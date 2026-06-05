@@ -35,6 +35,54 @@ function datosPlanDesdeSubscription(subscription) {
   return { priceId, plan, fechaFin };
 }
 
+function customerId(subscription) {
+  const customer = subscription.customer;
+  return typeof customer === 'string' ? customer : customer?.id;
+}
+
+function metadataUserId(subscription) {
+  return subscription.metadata?.userId || subscription.metadata?.usuarioId;
+}
+
+async function buscarUsuarioPorSubscription(subscription) {
+  const customer = customerId(subscription);
+  if (customer) {
+    const usuario = await Usuario.findOne({ stripeCustomerId: customer });
+    if (usuario) return usuario;
+  }
+
+  const userId = metadataUserId(subscription);
+  if (esObjectId(userId)) {
+    return Usuario.findById(userId);
+  }
+
+  return null;
+}
+
+async function actualizarUsuarioDesdeSubscription(subscription, extraUpdate = {}) {
+  const { priceId, plan, fechaFin } = datosPlanDesdeSubscription(subscription);
+  const customer = customerId(subscription);
+  const usuario = await buscarUsuarioPorSubscription(subscription);
+
+  if (!usuario) {
+    return { usuario: null, priceId, plan, fechaFin, customer, updated: false };
+  }
+
+  usuario.plan = extraUpdate.plan || plan;
+  usuario.planActivo = subscription.status === 'active' || subscription.status === 'trialing';
+  if (fechaFin) usuario.planFechaFin = fechaFin;
+  usuario.stripeSubscriptionId = subscription.id;
+  if (customer) usuario.stripeCustomerId = customer;
+
+  Object.entries(extraUpdate).forEach(([key, value]) => {
+    usuario[key] = value;
+  });
+
+  await usuario.save();
+
+  return { usuario, priceId, plan: usuario.plan, fechaFin, customer, updated: true };
+}
+
 function phasePriceId(phase) {
   const price = phase?.items?.[0]?.price;
   return typeof price === 'string' ? price : price?.id;
@@ -174,21 +222,29 @@ router.post('/', async (req, res) => {
   // ===== RENOVACIÓN EXITOSA =====
   if (event.type === 'invoice.payment_succeeded') {
     const invoice = event.data.object;
-    const subscriptionId = invoice.subscription;
+    const subscriptionId = typeof invoice.subscription === 'string'
+      ? invoice.subscription
+      : invoice.subscription?.id;
     if (!subscriptionId) return res.json({ received: true });
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const { plan, fechaFin } = datosPlanDesdeSubscription(subscription);
-    const update = {
-      plan,
-      planActivo: true,
-      ...(fechaFin && { planFechaFin: fechaFin })
-    };
+    const { usuario, priceId, plan, fechaFin, customer, updated } = await actualizarUsuarioDesdeSubscription(subscription, {
+      pendingPlan: null,
+      pendingPriceId: null,
+      pendingPlanChangeAt: null,
+      pendingPlanLabel: null
+    });
 
-    const usuario = await Usuario.findOneAndUpdate(
-      { stripeSubscriptionId: subscriptionId },
-      update
-    );
+    console.log('Webhook invoice.payment_succeeded recibido', {
+      customer,
+      subscriptionId: subscription.id,
+      priceIdDetectado: priceId,
+      planDetectado: plan,
+      usuarioEncontrado: Boolean(usuario),
+      resultadoUpdate: updated,
+      usuarioIdActualizado: usuario?._id?.toString() || null,
+      planFechaFin: fechaFin?.toISOString() || null
+    });
 
     if (usuario?.email && fechaFin) {
       await enviarCorreo(
@@ -213,36 +269,26 @@ router.post('/', async (req, res) => {
   if (event.type === 'customer.subscription.updated') {
     const subscription = event.data.object;
     const priceId = subscription.items?.data?.[0]?.price?.id;
-    const plan = PLANES[priceId] || 'gratis';
-    const fechaFin = fechaFinPeriodo(subscription);
     const scheduledChange = await getScheduledPlanChange(subscription, priceId);
+    const { usuario, plan, fechaFin, customer, updated } = await actualizarUsuarioDesdeSubscription(subscription, {
+      pendingPlan: scheduledChange?.pendingPlan || null,
+      pendingPriceId: scheduledChange?.pendingPriceId || null,
+      pendingPlanChangeAt: scheduledChange?.pendingPlanChangeAt || null,
+      pendingPlanLabel: scheduledChange?.pendingPlanLabel || null
+    });
 
-    const usuario = await Usuario.findOneAndUpdate(
-      { stripeSubscriptionId: subscription.id },
-      {
-        plan,
-        planActivo: subscription.status === 'active' || subscription.status === 'trialing',
-        ...(fechaFin && { planFechaFin: fechaFin }),
-        stripeCustomerId: subscription.customer,
-        stripeSubscriptionId: subscription.id,
-        pendingPlan: scheduledChange?.pendingPlan || null,
-        pendingPriceId: scheduledChange?.pendingPriceId || null,
-        pendingPlanChangeAt: scheduledChange?.pendingPlanChangeAt || null,
-        pendingPlanLabel: scheduledChange?.pendingPlanLabel || null
-      },
-      { new: true }
-    );
-
-    console.log('Stripe webhook suscripción actualizada', {
+    console.log('Webhook subscription.updated recibido', {
+      customer,
       subscriptionId: subscription.id,
-      priceId,
-      plan,
-      actualizado: Boolean(usuario),
-      usuarioIdActualizado: usuario?._id?.toString() || null,
+      priceIdDetectado: priceId,
+      planDetectado: plan,
+      usuarioEncontrado: Boolean(usuario),
+      resultadoUpdate: updated,
       status: subscription.status,
       schedule: typeof subscription.schedule === 'string' ? subscription.schedule : subscription.schedule?.id || null,
       pendingPlan: scheduledChange?.pendingPlan || null,
       pendingPlanChangeAt: scheduledChange?.pendingPlanChangeAt?.toISOString() || null,
+      usuarioIdActualizado: usuario?._id?.toString() || null,
       planFechaFin: fechaFin?.toISOString() || null
     });
   }
@@ -278,19 +324,23 @@ router.post('/', async (req, res) => {
   // ===== SUSCRIPCIÓN CANCELADA =====
   if (event.type === 'customer.subscription.deleted') {
     const subscription = event.data.object;
+    const { usuario, priceId, plan, fechaFin, customer, updated } = await actualizarUsuarioDesdeSubscription(subscription, {
+      pendingPlan: null,
+      pendingPriceId: null,
+      pendingPlanChangeAt: null,
+      pendingPlanLabel: null
+    });
 
-    const usuario = await Usuario.findOneAndUpdate(
-      { stripeSubscriptionId: subscription.id },
-      {
-        plan: 'gratis',
-        planActivo: false,
-        planFechaFin: null,
-        pendingPlan: null,
-        pendingPriceId: null,
-        pendingPlanChangeAt: null,
-        pendingPlanLabel: null
-      }
-    );
+    console.log('Webhook subscription.deleted recibido', {
+      customer,
+      subscriptionId: subscription.id,
+      priceIdDetectado: priceId,
+      planDetectado: plan,
+      usuarioEncontrado: Boolean(usuario),
+      resultadoUpdate: updated,
+      usuarioIdActualizado: usuario?._id?.toString() || null,
+      planFechaFin: fechaFin?.toISOString() || null
+    });
 
     if (usuario?.email) {
       await enviarCorreo(
