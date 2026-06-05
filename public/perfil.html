@@ -234,6 +234,22 @@
       margin-top: 12px;
     }
 
+    .modal-confirmacion-cambio {
+      display: none;
+      margin-top: 14px;
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid #e5e5e0;
+      background: #fafafa;
+    }
+
+    .modal-confirmacion-cambio p {
+      margin: 0;
+      color: #333;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
     .seccion-label {
       font-size: 0.72rem;
       font-weight: 600;
@@ -618,11 +634,18 @@
         <option value="agencia_basica">Agencia Básica</option>
       </select>
       <div class="modal-cambio-resumen" id="modalCambioResumen"></div>
+      <div class="modal-confirmacion-cambio" id="modalConfirmacionCambio">
+        <p id="modalConfirmacionTexto"></p>
+        <div class="modal-actions">
+          <button class="btn-perfil outline" type="button" onclick="cancelarConfirmacionCambio()">Cancelar</button>
+          <button class="btn-perfil green" type="button" id="btnConfirmarCambioPlan" onclick="confirmarCambioPlan()">Confirmar cambio</button>
+        </div>
+      </div>
     </div>
 
     <div class="modal-actions">
       <button class="btn-perfil green" type="button" id="btnCambiarPlanModal" onclick="cambiarPlanDesdeModal()">Cambiar plan</button>
-      <button class="btn-perfil outline" type="button" onclick="abrirPortalStripe()">Gestionar método de pago o cancelar en Stripe</button>
+      <button class="btn-perfil outline" type="button" onclick="abrirPortalStripe()">Cambiar tarjeta o cancelar en Stripe</button>
     </div>
     <div class="modal-mensaje" id="modalSuscripcionMensaje"></div>
   </div>
@@ -694,6 +717,8 @@ const PRICE_POR_PLAN = {
   pro_agentes: "price_1TRzN1R2KhBUiuqwWZERfgqT",
   agencia_basica: "price_1TRzO0R2KhBUiuqwZvlU3gdU"
 };
+
+let cambioPlanPendiente = null;
 
 const PLAN_RANKS = {
   gratis: 0,
@@ -977,6 +1002,7 @@ async function gestionarSuscripcion() {
 }
 
 function cerrarModalSuscripcion() {
+  cancelarConfirmacionCambio();
   document.getElementById('modalSuscripcion').classList.remove('activo');
   document.getElementById('modalSuscripcion').setAttribute('aria-hidden', 'true');
 }
@@ -985,6 +1011,7 @@ function actualizarResumenCambioModal() {
   const usuarioActual = JSON.parse(localStorage.getItem('usuario') || 'null');
   const nuevoPlan = document.getElementById('modalPlanSelect').value;
   const resumen = document.getElementById('modalCambioResumen');
+  cancelarConfirmacionCambio();
   const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
   const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
 
@@ -997,12 +1024,42 @@ function actualizarResumenCambioModal() {
   }
 }
 
+function construirConfirmacionCambio(usuarioActual, nuevoPlan) {
+  const actualNombre = PLANES_NOMBRES[usuarioActual?.plan] || 'tu plan actual';
+  const nuevoNombre = PLANES_NOMBRES[nuevoPlan] || 'este plan';
+  const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
+  const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
+  const esUpgrade = nuevoRank > actualRank;
+  const fecha = formatearFechaPlan(usuarioActual?.planFechaFin);
+
+  return {
+    nuevoPlan,
+    nuevoNombre,
+    texto: esUpgrade
+      ? `Vas a cambiar de ${actualNombre} a ${nuevoNombre}. Este cambio se aplicará ahora y Stripe puede cobrar o ajustar la diferencia proporcional del periodo actual.`
+      : `El cambio a ${nuevoNombre} se aplicará el ${fecha}. Mantendrás tu plan actual hasta entonces.`,
+    boton: esUpgrade ? 'Confirmar cambio y aceptar ajuste' : 'Programar cambio'
+  };
+}
+
+function mostrarConfirmacionCambio(confirmacion) {
+  cambioPlanPendiente = confirmacion;
+  document.getElementById('modalConfirmacionTexto').textContent = confirmacion.texto;
+  document.getElementById('btnConfirmarCambioPlan').textContent = confirmacion.boton;
+  document.getElementById('modalConfirmacionCambio').style.display = 'block';
+}
+
+function cancelarConfirmacionCambio() {
+  cambioPlanPendiente = null;
+  const confirmacion = document.getElementById('modalConfirmacionCambio');
+  if (confirmacion) confirmacion.style.display = 'none';
+}
+
 async function cambiarPlanDesdeModal() {
   const usuarioActual = JSON.parse(localStorage.getItem('usuario') || 'null');
   const token = localStorage.getItem('token');
   const nuevoPlan = document.getElementById('modalPlanSelect').value;
   const mensaje = document.getElementById('modalSuscripcionMensaje');
-  const btn = document.getElementById('btnCambiarPlanModal');
 
   if (!token) {
     window.location.href = '/login.html?returnUrl=/perfil.html';
@@ -1015,13 +1072,26 @@ async function cambiarPlanDesdeModal() {
     return;
   }
 
-  const actualNombre = PLANES_NOMBRES[usuarioActual?.plan] || 'tu plan actual';
-  const nuevoNombre = PLANES_NOMBRES[nuevoPlan] || 'este plan';
-  if (!confirm(`¿Quieres cambiar de ${actualNombre} a ${nuevoNombre}?`)) return;
+  mostrarConfirmacionCambio(construirConfirmacionCambio(usuarioActual, nuevoPlan));
+}
+
+async function confirmarCambioPlan() {
+  const token = localStorage.getItem('token');
+  const mensaje = document.getElementById('modalSuscripcionMensaje');
+  const btn = document.getElementById('btnConfirmarCambioPlan');
+  const nuevoPlan = cambioPlanPendiente?.nuevoPlan;
+
+  if (!token) {
+    window.location.href = '/login.html?returnUrl=/perfil.html';
+    return;
+  }
+
+  if (!nuevoPlan) return;
 
   try {
     btn.disabled = true;
-    btn.textContent = 'Cambiando...';
+    const textoOriginal = cambioPlanPendiente.boton;
+    btn.textContent = 'Procesando...';
     mensaje.textContent = '';
 
     const res = await fetch('/pagos/cambiar-plan', {
@@ -1038,7 +1108,7 @@ async function cambiarPlanDesdeModal() {
       mensaje.textContent = data.error || 'No se pudo cambiar el plan.';
       mensaje.style.color = '#e53e3e';
       btn.disabled = false;
-      btn.textContent = 'Cambiar plan';
+      btn.textContent = textoOriginal;
       return;
     }
 
@@ -1054,7 +1124,7 @@ async function cambiarPlanDesdeModal() {
     mensaje.textContent = 'Error al cambiar el plan. Inténtalo de nuevo.';
     mensaje.style.color = '#e53e3e';
     btn.disabled = false;
-    btn.textContent = 'Cambiar plan';
+    btn.textContent = cambioPlanPendiente?.boton || 'Confirmar cambio';
   }
 }
 

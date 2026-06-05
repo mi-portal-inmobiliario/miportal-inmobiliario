@@ -51,6 +51,44 @@
     .plan-btn-green:hover { background: #6aad35; }
     .plan-btn-outline { background: #fff; color: #1a1a1a; border: 1.5px solid #e0e0e0; }
     .plan-btn-outline:hover { border-color: #7cc242; color: #7cc242; }
+    .modal-plan-confirm {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(26, 26, 26, 0.45);
+    }
+    .modal-plan-confirm.activo { display: flex; }
+    .modal-plan-confirm-card {
+      width: min(480px, 100%);
+      background: #fff;
+      border: 1px solid #e5e5e0;
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+    }
+    .modal-plan-confirm-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.45rem;
+      font-weight: 400;
+      margin: 0 0 8px;
+      color: #1a1a1a;
+    }
+    .modal-plan-confirm-card p {
+      margin: 0;
+      color: #555;
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
+    .modal-plan-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
 
     @media (max-width: 768px) {
       .planes-grid { grid-template-columns: 1fr; }
@@ -159,6 +197,17 @@
 
 </div>
 
+<div class="modal-plan-confirm" id="modalPlanConfirm" aria-hidden="true">
+  <div class="modal-plan-confirm-card" role="dialog" aria-modal="true" aria-labelledby="modalPlanConfirmTitulo">
+    <h3 id="modalPlanConfirmTitulo">Confirmar cambio de plan</h3>
+    <p id="modalPlanConfirmTexto"></p>
+    <div class="modal-plan-actions">
+      <button class="plan-btn plan-btn-outline" type="button" onclick="cancelarCambioPlan()">Cancelar</button>
+      <button class="plan-btn plan-btn-green" type="button" id="btnConfirmarCambioPlan" onclick="confirmarCambioPlan()">Confirmar cambio</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const PLANES_POR_PRICE = {
   price_1TRzHwR2KhBUiuqwE7yWmba5: "basico",
@@ -185,10 +234,44 @@ const PLAN_RANKS = {
   agencia_basica: 5
 };
 
+let cambioPlanPendiente = null;
+
 function formatearFechaPlan(fecha) {
   return fecha
     ? new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
     : 'la fecha de renovación';
+}
+
+function construirConfirmacionCambio(usuarioActual, priceId) {
+  const nuevoPlan = PLANES_POR_PRICE[priceId];
+  const actualNombre = NOMBRES_PLANES[usuarioActual?.plan] || "tu plan actual";
+  const nuevoNombre = NOMBRES_PLANES[nuevoPlan] || "este plan";
+  const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
+  const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
+  const esUpgrade = nuevoRank > actualRank;
+  const fecha = formatearFechaPlan(usuarioActual?.planFechaFin);
+
+  return {
+    priceId,
+    texto: esUpgrade
+      ? `Vas a cambiar de ${actualNombre} a ${nuevoNombre}. Este cambio se aplicará ahora y Stripe puede cobrar o ajustar la diferencia proporcional del periodo actual.`
+      : `El cambio a ${nuevoNombre} se aplicará el ${fecha}. Mantendrás tu plan actual hasta entonces.`,
+    boton: esUpgrade ? "Confirmar cambio y aceptar ajuste" : "Programar cambio"
+  };
+}
+
+function mostrarConfirmacionCambio(confirmacion) {
+  cambioPlanPendiente = confirmacion;
+  document.getElementById("modalPlanConfirmTexto").textContent = confirmacion.texto;
+  document.getElementById("btnConfirmarCambioPlan").textContent = confirmacion.boton;
+  document.getElementById("modalPlanConfirm").classList.add("activo");
+  document.getElementById("modalPlanConfirm").setAttribute("aria-hidden", "false");
+}
+
+function cancelarCambioPlan() {
+  cambioPlanPendiente = null;
+  document.getElementById("modalPlanConfirm").classList.remove("activo");
+  document.getElementById("modalPlanConfirm").setAttribute("aria-hidden", "true");
 }
 
 function irLoginPlanes(mensaje) {
@@ -289,14 +372,19 @@ async function cambiarPlan(priceId, token) {
 
   if (usuarioActual?.plan === nuevoPlan) return;
 
-  const actualNombre = NOMBRES_PLANES[usuarioActual?.plan] || "tu plan actual";
-  const nuevoNombre = NOMBRES_PLANES[nuevoPlan] || "este plan";
-  const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
-  const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
-  const detalle = nuevoRank > actualRank
-    ? "El cambio se aplicará ahora. Stripe calculará automáticamente el ajuste proporcional."
-    : "Este cambio se aplicará al finalizar tu periodo actual. No perderás las ventajas de tu plan hasta entonces.";
-  if (!confirm(`¿Quieres cambiar de ${actualNombre} a ${nuevoNombre}?\n\n${detalle}`)) return;
+  mostrarConfirmacionCambio(construirConfirmacionCambio(usuarioActual, priceId));
+}
+
+async function confirmarCambioPlan() {
+  const token = localStorage.getItem("token");
+  const priceId = cambioPlanPendiente?.priceId;
+  const btn = document.getElementById("btnConfirmarCambioPlan");
+  const textoOriginal = cambioPlanPendiente?.boton || "Confirmar cambio";
+
+  if (!token || !priceId) return;
+
+  btn.disabled = true;
+  btn.textContent = "Procesando...";
 
   const response = await fetch('/pagos/cambiar-plan', {
     method: 'POST',
@@ -318,6 +406,8 @@ async function cambiarPlan(priceId, token) {
 
   if (!response.ok) {
     alert(data.error || 'No se pudo cambiar el plan.');
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
     return;
   }
 
@@ -341,7 +431,7 @@ async function cambiarPlan(priceId, token) {
 
   if (data.tipoCambio === "downgrade_programado") {
     const usuarioNuevo = data.usuario || JSON.parse(localStorage.getItem("usuario") || "null");
-    alert(`Tu cambio a ${usuarioNuevo?.pendingPlanLabel || nuevoNombre} está programado para el ${formatearFechaPlan(usuarioNuevo?.pendingPlanChangeAt)}. Hasta entonces mantienes tu plan actual.`);
+    alert(`Tu cambio a ${usuarioNuevo?.pendingPlanLabel || "este plan"} está programado para el ${formatearFechaPlan(usuarioNuevo?.pendingPlanChangeAt)}. Hasta entonces mantienes tu plan actual.`);
   }
 
   window.location.href = "/perfil.html";
