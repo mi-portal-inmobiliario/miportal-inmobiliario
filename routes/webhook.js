@@ -28,6 +28,13 @@ function fechaFinPeriodo(subscription) {
   return timestamp ? new Date(timestamp * 1000) : null;
 }
 
+function datosPlanDesdeSubscription(subscription) {
+  const priceId = subscription.items?.data?.[0]?.price?.id;
+  const plan = PLANES[priceId] || 'gratis';
+  const fechaFin = fechaFinPeriodo(subscription);
+  return { priceId, plan, fechaFin };
+}
+
 router.post('/', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
@@ -135,9 +142,7 @@ router.post('/', async (req, res) => {
     if (!subscriptionId) return res.json({ received: true });
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
-    const priceId = subscription.items.data[0]?.price?.id;
-    const plan = PLANES[priceId] || 'gratis';
-    const fechaFin = fechaFinPeriodo(subscription);
+    const { plan, fechaFin } = datosPlanDesdeSubscription(subscription);
     const update = {
       plan,
       planActivo: true,
@@ -166,6 +171,38 @@ router.post('/', async (req, res) => {
         `
       );
     }
+  }
+
+  // ===== SUSCRIPCIÓN ACTUALIZADA EN STRIPE PORTAL =====
+  if (event.type === 'customer.subscription.updated') {
+    const subscription = event.data.object;
+    const { priceId, plan, fechaFin } = datosPlanDesdeSubscription(subscription);
+
+    const usuario = await Usuario.findOneAndUpdate(
+      { stripeSubscriptionId: subscription.id },
+      {
+        plan,
+        planActivo: subscription.status === 'active' || subscription.status === 'trialing',
+        ...(fechaFin && { planFechaFin: fechaFin }),
+        stripeCustomerId: subscription.customer,
+        stripeSubscriptionId: subscription.id,
+        pendingPlan: null,
+        pendingPriceId: null,
+        pendingPlanChangeAt: null,
+        pendingPlanLabel: null
+      },
+      { new: true }
+    );
+
+    console.log('Stripe webhook suscripción actualizada', {
+      subscriptionId: subscription.id,
+      priceId,
+      plan,
+      actualizado: Boolean(usuario),
+      usuarioIdActualizado: usuario?._id?.toString() || null,
+      status: subscription.status,
+      planFechaFin: fechaFin?.toISOString() || null
+    });
   }
 
   // ===== PAGO FALLIDO =====
@@ -202,7 +239,15 @@ router.post('/', async (req, res) => {
 
     const usuario = await Usuario.findOneAndUpdate(
       { stripeSubscriptionId: subscription.id },
-      { plan: 'gratis', planActivo: false, planFechaFin: null }
+      {
+        plan: 'gratis',
+        planActivo: false,
+        planFechaFin: null,
+        pendingPlan: null,
+        pendingPriceId: null,
+        pendingPlanChangeAt: null,
+        pendingPlanLabel: null
+      }
     );
 
     if (usuario?.email) {

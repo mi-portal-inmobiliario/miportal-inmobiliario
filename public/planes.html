@@ -51,45 +51,6 @@
     .plan-btn-green:hover { background: #6aad35; }
     .plan-btn-outline { background: #fff; color: #1a1a1a; border: 1.5px solid #e0e0e0; }
     .plan-btn-outline:hover { border-color: #7cc242; color: #7cc242; }
-    .modal-plan-confirm {
-      position: fixed;
-      inset: 0;
-      z-index: 2000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(26, 26, 26, 0.45);
-    }
-    .modal-plan-confirm.activo { display: flex; }
-    .modal-plan-confirm-card {
-      width: min(480px, 100%);
-      background: #fff;
-      border: 1px solid #e5e5e0;
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
-    }
-    .modal-plan-confirm-card h3 {
-      font-family: 'DM Serif Display', serif;
-      font-size: 1.45rem;
-      font-weight: 400;
-      margin: 0 0 8px;
-      color: #1a1a1a;
-    }
-    .modal-plan-confirm-card p {
-      margin: 0;
-      color: #555;
-      font-size: 0.95rem;
-      line-height: 1.55;
-    }
-    .modal-plan-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 20px;
-    }
-
     @media (max-width: 768px) {
       .planes-grid { grid-template-columns: 1fr; }
       .planes-grid-2 { grid-template-columns: 1fr; }
@@ -197,83 +158,7 @@
 
 </div>
 
-<div class="modal-plan-confirm" id="modalPlanConfirm" aria-hidden="true">
-  <div class="modal-plan-confirm-card" role="dialog" aria-modal="true" aria-labelledby="modalPlanConfirmTitulo">
-    <h3 id="modalPlanConfirmTitulo">Confirmar cambio de plan</h3>
-    <p id="modalPlanConfirmTexto"></p>
-    <div class="modal-plan-actions">
-      <button class="plan-btn plan-btn-outline" type="button" onclick="cancelarCambioPlan()">Cancelar</button>
-      <button class="plan-btn plan-btn-green" type="button" id="btnConfirmarCambioPlan" onclick="confirmarCambioPlan()">Confirmar cambio</button>
-    </div>
-  </div>
-</div>
-
 <script>
-const PLANES_POR_PRICE = {
-  price_1TRzHwR2KhBUiuqwE7yWmba5: "basico",
-  price_1TRzKfR2KhBUiuqwZmtbnkHW: "destacado",
-  price_1TRzLwR2KhBUiuqwdxvWLngL: "starter",
-  price_1TRzN1R2KhBUiuqwWZERfgqT: "pro_agentes",
-  price_1TRzO0R2KhBUiuqwZvlU3gdU: "agencia_basica"
-};
-
-const NOMBRES_PLANES = {
-  basico: "Básico",
-  destacado: "Destacado",
-  starter: "Starter",
-  pro_agentes: "Pro",
-  agencia_basica: "Agencia Básica"
-};
-
-const PLAN_RANKS = {
-  gratis: 0,
-  basico: 1,
-  destacado: 2,
-  starter: 3,
-  pro_agentes: 4,
-  agencia_basica: 5
-};
-
-let cambioPlanPendiente = null;
-
-function formatearFechaPlan(fecha) {
-  return fecha
-    ? new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
-    : 'la fecha de renovación';
-}
-
-function construirConfirmacionCambio(usuarioActual, priceId) {
-  const nuevoPlan = PLANES_POR_PRICE[priceId];
-  const actualNombre = NOMBRES_PLANES[usuarioActual?.plan] || "tu plan actual";
-  const nuevoNombre = NOMBRES_PLANES[nuevoPlan] || "este plan";
-  const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
-  const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
-  const esUpgrade = nuevoRank > actualRank;
-  const fecha = formatearFechaPlan(usuarioActual?.planFechaFin);
-
-  return {
-    priceId,
-    texto: esUpgrade
-      ? `Vas a cambiar de ${actualNombre} a ${nuevoNombre}. Este cambio se aplicará ahora y Stripe puede cobrar o ajustar la diferencia proporcional del periodo actual.`
-      : `El cambio a ${nuevoNombre} se aplicará el ${fecha}. Mantendrás tu plan actual hasta entonces.`,
-    boton: esUpgrade ? `Confirmar cambio a ${nuevoNombre}` : `Programar cambio a ${nuevoNombre}`
-  };
-}
-
-function mostrarConfirmacionCambio(confirmacion) {
-  cambioPlanPendiente = confirmacion;
-  document.getElementById("modalPlanConfirmTexto").textContent = confirmacion.texto;
-  document.getElementById("btnConfirmarCambioPlan").textContent = confirmacion.boton;
-  document.getElementById("modalPlanConfirm").classList.add("activo");
-  document.getElementById("modalPlanConfirm").setAttribute("aria-hidden", "false");
-}
-
-function cancelarCambioPlan() {
-  cambioPlanPendiente = null;
-  document.getElementById("modalPlanConfirm").classList.remove("activo");
-  document.getElementById("modalPlanConfirm").setAttribute("aria-hidden", "true");
-}
-
 function irLoginPlanes(mensaje) {
   if (mensaje) alert(mensaje);
   window.location.href = "/login.html?returnUrl=/planes.html";
@@ -302,7 +187,7 @@ function actualizarBotonesPlanes(usuario) {
       return;
     }
 
-    btn.textContent = "Cambiar a este plan";
+    btn.textContent = "Gestiona tu plan desde tu perfil";
   });
 }
 
@@ -333,7 +218,7 @@ async function suscribirse(priceId) {
     const usuario = await cargarUsuarioActual(token);
 
     if (usuarioConSuscripcion(usuario)) {
-      await cambiarPlan(priceId, token);
+      window.location.href = "/perfil.html";
       return;
     }
 
@@ -364,77 +249,6 @@ async function suscribirse(priceId) {
   } catch (error) {
     alert('Ha ocurrido un error. Por favor inténtalo de nuevo.');
   }
-}
-
-async function cambiarPlan(priceId, token) {
-  const usuarioActual = JSON.parse(localStorage.getItem("usuario") || "null");
-  const nuevoPlan = PLANES_POR_PRICE[priceId];
-
-  if (usuarioActual?.plan === nuevoPlan) return;
-
-  mostrarConfirmacionCambio(construirConfirmacionCambio(usuarioActual, priceId));
-}
-
-async function confirmarCambioPlan() {
-  const token = localStorage.getItem("token");
-  const priceId = cambioPlanPendiente?.priceId;
-  const btn = document.getElementById("btnConfirmarCambioPlan");
-  const textoOriginal = cambioPlanPendiente?.boton || "Confirmar cambio";
-
-  if (!token || !priceId) return;
-
-  btn.disabled = true;
-  btn.textContent = "Procesando...";
-
-  const response = await fetch('/pagos/cambiar-plan', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + token
-    },
-    body: JSON.stringify({ priceId })
-  });
-  const data = await response.json();
-
-  if (response.status === 401) {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    localStorage.setItem("planPendiente", priceId);
-    irLoginPlanes("Inicia sesión para suscribirte");
-    return;
-  }
-
-  if (!response.ok) {
-    alert(data.error || 'No se pudo cambiar el plan.');
-    btn.disabled = false;
-    btn.textContent = textoOriginal;
-    return;
-  }
-
-  if (data.usuario) {
-    localStorage.setItem("usuario", JSON.stringify(data.usuario));
-  } else {
-    const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-    if (usuario) {
-      localStorage.setItem("usuario", JSON.stringify({
-        ...usuario,
-        plan: data.plan || PLANES_POR_PRICE[priceId],
-        planActivo: data.planActivo,
-        planFechaFin: data.planFechaFin || usuario.planFechaFin,
-        pendingPlan: data.pendingPlan || usuario.pendingPlan || null,
-        pendingPriceId: data.pendingPriceId || usuario.pendingPriceId || null,
-        pendingPlanChangeAt: data.pendingPlanChangeAt || usuario.pendingPlanChangeAt || null,
-        pendingPlanLabel: data.pendingPlanLabel || usuario.pendingPlanLabel || null
-      }));
-    }
-  }
-
-  if (data.tipoCambio === "downgrade_programado") {
-    const usuarioNuevo = data.usuario || JSON.parse(localStorage.getItem("usuario") || "null");
-    alert(`Tu cambio a ${usuarioNuevo?.pendingPlanLabel || "este plan"} está programado para el ${formatearFechaPlan(usuarioNuevo?.pendingPlanChangeAt)}. Hasta entonces mantienes tu plan actual.`);
-  }
-
-  window.location.href = "/perfil.html";
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
