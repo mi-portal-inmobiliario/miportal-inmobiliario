@@ -168,6 +168,14 @@ const PLANES_POR_PRICE = {
   price_1TRzO0R2KhBUiuqwZvlU3gdU: "agencia_basica"
 };
 
+const NOMBRES_PLANES = {
+  basico: "Básico",
+  destacado: "Destacado",
+  starter: "Starter",
+  pro_agentes: "Pro",
+  agencia_basica: "Agencia Básica"
+};
+
 function irLoginPlanes(mensaje) {
   if (mensaje) alert(mensaje);
   window.location.href = "/login.html?returnUrl=/planes.html";
@@ -261,6 +269,15 @@ async function suscribirse(priceId) {
 }
 
 async function cambiarPlan(priceId, token) {
+  const usuarioActual = JSON.parse(localStorage.getItem("usuario") || "null");
+  const nuevoPlan = PLANES_POR_PRICE[priceId];
+
+  if (usuarioActual?.plan === nuevoPlan) return;
+
+  const actualNombre = NOMBRES_PLANES[usuarioActual?.plan] || "tu plan actual";
+  const nuevoNombre = NOMBRES_PLANES[nuevoPlan] || "este plan";
+  if (!confirm(`¿Quieres cambiar de ${actualNombre} a ${nuevoNombre}?`)) return;
+
   const response = await fetch('/pagos/cambiar-plan', {
     method: 'POST',
     headers: {

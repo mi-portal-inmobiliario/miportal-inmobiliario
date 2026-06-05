@@ -99,6 +99,121 @@
     .btn-perfil.red { background: #fff; color: #e53e3e; border: 1px solid #fecaca; }
     .btn-perfil.red:hover { background: #fff5f5; }
 
+    .modal-suscripcion {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(26, 26, 26, 0.45);
+    }
+
+    .modal-suscripcion.activo { display: flex; }
+
+    .modal-suscripcion-card {
+      width: min(520px, 100%);
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e5e5e0;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+      padding: 24px;
+    }
+
+    .modal-suscripcion-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .modal-suscripcion-top h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.45rem;
+      font-weight: 400;
+      margin: 0 0 4px;
+      color: #1a1a1a;
+    }
+
+    .modal-suscripcion-top p {
+      margin: 0;
+      font-size: 0.86rem;
+      color: #888;
+    }
+
+    .modal-cerrar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      border: 1px solid #e0e0e0;
+      background: #fff;
+      cursor: pointer;
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+
+    .modal-plan-resumen {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .modal-plan-resumen div {
+      background: #f9fdf5;
+      border: 1px solid #e5f0d8;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .modal-plan-resumen span {
+      display: block;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #aaa;
+      margin-bottom: 4px;
+    }
+
+    .modal-plan-resumen strong {
+      font-size: 0.95rem;
+      color: #1a1a1a;
+    }
+
+    .modal-field label {
+      display: block;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .modal-field select {
+      width: 100%;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      background: #fff;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .modal-mensaje {
+      min-height: 20px;
+      margin-top: 12px;
+      font-size: 0.86rem;
+      color: #888;
+    }
+
     .seccion-label {
       font-size: 0.72rem;
       font-weight: 600;
@@ -451,6 +566,46 @@
 
 </div>
 
+<div class="modal-suscripcion" id="modalSuscripcion" aria-hidden="true">
+  <div class="modal-suscripcion-card" role="dialog" aria-modal="true" aria-labelledby="modalSuscripcionTitulo">
+    <div class="modal-suscripcion-top">
+      <div>
+        <h3 id="modalSuscripcionTitulo">Gestionar suscripción</h3>
+        <p>Cambia de plan desde HomeClick24 o gestiona el pago en Stripe.</p>
+      </div>
+      <button class="modal-cerrar" type="button" onclick="cerrarModalSuscripcion()" aria-label="Cerrar">×</button>
+    </div>
+
+    <div class="modal-plan-resumen">
+      <div>
+        <span>Plan actual</span>
+        <strong id="modalPlanActual">Gratis</strong>
+      </div>
+      <div>
+        <span>Renovación / fin</span>
+        <strong id="modalPlanFecha">Sin fecha</strong>
+      </div>
+    </div>
+
+    <div class="modal-field">
+      <label for="modalPlanSelect">Cambiar de plan</label>
+      <select id="modalPlanSelect">
+        <option value="basico">Básico</option>
+        <option value="destacado">Destacado</option>
+        <option value="starter">Starter</option>
+        <option value="pro_agentes">Pro</option>
+        <option value="agencia_basica">Agencia Básica</option>
+      </select>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn-perfil green" type="button" id="btnCambiarPlanModal" onclick="cambiarPlanDesdeModal()">Cambiar plan</button>
+      <button class="btn-perfil outline" type="button" onclick="abrirPortalStripe()">Gestionar método de pago o cancelar en Stripe</button>
+    </div>
+    <div class="modal-mensaje" id="modalSuscripcionMensaje"></div>
+  </div>
+</div>
+
 <nav class="mobile-nav">
   <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
   <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
@@ -508,6 +663,14 @@ const PLANES_NOMBRES = {
   gratis: "Gratis", basico: "Básico", destacado: "Destacado",
   starter: "Starter", pro_agentes: "Pro", agencia_basica: "Agencia Básica",
   agencia_pro: "Agencia Pro", vip: "VIP", vip_trial: "Prueba VIP"
+};
+
+const PRICE_POR_PLAN = {
+  basico: "price_1TRzHwR2KhBUiuqwE7yWmba5",
+  destacado: "price_1TRzKfR2KhBUiuqwZmtbnkHW",
+  starter: "price_1TRzLwR2KhBUiuqwdxvWLngL",
+  pro_agentes: "price_1TRzN1R2KhBUiuqwWZERfgqT",
+  agencia_basica: "price_1TRzO0R2KhBUiuqwZvlU3gdU"
 };
 
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
@@ -751,6 +914,84 @@ async function eliminarPropiedad(id, btn) {
 }
 
 async function gestionarSuscripcion() {
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario') || 'null');
+  if (!usuarioActual?.stripeCustomerId || !usuarioActual?.stripeSubscriptionId) {
+    window.location.href = '/planes.html';
+    return;
+  }
+
+  document.getElementById('modalPlanActual').textContent = PLANES_NOMBRES[usuarioActual.plan] || 'Gratis';
+  const fecha = usuarioActual.planFechaFin ? new Date(usuarioActual.planFechaFin) : null;
+  document.getElementById('modalPlanFecha').textContent = fecha
+    ? fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
+    : 'Sin fecha';
+  document.getElementById('modalPlanSelect').value = PRICE_POR_PLAN[usuarioActual.plan] ? usuarioActual.plan : 'basico';
+  document.getElementById('modalSuscripcionMensaje').textContent = '';
+  document.getElementById('modalSuscripcion').classList.add('activo');
+  document.getElementById('modalSuscripcion').setAttribute('aria-hidden', 'false');
+}
+
+function cerrarModalSuscripcion() {
+  document.getElementById('modalSuscripcion').classList.remove('activo');
+  document.getElementById('modalSuscripcion').setAttribute('aria-hidden', 'true');
+}
+
+async function cambiarPlanDesdeModal() {
+  const usuarioActual = JSON.parse(localStorage.getItem('usuario') || 'null');
+  const token = localStorage.getItem('token');
+  const nuevoPlan = document.getElementById('modalPlanSelect').value;
+  const mensaje = document.getElementById('modalSuscripcionMensaje');
+  const btn = document.getElementById('btnCambiarPlanModal');
+
+  if (!token) {
+    window.location.href = '/login.html?returnUrl=/perfil.html';
+    return;
+  }
+
+  if (nuevoPlan === usuarioActual?.plan) {
+    mensaje.textContent = 'Ya tienes este plan activo';
+    mensaje.style.color = '#c2410c';
+    return;
+  }
+
+  const actualNombre = PLANES_NOMBRES[usuarioActual?.plan] || 'tu plan actual';
+  const nuevoNombre = PLANES_NOMBRES[nuevoPlan] || 'este plan';
+  if (!confirm(`¿Quieres cambiar de ${actualNombre} a ${nuevoNombre}?`)) return;
+
+  try {
+    btn.disabled = true;
+    btn.textContent = 'Cambiando...';
+    mensaje.textContent = '';
+
+    const res = await fetch('/pagos/cambiar-plan', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      },
+      body: JSON.stringify({ priceId: PRICE_POR_PLAN[nuevoPlan] })
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      mensaje.textContent = data.error || 'No se pudo cambiar el plan.';
+      mensaje.style.color = '#e53e3e';
+      btn.disabled = false;
+      btn.textContent = 'Cambiar plan';
+      return;
+    }
+
+    if (data.usuario) localStorage.setItem('usuario', JSON.stringify(data.usuario));
+    window.location.href = '/perfil.html';
+  } catch (error) {
+    mensaje.textContent = 'Error al cambiar el plan. Inténtalo de nuevo.';
+    mensaje.style.color = '#e53e3e';
+    btn.disabled = false;
+    btn.textContent = 'Cambiar plan';
+  }
+}
+
+async function abrirPortalStripe() {
   try {
     const usuario = JSON.parse(localStorage.getItem('usuario'));
     const token = localStorage.getItem('token');
