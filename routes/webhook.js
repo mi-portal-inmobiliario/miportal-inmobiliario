@@ -16,7 +16,7 @@ const PLANES = {
 
 const NOMBRES_PLANES = {
   basico: 'Básico', destacado: 'Destacado', starter: 'Starter',
-  pro_agentes: 'Pro Agentes', agencia_basica: 'Agencia Básica',
+  pro_agentes: 'Pro', agencia_basica: 'Agencia Básica',
 };
 
 function esObjectId(id) {
@@ -33,6 +33,42 @@ function datosPlanDesdeSubscription(subscription) {
   const plan = PLANES[priceId] || 'gratis';
   const fechaFin = fechaFinPeriodo(subscription);
   return { priceId, plan, fechaFin };
+}
+
+function phasePriceId(phase) {
+  const price = phase?.items?.[0]?.price;
+  return typeof price === 'string' ? price : price?.id;
+}
+
+async function getScheduledPlanChange(subscription, currentPriceId) {
+  const scheduleRef = subscription.schedule;
+  if (!scheduleRef) return null;
+
+  const schedule = typeof scheduleRef === 'string'
+    ? await stripe.subscriptionSchedules.retrieve(scheduleRef)
+    : scheduleRef;
+
+  const now = Math.floor(Date.now() / 1000);
+  const futurePhase = schedule.phases
+    ?.filter(phase => Number(phase.start_date) > now)
+    .sort((a, b) => Number(a.start_date) - Number(b.start_date))
+    .find(phase => {
+      const nextPriceId = phasePriceId(phase);
+      return nextPriceId && nextPriceId !== currentPriceId;
+    });
+
+  if (!futurePhase) return null;
+
+  const pendingPriceId = phasePriceId(futurePhase);
+  const pendingPlan = PLANES[pendingPriceId];
+  if (!pendingPlan) return null;
+
+  return {
+    pendingPlan,
+    pendingPriceId,
+    pendingPlanChangeAt: new Date(Number(futurePhase.start_date) * 1000),
+    pendingPlanLabel: NOMBRES_PLANES[pendingPlan] || pendingPlan
+  };
 }
 
 router.post('/', async (req, res) => {
@@ -179,6 +215,7 @@ router.post('/', async (req, res) => {
     const priceId = subscription.items?.data?.[0]?.price?.id;
     const plan = PLANES[priceId] || 'gratis';
     const fechaFin = fechaFinPeriodo(subscription);
+    const scheduledChange = await getScheduledPlanChange(subscription, priceId);
 
     const usuario = await Usuario.findOneAndUpdate(
       { stripeSubscriptionId: subscription.id },
@@ -188,10 +225,10 @@ router.post('/', async (req, res) => {
         ...(fechaFin && { planFechaFin: fechaFin }),
         stripeCustomerId: subscription.customer,
         stripeSubscriptionId: subscription.id,
-        pendingPlan: null,
-        pendingPriceId: null,
-        pendingPlanChangeAt: null,
-        pendingPlanLabel: null
+        pendingPlan: scheduledChange?.pendingPlan || null,
+        pendingPriceId: scheduledChange?.pendingPriceId || null,
+        pendingPlanChangeAt: scheduledChange?.pendingPlanChangeAt || null,
+        pendingPlanLabel: scheduledChange?.pendingPlanLabel || null
       },
       { new: true }
     );
@@ -203,6 +240,9 @@ router.post('/', async (req, res) => {
       actualizado: Boolean(usuario),
       usuarioIdActualizado: usuario?._id?.toString() || null,
       status: subscription.status,
+      schedule: typeof subscription.schedule === 'string' ? subscription.schedule : subscription.schedule?.id || null,
+      pendingPlan: scheduledChange?.pendingPlan || null,
+      pendingPlanChangeAt: scheduledChange?.pendingPlanChangeAt?.toISOString() || null,
       planFechaFin: fechaFin?.toISOString() || null
     });
   }
