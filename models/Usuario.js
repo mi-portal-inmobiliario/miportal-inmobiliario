@@ -20,6 +20,8 @@ const UsuarioSchema = new mongoose.Schema({
   pendingPriceId:        { type: String },
   pendingPlanChangeAt:   { type: Date },
   pendingPlanLabel:      { type: String },
+  cancelAtPeriodEnd:     { type: Boolean, default: false },
+  subscriptionCancelAt:  { type: Date },
 
   // Prueba gratuita VIP
   trialAccepted:         { type: Boolean, default: false },

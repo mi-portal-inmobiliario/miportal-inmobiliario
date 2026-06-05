@@ -286,6 +286,25 @@
     }
     .btn-eliminar:hover { background: #fecaca; }
 
+    .btn-cancelar-suscripcion {
+      margin-left: 8px;
+      padding: 5px 10px;
+      background: #fff7ed;
+      color: #c2410c;
+      border: 1px solid #fed7aa;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .btn-cancelar-suscripcion:hover { background: #ffedd5; }
+    .btn-cancelar-suscripcion:disabled {
+      cursor: default;
+      opacity: 0.65;
+    }
+
     .btn-exportar {
       padding: 6px 14px;
       background: #f0f9e8;
@@ -511,6 +530,13 @@ function renderUsuarios(usuarios) {
             style="padding:5px 8px;border:1.5px solid #eee;border-radius:6px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
             ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
+          ${u.stripeSubscriptionId ? `
+            <button class="btn-cancelar-suscripcion"
+              onclick="cancelarSuscripcion('${u._id}', this)"
+              ${u.cancelAtPeriodEnd ? 'disabled' : ''}>
+              ${u.cancelAtPeriodEnd ? 'Cancelación programada' : 'Cancelar suscripción'}
+            </button>
+          ` : ''}
         </td>
       </tr>
     `;
@@ -538,6 +564,30 @@ async function cambiarPlan(usuarioId, nuevoPlan) {
   } else {
     alert('Error al cambiar el plan');
     await cargarUsuarios();
+  }
+}
+
+async function cancelarSuscripcion(usuarioId, btn) {
+  const ok = confirm('La suscripción se cancelará al final del periodo. El usuario conservará su plan hasta entonces.');
+  if (!ok) return;
+
+  btn.disabled = true;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Cancelando...';
+
+  const res = await fetch(`/admin/usuarios/${usuarioId}/cancelar-suscripcion`, {
+    method: 'POST',
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+
+  if (res.ok) {
+    btn.textContent = 'Cancelación programada';
+    await cargarUsuarios();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    alert(data.error || 'Error al cancelar la suscripción');
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
   }
 }
 

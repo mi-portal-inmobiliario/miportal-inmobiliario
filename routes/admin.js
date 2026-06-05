@@ -1,11 +1,13 @@
 import express from 'express';
 import jwt from 'jsonwebtoken';
+import Stripe from 'stripe';
 import { Resend } from 'resend';
 import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
 import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const resend = new Resend(process.env.RESEND_API_KEY);
 const PLANES_VALIDOS = [
   'gratis', 'basico', 'destacado', 'starter',
@@ -79,6 +81,7 @@ router.get('/usuarios', requireAdmin, async (req, res) => {
   try {
     const usuarios = await Usuario.find({}, {
       nombre: 1, email: 1, plan: 1, planActivo: 1, createdAt: 1, verificado: 1,
+      stripeSubscriptionId: 1, cancelAtPeriodEnd: 1, subscriptionCancelAt: 1,
       trialAccepted: 1, trialStartDate: 1, trialEndDate: 1, trialReminderSent: 1
     }).sort({ createdAt: -1 });
     res.json(usuarios);
@@ -105,6 +108,54 @@ router.delete('/propiedades/:id', requireAdmin, async (req, res) => {
     await Propiedad.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Cancelar suscripción Stripe al final del periodo
+router.post('/usuarios/:id/cancelar-suscripcion', requireAdmin, async (req, res) => {
+  try {
+    const usuario = await Usuario.findById(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    if (!usuario.stripeSubscriptionId) {
+      return res.status(400).json({ error: 'El usuario no tiene una suscripción Stripe activa' });
+    }
+
+    console.log('Admin solicita cancelar suscripción Stripe', {
+      usuarioId: usuario._id.toString(),
+      email: usuario.email,
+      stripeSubscriptionId: usuario.stripeSubscriptionId
+    });
+
+    const subscription = await stripe.subscriptions.update(usuario.stripeSubscriptionId, {
+      cancel_at_period_end: true
+    });
+    const cancelAt = subscription.cancel_at
+      ? new Date(subscription.cancel_at * 1000)
+      : null;
+
+    usuario.cancelAtPeriodEnd = Boolean(subscription.cancel_at_period_end);
+    usuario.subscriptionCancelAt = cancelAt;
+    await usuario.save();
+
+    console.log('Suscripción Stripe marcada para cancelar al final del periodo', {
+      usuarioId: usuario._id.toString(),
+      stripeSubscriptionId: subscription.id,
+      cancelAtPeriodEnd: subscription.cancel_at_period_end,
+      cancelAt: cancelAt?.toISOString() || null
+    });
+
+    res.json({
+      ok: true,
+      cancelAtPeriodEnd: usuario.cancelAtPeriodEnd,
+      subscriptionCancelAt: usuario.subscriptionCancelAt
+    });
+  } catch (err) {
+    console.error('Error cancelando suscripción Stripe desde admin:', {
+      usuarioId: req.params.id,
+      error: err.message
+    });
     res.status(500).json({ error: err.message });
   }
 });
