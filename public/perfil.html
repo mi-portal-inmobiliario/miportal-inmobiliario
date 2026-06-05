@@ -182,6 +182,28 @@
       color: #1a1a1a;
     }
 
+    .modal-pending-card {
+      display: none;
+      background: #fff7ed;
+      border: 1px solid #fed7aa;
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 18px;
+    }
+
+    .modal-pending-card strong {
+      display: block;
+      color: #c2410c;
+      margin-bottom: 4px;
+    }
+
+    .modal-pending-card p {
+      margin: 0 0 12px;
+      color: #7c2d12;
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
     .modal-field label {
       display: block;
       font-size: 0.78rem;
@@ -624,14 +646,20 @@
       </div>
     </div>
 
+    <div class="modal-pending-card" id="modalPendingCard">
+      <strong id="modalPendingTitle">Cambio programado</strong>
+      <p id="modalPendingText">Hasta entonces mantienes tu plan actual.</p>
+      <button class="btn-perfil outline" type="button" id="btnCancelarPendingPlan" onclick="cancelarCambioProgramado()">Cancelar cambio programado</button>
+    </div>
+
     <div class="modal-field">
       <label for="modalPlanSelect">Cambiar de plan</label>
       <select id="modalPlanSelect" onchange="actualizarResumenCambioModal()">
-        <option value="basico">Básico</option>
-        <option value="destacado">Destacado</option>
-        <option value="starter">Starter</option>
-        <option value="pro_agentes">Pro</option>
-        <option value="agencia_basica">Agencia Básica</option>
+        <option value="basico">Básico — 9,90€/mes</option>
+        <option value="destacado">Destacado — 19,90€/mes</option>
+        <option value="starter">Starter — 29,90€/mes</option>
+        <option value="pro_agentes">Pro — 59,90€/mes</option>
+        <option value="agencia_basica">Agencia Básica — 79,90€/mes</option>
       </select>
       <div class="modal-cambio-resumen" id="modalCambioResumen"></div>
       <div class="modal-confirmacion-cambio" id="modalConfirmacionCambio">
@@ -733,6 +761,10 @@ function formatearFechaPlan(fecha) {
   return fecha
     ? new Date(fecha).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })
     : 'la fecha de renovación';
+}
+
+function tieneCambioProgramado(usuarioActual) {
+  return Boolean(usuarioActual?.pendingPlan && usuarioActual?.pendingPlanChangeAt);
 }
 
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
@@ -996,6 +1028,7 @@ async function gestionarSuscripcion() {
     : 'Sin fecha';
   document.getElementById('modalPlanSelect').value = PRICE_POR_PLAN[usuarioActual.plan] ? usuarioActual.plan : 'basico';
   document.getElementById('modalSuscripcionMensaje').textContent = '';
+  renderCambioProgramadoModal(usuarioActual);
   actualizarResumenCambioModal();
   document.getElementById('modalSuscripcion').classList.add('activo');
   document.getElementById('modalSuscripcion').setAttribute('aria-hidden', 'false');
@@ -1011,17 +1044,42 @@ function actualizarResumenCambioModal() {
   const usuarioActual = JSON.parse(localStorage.getItem('usuario') || 'null');
   const nuevoPlan = document.getElementById('modalPlanSelect').value;
   const resumen = document.getElementById('modalCambioResumen');
+  const btnPrincipal = document.getElementById('btnCambiarPlanModal');
   cancelarConfirmacionCambio();
   const actualRank = PLAN_RANKS[usuarioActual?.plan] ?? 0;
   const nuevoRank = PLAN_RANKS[nuevoPlan] ?? 0;
+  const nuevoNombre = PLANES_NOMBRES[nuevoPlan] || 'este plan';
+
+  btnPrincipal.disabled = false;
 
   if (nuevoPlan === usuarioActual?.plan) {
     resumen.textContent = 'Ya tienes este plan activo.';
+    btnPrincipal.textContent = 'Plan actual';
+    btnPrincipal.disabled = true;
   } else if (nuevoRank > actualRank) {
     resumen.textContent = 'El cambio se aplicará ahora. Stripe calculará automáticamente el ajuste proporcional.';
+    btnPrincipal.textContent = `Confirmar cambio a ${nuevoNombre}`;
   } else {
-    resumen.textContent = 'Este cambio se aplicará al finalizar tu periodo actual. No perderás las ventajas de tu plan hasta entonces.';
+    const sustituye = tieneCambioProgramado(usuarioActual) && usuarioActual.pendingPlan !== nuevoPlan
+      ? ' Sustituirá el cambio programado anterior.'
+      : '';
+    resumen.textContent = `Este cambio se aplicará al finalizar tu periodo actual. No perderás las ventajas de tu plan hasta entonces.${sustituye}`;
+    btnPrincipal.textContent = `Programar cambio a ${nuevoNombre}`;
   }
+}
+
+function renderCambioProgramadoModal(usuarioActual) {
+  const card = document.getElementById('modalPendingCard');
+  if (!tieneCambioProgramado(usuarioActual)) {
+    card.style.display = 'none';
+    return;
+  }
+
+  const pendingName = usuarioActual.pendingPlanLabel || PLANES_NOMBRES[usuarioActual.pendingPlan] || usuarioActual.pendingPlan;
+  const pendingDate = formatearFechaPlan(usuarioActual.pendingPlanChangeAt);
+  document.getElementById('modalPendingTitle').textContent = `Cambio programado: ${pendingName} el ${pendingDate}`;
+  document.getElementById('modalPendingText').textContent = 'Hasta entonces mantienes tu plan actual.';
+  card.style.display = 'block';
 }
 
 function construirConfirmacionCambio(usuarioActual, nuevoPlan) {
@@ -1037,8 +1095,8 @@ function construirConfirmacionCambio(usuarioActual, nuevoPlan) {
     nuevoNombre,
     texto: esUpgrade
       ? `Vas a cambiar de ${actualNombre} a ${nuevoNombre}. Este cambio se aplicará ahora y Stripe puede cobrar o ajustar la diferencia proporcional del periodo actual.`
-      : `El cambio a ${nuevoNombre} se aplicará el ${fecha}. Mantendrás tu plan actual hasta entonces.`,
-    boton: esUpgrade ? 'Confirmar cambio y aceptar ajuste' : 'Programar cambio'
+      : `El cambio a ${nuevoNombre} se aplicará el ${fecha}. Mantendrás tu plan actual hasta entonces.${tieneCambioProgramado(usuarioActual) && usuarioActual.pendingPlan !== nuevoPlan ? ' Este cambio sustituirá el cambio programado anterior.' : ''}`,
+    boton: esUpgrade ? `Confirmar cambio a ${nuevoNombre}` : `Programar cambio a ${nuevoNombre}`
   };
 }
 
@@ -1067,12 +1125,51 @@ async function cambiarPlanDesdeModal() {
   }
 
   if (nuevoPlan === usuarioActual?.plan) {
-    mensaje.textContent = 'Ya tienes este plan activo';
-    mensaje.style.color = '#c2410c';
+    mensaje.textContent = '';
     return;
   }
 
   mostrarConfirmacionCambio(construirConfirmacionCambio(usuarioActual, nuevoPlan));
+}
+
+async function cancelarCambioProgramado() {
+  const token = localStorage.getItem('token');
+  const mensaje = document.getElementById('modalSuscripcionMensaje');
+  const btn = document.getElementById('btnCancelarPendingPlan');
+
+  if (!token) {
+    window.location.href = '/login.html?returnUrl=/perfil.html';
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = 'Cancelando...';
+
+    const res = await fetch('/pagos/cancelar-cambio-programado', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const data = await res.json();
+
+    if (!res.ok) {
+      mensaje.textContent = data.error || 'No se pudo cancelar el cambio programado.';
+      mensaje.style.color = '#e53e3e';
+      btn.disabled = false;
+      btn.textContent = 'Cancelar cambio programado';
+      return;
+    }
+
+    if (data.usuario) localStorage.setItem('usuario', JSON.stringify(data.usuario));
+    mensaje.textContent = 'Cambio programado cancelado.';
+    mensaje.style.color = '#5a9e2f';
+    setTimeout(() => window.location.href = '/perfil.html', 900);
+  } catch (error) {
+    mensaje.textContent = 'Error al cancelar el cambio programado.';
+    mensaje.style.color = '#e53e3e';
+    btn.disabled = false;
+    btn.textContent = 'Cancelar cambio programado';
+  }
 }
 
 async function confirmarCambioPlan() {

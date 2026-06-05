@@ -212,6 +212,29 @@ router.post('/cambiar-plan', requireAuth, validateBody(cambiarPlanSchema), async
   }
 });
 
+// Cancelar un downgrade programado
+router.post('/cancelar-cambio-programado', requireAuth, async (req, res) => {
+  try {
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.user.id,
+      {
+        pendingPlan: null,
+        pendingPriceId: null,
+        pendingPlanChangeAt: null,
+        pendingPlanLabel: null
+      },
+      { new: true }
+    );
+
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    res.json({ ok: true, usuario: usuarioSeguro(usuario) });
+  } catch (error) {
+    console.error('Error cancelando cambio programado:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Portal de cliente Stripe
 router.post('/portal-cliente', requireAuth, validateBody(portalClienteSchema), async (req, res) => {
   const { customerId } = req.body;
