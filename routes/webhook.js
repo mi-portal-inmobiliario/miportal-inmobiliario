@@ -176,7 +176,9 @@ router.post('/', async (req, res) => {
   // ===== SUSCRIPCIÓN ACTUALIZADA EN STRIPE PORTAL =====
   if (event.type === 'customer.subscription.updated') {
     const subscription = event.data.object;
-    const { priceId, plan, fechaFin } = datosPlanDesdeSubscription(subscription);
+    const priceId = subscription.items?.data?.[0]?.price?.id;
+    const plan = PLANES[priceId] || 'gratis';
+    const fechaFin = fechaFinPeriodo(subscription);
 
     const usuario = await Usuario.findOneAndUpdate(
       { stripeSubscriptionId: subscription.id },
