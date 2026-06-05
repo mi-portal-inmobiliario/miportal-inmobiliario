@@ -478,30 +478,42 @@ const token   = localStorage.getItem("token");
 
 if (!usuario || !usuario._id || !token) location.replace("/login.html");
 
-const pagoExitoso = new URLSearchParams(window.location.search).get("pago") === "exitoso";
+const paramsUrl = new URLSearchParams(window.location.search);
+const pagoExitoso = paramsUrl.get("pago") === "exitoso";
+const vueltaStripe = paramsUrl.get("stripe") === "return";
+
+async function refrescarUsuarioDesdeBackend(contexto = "perfil") {
+  try {
+    const res = await fetch("/usuarios/me", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const usuarioActualizado = await res.json();
+    localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+    usuario = usuarioActualizado;
+    return usuarioActualizado;
+  } catch (e) {
+    console.warn(`No se pudo refrescar el usuario en ${contexto}`, e);
+    return null;
+  }
+}
 
 async function refrescarUsuarioTrasPago() {
   const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
   let usuarioActualizado = null;
 
   for (let intento = 0; intento < 6; intento++) {
-    try {
-      const res = await fetch("/usuarios/me", {
-        headers: { "Authorization": "Bearer " + token }
-      });
-      if (res.ok) {
-        usuarioActualizado = await res.json();
-        localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-        if (
-          usuarioActualizado.plan !== usuario.plan ||
-          usuarioActualizado.stripeSubscriptionId
-        ) {
-          window.location.replace("/perfil.html");
-          return;
-        }
+    const planAnterior = usuario.plan;
+    usuarioActualizado = await refrescarUsuarioDesdeBackend("tras el pago");
+    if (usuarioActualizado) {
+      if (
+        usuarioActualizado.plan !== planAnterior ||
+        usuarioActualizado.stripeSubscriptionId
+      ) {
+        window.location.replace("/perfil.html");
+        return;
       }
-    } catch (e) {
-      console.warn("No se pudo refrescar el usuario tras el pago", e);
     }
     await sleep(1200);
   }
@@ -512,6 +524,12 @@ async function refrescarUsuarioTrasPago() {
 }
 
 if (pagoExitoso) refrescarUsuarioTrasPago();
+
+(async function iniciarPerfil() {
+if (vueltaStripe) {
+  await refrescarUsuarioDesdeBackend("tras volver de Stripe");
+  history.replaceState(null, "", "/perfil.html" + window.location.hash);
+}
 
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
 document.getElementById("emailUsuario").textContent  = usuario.email;
@@ -581,6 +599,10 @@ if (usuario.pendingPlan && usuario.pendingPlanChangeAt) {
   pendingPlanNotice.textContent = `Cambio programado a ${pendingName} el ${formatearFechaPlan(usuario.pendingPlanChangeAt)}. Hasta entonces mantienes tu plan actual.`;
   pendingPlanNotice.style.display = "block";
 }
+
+cargarPropiedades();
+cargarChats();
+})();
 
 function estadoComercialBadge(estado = "Disponible") {
   const actual = estado || "Disponible";
@@ -803,9 +825,6 @@ async function gestionarSuscripcion() {
     alert('Error al abrir el portal de gestión');
   }
 }
-
-cargarPropiedades();
-cargarChats();
 </script>
 
 <script src="/js/cookies.js"></script>

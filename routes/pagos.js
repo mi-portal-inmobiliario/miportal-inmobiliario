@@ -248,9 +248,10 @@ router.post('/portal-cliente', requireAuth, validateBody(portalClienteSchema), a
       return res.status(403).json({ error: 'No autorizado' });
     }
 
+    const frontendUrl = process.env.FRONTEND_URL || process.env.APP_URL;
     const session = await stripe.billingPortal.sessions.create({
       customer: req.user.stripeCustomerId,
-      return_url: `${process.env.APP_URL}/perfil.html`,
+      return_url: `${frontendUrl}/perfil.html?stripe=return`,
     });
     
     res.json({ url: session.url });
