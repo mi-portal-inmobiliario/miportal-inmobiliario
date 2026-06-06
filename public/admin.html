@@ -1414,12 +1414,12 @@ async function imprimirEstadisticasUsuario() {
         }
         .meta strong { color: #1a1a1a; }
         h2 {
-          font-size: 15px;
-          margin: 0 0 12px;
+          font-size: 14px;
+          margin: 0 0 9px;
           color: #1a1a1a;
         }
         .section {
-          margin-bottom: 24px;
+          margin-bottom: 18px;
           break-inside: avoid;
           page-break-inside: avoid;
         }
@@ -1430,24 +1430,25 @@ async function imprimirEstadisticasUsuario() {
         }
         .summary-card {
           border: 1px solid #dcefd0;
-          border-radius: 10px;
-          padding: 12px;
+          border-radius: 8px;
+          padding: 8px 9px;
           background: #fbfef8;
+          min-height: 58px;
           break-inside: avoid;
           page-break-inside: avoid;
         }
         .summary-card strong {
           display: block;
           color: #5a9e2f;
-          font-size: 20px;
+          font-size: 18px;
           line-height: 1;
-          margin-bottom: 7px;
+          margin-bottom: 5px;
         }
         .summary-card span {
           color: #666;
-          font-size: 10px;
+          font-size: 9px;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
+          letter-spacing: 0.6px;
           font-weight: 700;
         }
         .charts-grid {
@@ -1480,22 +1481,37 @@ async function imprimirEstadisticasUsuario() {
           padding: 36px 12px;
           text-align: center;
         }
-        table { width: 100%; border-collapse: collapse; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
         th, td {
-          padding: 9px 8px;
+          padding: 6px 6px;
           border-bottom: 1px solid #eee;
           text-align: left;
-          font-size: 11px;
+          font-size: 10px;
           vertical-align: top;
+          overflow-wrap: break-word;
         }
         th {
           background: #f7f7f7;
           color: #666;
           text-transform: uppercase;
-          letter-spacing: 0.8px;
-          font-size: 10px;
+          letter-spacing: 0.5px;
+          font-size: 9px;
         }
         tr { break-inside: avoid; page-break-inside: avoid; }
+        .col-title { width: 34%; }
+        .col-ref { width: 10%; }
+        .col-state { width: 10%; }
+        .col-small { width: 8%; }
+        .col-date { width: 12%; }
+        .print-note {
+          margin-top: 18px;
+          padding: 8px 10px;
+          border-radius: 8px;
+          background: #f8faf6;
+          color: #777;
+          font-size: 9px;
+          text-align: center;
+        }
         .empty {
           padding: 24px;
           background: #fafafa;
@@ -1561,6 +1577,16 @@ async function imprimirEstadisticasUsuario() {
         <h2>Detalle por anuncio</h2>
         ${filasAnuncios ? `
           <table>
+            <colgroup>
+              <col class="col-title">
+              <col class="col-ref">
+              <col class="col-state">
+              <col class="col-small">
+              <col class="col-small">
+              <col class="col-small">
+              <col class="col-date">
+              <col class="col-date">
+            </colgroup>
             <thead>
               <tr>
                 <th>Título</th>
@@ -1577,6 +1603,10 @@ async function imprimirEstadisticasUsuario() {
           </table>
         ` : '<div class="empty">Sin anuncios registrados</div>'}
       </section>
+
+      <div class="print-note">
+        Para un PDF limpio, desactiva "Encabezados y pies de página" en el diálogo de impresión de Chrome.
+      </div>
 
       <footer class="footer">
         <strong>© HomeClick24</strong><br>
