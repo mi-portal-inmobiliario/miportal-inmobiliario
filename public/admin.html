@@ -1269,7 +1269,55 @@ async function verEstadisticas(usuarioId) {
   }
 }
 
-function imprimirEstadisticasUsuario() {
+function blobADataUrl(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+async function obtenerLogoInformeDataUrl() {
+  const fallbackLogoUrl = `${window.location.origin}/HomeClick-full.png`;
+  try {
+    const res = await fetch('/HomeClick-full.png');
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await blobADataUrl(await res.blob());
+  } catch (error) {
+    console.warn('No se pudo incrustar el logo en Base64:', error.message);
+    return fallbackLogoUrl;
+  }
+}
+
+function esperar(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function esperarRecursosImpresion(printWindow) {
+  const doc = printWindow.document;
+
+  if (doc.fonts?.ready) {
+    try {
+      await doc.fonts.ready;
+    } catch (error) {
+      console.warn('No se pudo esperar a las fuentes del informe:', error.message);
+    }
+  }
+
+  const imagenes = Array.from(doc.images || []);
+  await Promise.all(imagenes.map(img => {
+    if (img.complete) return Promise.resolve();
+    return new Promise(resolve => {
+      img.onload = resolve;
+      img.onerror = resolve;
+    });
+  }));
+
+  await esperar(400);
+}
+
+async function imprimirEstadisticasUsuario() {
   if (!estadisticasUsuarioActual) {
     alert('Las estadísticas del usuario aún no se han cargado');
     return;
@@ -1283,7 +1331,7 @@ function imprimirEstadisticasUsuario() {
   });
   const graficoVisitas = chartUsuarioVisitas?.toBase64Image?.() || null;
   const graficoContactos = chartUsuarioContactos?.toBase64Image?.() || null;
-  const logoUrl = `${window.location.origin}/HomeClick-full.png`;
+  const logoUrl = await obtenerLogoInformeDataUrl();
   const metricas = [
     ['Total anuncios', data.totalAnuncios || 0],
     ['Total visitas', data.visitasTotales || 0],
@@ -1314,8 +1362,8 @@ function imprimirEstadisticasUsuario() {
     return;
   }
 
-  ventana.document.write(`
-    <!DOCTYPE html>
+  const htmlInforme = `
+    <!doctype html>
     <html lang="es">
     <head>
       <meta charset="UTF-8">
@@ -1530,8 +1578,13 @@ function imprimirEstadisticasUsuario() {
       </footer>
     </body>
     </html>
-  `);
+  `;
+
+  ventana.document.open();
+  ventana.document.write(htmlInforme);
   ventana.document.close();
+
+  await esperarRecursosImpresion(ventana);
   ventana.focus();
   ventana.print();
 }
