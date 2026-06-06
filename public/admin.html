@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
@@ -249,6 +249,48 @@
     .general-table-scroll { overflow-x: auto; }
 
     .general-table-card table { min-width: 520px; }
+
+    .charts-section {
+      margin: 22px 0;
+      border: 1px solid #eee;
+      border-radius: 14px;
+      padding: 18px;
+      background: #fff;
+    }
+
+    .charts-section h3 {
+      font-size: 0.95rem;
+      color: #1a1a1a;
+      margin-bottom: 14px;
+    }
+
+    .charts-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .chart-card {
+      min-width: 0;
+      border: 1px solid #f0f0f0;
+      border-radius: 12px;
+      padding: 14px;
+      background: #fafafa;
+    }
+
+    .chart-card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+    }
+
+    .chart-box {
+      position: relative;
+      height: 240px;
+    }
 
     /* PLANES */
     .planes-grid {
@@ -546,6 +588,8 @@
       .modal-summary-grid { grid-template-columns: repeat(2, 1fr); }
       .general-stats-grid { grid-template-columns: repeat(2, 1fr); }
       .general-tops-grid { grid-template-columns: 1fr; }
+      .charts-grid { grid-template-columns: 1fr; }
+      .chart-box { height: 220px; }
       .section-head { align-items: flex-start; flex-direction: column; }
       .section-actions { justify-content: flex-start; }
       .modal-header-actions { justify-content: flex-start; }
@@ -603,6 +647,20 @@
         <div class="general-stat-card"><div class="label">Visitas 30 días</div><div class="value" id="generalVisitas30d">—</div></div>
         <div class="general-stat-card"><div class="label">Contactos 30 días</div><div class="value" id="generalContactos30d">—</div></div>
         <div class="general-stat-card"><div class="label">Conversión 30 días</div><div class="value" id="generalConversion30d">—</div></div>
+      </div>
+
+      <div class="charts-section">
+        <h3>Evolución últimos 30 días</h3>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-title">Visitas</div>
+            <div class="chart-box"><canvas id="chartGeneralVisitas"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Contactos</div>
+            <div class="chart-box"><canvas id="chartGeneralContactos"></canvas></div>
+          </div>
+        </div>
       </div>
 
       <div class="general-tops-grid">
@@ -807,6 +865,10 @@ function logout() {
 }
 
 let estadisticasGenerales = null;
+let chartGeneralVisitas = null;
+let chartGeneralContactos = null;
+let chartUsuarioVisitas = null;
+let chartUsuarioContactos = null;
 
 function numero(value) {
   return Number(value || 0).toLocaleString('es-ES');
@@ -818,6 +880,70 @@ function porcentaje(value) {
 
 function textoTopUsuario(usuario) {
   return `${escapeHtml(usuario.nombre || 'Usuario')}<br><span style="color:#aaa;font-size:0.76rem;">${escapeHtml(usuario.email || '')}</span>`;
+}
+
+function etiquetasSerie(serie = []) {
+  return serie.map(item => {
+    const [year, month, day] = String(item.fecha).split('-');
+    return `${day}/${month}`;
+  });
+}
+
+function valoresSerie(serie = [], campo) {
+  return serie.map(item => Number(item[campo] || 0));
+}
+
+function crearGraficoLinea(canvasId, instanciaActual, serie, campo, label, color) {
+  if (instanciaActual) instanciaActual.destroy();
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || typeof Chart === 'undefined') return null;
+
+  return new Chart(canvas, {
+    type: 'line',
+    data: {
+      labels: etiquetasSerie(serie),
+      datasets: [{
+        label,
+        data: valoresSerie(serie, campo),
+        borderColor: color,
+        backgroundColor: color.replace('1)', '0.12)'),
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2,
+        pointRadius: 2,
+        pointHoverRadius: 4
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { displayColors: false }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#999', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 },
+          grid: { display: false }
+        },
+        y: {
+          beginAtZero: true,
+          ticks: { color: '#999', precision: 0 },
+          grid: { color: '#f0f0f0' }
+        }
+      }
+    }
+  });
+}
+
+function renderGraficosGenerales(serie = []) {
+  chartGeneralVisitas = crearGraficoLinea('chartGeneralVisitas', chartGeneralVisitas, serie, 'visitas', 'Visitas', 'rgba(124, 194, 66, 1)');
+  chartGeneralContactos = crearGraficoLinea('chartGeneralContactos', chartGeneralContactos, serie, 'contactos', 'Contactos', 'rgba(26, 35, 50, 1)');
+}
+
+function renderGraficosUsuario(serie = []) {
+  chartUsuarioVisitas = crearGraficoLinea('chartUsuarioVisitas', chartUsuarioVisitas, serie, 'visitas', 'Visitas', 'rgba(124, 194, 66, 1)');
+  chartUsuarioContactos = crearGraficoLinea('chartUsuarioContactos', chartUsuarioContactos, serie, 'contactos', 'Contactos', 'rgba(26, 35, 50, 1)');
 }
 
 async function cargarEstadisticasGenerales() {
@@ -843,6 +969,7 @@ async function cargarEstadisticasGenerales() {
   document.getElementById('generalVisitas30d').textContent = numero(data.visitas30d);
   document.getElementById('generalContactos30d').textContent = numero(data.contactos30d);
   document.getElementById('generalConversion30d').textContent = porcentaje(data.conversion30d);
+  renderGraficosGenerales(data.serieUltimos30Dias || []);
 
   document.getElementById('topAnunciosGeneral').innerHTML = data.topAnunciosPorVisitas?.length
     ? data.topAnunciosPorVisitas.map(p => `
@@ -1057,6 +1184,10 @@ async function verEstadisticas(usuarioId) {
   subtitulo.textContent = 'Cargando rendimiento del usuario...';
   body.innerHTML = '<div class="modal-empty">Cargando estadísticas...</div>';
   estadisticasUsuarioActual = null;
+  if (chartUsuarioVisitas) chartUsuarioVisitas.destroy();
+  if (chartUsuarioContactos) chartUsuarioContactos.destroy();
+  chartUsuarioVisitas = null;
+  chartUsuarioContactos = null;
 
   try {
     const res = await fetch(`/admin/usuarios/${usuarioId}/estadisticas`, {
@@ -1098,6 +1229,19 @@ async function verEstadisticas(usuarioId) {
         <div class="modal-summary-card"><strong>${numero(data.contactos30d)}</strong><span>Contactos 30 días</span></div>
         <div class="modal-summary-card"><strong>${porcentaje(data.conversion30d)}</strong><span>Conversión 30 días</span></div>
       </div>
+      <div class="charts-section">
+        <h3>Evolución últimos 30 días</h3>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <div class="chart-card-title">Visitas</div>
+            <div class="chart-box"><canvas id="chartUsuarioVisitas"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-card-title">Contactos</div>
+            <div class="chart-box"><canvas id="chartUsuarioContactos"></canvas></div>
+          </div>
+        </div>
+      </div>
       ${sinActividad ? '<div class="modal-empty" style="margin-bottom:16px;">Sin actividad todavía</div>' : ''}
       ${data.propiedades.length ? `
         <div class="modal-table-wrap">
@@ -1119,6 +1263,7 @@ async function verEstadisticas(usuarioId) {
         </div>
       ` : ''}
     `;
+    renderGraficosUsuario(data.serieUltimos30Dias || []);
   } catch (error) {
     body.innerHTML = `<div class="modal-empty">${escapeHtml(error.message || 'No se pudieron cargar las estadísticas')}</div>`;
   }
@@ -1132,7 +1277,17 @@ function imprimirEstadisticasUsuario() {
 
   const titulo = document.getElementById('modalEstadisticasTitulo').textContent;
   const subtitulo = document.getElementById('modalEstadisticasSubtitulo').textContent;
-  const contenido = document.getElementById('modalEstadisticasBody').innerHTML;
+  const contenidoClone = document.getElementById('modalEstadisticasBody').cloneNode(true);
+  contenidoClone.querySelectorAll('canvas').forEach(canvas => {
+    try {
+      const img = document.createElement('img');
+      img.src = canvas.toDataURL('image/png');
+      img.style.width = '100%';
+      img.style.display = 'block';
+      canvas.replaceWith(img);
+    } catch (e) {}
+  });
+  const contenido = contenidoClone.innerHTML;
   const ventana = window.open('', '_blank', 'width=1100,height=800');
   if (!ventana) {
     alert('No se pudo abrir la ventana de impresión');
@@ -1154,6 +1309,12 @@ function imprimirEstadisticasUsuario() {
         .modal-summary-card { border: 1px solid #e5f0d8; border-radius: 10px; padding: 14px; }
         .modal-summary-card strong { display: block; color: #5a9e2f; font-size: 22px; }
         .modal-summary-card span { color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        .charts-section { border: 1px solid #eee; border-radius: 12px; padding: 16px; margin-bottom: 20px; }
+        .charts-section h3 { font-size: 16px; margin: 0 0 12px; }
+        .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .chart-card { border: 1px solid #eee; border-radius: 10px; padding: 12px; }
+        .chart-card-title { color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .chart-box { height: auto; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 12px; }
         th { background: #f7f7f7; color: #777; text-transform: uppercase; letter-spacing: 1px; }
