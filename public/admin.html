@@ -1332,6 +1332,15 @@ async function imprimirEstadisticasUsuario() {
   const graficoVisitas = chartUsuarioVisitas?.toBase64Image?.() || null;
   const graficoContactos = chartUsuarioContactos?.toBase64Image?.() || null;
   const logoUrl = await obtenerLogoInformeDataUrl();
+  const visitasTotales = Number(data.visitasTotales || 0);
+  const contactosTotales = Number(data.contactosTotales || 0);
+  const conversionTotal = visitasTotales > 0 ? Number(((contactosTotales / visitasTotales) * 100).toFixed(2)) : 0;
+  const rendimientoTexto = visitasTotales >= 50
+    ? 'Rendimiento excelente'
+    : visitasTotales >= 20
+      ? 'Rendimiento correcto'
+      : 'Rendimiento mejorable';
+  const rendimientoClase = visitasTotales < 20 ? 'is-warning' : 'is-good';
   const metricas = [
     ['Total anuncios', data.totalAnuncios || 0],
     ['Total visitas', data.visitasTotales || 0],
@@ -1389,10 +1398,15 @@ async function imprimirEstadisticasUsuario() {
           border-bottom: 3px solid #7cc242;
         }
         .report-logo {
-          width: 220px;
-          max-width: 220px;
+          width: 200px;
+          max-width: 200px;
           height: auto;
           display: block;
+          margin-bottom: 8px;
+        }
+        .report-brand-block {
+          width: 310px;
+          flex-shrink: 0;
         }
         .report-header-info {
           flex: 1;
@@ -1400,11 +1414,12 @@ async function imprimirEstadisticasUsuario() {
         }
         .report-title {
           color: #1a1a1a;
-          font-size: 15px;
+          font-size: 20px;
+          line-height: 1.1;
           text-transform: uppercase;
-          letter-spacing: 1.4px;
+          letter-spacing: 1px;
           font-weight: 800;
-          margin-bottom: 8px;
+          max-width: 310px;
         }
         .meta {
           text-align: right;
@@ -1422,6 +1437,37 @@ async function imprimirEstadisticasUsuario() {
           margin-bottom: 18px;
           break-inside: avoid;
           page-break-inside: avoid;
+        }
+        .executive-summary {
+          border: 1px solid #dcefd0;
+          border-radius: 10px;
+          background: #fbfef8;
+          padding: 11px 12px;
+          margin-bottom: 18px;
+          break-inside: avoid;
+          page-break-inside: avoid;
+        }
+        .executive-summary h2 { margin-bottom: 6px; }
+        .executive-summary p {
+          margin: 0;
+          color: #555;
+          line-height: 1.45;
+        }
+        .performance-badge {
+          display: inline-block;
+          margin-top: 8px;
+          padding: 4px 10px;
+          border-radius: 999px;
+          background: #f0f9e8;
+          color: #5a9e2f;
+          font-size: 10px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.6px;
+        }
+        .performance-badge.is-warning {
+          background: #fff7ed;
+          color: #c2410c;
         }
         .summary-grid {
           display: grid;
@@ -1472,6 +1518,8 @@ async function imprimirEstadisticasUsuario() {
         }
         .chart-card img {
           width: 100%;
+          min-height: 190px;
+          object-fit: contain;
           display: block;
         }
         .chart-unavailable {
@@ -1535,9 +1583,11 @@ async function imprimirEstadisticasUsuario() {
     </head>
     <body>
       <header class="report-header">
-        <img src="${logoUrl}" class="report-logo" alt="HomeClick24">
-        <div class="report-header-info">
+        <div class="report-brand-block">
+          <img src="${logoUrl}" class="report-logo" alt="HomeClick24">
           <div class="report-title">Informe de rendimiento de anuncios</div>
+        </div>
+        <div class="report-header-info">
           <div class="meta">
             <div>Usuario: <strong>${escapeHtml(data.usuario?.nombre || 'Usuario')}</strong></div>
             <div>Email: <strong>${escapeHtml(data.usuario?.email || '')}</strong></div>
@@ -1546,6 +1596,18 @@ async function imprimirEstadisticasUsuario() {
           </div>
         </div>
       </header>
+
+      <section class="executive-summary">
+        <h2>Resumen ejecutivo</h2>
+        <p>
+          Este usuario mantiene <strong>${numero(data.totalAnuncios)}</strong> anuncios activos.
+          Ha recibido <strong>${numero(data.visitasTotales)}</strong> visitas,
+          <strong>${numero(data.favoritosTotales)}</strong> favoritos y
+          <strong>${numero(data.contactosTotales)}</strong> contactos.
+          La tasa de conversión actual es de <strong>${porcentaje(conversionTotal)}</strong>.
+        </p>
+        <span class="performance-badge ${rendimientoClase}">${rendimientoTexto}</span>
+      </section>
 
       <section class="section">
         <h2>Resumen</h2>
