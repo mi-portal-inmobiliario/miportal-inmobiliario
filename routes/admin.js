@@ -80,6 +80,97 @@ router.get('/stats', requireAdmin, async (req, res) => {
   }
 });
 
+// Estadísticas generales de actividad
+router.get('/estadisticas', requireAdmin, async (req, res) => {
+  try {
+    const [totalUsuarios, propiedades, usuarios] = await Promise.all([
+      Usuario.countDocuments(),
+      Propiedad.find({}, {
+        titulo: 1,
+        referencia: 1,
+        usuarioId: 1,
+        visitas: 1,
+        contactos: 1,
+        createdAt: 1
+      }).lean(),
+      Usuario.find({}, {
+        nombre: 1,
+        email: 1,
+        plan: 1,
+        favoritos: 1
+      }).lean()
+    ]);
+
+    const propiedadIds = new Set(propiedades.map(p => String(p._id)));
+    const favoritosPorPropiedad = new Map();
+    usuarios.forEach(usuario => {
+      (usuario.favoritos || []).forEach(propiedadId => {
+        const key = String(propiedadId);
+        if (!propiedadIds.has(key)) return;
+        favoritosPorPropiedad.set(key, (favoritosPorPropiedad.get(key) || 0) + 1);
+      });
+    });
+
+    const usuariosPorId = new Map(usuarios.map(usuario => [String(usuario._id), usuario]));
+    const resumenUsuarios = new Map();
+
+    propiedades.forEach(propiedad => {
+      const usuarioId = String(propiedad.usuarioId || '');
+      if (!usuarioId) return;
+
+      const actual = resumenUsuarios.get(usuarioId) || {
+        usuarioId,
+        nombre: usuariosPorId.get(usuarioId)?.nombre || 'Usuario',
+        email: usuariosPorId.get(usuarioId)?.email || '',
+        plan: usuariosPorId.get(usuarioId)?.plan || 'gratis',
+        totalAnuncios: 0,
+        visitas: 0,
+        contactos: 0
+      };
+
+      actual.totalAnuncios += 1;
+      actual.visitas += Number(propiedad.visitas || 0);
+      actual.contactos += Number(propiedad.contactos || 0);
+      resumenUsuarios.set(usuarioId, actual);
+    });
+
+    const propiedadesConFavoritos = propiedades.map(propiedad => ({
+      _id: propiedad._id,
+      titulo: propiedad.titulo || 'Sin título',
+      referencia: propiedad.referencia || '',
+      usuarioId: propiedad.usuarioId || null,
+      propietario: usuariosPorId.get(String(propiedad.usuarioId || ''))?.nombre || 'Usuario',
+      visitas: Number(propiedad.visitas || 0),
+      contactos: Number(propiedad.contactos || 0),
+      favoritos: favoritosPorPropiedad.get(String(propiedad._id)) || 0,
+      createdAt: propiedad.createdAt
+    }));
+
+    const usuariosResumen = [...resumenUsuarios.values()];
+
+    res.json({
+      totalUsuarios,
+      totalAnuncios: propiedades.length,
+      totalVisitas: propiedadesConFavoritos.reduce((total, p) => total + p.visitas, 0),
+      totalContactos: propiedadesConFavoritos.reduce((total, p) => total + p.contactos, 0),
+      totalFavoritos: propiedadesConFavoritos.reduce((total, p) => total + p.favoritos, 0),
+      anunciosSinVisitas: propiedadesConFavoritos.filter(p => p.visitas === 0).length,
+      topAnunciosPorVisitas: propiedadesConFavoritos
+        .sort((a, b) => b.visitas - a.visitas)
+        .slice(0, 10),
+      topUsuariosPorVisitas: [...usuariosResumen]
+        .sort((a, b) => b.visitas - a.visitas)
+        .slice(0, 10),
+      topUsuariosPorContactos: [...usuariosResumen]
+        .sort((a, b) => b.contactos - a.contactos)
+        .slice(0, 10)
+    });
+  } catch (err) {
+    console.error('Error obteniendo estadísticas generales admin:', err.message);
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Lista de usuarios
 router.get('/usuarios', requireAdmin, async (req, res) => {
   try {

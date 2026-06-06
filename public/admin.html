@@ -158,6 +158,98 @@
       margin-top: 4px;
     }
 
+    .general-stats-section {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .section-head h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .section-head p {
+      color: #999;
+      font-size: 0.84rem;
+      margin-top: 3px;
+    }
+
+    .section-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .general-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      margin-bottom: 22px;
+    }
+
+    .general-stat-card {
+      background: #f9fdf5;
+      border: 1px solid #e5f0d8;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .general-stat-card .label {
+      color: #888;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .general-stat-card .value {
+      color: #7cc242;
+      font-size: 1.55rem;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .general-tops-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .general-table-card {
+      border: 1px solid #eee;
+      border-radius: 12px;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .general-table-card.full { grid-column: 1 / -1; }
+
+    .general-table-title {
+      padding: 14px 16px;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .general-table-scroll { overflow-x: auto; }
+
+    .general-table-card table { min-width: 520px; }
+
     /* PLANES */
     .planes-grid {
       display: grid;
@@ -444,6 +536,10 @@
     @media (max-width: 768px) {
       .modal-overlay { padding: 12px; }
       .modal-summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .general-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .general-tops-grid { grid-template-columns: 1fr; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .section-actions { justify-content: flex-start; }
       .btn-estadisticas, .btn-cancelar-suscripcion { margin: 6px 0 0 0; display: block; }
     }
 
@@ -471,6 +567,87 @@
   </div>
 
   <div class="panel-body">
+
+    <!-- ESTADÍSTICAS GENERALES -->
+    <section class="general-stats-section">
+      <div class="section-head">
+        <div>
+          <h2>Estadísticas generales</h2>
+          <p>Rendimiento global de usuarios, anuncios y contactos</p>
+        </div>
+        <div class="section-actions">
+          <button onclick="window.print()" class="btn-exportar">Imprimir</button>
+          <button onclick="exportarEstadisticasCSV()" class="btn-exportar">Exportar CSV</button>
+        </div>
+      </div>
+
+      <div class="general-stats-grid">
+        <div class="general-stat-card"><div class="label">Usuarios</div><div class="value" id="generalUsuarios">—</div></div>
+        <div class="general-stat-card"><div class="label">Anuncios</div><div class="value" id="generalAnuncios">—</div></div>
+        <div class="general-stat-card"><div class="label">Visitas</div><div class="value" id="generalVisitas">—</div></div>
+        <div class="general-stat-card"><div class="label">Contactos</div><div class="value" id="generalContactos">—</div></div>
+        <div class="general-stat-card"><div class="label">Favoritos</div><div class="value" id="generalFavoritos">—</div></div>
+        <div class="general-stat-card"><div class="label">Sin visitas</div><div class="value" id="generalSinVisitas">—</div></div>
+      </div>
+
+      <div class="general-tops-grid">
+        <div class="general-table-card full">
+          <div class="general-table-title">Top anuncios</div>
+          <div class="general-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Anuncio</th>
+                  <th>Propietario</th>
+                  <th>Visitas</th>
+                  <th>Favoritos</th>
+                  <th>Contactos</th>
+                </tr>
+              </thead>
+              <tbody id="topAnunciosGeneral">
+                <tr><td colspan="5">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="general-table-card">
+          <div class="general-table-title">Top usuarios por visitas</div>
+          <div class="general-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Anuncios</th>
+                  <th>Visitas</th>
+                </tr>
+              </thead>
+              <tbody id="topUsuariosVisitasGeneral">
+                <tr><td colspan="3">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="general-table-card">
+          <div class="general-table-title">Top usuarios por contactos</div>
+          <div class="general-table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Usuario</th>
+                  <th>Anuncios</th>
+                  <th>Contactos</th>
+                </tr>
+              </thead>
+              <tbody id="topUsuariosContactosGeneral">
+                <tr><td colspan="3">Cargando...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- STATS -->
     <div class="stats-grid">
@@ -608,6 +785,126 @@ async function loginAdmin() {
 function logout() {
   localStorage.removeItem('adminToken');
   location.reload();
+}
+
+let estadisticasGenerales = null;
+
+function numero(value) {
+  return Number(value || 0).toLocaleString('es-ES');
+}
+
+function textoTopUsuario(usuario) {
+  return `${escapeHtml(usuario.nombre || 'Usuario')}<br><span style="color:#aaa;font-size:0.76rem;">${escapeHtml(usuario.email || '')}</span>`;
+}
+
+async function cargarEstadisticasGenerales() {
+  const res = await fetch('/admin/estadisticas', {
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    console.error('Error cargando estadísticas generales:', data.error);
+    return;
+  }
+  estadisticasGenerales = data;
+
+  document.getElementById('generalUsuarios').textContent = numero(data.totalUsuarios);
+  document.getElementById('generalAnuncios').textContent = numero(data.totalAnuncios);
+  document.getElementById('generalVisitas').textContent = numero(data.totalVisitas);
+  document.getElementById('generalContactos').textContent = numero(data.totalContactos);
+  document.getElementById('generalFavoritos').textContent = numero(data.totalFavoritos);
+  document.getElementById('generalSinVisitas').textContent = numero(data.anunciosSinVisitas);
+
+  document.getElementById('topAnunciosGeneral').innerHTML = data.topAnunciosPorVisitas?.length
+    ? data.topAnunciosPorVisitas.map(p => `
+      <tr>
+        <td>${escapeHtml(p.titulo || 'Sin título')}<br><span style="color:#aaa;font-size:0.76rem;">${escapeHtml(p.referencia || '')}</span></td>
+        <td>${escapeHtml(p.propietario || 'Usuario')}</td>
+        <td>${numero(p.visitas)}</td>
+        <td>${numero(p.favoritos)}</td>
+        <td>${numero(p.contactos)}</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="5">Sin actividad todavía</td></tr>';
+
+  document.getElementById('topUsuariosVisitasGeneral').innerHTML = data.topUsuariosPorVisitas?.length
+    ? data.topUsuariosPorVisitas.map(u => `
+      <tr>
+        <td>${textoTopUsuario(u)}</td>
+        <td>${numero(u.totalAnuncios)}</td>
+        <td>${numero(u.visitas)}</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="3">Sin actividad todavía</td></tr>';
+
+  document.getElementById('topUsuariosContactosGeneral').innerHTML = data.topUsuariosPorContactos?.length
+    ? data.topUsuariosPorContactos.map(u => `
+      <tr>
+        <td>${textoTopUsuario(u)}</td>
+        <td>${numero(u.totalAnuncios)}</td>
+        <td>${numero(u.contactos)}</td>
+      </tr>
+    `).join('')
+    : '<tr><td colspan="3">Sin actividad todavía</td></tr>';
+}
+
+function csvValue(value) {
+  const text = String(value ?? '');
+  return `"${text.replace(/"/g, '""')}"`;
+}
+
+function exportarEstadisticasCSV() {
+  if (!estadisticasGenerales) {
+    alert('Las estadísticas aún no se han cargado');
+    return;
+  }
+
+  const filas = [
+    ['Métrica', 'Valor'],
+    ['Usuarios', estadisticasGenerales.totalUsuarios],
+    ['Anuncios', estadisticasGenerales.totalAnuncios],
+    ['Visitas', estadisticasGenerales.totalVisitas],
+    ['Contactos', estadisticasGenerales.totalContactos],
+    ['Favoritos', estadisticasGenerales.totalFavoritos],
+    ['Anuncios sin visitas', estadisticasGenerales.anunciosSinVisitas],
+    [],
+    ['Top anuncios'],
+    ['Título', 'Propietario', 'Visitas', 'Favoritos', 'Contactos'],
+    ...(estadisticasGenerales.topAnunciosPorVisitas || []).map(p => [
+      p.titulo,
+      p.propietario,
+      p.visitas,
+      p.favoritos,
+      p.contactos
+    ]),
+    [],
+    ['Top usuarios por visitas'],
+    ['Nombre', 'Email', 'Anuncios', 'Visitas'],
+    ...(estadisticasGenerales.topUsuariosPorVisitas || []).map(u => [
+      u.nombre,
+      u.email,
+      u.totalAnuncios,
+      u.visitas
+    ]),
+    [],
+    ['Top usuarios por contactos'],
+    ['Nombre', 'Email', 'Anuncios', 'Contactos'],
+    ...(estadisticasGenerales.topUsuariosPorContactos || []).map(u => [
+      u.nombre,
+      u.email,
+      u.totalAnuncios,
+      u.contactos
+    ])
+  ];
+
+  const csv = filas.map(fila => fila.map(csvValue).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `homeclick24_estadisticas_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 async function cargarStats() {
@@ -865,6 +1162,7 @@ async function eliminarPropiedad(id) {
 async function mostrarPanel() {
   document.getElementById('loginWrap').style.display = 'none';
   document.getElementById('panel').style.display = 'block';
+  await cargarEstadisticasGenerales();
   await cargarStats();
   await cargarGrafica();
   await cargarUsuarios();
