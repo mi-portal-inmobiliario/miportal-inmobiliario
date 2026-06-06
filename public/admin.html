@@ -1336,6 +1336,13 @@ async function imprimirEstadisticasUsuario() {
   const contactosTotales = Number(data.contactosTotales || 0);
   const favoritosTotales = Number(data.favoritosTotales || 0);
   const conversionTotal = visitasTotales > 0 ? Number(((contactosTotales / visitasTotales) * 100).toFixed(2)) : 0;
+  const puntuacion = visitasTotales === 0 ? 0 : Math.min(100, Math.round(
+    Math.min(visitasTotales, 100) * 0.35 +
+    Math.min(contactosTotales * 20, 100) * 0.30 +
+    Math.min(favoritosTotales * 10, 100) * 0.20 +
+    Math.min(conversionTotal * 20, 100) * 0.15
+  ));
+  const puntuacionLabel = puntuacion >= 85 ? 'Excelente' : puntuacion >= 70 ? 'Bueno' : puntuacion >= 45 ? 'Mejorable' : 'Bajo';
   const favoritosTexto = favoritosTotales === 1 ? 'favorito' : 'favoritos';
   const contactosTexto = contactosTotales === 1 ? 'contacto' : 'contactos';
   const rendimientoTexto = visitasTotales >= 50
@@ -1344,6 +1351,19 @@ async function imprimirEstadisticasUsuario() {
       ? 'Rendimiento correcto'
       : 'Rendimiento mejorable';
   const rendimientoClase = visitasTotales < 20 ? 'is-warning' : 'is-good';
+  const recomendaciones = [];
+  if (visitasTotales > 50 && contactosTotales === 0) {
+    recomendaciones.push('El anuncio recibe visibilidad pero no genera contactos. Se recomienda revisar precio, fotografías y descripción.');
+  }
+  if (visitasTotales > 0 && conversionTotal < 2) {
+    recomendaciones.push('La tasa de conversión es baja. Considere actualizar imágenes y destacar mejor los puntos fuertes de la propiedad.');
+  }
+  if (contactosTotales > 0) {
+    recomendaciones.push('El anuncio está generando interés real por parte de los usuarios. Mantenga la publicación activa y actualizada.');
+  }
+  if (visitasTotales === 0) {
+    recomendaciones.push('El anuncio todavía no ha recibido visualizaciones. Recomendamos revisar título, fotografías y difusión.');
+  }
   const metricas = [
     ['Total anuncios', data.totalAnuncios || 0],
     ['Total visitas', data.visitasTotales || 0],
@@ -1450,6 +1470,12 @@ async function imprimirEstadisticasUsuario() {
           break-inside: avoid;
           page-break-inside: avoid;
         }
+        .executive-content {
+          display: grid;
+          grid-template-columns: 1fr 150px;
+          gap: 14px;
+          align-items: center;
+        }
         .executive-summary h2 { margin-bottom: 6px; }
         .executive-summary p {
           margin: 0;
@@ -1471,6 +1497,44 @@ async function imprimirEstadisticasUsuario() {
         .performance-badge.is-warning {
           background: #fff7ed;
           color: #c2410c;
+        }
+        .score-card {
+          border: 1px solid #dcefd0;
+          border-radius: 10px;
+          background: #fff;
+          padding: 10px;
+          text-align: center;
+        }
+        .score-card strong {
+          display: block;
+          color: #5a9e2f;
+          font-size: 24px;
+          line-height: 1;
+        }
+        .score-card span {
+          display: block;
+          margin-top: 5px;
+          color: #555;
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.7px;
+        }
+        .recommendations-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 8px;
+        }
+        .recommendation-card {
+          border: 1px solid #dcefd0;
+          border-left: 4px solid #7cc242;
+          border-radius: 10px;
+          background: #fbfef8;
+          padding: 10px 12px;
+          color: #4b5563;
+          line-height: 1.45;
+          break-inside: avoid;
+          page-break-inside: avoid;
         }
         .summary-grid {
           display: grid;
@@ -1602,14 +1666,31 @@ async function imprimirEstadisticasUsuario() {
 
       <section class="executive-summary">
         <h2>Resumen ejecutivo</h2>
-        <p>
-          Este usuario mantiene <strong>${numero(data.totalAnuncios)}</strong> anuncios activos.
-          Ha recibido <strong>${numero(data.visitasTotales)}</strong> visitas,
-          <strong>${numero(favoritosTotales)}</strong> ${favoritosTexto} y
-          <strong>${numero(contactosTotales)}</strong> ${contactosTexto}.
-          La tasa de conversión actual es de <strong>${porcentaje(conversionTotal)}</strong>.
-        </p>
-        <span class="performance-badge ${rendimientoClase}">${rendimientoTexto}</span>
+        <div class="executive-content">
+          <div>
+            <p>
+              Este usuario mantiene <strong>${numero(data.totalAnuncios)}</strong> anuncios activos.
+              Ha recibido <strong>${numero(data.visitasTotales)}</strong> visitas,
+              <strong>${numero(favoritosTotales)}</strong> ${favoritosTexto} y
+              <strong>${numero(contactosTotales)}</strong> ${contactosTexto}.
+              La tasa de conversión actual es de <strong>${porcentaje(conversionTotal)}</strong>.
+            </p>
+            <span class="performance-badge ${rendimientoClase}">${rendimientoTexto}</span>
+          </div>
+          <div class="score-card">
+            <strong>${puntuacion}/100</strong>
+            <span>${puntuacionLabel}</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <h2>Recomendaciones automáticas</h2>
+        <div class="recommendations-grid">
+          ${recomendaciones.map(recomendacion => `
+            <div class="recommendation-card">${escapeHtml(recomendacion)}</div>
+          `).join('')}
+        </div>
       </section>
 
       <section class="section">
