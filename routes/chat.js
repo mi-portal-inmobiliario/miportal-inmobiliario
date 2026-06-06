@@ -75,7 +75,10 @@ router.post("/conversaciones", requireAuth, validateBody(crearConversacionSchema
     if (!conv) {
       conv = await Conversacion.create({ propiedadId, anuncianteId, compradorId });
       // Incrementar contactos solo cuando es una conversación nueva
-      await Propiedad.findByIdAndUpdate(propiedadId, { $inc: { contactos: 1 } });
+      await Propiedad.findByIdAndUpdate(propiedadId, {
+        $inc: { contactos: 1 },
+        $set: { ultimoContacto: new Date() }
+      });
     }
 
     res.json(conv);

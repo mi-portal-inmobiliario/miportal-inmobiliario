@@ -61,8 +61,10 @@ const PropiedadSchema = new mongoose.Schema({
   visiblePublicamente: { type: Boolean, default: true },
 
   // Estadísticas
-  visitas:   { type: Number, default: 0 },
-  contactos: { type: Number, default: 0 },
+  visitas:        { type: Number, default: 0 },
+  contactos:      { type: Number, default: 0 },
+  ultimaVisita:   { type: Date, default: null },
+  ultimoContacto: { type: Date, default: null },
   fechaExpiracion: { type: Date, default: null },
   videoUrl: { type: String, default: "" },
 }, { timestamps: true });

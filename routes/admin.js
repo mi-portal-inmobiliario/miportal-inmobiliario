@@ -15,6 +15,10 @@ const PLANES_VALIDOS = [
   'vip', 'vip_trial'
 ];
 
+function esObjectId(id) {
+  return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
+}
+
 async function enviarInvitacionVipTrial(usuario) {
   const enlace = `${process.env.APP_URL}/vip-trial.html`;
 
@@ -86,6 +90,72 @@ router.get('/usuarios', requireAdmin, async (req, res) => {
     }).sort({ createdAt: -1 });
     res.json(usuarios);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Estadísticas de anuncios por usuario
+router.get('/usuarios/:id/estadisticas', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const usuario = await Usuario.findById(req.params.id, {
+      nombre: 1, email: 1, plan: 1, planActivo: 1
+    }).lean();
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const propiedades = await Propiedad.find({ usuarioId: req.params.id }, {
+      titulo: 1,
+      referencia: 1,
+      precio: 1,
+      direccion: 1,
+      estadoComercial: 1,
+      visitas: 1,
+      contactos: 1,
+      ultimaVisita: 1,
+      ultimoContacto: 1,
+      createdAt: 1
+    }).sort({ createdAt: -1 }).lean();
+
+    const propiedadesConFavoritos = await Promise.all(propiedades.map(async propiedad => {
+      const favoritos = await Usuario.countDocuments({ favoritos: propiedad._id });
+      return {
+        _id: propiedad._id,
+        titulo: propiedad.titulo,
+        referencia: propiedad.referencia || '',
+        precio: propiedad.precio || 0,
+        direccion: propiedad.direccion || '',
+        estadoComercial: propiedad.estadoComercial || 'Disponible',
+        visitas: propiedad.visitas || 0,
+        contactos: propiedad.contactos || 0,
+        favoritos,
+        ultimaVisita: propiedad.ultimaVisita || null,
+        ultimoContacto: propiedad.ultimoContacto || null,
+        createdAt: propiedad.createdAt
+      };
+    }));
+
+    res.json({
+      usuario: {
+        _id: usuario._id,
+        nombre: usuario.nombre,
+        email: usuario.email
+      },
+      plan: usuario.plan || 'gratis',
+      planActivo: Boolean(usuario.planActivo),
+      totalAnuncios: propiedadesConFavoritos.length,
+      visitasTotales: propiedadesConFavoritos.reduce((total, p) => total + p.visitas, 0),
+      contactosTotales: propiedadesConFavoritos.reduce((total, p) => total + p.contactos, 0),
+      favoritosTotales: propiedadesConFavoritos.reduce((total, p) => total + p.favoritos, 0),
+      propiedades: propiedadesConFavoritos
+    });
+  } catch (err) {
+    console.error('Error obteniendo estadísticas admin:', {
+      usuarioId: req.params.id,
+      error: err.message
+    });
     res.status(500).json({ error: err.message });
   }
 });

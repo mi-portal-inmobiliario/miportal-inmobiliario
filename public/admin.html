@@ -305,6 +305,21 @@
       opacity: 0.65;
     }
 
+    .btn-estadisticas {
+      margin-left: 8px;
+      padding: 5px 10px;
+      background: #f0f9e8;
+      color: #5a9e2f;
+      border: 1px solid #c3e6a0;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .btn-estadisticas:hover { background: #e0f4d0; }
+
     .btn-exportar {
       padding: 6px 14px;
       background: #f0f9e8;
@@ -318,6 +333,119 @@
       font-family: inherit;
     }
     .btn-exportar:hover { background: #e0f4d0; }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 26, 26, 0.45);
+      z-index: 1000;
+      padding: 24px;
+      overflow-y: auto;
+    }
+
+    .modal-overlay.visible {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .modal-admin {
+      width: min(1080px, 100%);
+      background: #fff;
+      border-radius: 16px;
+      border: 1px solid #e5e5e0;
+      box-shadow: 0 24px 80px rgba(0,0,0,0.18);
+      overflow: hidden;
+    }
+
+    .modal-admin-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 24px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .modal-admin-header h3 {
+      margin: 0;
+      font-size: 1.15rem;
+      color: #1a1a1a;
+    }
+
+    .modal-admin-header p {
+      margin: 4px 0 0;
+      color: #999;
+      font-size: 0.86rem;
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border: none;
+      border-radius: 8px;
+      background: #f5f5f5;
+      color: #666;
+      cursor: pointer;
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .modal-admin-body { padding: 24px; }
+
+    .modal-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .modal-summary-card {
+      background: #f9fdf5;
+      border: 1px solid #e5f0d8;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .modal-summary-card strong {
+      display: block;
+      color: #7cc242;
+      font-size: 1.45rem;
+      line-height: 1;
+    }
+
+    .modal-summary-card span {
+      display: block;
+      margin-top: 6px;
+      color: #888;
+      font-size: 0.76rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .modal-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #eee;
+      border-radius: 12px;
+    }
+
+    .modal-table-wrap table { min-width: 860px; }
+
+    .modal-empty {
+      padding: 34px 20px;
+      text-align: center;
+      color: #999;
+      background: #fafafa;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 768px) {
+      .modal-overlay { padding: 12px; }
+      .modal-summary-grid { grid-template-columns: repeat(2, 1fr); }
+      .btn-estadisticas, .btn-cancelar-suscripcion { margin: 6px 0 0 0; display: block; }
+    }
 
   </style>
 </head>
@@ -433,6 +561,21 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modalEstadisticas" onclick="cerrarModalEstadisticas(event)">
+  <div class="modal-admin" onclick="event.stopPropagation()">
+    <div class="modal-admin-header">
+      <div>
+        <h3 id="modalEstadisticasTitulo">Estadísticas de anuncios</h3>
+        <p id="modalEstadisticasSubtitulo">Rendimiento por usuario</p>
+      </div>
+      <button class="modal-close" onclick="cerrarModalEstadisticas()" aria-label="Cerrar">×</button>
+    </div>
+    <div class="modal-admin-body" id="modalEstadisticasBody">
+      <div class="modal-empty">Cargando estadísticas...</div>
+    </div>
+  </div>
+</div>
+
 <script>
 let adminToken = localStorage.getItem('adminToken');
 if (adminToken) mostrarPanel();
@@ -512,6 +655,24 @@ function filtrarUsuarios() {
   renderUsuarios(filtrados);
 }
 
+function escapeHtml(value = '') {
+  return String(value).replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  })[char]);
+}
+
+function formatearFecha(value) {
+  return value ? new Date(value).toLocaleDateString('es-ES', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }) : '—';
+}
+
 function renderUsuarios(usuarios) {
   const PLANES = ['gratis', 'basico', 'destacado', 'starter', 'pro_agentes', 'agencia_basica', 'vip', 'vip_trial'];
 
@@ -530,6 +691,7 @@ function renderUsuarios(usuarios) {
             style="padding:5px 8px;border:1.5px solid #eee;border-radius:6px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
             ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
+          <button class="btn-estadisticas" onclick="verEstadisticas('${u._id}')">Ver estadísticas</button>
           ${u.stripeSubscriptionId ? `
             <button class="btn-cancelar-suscripcion"
               onclick="cancelarSuscripcion('${u._id}', this)"
@@ -541,6 +703,81 @@ function renderUsuarios(usuarios) {
       </tr>
     `;
   }).join('');
+}
+
+async function verEstadisticas(usuarioId) {
+  const modal = document.getElementById('modalEstadisticas');
+  const titulo = document.getElementById('modalEstadisticasTitulo');
+  const subtitulo = document.getElementById('modalEstadisticasSubtitulo');
+  const body = document.getElementById('modalEstadisticasBody');
+
+  modal.classList.add('visible');
+  titulo.textContent = 'Estadísticas de anuncios';
+  subtitulo.textContent = 'Cargando rendimiento del usuario...';
+  body.innerHTML = '<div class="modal-empty">Cargando estadísticas...</div>';
+
+  try {
+    const res = await fetch(`/admin/usuarios/${usuarioId}/estadisticas`, {
+      headers: { 'Authorization': 'Bearer ' + adminToken }
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Error al cargar estadísticas');
+
+    titulo.textContent = data.usuario?.nombre || 'Usuario';
+    subtitulo.textContent = `${data.usuario?.email || ''} · Plan ${data.plan || 'gratis'}`;
+
+    const sinActividad = !data.totalAnuncios ||
+      (data.visitasTotales === 0 && data.favoritosTotales === 0 && data.contactosTotales === 0);
+
+    const filas = data.propiedades.map(p => `
+      <tr>
+        <td>${escapeHtml(p.titulo || 'Sin título')}</td>
+        <td>${escapeHtml(p.referencia || '—')}</td>
+        <td><span class="badge-plan badge-pago">${escapeHtml(p.estadoComercial || 'Disponible')}</span></td>
+        <td>${Number(p.visitas || 0)}</td>
+        <td>${Number(p.favoritos || 0)}</td>
+        <td>${Number(p.contactos || 0)}</td>
+        <td>${formatearFecha(p.ultimaVisita)}</td>
+        <td>${formatearFecha(p.ultimoContacto)}</td>
+      </tr>
+    `).join('');
+
+    body.innerHTML = `
+      <div class="modal-summary-grid">
+        <div class="modal-summary-card"><strong>${data.totalAnuncios || 0}</strong><span>Total anuncios</span></div>
+        <div class="modal-summary-card"><strong>${data.visitasTotales || 0}</strong><span>Total visitas</span></div>
+        <div class="modal-summary-card"><strong>${data.favoritosTotales || 0}</strong><span>Total favoritos</span></div>
+        <div class="modal-summary-card"><strong>${data.contactosTotales || 0}</strong><span>Total contactos</span></div>
+      </div>
+      ${sinActividad ? '<div class="modal-empty" style="margin-bottom:16px;">Sin actividad todavía</div>' : ''}
+      ${data.propiedades.length ? `
+        <div class="modal-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Ref.</th>
+                <th>Estado</th>
+                <th>Visitas</th>
+                <th>Favoritos</th>
+                <th>Contactos</th>
+                <th>Última visita</th>
+                <th>Último contacto</th>
+              </tr>
+            </thead>
+            <tbody>${filas}</tbody>
+          </table>
+        </div>
+      ` : ''}
+    `;
+  } catch (error) {
+    body.innerHTML = `<div class="modal-empty">${escapeHtml(error.message || 'No se pudieron cargar las estadísticas')}</div>`;
+  }
+}
+
+function cerrarModalEstadisticas(event) {
+  if (event && event.target.id !== 'modalEstadisticas') return;
+  document.getElementById('modalEstadisticas').classList.remove('visible');
 }
 
 async function cambiarPlan(usuarioId, nuevoPlan) {

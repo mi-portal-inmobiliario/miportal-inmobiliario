@@ -311,7 +311,7 @@ router.get("/:id", async (req, res) => {
 
     const propiedad = await Propiedad.findByIdAndUpdate(
       req.params.id,
-      { $inc: { visitas: 1 } },
+      { $inc: { visitas: 1 }, $set: { ultimaVisita: new Date() } },
       { new: true }
     );
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
