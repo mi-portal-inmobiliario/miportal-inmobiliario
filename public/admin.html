@@ -1334,7 +1334,10 @@ async function imprimirEstadisticasUsuario() {
   const logoUrl = await obtenerLogoInformeDataUrl();
   const visitasTotales = Number(data.visitasTotales || 0);
   const contactosTotales = Number(data.contactosTotales || 0);
+  const favoritosTotales = Number(data.favoritosTotales || 0);
   const conversionTotal = visitasTotales > 0 ? Number(((contactosTotales / visitasTotales) * 100).toFixed(2)) : 0;
+  const favoritosTexto = favoritosTotales === 1 ? 'favorito' : 'favoritos';
+  const contactosTexto = contactosTotales === 1 ? 'contacto' : 'contactos';
   const rendimientoTexto = visitasTotales >= 50
     ? 'Rendimiento excelente'
     : visitasTotales >= 20
@@ -1398,14 +1401,14 @@ async function imprimirEstadisticasUsuario() {
           border-bottom: 3px solid #7cc242;
         }
         .report-logo {
-          width: 200px;
-          max-width: 200px;
+          width: 180px;
+          max-width: 180px;
           height: auto;
           display: block;
           margin-bottom: 8px;
         }
         .report-brand-block {
-          width: 310px;
+          width: 380px;
           flex-shrink: 0;
         }
         .report-header-info {
@@ -1414,12 +1417,12 @@ async function imprimirEstadisticasUsuario() {
         }
         .report-title {
           color: #1a1a1a;
-          font-size: 20px;
+          font-size: 17px;
           line-height: 1.1;
           text-transform: uppercase;
           letter-spacing: 1px;
           font-weight: 800;
-          max-width: 310px;
+          white-space: nowrap;
         }
         .meta {
           text-align: right;
@@ -1602,8 +1605,8 @@ async function imprimirEstadisticasUsuario() {
         <p>
           Este usuario mantiene <strong>${numero(data.totalAnuncios)}</strong> anuncios activos.
           Ha recibido <strong>${numero(data.visitasTotales)}</strong> visitas,
-          <strong>${numero(data.favoritosTotales)}</strong> favoritos y
-          <strong>${numero(data.contactosTotales)}</strong> contactos.
+          <strong>${numero(favoritosTotales)}</strong> ${favoritosTexto} y
+          <strong>${numero(contactosTotales)}</strong> ${contactosTexto}.
           La tasa de conversión actual es de <strong>${porcentaje(conversionTotal)}</strong>.
         </p>
         <span class="performance-badge ${rendimientoClase}">${rendimientoTexto}</span>
