@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { Resend } from 'resend';
 import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
+import EstadisticaAnuncio from '../models/EstadisticaAnuncio.js';
 import { requireAdmin } from '../middleware/auth.js';
 
 const router = express.Router();
@@ -17,6 +18,66 @@ const PLANES_VALIDOS = [
 
 function esObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
+}
+
+function inicioDia(fecha = new Date()) {
+  const dia = new Date(fecha);
+  dia.setHours(0, 0, 0, 0);
+  return dia;
+}
+
+function sumarMetricas(registros) {
+  return registros.reduce((total, item) => ({
+    visitas: total.visitas + Number(item.visitas || 0),
+    contactos: total.contactos + Number(item.contactos || 0)
+  }), { visitas: 0, contactos: 0 });
+}
+
+function conversion(contactos, visitas) {
+  return visitas > 0 ? Number(((contactos / visitas) * 100).toFixed(2)) : 0;
+}
+
+function serieUltimos30Dias(registros) {
+  const hoy = inicioDia();
+  const porFecha = new Map();
+
+  registros.forEach(item => {
+    const key = inicioDia(item.fecha).toISOString().slice(0, 10);
+    const actual = porFecha.get(key) || { visitas: 0, contactos: 0 };
+    actual.visitas += Number(item.visitas || 0);
+    actual.contactos += Number(item.contactos || 0);
+    porFecha.set(key, actual);
+  });
+
+  return Array.from({ length: 30 }, (_, index) => {
+    const fecha = new Date(hoy);
+    fecha.setDate(hoy.getDate() - (29 - index));
+    const key = fecha.toISOString().slice(0, 10);
+    const actual = porFecha.get(key) || { visitas: 0, contactos: 0 };
+    return { fecha: key, visitas: actual.visitas, contactos: actual.contactos };
+  });
+}
+
+function metricasTemporales(registros) {
+  const desde7 = inicioDia();
+  desde7.setDate(desde7.getDate() - 6);
+  const desde30 = inicioDia();
+  desde30.setDate(desde30.getDate() - 29);
+
+  const registros7 = registros.filter(item => new Date(item.fecha) >= desde7);
+  const registros30 = registros.filter(item => new Date(item.fecha) >= desde30);
+  const m7 = sumarMetricas(registros7);
+  const m30 = sumarMetricas(registros30);
+
+  return {
+    visitas7d: m7.visitas,
+    contactos7d: m7.contactos,
+    visitas30d: m30.visitas,
+    contactos30d: m30.contactos,
+    conversion7d: conversion(m7.contactos, m7.visitas),
+    conversion30d: conversion(m30.contactos, m30.visitas),
+    serieUltimos30Dias: serieUltimos30Dias(registros30)
+  };
 }
 
 async function enviarInvitacionVipTrial(usuario) {
@@ -83,7 +144,10 @@ router.get('/stats', requireAdmin, async (req, res) => {
 // Estadísticas generales de actividad
 router.get('/estadisticas', requireAdmin, async (req, res) => {
   try {
-    const [totalUsuarios, propiedades, usuarios] = await Promise.all([
+    const desde30 = inicioDia();
+    desde30.setDate(desde30.getDate() - 29);
+
+    const [totalUsuarios, propiedades, usuarios, historico30] = await Promise.all([
       Usuario.countDocuments(),
       Propiedad.find({}, {
         titulo: 1,
@@ -98,6 +162,11 @@ router.get('/estadisticas', requireAdmin, async (req, res) => {
         email: 1,
         plan: 1,
         favoritos: 1
+      }).lean(),
+      EstadisticaAnuncio.find({ fecha: { $gte: desde30 } }, {
+        fecha: 1,
+        visitas: 1,
+        contactos: 1
       }).lean()
     ]);
 
@@ -147,6 +216,7 @@ router.get('/estadisticas', requireAdmin, async (req, res) => {
     }));
 
     const usuariosResumen = [...resumenUsuarios.values()];
+    const temporales = metricasTemporales(historico30);
 
     res.json({
       totalUsuarios,
@@ -163,7 +233,8 @@ router.get('/estadisticas', requireAdmin, async (req, res) => {
         .slice(0, 10),
       topUsuariosPorContactos: [...usuariosResumen]
         .sort((a, b) => b.contactos - a.contactos)
-        .slice(0, 10)
+        .slice(0, 10),
+      ...temporales
     });
   } catch (err) {
     console.error('Error obteniendo estadísticas generales admin:', err.message);
@@ -209,6 +280,16 @@ router.get('/usuarios/:id/estadisticas', requireAdmin, async (req, res) => {
       ultimoContacto: 1,
       createdAt: 1
     }).sort({ createdAt: -1 }).lean();
+    const desde30 = inicioDia();
+    desde30.setDate(desde30.getDate() - 29);
+    const historico30 = await EstadisticaAnuncio.find({
+      usuarioId: req.params.id,
+      fecha: { $gte: desde30 }
+    }, {
+      fecha: 1,
+      visitas: 1,
+      contactos: 1
+    }).lean();
 
     const propiedadesConFavoritos = await Promise.all(propiedades.map(async propiedad => {
       const favoritos = await Usuario.countDocuments({ favoritos: propiedad._id });
@@ -227,6 +308,7 @@ router.get('/usuarios/:id/estadisticas', requireAdmin, async (req, res) => {
         createdAt: propiedad.createdAt
       };
     }));
+    const temporales = metricasTemporales(historico30);
 
     res.json({
       usuario: {
@@ -240,7 +322,8 @@ router.get('/usuarios/:id/estadisticas', requireAdmin, async (req, res) => {
       visitasTotales: propiedadesConFavoritos.reduce((total, p) => total + p.visitas, 0),
       contactosTotales: propiedadesConFavoritos.reduce((total, p) => total + p.contactos, 0),
       favoritosTotales: propiedadesConFavoritos.reduce((total, p) => total + p.favoritos, 0),
-      propiedades: propiedadesConFavoritos
+      propiedades: propiedadesConFavoritos,
+      ...temporales
     });
   } catch (err) {
     console.error('Error obteniendo estadísticas admin:', {

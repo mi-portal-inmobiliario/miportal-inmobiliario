@@ -2,6 +2,7 @@ import express from "express";
 import mongoose from "mongoose";
 import { Resend } from "resend";
 import Propiedad from "../models/Propiedad.js";
+import EstadisticaAnuncio from "../models/EstadisticaAnuncio.js";
 import Usuario from "../models/Usuario.js";
 import { requireAuth } from "../middleware/auth.js";
 import { cleanString, isObjectId, objectId, validateBody, z } from "../utils/validation.js";
@@ -53,6 +54,12 @@ function esParticipante(conv, userId) {
   return String(conv.anuncianteId) === userId || String(conv.compradorId) === userId;
 }
 
+function inicioDia(fecha = new Date()) {
+  const dia = new Date(fecha);
+  dia.setHours(0, 0, 0, 0);
+  return dia;
+}
+
 /* ======================
    CREAR / OBTENER CONVERSACIÓN
 ====================== */
@@ -79,6 +86,14 @@ router.post("/conversaciones", requireAuth, validateBody(crearConversacionSchema
         $inc: { contactos: 1 },
         $set: { ultimoContacto: new Date() }
       });
+      await EstadisticaAnuncio.updateOne(
+        { propiedadId, fecha: inicioDia() },
+        {
+          $setOnInsert: { usuarioId: propiedad.usuarioId },
+          $inc: { contactos: 1 }
+        },
+        { upsert: true }
+      );
     }
 
     res.json(conv);

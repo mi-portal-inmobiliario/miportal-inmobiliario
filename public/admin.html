@@ -597,6 +597,12 @@
         <div class="general-stat-card"><div class="label">Contactos</div><div class="value" id="generalContactos">—</div></div>
         <div class="general-stat-card"><div class="label">Favoritos</div><div class="value" id="generalFavoritos">—</div></div>
         <div class="general-stat-card"><div class="label">Sin visitas</div><div class="value" id="generalSinVisitas">—</div></div>
+        <div class="general-stat-card"><div class="label">Visitas 7 días</div><div class="value" id="generalVisitas7d">—</div></div>
+        <div class="general-stat-card"><div class="label">Contactos 7 días</div><div class="value" id="generalContactos7d">—</div></div>
+        <div class="general-stat-card"><div class="label">Conversión 7 días</div><div class="value" id="generalConversion7d">—</div></div>
+        <div class="general-stat-card"><div class="label">Visitas 30 días</div><div class="value" id="generalVisitas30d">—</div></div>
+        <div class="general-stat-card"><div class="label">Contactos 30 días</div><div class="value" id="generalContactos30d">—</div></div>
+        <div class="general-stat-card"><div class="label">Conversión 30 días</div><div class="value" id="generalConversion30d">—</div></div>
       </div>
 
       <div class="general-tops-grid">
@@ -806,6 +812,10 @@ function numero(value) {
   return Number(value || 0).toLocaleString('es-ES');
 }
 
+function porcentaje(value) {
+  return `${Number(value || 0).toLocaleString('es-ES', { maximumFractionDigits: 2 })}%`;
+}
+
 function textoTopUsuario(usuario) {
   return `${escapeHtml(usuario.nombre || 'Usuario')}<br><span style="color:#aaa;font-size:0.76rem;">${escapeHtml(usuario.email || '')}</span>`;
 }
@@ -827,6 +837,12 @@ async function cargarEstadisticasGenerales() {
   document.getElementById('generalContactos').textContent = numero(data.totalContactos);
   document.getElementById('generalFavoritos').textContent = numero(data.totalFavoritos);
   document.getElementById('generalSinVisitas').textContent = numero(data.anunciosSinVisitas);
+  document.getElementById('generalVisitas7d').textContent = numero(data.visitas7d);
+  document.getElementById('generalContactos7d').textContent = numero(data.contactos7d);
+  document.getElementById('generalConversion7d').textContent = porcentaje(data.conversion7d);
+  document.getElementById('generalVisitas30d').textContent = numero(data.visitas30d);
+  document.getElementById('generalContactos30d').textContent = numero(data.contactos30d);
+  document.getElementById('generalConversion30d').textContent = porcentaje(data.conversion30d);
 
   document.getElementById('topAnunciosGeneral').innerHTML = data.topAnunciosPorVisitas?.length
     ? data.topAnunciosPorVisitas.map(p => `
@@ -880,6 +896,20 @@ function exportarEstadisticasCSV() {
     ['Contactos', estadisticasGenerales.totalContactos],
     ['Favoritos', estadisticasGenerales.totalFavoritos],
     ['Anuncios sin visitas', estadisticasGenerales.anunciosSinVisitas],
+    ['Visitas 7 días', estadisticasGenerales.visitas7d],
+    ['Contactos 7 días', estadisticasGenerales.contactos7d],
+    ['Conversión 7 días', `${estadisticasGenerales.conversion7d}%`],
+    ['Visitas 30 días', estadisticasGenerales.visitas30d],
+    ['Contactos 30 días', estadisticasGenerales.contactos30d],
+    ['Conversión 30 días', `${estadisticasGenerales.conversion30d}%`],
+    [],
+    ['Serie últimos 30 días'],
+    ['Fecha', 'Visitas', 'Contactos'],
+    ...(estadisticasGenerales.serieUltimos30Dias || []).map(dia => [
+      dia.fecha,
+      dia.visitas,
+      dia.contactos
+    ]),
     [],
     ['Top anuncios'],
     ['Título', 'Propietario', 'Visitas', 'Favoritos', 'Contactos'],
@@ -1061,6 +1091,12 @@ async function verEstadisticas(usuarioId) {
         <div class="modal-summary-card"><strong>${data.visitasTotales || 0}</strong><span>Total visitas</span></div>
         <div class="modal-summary-card"><strong>${data.favoritosTotales || 0}</strong><span>Total favoritos</span></div>
         <div class="modal-summary-card"><strong>${data.contactosTotales || 0}</strong><span>Total contactos</span></div>
+        <div class="modal-summary-card"><strong>${numero(data.visitas7d)}</strong><span>Visitas 7 días</span></div>
+        <div class="modal-summary-card"><strong>${numero(data.contactos7d)}</strong><span>Contactos 7 días</span></div>
+        <div class="modal-summary-card"><strong>${porcentaje(data.conversion7d)}</strong><span>Conversión 7 días</span></div>
+        <div class="modal-summary-card"><strong>${numero(data.visitas30d)}</strong><span>Visitas 30 días</span></div>
+        <div class="modal-summary-card"><strong>${numero(data.contactos30d)}</strong><span>Contactos 30 días</span></div>
+        <div class="modal-summary-card"><strong>${porcentaje(data.conversion30d)}</strong><span>Conversión 30 días</span></div>
       </div>
       ${sinActividad ? '<div class="modal-empty" style="margin-bottom:16px;">Sin actividad todavía</div>' : ''}
       ${data.propiedades.length ? `
@@ -1114,7 +1150,7 @@ function imprimirEstadisticasUsuario() {
         body { font-family: Arial, sans-serif; color: #1a1a1a; padding: 28px; }
         h1 { font-size: 22px; margin: 0 0 4px; }
         p { color: #777; margin: 0 0 22px; }
-        .modal-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .modal-summary-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
         .modal-summary-card { border: 1px solid #e5f0d8; border-radius: 10px; padding: 14px; }
         .modal-summary-card strong { display: block; color: #5a9e2f; font-size: 22px; }
         .modal-summary-card span { color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
@@ -1155,6 +1191,20 @@ function exportarEstadisticasUsuarioCSV() {
     ['Total visitas', data.visitasTotales || 0],
     ['Total favoritos', data.favoritosTotales || 0],
     ['Total contactos', data.contactosTotales || 0],
+    ['Visitas 7 días', data.visitas7d || 0],
+    ['Contactos 7 días', data.contactos7d || 0],
+    ['Conversión 7 días', `${data.conversion7d || 0}%`],
+    ['Visitas 30 días', data.visitas30d || 0],
+    ['Contactos 30 días', data.contactos30d || 0],
+    ['Conversión 30 días', `${data.conversion30d || 0}%`],
+    [],
+    ['Serie últimos 30 días'],
+    ['Fecha', 'Visitas', 'Contactos'],
+    ...(data.serieUltimos30Dias || []).map(dia => [
+      dia.fecha,
+      dia.visitas,
+      dia.contactos
+    ]),
     [],
     ['Anuncios'],
     ['Título', 'Referencia', 'Estado', 'Visitas', 'Favoritos', 'Contactos', 'Última visita', 'Último contacto', 'Fecha creación'],

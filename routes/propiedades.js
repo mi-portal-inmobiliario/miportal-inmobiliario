@@ -4,6 +4,7 @@ import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import Propiedad from "../models/Propiedad.js";
+import EstadisticaAnuncio from "../models/EstadisticaAnuncio.js";
 import Alerta from "../models/Alerta.js";
 import Notificacion from "../models/Notificacion.js";
 import Usuario from "../models/Usuario.js";
@@ -204,6 +205,12 @@ function uploadImagenes(req, res, next) {
   });
 }
 
+function inicioDia(fecha = new Date()) {
+  const dia = new Date(fecha);
+  dia.setHours(0, 0, 0, 0);
+  return dia;
+}
+
 // ==================================================
 // GET /propiedades — con filtros
 // ==================================================
@@ -317,6 +324,16 @@ router.get("/:id", async (req, res) => {
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
     if (propiedad.visiblePublicamente === false) {
       return res.status(404).json({ message: "Propiedad no encontrada" });
+    }
+    if (propiedad.usuarioId) {
+      EstadisticaAnuncio.updateOne(
+        { propiedadId: propiedad._id, fecha: inicioDia() },
+        {
+          $setOnInsert: { usuarioId: propiedad.usuarioId },
+          $inc: { visitas: 1 }
+        },
+        { upsert: true }
+      ).catch(err => console.warn("No se pudo registrar visita diaria:", err.message));
     }
     res.json(propiedad);
   } catch (err) {
