@@ -460,6 +460,14 @@
       border-bottom: 1px solid #eee;
     }
 
+    .modal-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .modal-admin-header h3 {
       margin: 0;
       font-size: 1.15rem;
@@ -540,6 +548,7 @@
       .general-tops-grid { grid-template-columns: 1fr; }
       .section-head { align-items: flex-start; flex-direction: column; }
       .section-actions { justify-content: flex-start; }
+      .modal-header-actions { justify-content: flex-start; }
       .btn-estadisticas, .btn-cancelar-suscripcion { margin: 6px 0 0 0; display: block; }
     }
 
@@ -745,7 +754,11 @@
         <h3 id="modalEstadisticasTitulo">Estadísticas de anuncios</h3>
         <p id="modalEstadisticasSubtitulo">Rendimiento por usuario</p>
       </div>
-      <button class="modal-close" onclick="cerrarModalEstadisticas()" aria-label="Cerrar">×</button>
+      <div class="modal-header-actions">
+        <button onclick="imprimirEstadisticasUsuario()" class="btn-exportar">Imprimir</button>
+        <button onclick="exportarEstadisticasUsuarioCSV()" class="btn-exportar">Exportar CSV</button>
+        <button class="modal-close" onclick="cerrarModalEstadisticas()" aria-label="Cerrar">×</button>
+      </div>
     </div>
     <div class="modal-admin-body" id="modalEstadisticasBody">
       <div class="modal-empty">Cargando estadísticas...</div>
@@ -934,6 +947,7 @@ async function cargarStats() {
 }
 
 let todosLosUsuarios = [];
+let estadisticasUsuarioActual = null;
 
 async function cargarUsuarios() {
   const res = await fetch('/admin/usuarios', {
@@ -1012,6 +1026,7 @@ async function verEstadisticas(usuarioId) {
   titulo.textContent = 'Estadísticas de anuncios';
   subtitulo.textContent = 'Cargando rendimiento del usuario...';
   body.innerHTML = '<div class="modal-empty">Cargando estadísticas...</div>';
+  estadisticasUsuarioActual = null;
 
   try {
     const res = await fetch(`/admin/usuarios/${usuarioId}/estadisticas`, {
@@ -1019,6 +1034,7 @@ async function verEstadisticas(usuarioId) {
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'Error al cargar estadísticas');
+    estadisticasUsuarioActual = data;
 
     titulo.textContent = data.usuario?.nombre || 'Usuario';
     subtitulo.textContent = `${data.usuario?.email || ''} · Plan ${data.plan || 'gratis'}`;
@@ -1070,6 +1086,100 @@ async function verEstadisticas(usuarioId) {
   } catch (error) {
     body.innerHTML = `<div class="modal-empty">${escapeHtml(error.message || 'No se pudieron cargar las estadísticas')}</div>`;
   }
+}
+
+function imprimirEstadisticasUsuario() {
+  if (!estadisticasUsuarioActual) {
+    alert('Las estadísticas del usuario aún no se han cargado');
+    return;
+  }
+
+  const titulo = document.getElementById('modalEstadisticasTitulo').textContent;
+  const subtitulo = document.getElementById('modalEstadisticasSubtitulo').textContent;
+  const contenido = document.getElementById('modalEstadisticasBody').innerHTML;
+  const ventana = window.open('', '_blank', 'width=1100,height=800');
+  if (!ventana) {
+    alert('No se pudo abrir la ventana de impresión');
+    return;
+  }
+
+  ventana.document.write(`
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+      <meta charset="UTF-8">
+      <title>${escapeHtml(titulo)} - HomeClick24</title>
+      <style>
+        * { box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; color: #1a1a1a; padding: 28px; }
+        h1 { font-size: 22px; margin: 0 0 4px; }
+        p { color: #777; margin: 0 0 22px; }
+        .modal-summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+        .modal-summary-card { border: 1px solid #e5f0d8; border-radius: 10px; padding: 14px; }
+        .modal-summary-card strong { display: block; color: #5a9e2f; font-size: 22px; }
+        .modal-summary-card span { color: #777; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; border-bottom: 1px solid #eee; text-align: left; font-size: 12px; }
+        th { background: #f7f7f7; color: #777; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-plan { border: 1px solid #e5f0d8; border-radius: 999px; padding: 3px 8px; color: #5a9e2f; }
+        .modal-empty { padding: 20px; background: #fafafa; color: #777; text-align: center; }
+      </style>
+    </head>
+    <body>
+      <h1>${escapeHtml(titulo)}</h1>
+      <p>${escapeHtml(subtitulo)}</p>
+      ${contenido}
+    </body>
+    </html>
+  `);
+  ventana.document.close();
+  ventana.focus();
+  ventana.print();
+}
+
+function exportarEstadisticasUsuarioCSV() {
+  if (!estadisticasUsuarioActual) {
+    alert('Las estadísticas del usuario aún no se han cargado');
+    return;
+  }
+
+  const data = estadisticasUsuarioActual;
+  const nombre = data.usuario?.nombre || 'usuario';
+  const filas = [
+    ['Usuario', data.usuario?.nombre || ''],
+    ['Email', data.usuario?.email || ''],
+    ['Plan', data.plan || 'gratis'],
+    [],
+    ['Métrica', 'Valor'],
+    ['Total anuncios', data.totalAnuncios || 0],
+    ['Total visitas', data.visitasTotales || 0],
+    ['Total favoritos', data.favoritosTotales || 0],
+    ['Total contactos', data.contactosTotales || 0],
+    [],
+    ['Anuncios'],
+    ['Título', 'Referencia', 'Estado', 'Visitas', 'Favoritos', 'Contactos', 'Última visita', 'Último contacto', 'Fecha creación'],
+    ...(data.propiedades || []).map(p => [
+      p.titulo || '',
+      p.referencia || '',
+      p.estadoComercial || 'Disponible',
+      p.visitas || 0,
+      p.favoritos || 0,
+      p.contactos || 0,
+      p.ultimaVisita ? new Date(p.ultimaVisita).toLocaleDateString('es-ES') : '',
+      p.ultimoContacto ? new Date(p.ultimoContacto).toLocaleDateString('es-ES') : '',
+      p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-ES') : ''
+    ])
+  ];
+
+  const csv = filas.map(fila => fila.map(csvValue).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const slug = nombre.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'usuario';
+  a.href = url;
+  a.download = `homeclick24_estadisticas_${slug}_${new Date().toISOString().split('T')[0]}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function cerrarModalEstadisticas(event) {
