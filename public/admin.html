@@ -1444,13 +1444,17 @@ async function imprimirEstadisticasUsuario() {
           font-weight: 800;
           white-space: nowrap;
         }
-        .meta {
+        .report-user {
           text-align: right;
           color: #666;
-          line-height: 1.55;
-          font-size: 15px;
+          line-height: 1.5;
+          font-size: 13px;
         }
-        .meta strong { color: #1a1a1a; font-size: 16px; }
+        .report-user strong {
+          color: #1a1a1a;
+          font-size: 14px;
+          font-weight: 600;
+        }
         h2 {
           font-size: 14px;
           margin: 0 0 9px;
@@ -1655,7 +1659,7 @@ async function imprimirEstadisticasUsuario() {
           <div class="report-title">Informe de rendimiento de anuncios</div>
         </div>
         <div class="report-header-info">
-          <div class="meta">
+          <div class="report-user">
             <div>Usuario: <strong>${escapeHtml(data.usuario?.nombre || 'Usuario')}</strong></div>
             <div>Email: <strong>${escapeHtml(data.usuario?.email || '')}</strong></div>
             <div>Plan: <strong>${escapeHtml(data.plan || 'gratis')}</strong></div>
