@@ -1283,6 +1283,7 @@ function imprimirEstadisticasUsuario() {
   });
   const graficoVisitas = chartUsuarioVisitas?.toBase64Image?.() || null;
   const graficoContactos = chartUsuarioContactos?.toBase64Image?.() || null;
+  const logoUrl = `${window.location.origin}/HomeClick-full.png`;
   const metricas = [
     ['Total anuncios', data.totalAnuncios || 0],
     ['Total visitas', data.visitasTotales || 0],
@@ -1337,11 +1338,11 @@ function imprimirEstadisticasUsuario() {
           border-bottom: 3px solid #7cc242;
         }
         .report-logo {
-          display: block;
-          width: 260px;
-          max-width: 70%;
+          width: 320px;
+          max-width: 100%;
           height: auto;
-          margin: 0 auto 18px;
+          display: block;
+          margin: 0 auto 16px;
         }
         .report-title {
           color: #1a1a1a;
@@ -1464,7 +1465,7 @@ function imprimirEstadisticasUsuario() {
     </head>
     <body>
       <header class="report-header">
-        <img class="report-logo" src="/HomeClick-full.png" alt="HomeClick24">
+        <img src="${logoUrl}" class="report-logo" alt="HomeClick24">
         <div class="report-title">Informe de rendimiento de anuncios</div>
         <div class="meta">
           <div>Usuario: <strong>${escapeHtml(data.usuario?.nombre || 'Usuario')}</strong></div>
