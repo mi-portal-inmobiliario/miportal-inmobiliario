@@ -102,6 +102,10 @@ gtag('config', 'G-K06Q40JXYL');
   /* ======================
      HEADER CON SESIÓN
   ====================== */
+  const puedePublicar = usuario.planActivo === true;
+  const publicarHref = puedePublicar ? "/publicar.html" : "/planes.html";
+  const publicarTexto = puedePublicar ? "+ Publicar anuncio" : "Pon tu anuncio";
+
   cont.innerHTML = `
     <header class="header">
       ${topbar}
@@ -113,7 +117,7 @@ gtag('config', 'G-K06Q40JXYL');
         <div class="header-actions">
           <a href="/comprar.html" class="btn-outline">Comprar</a>
           <a href="/alquiler.html" class="btn-outline">Alquilar</a>
-          <a href="/planes.html" class="btn-publish">Pon tu anuncio</a>
+          <a href="${publicarHref}" class="btn-publish">${publicarTexto}</a>
           <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
           <a href="/perfil.html#chats" class="btn-icon" title="Chats" style="position:relative;">
             💬
