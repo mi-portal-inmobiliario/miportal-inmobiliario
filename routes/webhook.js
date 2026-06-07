@@ -262,6 +262,57 @@ router.post('/', async (req, res) => {
           invoiceId: invoice.id,
           successfulPayments: usuario.launchPromoSuccessfulPayments
         });
+
+        if (!usuario.stripeSubscriptionId || !usuario.launchPromoCouponId) {
+          console.warn('[LaunchPromo] Cupón no aplicado: faltan datos', {
+            userId: usuario._id.toString(),
+            subscriptionId: usuario.stripeSubscriptionId || null,
+            couponId: usuario.launchPromoCouponId || null
+          });
+        } else {
+          try {
+            console.log('[LaunchPromo] Aplicando cupón 50% tercera mensualidad', {
+              userId: usuario._id.toString(),
+              subscriptionId: usuario.stripeSubscriptionId,
+              couponId: usuario.launchPromoCouponId
+            });
+
+            await stripe.subscriptions.update(usuario.stripeSubscriptionId, {
+              discounts: [
+                { coupon: usuario.launchPromoCouponId }
+              ],
+              metadata: {
+                ...(subscription.metadata || {}),
+                launchPromoApplied: 'true'
+              }
+            });
+
+            usuario.launchPromoApplied = true;
+            usuario.launchPromoAppliedAt = new Date();
+            usuario.launchPromoAppliedSubscriptionId = usuario.stripeSubscriptionId;
+            await usuario.save();
+
+            console.log('[LaunchPromo] Cupón aplicado correctamente', {
+              userId: usuario._id.toString(),
+              subscriptionId: usuario.launchPromoAppliedSubscriptionId,
+              couponId: usuario.launchPromoCouponId
+            });
+          } catch (promoErr) {
+            console.error('[LaunchPromo] Error aplicando cupón', {
+              userId: usuario._id.toString(),
+              subscriptionId: usuario.stripeSubscriptionId,
+              couponId: usuario.launchPromoCouponId,
+              error: promoErr.message
+            });
+          }
+        }
+      } else if (promoEligible && usuario.launchPromoApplied === true) {
+        console.log('[LaunchPromo] Cupón no aplicado: ya aplicado', {
+          userId: usuario._id.toString(),
+          subscriptionId: subscription.id,
+          invoiceId: invoice.id,
+          successfulPayments: usuario.launchPromoSuccessfulPayments
+        });
       }
     }
 

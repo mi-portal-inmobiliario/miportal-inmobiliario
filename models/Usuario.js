@@ -27,6 +27,8 @@ const UsuarioSchema = new mongoose.Schema({
   launchPromoCouponId:   { type: String },
   launchPromoSuccessfulPayments: { type: Number, default: 0 },
   launchPromoLastPaymentAt:      { type: Date },
+  launchPromoAppliedAt:          { type: Date },
+  launchPromoAppliedSubscriptionId: { type: String },
 
   // Prueba gratuita VIP
   trialAccepted:         { type: Boolean, default: false },
