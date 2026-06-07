@@ -2,6 +2,7 @@ import express from 'express';
 import Stripe from 'stripe';
 import Usuario from '../models/Usuario.js';
 import { enviarCorreo } from '../utils/email.js';
+import { aplicarCuponLaunchPromo } from '../utils/launchPromo.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -277,25 +278,16 @@ router.post('/', async (req, res) => {
               couponId: usuario.launchPromoCouponId
             });
 
-            await stripe.subscriptions.update(usuario.stripeSubscriptionId, {
-              discounts: [
-                { coupon: usuario.launchPromoCouponId }
-              ],
-              metadata: {
-                ...(subscription.metadata || {}),
-                launchPromoApplied: 'true'
-              }
+            const resultadoPromo = await aplicarCuponLaunchPromo({
+              stripe,
+              usuario,
+              metadata: subscription.metadata || {}
             });
-
-            usuario.launchPromoApplied = true;
-            usuario.launchPromoAppliedAt = new Date();
-            usuario.launchPromoAppliedSubscriptionId = usuario.stripeSubscriptionId;
-            await usuario.save();
 
             console.log('[LaunchPromo] Cupón aplicado correctamente', {
               userId: usuario._id.toString(),
-              subscriptionId: usuario.launchPromoAppliedSubscriptionId,
-              couponId: usuario.launchPromoCouponId
+              subscriptionId: resultadoPromo.subscriptionId,
+              couponId: resultadoPromo.couponId
             });
           } catch (promoErr) {
             console.error('[LaunchPromo] Error aplicando cupón', {
