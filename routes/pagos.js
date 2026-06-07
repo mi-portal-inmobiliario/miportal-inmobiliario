@@ -49,6 +49,21 @@ function fechaFinPeriodo(subscription) {
   return timestamp ? new Date(timestamp * 1000) : null;
 }
 
+function launchPromoActiva() {
+  if (process.env.LAUNCH_PROMO_ENABLED !== 'true') return false;
+  if (!process.env.STRIPE_LAUNCH_COUPON_ID) return false;
+
+  const deadline = process.env.LAUNCH_PROMO_DEADLINE;
+  if (!deadline) return false;
+
+  const fechaLimite = /^\d{4}-\d{2}-\d{2}$/.test(deadline)
+    ? new Date(`${deadline}T23:59:59.999Z`)
+    : new Date(deadline);
+
+  if (Number.isNaN(fechaLimite.getTime())) return false;
+  return new Date() <= fechaLimite;
+}
+
 function usuarioSeguro(usuario) {
   return {
     _id: usuario._id,
@@ -76,12 +91,21 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
   const plan = PLANES[priceId] || 'gratis';
   
   try {
+    const promoLanzamientoActiva = launchPromoActiva();
     const metadata = {
       userId: req.user.id,
       usuarioId: req.user.id,
       plan,
       priceId
     };
+
+    if (promoLanzamientoActiva) {
+      Object.assign(metadata, {
+        launchPromoEligible: 'true',
+        launchPromoTargetMonth: '2026-09',
+        launchPromoCouponId: process.env.STRIPE_LAUNCH_COUPON_ID
+      });
+    }
 
     const sessionParams = {
       mode: 'subscription',
@@ -95,6 +119,15 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
         metadata
       }
     };
+
+    if (promoLanzamientoActiva) {
+      console.log('Oferta lanzamiento: suscripción marcada como elegible para septiembre 50%', {
+        userId: req.user.id,
+        plan,
+        priceId,
+        targetMonth: metadata.launchPromoTargetMonth
+      });
+    }
 
     if (req.user.stripeCustomerId) {
       sessionParams.customer = req.user.stripeCustomerId;
