@@ -12,8 +12,10 @@ const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const resend = new Resend(process.env.RESEND_API_KEY);
 const TEST_LAUNCH_PROMO_ROUTE = '/admin/usuarios/:id/test-launch-promo';
+const TEST_MARCAR_LAUNCH_PROMO_ROUTE = '/admin/usuarios/:id/test-marcar-launch-promo';
 
 console.log('[LaunchPromo TEST] Ruta registrada:', TEST_LAUNCH_PROMO_ROUTE);
+console.log('[LaunchPromo TEST] Ruta registrada:', TEST_MARCAR_LAUNCH_PROMO_ROUTE);
 
 const PLANES_VALIDOS = [
   'gratis', 'basico', 'destacado', 'starter',
@@ -357,6 +359,45 @@ router.delete('/propiedades/:id', requireAdmin, async (req, res) => {
     await Propiedad.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// RUTA TEMPORAL SOLO PARA TEST. ELIMINAR ANTES DE PRODUCCIÓN LIVE.
+router.post('/usuarios/:id/test-marcar-launch-promo', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const usuario = await Usuario.findById(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    const launchPromoCouponId = process.env.STRIPE_LAUNCH_COUPON_ID || null;
+
+    usuario.launchPromoEligible = true;
+    usuario.launchPromoCouponId = launchPromoCouponId;
+    usuario.launchPromoSuccessfulPayments = 1;
+    usuario.launchPromoApplied = false;
+    await usuario.save();
+
+    console.log('[LaunchPromo TEST] Usuario marcado como elegible manualmente', {
+      userId: usuario._id.toString(),
+      couponId: launchPromoCouponId
+    });
+
+    res.json({
+      ok: true,
+      userId: usuario._id.toString(),
+      launchPromoEligible: true,
+      launchPromoCouponId,
+      launchPromoSuccessfulPayments: 1
+    });
+  } catch (err) {
+    console.error('[LaunchPromo TEST] Error marcando usuario como elegible', {
+      userId: req.params.id,
+      error: err.message
+    });
     res.status(500).json({ error: err.message });
   }
 });
