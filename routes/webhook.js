@@ -163,12 +163,19 @@ router.post('/', async (req, res) => {
     const plan = metadata.plan || PLANES[priceId] || 'gratis';
     const userId = metadata.userId || metadata.usuarioId || session.client_reference_id;
     const fechaFin = fechaFinPeriodo(subscription);
+    const launchPromoUpdate = metadata.launchPromoEligible === 'true' ? {
+      launchPromoEligible: true,
+      launchPromoCouponId: metadata.launchPromoCouponId || null,
+      launchPromoSuccessfulPayments: 0,
+      launchPromoApplied: false
+    } : {};
     const update = {
       plan,
       planActivo: true,
       ...(fechaFin && { planFechaFin: fechaFin }),
       stripeCustomerId: session.customer,
       stripeSubscriptionId: subscriptionId,
+      ...launchPromoUpdate,
     };
 
     let usuarioActualizado = null;
