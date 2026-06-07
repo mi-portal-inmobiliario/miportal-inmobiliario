@@ -228,12 +228,42 @@ router.post('/', async (req, res) => {
     if (!subscriptionId) return res.json({ received: true });
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+    const promoEligible = subscription.metadata?.launchPromoEligible === 'true';
+    const promoUpdate = promoEligible ? {
+      launchPromoEligible: true,
+      launchPromoCouponId: subscription.metadata?.launchPromoCouponId || null,
+      launchPromoLastPaymentAt: new Date()
+    } : {};
+
     const { usuario, priceId, plan, fechaFin, customer, updated } = await actualizarUsuarioDesdeSubscription(subscription, {
       pendingPlan: null,
       pendingPriceId: null,
       pendingPlanChangeAt: null,
-      pendingPlanLabel: null
+      pendingPlanLabel: null,
+      ...promoUpdate
     });
+
+    if (promoEligible && usuario) {
+      usuario.launchPromoSuccessfulPayments = Number(usuario.launchPromoSuccessfulPayments || 0) + 1;
+      usuario.launchPromoLastPaymentAt = new Date();
+      await usuario.save();
+
+      console.log('[LaunchPromo] Pago válido registrado', {
+        userId: usuario._id.toString(),
+        subscriptionId: subscription.id,
+        invoiceId: invoice.id,
+        successfulPayments: usuario.launchPromoSuccessfulPayments
+      });
+
+      if (usuario.launchPromoSuccessfulPayments >= 2 && usuario.launchPromoApplied !== true) {
+        console.log('[LaunchPromo] Usuario elegible para descuento en tercera mensualidad', {
+          userId: usuario._id.toString(),
+          subscriptionId: subscription.id,
+          invoiceId: invoice.id,
+          successfulPayments: usuario.launchPromoSuccessfulPayments
+        });
+      }
+    }
 
     console.log('Webhook invoice.payment_succeeded recibido', {
       customer,

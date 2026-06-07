@@ -22,6 +22,11 @@ const UsuarioSchema = new mongoose.Schema({
   pendingPlanLabel:      { type: String },
   cancelAtPeriodEnd:     { type: Boolean, default: false },
   subscriptionCancelAt:  { type: Date },
+  launchPromoEligible:   { type: Boolean, default: false },
+  launchPromoApplied:    { type: Boolean, default: false },
+  launchPromoCouponId:   { type: String },
+  launchPromoSuccessfulPayments: { type: Number, default: 0 },
+  launchPromoLastPaymentAt:      { type: Date },
 
   // Prueba gratuita VIP
   trialAccepted:         { type: Boolean, default: false },

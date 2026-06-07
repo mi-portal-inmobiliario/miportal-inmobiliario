@@ -102,7 +102,6 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
     if (promoLanzamientoActiva) {
       Object.assign(metadata, {
         launchPromoEligible: 'true',
-        launchPromoTargetMonth: '2026-09',
         launchPromoCouponId: process.env.STRIPE_LAUNCH_COUPON_ID
       });
     }
@@ -121,11 +120,10 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
     };
 
     if (promoLanzamientoActiva) {
-      console.log('Oferta lanzamiento: suscripción marcada como elegible para septiembre 50%', {
+      console.log('Oferta lanzamiento: suscripción marcada como elegible para 50% en la tercera mensualidad', {
         userId: req.user.id,
         plan,
-        priceId,
-        targetMonth: metadata.launchPromoTargetMonth
+        priceId
       });
     }
 
