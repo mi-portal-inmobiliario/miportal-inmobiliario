@@ -6,10 +6,15 @@ import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
 import EstadisticaAnuncio from '../models/EstadisticaAnuncio.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { aplicarCuponLaunchPromo } from '../utils/launchPromo.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const resend = new Resend(process.env.RESEND_API_KEY);
+const TEST_LAUNCH_PROMO_ROUTE = '/admin/usuarios/:id/test-launch-promo';
+
+console.log('[LaunchPromo TEST] Ruta registrada:', TEST_LAUNCH_PROMO_ROUTE);
+
 const PLANES_VALIDOS = [
   'gratis', 'basico', 'destacado', 'starter',
   'pro_agentes', 'agencia_basica', 'agencia_pro',
@@ -352,6 +357,71 @@ router.delete('/propiedades/:id', requireAdmin, async (req, res) => {
     await Propiedad.findByIdAndDelete(req.params.id);
     res.json({ ok: true });
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// RUTA TEMPORAL SOLO PARA TEST. ELIMINAR ANTES DE PRODUCCIÓN LIVE.
+router.post('/usuarios/:id/test-launch-promo', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const usuario = await Usuario.findById(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    if (!usuario.stripeSubscriptionId) {
+      return res.status(400).json({ error: 'El usuario no tiene suscripción Stripe' });
+    }
+
+    if (usuario.launchPromoEligible !== true) {
+      return res.status(400).json({ error: 'El usuario no es elegible para la promoción' });
+    }
+
+    if (usuario.launchPromoApplied === true) {
+      return res.status(400).json({ error: 'El cupón promocional ya fue aplicado' });
+    }
+
+    if (!usuario.launchPromoCouponId) {
+      return res.status(400).json({ error: 'El usuario no tiene cupón promocional asociado' });
+    }
+
+    console.log('[LaunchPromo TEST] Forzando contador a 2', {
+      userId: usuario._id.toString(),
+      subscriptionId: usuario.stripeSubscriptionId,
+      couponId: usuario.launchPromoCouponId
+    });
+
+    usuario.launchPromoSuccessfulPayments = 2;
+    usuario.launchPromoLastPaymentAt = new Date();
+    await usuario.save();
+
+    const resultadoPromo = await aplicarCuponLaunchPromo({
+      stripe,
+      usuario,
+      metadata: {
+        launchPromoApplied: 'true'
+      }
+    });
+
+    console.log('[LaunchPromo TEST] Cupón aplicado correctamente', {
+      userId: usuario._id.toString(),
+      subscriptionId: resultadoPromo.subscriptionId,
+      couponId: resultadoPromo.couponId
+    });
+
+    res.json({
+      ok: true,
+      message: 'Cupón promocional aplicado en modo prueba',
+      subscriptionId: resultadoPromo.subscriptionId,
+      couponId: resultadoPromo.couponId
+    });
+  } catch (err) {
+    console.error('[LaunchPromo TEST] Error aplicando cupón', {
+      userId: req.params.id,
+      error: err.message
+    });
     res.status(500).json({ error: err.message });
   }
 });
