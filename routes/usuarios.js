@@ -22,7 +22,10 @@ function usuarioSeguro(usuario) {
     pendingPlan: usuario.pendingPlan || null,
     pendingPriceId: usuario.pendingPriceId || null,
     pendingPlanChangeAt: usuario.pendingPlanChangeAt || null,
-    pendingPlanLabel: usuario.pendingPlanLabel || null
+    pendingPlanLabel: usuario.pendingPlanLabel || null,
+    launchPromoEligible: usuario.launchPromoEligible || false,
+    launchPromoApplied: usuario.launchPromoApplied || false,
+    launchPromoSuccessfulPayments: usuario.launchPromoSuccessfulPayments || 0
   };
 }
 

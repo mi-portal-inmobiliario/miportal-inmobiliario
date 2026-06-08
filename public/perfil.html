@@ -111,6 +111,36 @@
       line-height: 1.45;
     }
 
+    .launch-promo-card {
+      display: none;
+      margin-top: 14px;
+      background: #f0f9e8;
+      border: 1px solid #d8edc6;
+      color: #365f21;
+      border-radius: 12px;
+      padding: 14px 16px;
+      line-height: 1.5;
+    }
+
+    .launch-promo-card strong {
+      display: block;
+      color: #2f4f1d;
+      font-size: 0.98rem;
+      margin-bottom: 4px;
+    }
+
+    .launch-promo-card p {
+      margin: 0;
+      font-size: 0.9rem;
+    }
+
+    .launch-promo-progress {
+      margin-top: 8px;
+      font-weight: 700;
+      color: #5a9e2f;
+      font-size: 0.88rem;
+    }
+
     .seccion-label {
       font-size: 0.72rem;
       font-weight: 600;
@@ -438,6 +468,7 @@
     </div>
     <div class="plan-stats" id="planStats"></div>
     <div class="pending-plan-notice" id="pendingPlanNotice"></div>
+    <div class="launch-promo-card" id="launchPromoCard"></div>
   </div>
 
   <!-- MIS PROPIEDADES -->
@@ -547,6 +578,30 @@ function formatearFechaPlan(fecha) {
     : 'la fecha de renovación';
 }
 
+function renderLaunchPromo(usuario) {
+  const card = document.getElementById("launchPromoCard");
+  if (!card) return;
+
+  if (usuario.launchPromoApplied === true) {
+    card.innerHTML = `
+      <strong>🎉 Descuento promocional aplicado</strong>
+      <p>Tu próxima factura incluye el 50% de descuento de la oferta de lanzamiento.</p>
+    `;
+    card.style.display = "block";
+    return;
+  }
+
+  if (usuario.launchPromoEligible === true) {
+    const pagos = Number(usuario.launchPromoSuccessfulPayments || 0);
+    card.innerHTML = `
+      <strong>🚀 Oferta de lanzamiento activa</strong>
+      <p>Mantén tu suscripción activa durante las dos primeras mensualidades y obtendrás un 50% de descuento en la tercera.</p>
+      ${pagos > 0 ? `<div class="launch-promo-progress">Progreso: ${pagos} de 2 mensualidades completadas.</div>` : ""}
+    `;
+    card.style.display = "block";
+  }
+}
+
 document.getElementById("statPlan").textContent = PLANES_NOMBRES[usuario.plan] || "Gratis";
 document.getElementById("tagPlan").textContent = "Plan " + (PLANES_NOMBRES[usuario.plan] || "Gratis");
 
@@ -599,6 +654,8 @@ if (usuario.pendingPlan && usuario.pendingPlanChangeAt) {
   pendingPlanNotice.textContent = `Cambio programado a ${pendingName} el ${formatearFechaPlan(usuario.pendingPlanChangeAt)}. Hasta entonces mantienes tu plan actual.`;
   pendingPlanNotice.style.display = "block";
 }
+
+renderLaunchPromo(usuario);
 
 cargarPropiedades();
 cargarChats();
