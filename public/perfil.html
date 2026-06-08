@@ -557,6 +557,8 @@ async function refrescarUsuarioTrasPago() {
 if (pagoExitoso) refrescarUsuarioTrasPago();
 
 (async function iniciarPerfil() {
+await refrescarUsuarioDesdeBackend("al cargar perfil");
+
 if (vueltaStripe) {
   await refrescarUsuarioDesdeBackend("tras volver de Stripe");
   history.replaceState(null, "", "/perfil.html" + window.location.hash);
@@ -581,6 +583,15 @@ function formatearFechaPlan(fecha) {
 function renderLaunchPromo(usuario) {
   const card = document.getElementById("launchPromoCard");
   if (!card) return;
+
+  console.log("PROMO PERFIL", {
+    launchPromoEligible: usuario.launchPromoEligible,
+    launchPromoApplied: usuario.launchPromoApplied,
+    launchPromoSuccessfulPayments: usuario.launchPromoSuccessfulPayments
+  });
+
+  card.style.display = "none";
+  card.innerHTML = "";
 
   if (usuario.launchPromoApplied === true) {
     card.innerHTML = `

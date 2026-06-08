@@ -25,7 +25,9 @@ function usuarioSeguro(usuario) {
     pendingPlanLabel: usuario.pendingPlanLabel || null,
     launchPromoEligible: usuario.launchPromoEligible || false,
     launchPromoApplied: usuario.launchPromoApplied || false,
-    launchPromoSuccessfulPayments: usuario.launchPromoSuccessfulPayments || 0
+    launchPromoSuccessfulPayments: usuario.launchPromoSuccessfulPayments || 0,
+    launchPromoAppliedAt: usuario.launchPromoAppliedAt || null,
+    launchPromoAppliedSubscriptionId: usuario.launchPromoAppliedSubscriptionId || null
   };
 }
 
@@ -44,7 +46,12 @@ router.get("/me", requireAuth, async (req, res) => {
       pendingPlan: usuario.pendingPlan || null,
       pendingPriceId: usuario.pendingPriceId || null,
       pendingPlanChangeAt: usuario.pendingPlanChangeAt || null,
-      pendingPlanLabel: usuario.pendingPlanLabel || null
+      pendingPlanLabel: usuario.pendingPlanLabel || null,
+      launchPromoEligible: Boolean(usuario.launchPromoEligible),
+      launchPromoApplied: Boolean(usuario.launchPromoApplied),
+      launchPromoSuccessfulPayments: usuario.launchPromoSuccessfulPayments || 0,
+      launchPromoAppliedAt: usuario.launchPromoAppliedAt || null,
+      launchPromoAppliedSubscriptionId: usuario.launchPromoAppliedSubscriptionId || null
     });
     res.json(usuarioSeguro(usuario));
   } catch (e) {
