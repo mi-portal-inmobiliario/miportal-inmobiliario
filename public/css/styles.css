@@ -1117,6 +1117,12 @@ html, body {
   font-weight: 600;
 }
 
+.cookie-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
 .cookie-box button {
   background: #7cc242;
   color: white;
@@ -1134,6 +1140,12 @@ html, body {
   transition: 0.2s;
 }
 
+.cookie-box .cookie-btn-secondary {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.45);
+  color: #fff;
+}
+
 .cookie-box button:hover {
   transform: translateY(-2px);
 }
@@ -1147,6 +1159,11 @@ html, body {
 
   .cookie-box button {
     width: 100%;
+  }
+
+  .cookie-actions {
+    width: 100%;
+    flex-direction: column-reverse;
   }
 
 }

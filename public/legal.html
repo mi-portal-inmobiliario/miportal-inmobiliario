@@ -86,13 +86,13 @@
   <p class="fecha">Última actualización: abril 2026</p>
 
   <div class="legal-tabs">
-    <button class="legal-tab active" onclick="showTab('aviso')">Aviso Legal</button>
-    <button class="legal-tab" onclick="showTab('privacidad')">Política de Privacidad</button>
-    <button class="legal-tab" onclick="showTab('cookies')">Política de Cookies</button>
+    <button class="legal-tab active" onclick="showTab('aviso-legal', event)">Aviso Legal</button>
+    <button class="legal-tab" onclick="showTab('privacidad', event)">Política de Privacidad</button>
+    <button class="legal-tab" onclick="showTab('cookies', event)">Política de Cookies</button>
   </div>
 
   <!-- ======================== AVISO LEGAL ======================== -->
-  <div class="legal-section active" id="aviso">
+  <div class="legal-section active" id="aviso-legal">
 
     <h2>1. Datos del titular</h2>
     <p>En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información y del Comercio Electrónico (LSSI-CE), se facilitan los siguientes datos:</p>
@@ -186,15 +186,16 @@
     <p>Las cookies son pequeños archivos de texto que se almacenan en el dispositivo del usuario cuando visita un sitio web. Permiten que el sitio recuerde sus preferencias y mejore la experiencia de navegación.</p>
 
     <h2>2. Cookies que utilizamos</h2>
-    <p>HomeClick24 utiliza únicamente cookies técnicas y funcionales estrictamente necesarias para el funcionamiento del Portal:</p>
+    <p>HomeClick24 utiliza cookies técnicas y, solo si el usuario acepta expresamente, cookies analíticas para medir el uso del Portal:</p>
     <ul>
-      <li><strong>Cookie de sesión (token):</strong> almacena el token de autenticación del usuario registrado. Sin esta cookie no es posible mantener la sesión iniciada. Duración: sesión del navegador.</li>
-      <li><strong>Preferencias locales:</strong> almacena preferencias de navegación (ciudad de búsqueda, filtros). Duración: hasta 30 días.</li>
+      <li><strong>Cookies técnicas:</strong> permiten mantener la sesión iniciada, recordar preferencias básicas y asegurar el funcionamiento del Portal. Son necesarias para prestar el servicio.</li>
+      <li><strong>Consentimiento de cookies:</strong> se guarda en el navegador como <code>cookiesConsent</code> con el valor <code>accepted</code> o <code>rejected</code>.</li>
+      <li><strong>Google Analytics:</strong> se utiliza únicamente si el usuario pulsa "Aceptar" en el banner de cookies. Permite obtener estadísticas agregadas de navegación para mejorar el servicio.</li>
     </ul>
-    <p>El Portal <strong>no utiliza cookies de seguimiento, publicidad ni analítica de terceros</strong> en este momento.</p>
+    <p>Si el usuario pulsa "Rechazar", HomeClick24 no carga Google Analytics. El Portal no utiliza cookies publicitarias ni de seguimiento comercial.</p>
 
     <h2>3. Cómo gestionar las cookies</h2>
-    <p>El usuario puede configurar su navegador para bloquear o eliminar las cookies. Sin embargo, deshabilitar las cookies técnicas puede afectar al funcionamiento del Portal (por ejemplo, no podrá mantener la sesión iniciada). Instrucciones para los principales navegadores:</p>
+    <p>El usuario puede aceptar o rechazar las cookies analíticas desde el banner inicial. También puede borrar su preferencia eliminando los datos del sitio desde el navegador. Deshabilitar las cookies técnicas puede afectar al funcionamiento del Portal, por ejemplo impidiendo mantener la sesión iniciada. Instrucciones para los principales navegadores:</p>
     <ul>
       <li><a href="https://support.google.com/chrome/answer/95647" target="_blank">Google Chrome</a></li>
       <li><a href="https://support.mozilla.org/es/kb/habilitar-y-deshabilitar-cookies-sitios-web" target="_blank">Mozilla Firefox</a></li>
@@ -218,12 +219,31 @@
 </nav>
 
 <script>
-function showTab(tab) {
+function showTab(tab, evt) {
   document.querySelectorAll('.legal-section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
   document.getElementById(tab).classList.add('active');
-  event.target.classList.add('active');
+  if (evt?.target) evt.target.classList.add('active');
+  window.history.replaceState(null, '', `#${tab}`);
 }
+
+window.addEventListener('DOMContentLoaded', () => {
+  const tab = window.location.hash.replace('#', '') || 'aviso-legal';
+  const section = document.getElementById(tab);
+  if (!section) return;
+
+  document.querySelectorAll('.legal-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.legal-tab').forEach(t => t.classList.remove('active'));
+  section.classList.add('active');
+
+  const tabs = {
+    'aviso-legal': 0,
+    privacidad: 1,
+    cookies: 2
+  };
+  const tabButton = document.querySelectorAll('.legal-tab')[tabs[tab]];
+  if (tabButton) tabButton.classList.add('active');
+});
 </script>
 
 <!-- PWA Service Worker -->
