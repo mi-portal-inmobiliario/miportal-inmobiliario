@@ -3,17 +3,10 @@ import Stripe from 'stripe';
 import Usuario from '../models/Usuario.js';
 import { enviarCorreo } from '../utils/email.js';
 import { aplicarCuponLaunchPromo } from '../utils/launchPromo.js';
+import { getPlanByPriceId } from '../utils/stripePlans.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
-
-const PLANES = {
-  'price_1TRzHwR2KhBUiuqwE7yWmba5': 'basico',
-  'price_1TRzKfR2KhBUiuqwZmtbnkHW': 'destacado',
-  'price_1TRzLwR2KhBUiuqwdxvWLngL': 'starter',
-  'price_1TRzN1R2KhBUiuqwWZERfgqT': 'pro_agentes',
-  'price_1TRzO0R2KhBUiuqwZvlU3gdU': 'agencia_basica',
-};
 
 const NOMBRES_PLANES = {
   basico: 'Básico', destacado: 'Destacado', starter: 'Starter',
@@ -31,7 +24,7 @@ function fechaFinPeriodo(subscription) {
 
 function datosPlanDesdeSubscription(subscription) {
   const priceId = subscription.items?.data?.[0]?.price?.id;
-  const plan = PLANES[priceId] || 'gratis';
+  const plan = getPlanByPriceId(priceId) || 'gratis';
   const fechaFin = fechaFinPeriodo(subscription);
   return { priceId, plan, fechaFin };
 }
@@ -109,7 +102,7 @@ async function getScheduledPlanChange(subscription, currentPriceId) {
   if (!futurePhase) return null;
 
   const pendingPriceId = phasePriceId(futurePhase);
-  const pendingPlan = PLANES[pendingPriceId];
+  const pendingPlan = getPlanByPriceId(pendingPriceId);
   if (!pendingPlan) return null;
 
   return {
@@ -160,7 +153,7 @@ router.post('/', async (req, res) => {
 
     const subscription = await stripe.subscriptions.retrieve(subscriptionId);
     const priceId = subscription.items.data[0]?.price?.id;
-    const plan = metadata.plan || PLANES[priceId] || 'gratis';
+    const plan = getPlanByPriceId(priceId) || metadata.plan || 'gratis';
     const userId = metadata.userId || metadata.usuarioId || session.client_reference_id;
     const fechaFin = fechaFinPeriodo(subscription);
     const launchPromoUpdate = metadata.launchPromoEligible === 'true' ? {

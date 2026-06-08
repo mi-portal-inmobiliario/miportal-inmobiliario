@@ -3,17 +3,12 @@ import Stripe from 'stripe';
 import Usuario from '../models/Usuario.js';
 import { requireAuth } from '../middleware/auth.js';
 import { optionalCleanString, validateBody, z } from '../utils/validation.js';
+import { getPriceIdByPlan, getStripePriceEnvName } from '../utils/stripePlans.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const PLANES = {
-  'price_1TRzHwR2KhBUiuqwE7yWmba5': 'basico',
-  'price_1TRzKfR2KhBUiuqwZmtbnkHW': 'destacado',
-  'price_1TRzLwR2KhBUiuqwdxvWLngL': 'starter',
-  'price_1TRzN1R2KhBUiuqwWZERfgqT': 'pro_agentes',
-  'price_1TRzO0R2KhBUiuqwZvlU3gdU': 'agencia_basica',
-};
+const PLANES_VALIDOS = ['basico', 'destacado', 'starter', 'pro_agentes', 'agencia_basica'];
 
 const PLAN_LABELS = {
   basico: 'Básico',
@@ -33,11 +28,11 @@ const PLAN_RANKS = {
 };
 
 const crearSesionSchema = z.object({
-  priceId: z.string().trim().min(3).max(120)
+  plan: z.enum(PLANES_VALIDOS)
 });
 
 const cambiarPlanSchema = z.object({
-  priceId: z.string().trim().min(3).max(120)
+  plan: z.enum(PLANES_VALIDOS)
 });
 
 const portalClienteSchema = z.object({
@@ -87,8 +82,14 @@ function usuarioSeguro(usuario) {
 
 // Crear sesión de pago
 router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async (req, res) => {
-  const { priceId } = req.body;
-  const plan = PLANES[priceId] || 'gratis';
+  const { plan } = req.body;
+  const priceId = getPriceIdByPlan(plan);
+
+  if (!priceId) {
+    return res.status(500).json({
+      error: `Falta configurar la variable ${getStripePriceEnvName(plan)}`
+    });
+  }
   
   try {
     const promoLanzamientoActiva = launchPromoActiva();
@@ -146,11 +147,13 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
 
 // Cambiar plan de una suscripción existente
 router.post('/cambiar-plan', requireAuth, validateBody(cambiarPlanSchema), async (req, res) => {
-  const { priceId } = req.body;
-  const nuevoPlan = PLANES[priceId];
+  const { plan: nuevoPlan } = req.body;
+  const priceId = getPriceIdByPlan(nuevoPlan);
 
-  if (!nuevoPlan) {
-    return res.status(400).json({ error: 'Plan inválido' });
+  if (!priceId) {
+    return res.status(500).json({
+      error: `Falta configurar la variable ${getStripePriceEnvName(nuevoPlan)}`
+    });
   }
 
   if (!req.user.stripeSubscriptionId) {
