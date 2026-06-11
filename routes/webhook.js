@@ -64,6 +64,7 @@ async function actualizarUsuarioDesdeSubscription(subscription, extraUpdate = {}
 
   usuario.plan = extraUpdate.plan || plan;
   usuario.planActivo = subscription.status === 'active' || subscription.status === 'trialing';
+  usuario.subscriptionStatus = subscription.status || null;
   if (fechaFin) usuario.planFechaFin = fechaFin;
   usuario.stripeSubscriptionId = subscription.id;
   if (customer) usuario.stripeCustomerId = customer;
@@ -168,6 +169,7 @@ router.post('/', async (req, res) => {
       ...(fechaFin && { planFechaFin: fechaFin }),
       stripeCustomerId: session.customer,
       stripeSubscriptionId: subscriptionId,
+      subscriptionStatus: subscription.status || null,
       ...launchPromoUpdate,
     };
 

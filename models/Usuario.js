@@ -14,6 +14,7 @@ const UsuarioSchema = new mongoose.Schema({
   plan:                  { type: String, default: "gratis" },
   stripeCustomerId:      { type: String },
   stripeSubscriptionId:  { type: String },
+  subscriptionStatus:    { type: String },
   planActivo:            { type: Boolean, default: false },
   planFechaFin:          { type: Date },
   pendingPlan:           { type: String },

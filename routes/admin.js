@@ -118,7 +118,11 @@ router.get('/stats', requireAdmin, async (req, res) => {
   try {
     const totalUsuarios = await Usuario.countDocuments();
     const totalPropiedades = await Propiedad.countDocuments();
-    const usuariosPago = await Usuario.countDocuments({ planActivo: true });
+    const filtroSuscripcionRealActiva = {
+      stripeSubscriptionId: { $exists: true, $nin: [null, ''] },
+      subscriptionStatus: 'active'
+    };
+    const usuariosPago = await Usuario.countDocuments(filtroSuscripcionRealActiva);
 
     const planes = await Usuario.aggregate([
       { $group: { _id: '$plan', total: { $sum: 1 } } }
@@ -131,10 +135,10 @@ router.get('/stats', requireAdmin, async (req, res) => {
       vip: 0, vip_trial: 0
     };
 
-    let ingresosMes = 0;
-    planes.forEach(p => {
-      ingresosMes += (PRECIOS[p._id] || 0) * p.total;
-    });
+    const usuariosConPagoReal = await Usuario.find(filtroSuscripcionRealActiva, { plan: 1 }).lean();
+    const ingresosMes = usuariosConPagoReal.reduce((total, usuario) => (
+      total + (PRECIOS[usuario.plan] || 0)
+    ), 0);
 
     res.json({ totalUsuarios, totalPropiedades, usuariosPago, ingresosMes, planes });
   } catch (err) {
@@ -421,6 +425,7 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
         planFechaFin: null,
         stripeCustomerId: null,
         stripeSubscriptionId: null,
+        subscriptionStatus: null,
         trialAccepted: false,
         trialStartDate: null,
         trialEndDate: null,
