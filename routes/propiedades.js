@@ -117,9 +117,17 @@ const MAX_FOTOS = {
   pro_agentes: 30,
   agencia_basica: 40,
   agencia_pro: 50,
-  vip_trial: 99,
+  vip_trial: Infinity,
   vip: 99
 };
+
+function planTieneLimiteFotos(plan) {
+  return Number.isFinite(MAX_FOTOS[plan] ?? MAX_FOTOS.gratis);
+}
+
+function getPlanParaFotos(usuario) {
+  return usuario?.plan || "gratis";
+}
 
 function getPlanParaLimites(usuario) {
   let plan = usuario?.plan || "gratis";
@@ -181,11 +189,11 @@ const storage = new CloudinaryStorage({
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    const plan = getPlanParaLimites(req.user);
+    const plan = getPlanParaFotos(req.user);
     const maxFotos = MAX_FOTOS[plan] ?? MAX_FOTOS.gratis;
     req.imagenesRecibidas = (req.imagenesRecibidas || 0) + 1;
 
-    if (req.imagenesRecibidas > maxFotos) {
+    if (planTieneLimiteFotos(plan) && req.imagenesRecibidas > maxFotos) {
       const err = new Error(`Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`);
       err.statusCode = 403;
       return cb(err);
@@ -370,9 +378,10 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       
       const limite = LIMITES_ANUNCIOS[plan] ?? LIMITES_ANUNCIOS.gratis;
       // Límite de fotos
-      const maxFotos = MAX_FOTOS[plan] ?? MAX_FOTOS.gratis;
+      const planFotos = getPlanParaFotos(usuario);
+      const maxFotos = MAX_FOTOS[planFotos] ?? MAX_FOTOS.gratis;
       const numFotos = req.files?.length || 0;
-      if (numFotos > maxFotos) {
+      if (planTieneLimiteFotos(planFotos) && numFotos > maxFotos) {
         return res.status(403).json({
           error: `Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`
         });

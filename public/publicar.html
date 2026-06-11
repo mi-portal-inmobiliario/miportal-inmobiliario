@@ -437,7 +437,7 @@
       <div class="form-card-icon">📷</div>
       <div>
         <h2>Fotos</h2>
-        <span>Añade hasta 10 fotos del inmueble</span>
+        <span>Añade las fotos del inmueble</span>
       </div>
     </div>
     <div class="upload-area" onclick="document.getElementById('imagenes').click()">
@@ -476,24 +476,56 @@ let lngSel = null;
 let imgFiles = [];
 let imagenesExistentes = [];
 
+function getLimiteFotos(plan) {
+  const LIMITE_FOTOS = {
+    gratis: 10, basico: 20, destacado: 30, starter: 30,
+    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50,
+    vip: 99, vip_trial: Infinity
+  };
+  return LIMITE_FOTOS[plan] || LIMITE_FOTOS.gratis;
+}
+
+function planTieneLimiteFotos(plan) {
+  return Number.isFinite(getLimiteFotos(plan));
+}
+
+function actualizarTextoFotos(plan) {
+  const textoFotos = document.getElementById("textoFotos");
+  if (!textoFotos) return;
+
+  textoFotos.textContent = planTieneLimiteFotos(plan)
+    ? `JPG, PNG · Máximo ${getLimiteFotos(plan)} fotos · La primera será la portada`
+    : "JPG, PNG · Sin límite de fotos · La primera será la portada";
+}
+
+async function refrescarUsuarioPublicar(token) {
+  try {
+    const res = await fetch("/usuarios/me", {
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) return JSON.parse(localStorage.getItem("usuario") || "null");
+
+    const usuarioActualizado = await res.json();
+    localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
+    return usuarioActualizado;
+  } catch {
+    return JSON.parse(localStorage.getItem("usuario") || "null");
+  }
+}
+
 /* GUARD */
-document.addEventListener("DOMContentLoaded", () => {
-  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+document.addEventListener("DOMContentLoaded", async () => {
+  let usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const token   = localStorage.getItem("token");
   if (!usuario || !token) {
     alert("Debes iniciar sesión para publicar un anuncio");
     location.href = "/login.html";
+    return;
   }
 
-  const LIMITE_FOTOS = {
-    gratis: 10, basico: 20, destacado: 30, starter: 30,
-    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50,
-    vip: 99, vip_trial: 99
-  };
+  usuario = await refrescarUsuarioPublicar(token);
   const plan = usuario?.plan || "gratis";
-  const maxFotos = LIMITE_FOTOS[plan] || 10;
-  const textoFotos = document.getElementById("textoFotos");
-  if (textoFotos) textoFotos.textContent = `JPG, PNG · Máximo ${maxFotos} fotos · La primera será la portada`;
+  actualizarTextoFotos(plan);
 
   actualizarCampos();
 });
@@ -646,15 +678,13 @@ function mostrarMapa(lat, lng) {
 /* FOTOS */
 document.getElementById("imagenes").addEventListener("change", e => {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
-  const LIMITE_FOTOS = {
-    gratis: 10, basico: 20, destacado: 30, starter: 30,
-    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50,
-    vip: 99, vip_trial: 99
-  };
   const plan = usuario?.plan || "gratis";
-  const maxFotos = LIMITE_FOTOS[plan] || 10;
-  imgFiles = Array.from(e.target.files).slice(0, maxFotos);
-  if (e.target.files.length > maxFotos) {
+  const maxFotos = getLimiteFotos(plan);
+  imgFiles = planTieneLimiteFotos(plan)
+    ? Array.from(e.target.files).slice(0, maxFotos)
+    : Array.from(e.target.files);
+
+  if (planTieneLimiteFotos(plan) && e.target.files.length > maxFotos) {
     const mensajeEl = document.getElementById("mensaje");
     mensajeEl.textContent = `⚠️ Tu plan ${plan} permite un máximo de ${maxFotos} fotos. Se han seleccionado las primeras ${maxFotos}.`;
     mensajeEl.className = "err";
