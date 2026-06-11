@@ -238,7 +238,7 @@
 
       <div class="form-group">
         <label>Precio (€) *</label>
-        <input type="number" id="precio" placeholder="Ej: 185.000">
+        <input type="text" id="precio" inputmode="decimal" placeholder="Ej: 185.000">
       </div>
 
       <div class="form-group">
@@ -489,6 +489,18 @@ function planTieneLimiteFotos(plan) {
   return Number.isFinite(getLimiteFotos(plan));
 }
 
+function formatearPrecioInput(value) {
+  const limpio = String(value || "").replace(/[^\d,]/g, "");
+  if (!limpio) return "";
+
+  const [enteroRaw, decimalRaw] = limpio.split(",");
+  const entero = enteroRaw.replace(/\D/g, "");
+  const decimal = decimalRaw !== undefined ? decimalRaw.replace(/\D/g, "").slice(0, 2) : null;
+  const enteroFormateado = entero ? Number(entero).toLocaleString("es-ES") : "";
+
+  return decimal !== null ? `${enteroFormateado},${decimal}` : enteroFormateado;
+}
+
 function actualizarTextoFotos(plan) {
   const textoFotos = document.getElementById("textoFotos");
   if (!textoFotos) return;
@@ -528,6 +540,11 @@ document.addEventListener("DOMContentLoaded", async () => {
   actualizarTextoFotos(plan);
 
   actualizarCampos();
+
+  const precioInput = document.getElementById("precio");
+  precioInput.addEventListener("input", () => {
+    precioInput.value = formatearPrecioInput(precioInput.value);
+  });
 });
 
 /* ACTUALIZAR CAMPOS SEGÚN TIPO */
@@ -576,7 +593,7 @@ if (propiedadIdEditar) {
       document.getElementById("titulo").value        = p.titulo || "";
       document.getElementById("referencia").value    = p.referencia || "";
       document.getElementById("direccion").value     = p.direccion || "";
-      document.getElementById("precio").value        = p.precio || "";
+      document.getElementById("precio").value        = p.precio ? Number(p.precio).toLocaleString("es-ES") : "";
       document.getElementById("descripcion").value   = p.descripcion || "";
       document.getElementById("tipoOperacion").value = p.tipoOperacion || "";
       document.getElementById("habitaciones").value  = p.habitaciones || "";

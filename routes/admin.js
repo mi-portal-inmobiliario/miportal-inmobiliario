@@ -6,6 +6,7 @@ import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
 import EstadisticaAnuncio from '../models/EstadisticaAnuncio.js';
 import { requireAdmin } from '../middleware/auth.js';
+import { normalizeSpanishPrice } from '../utils/prices.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -19,6 +20,17 @@ const PLANES_VALIDOS = [
 
 function esObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
+}
+
+function limpiarTexto(value, max = 5000) {
+  if (value === undefined || value === null) return undefined;
+  return String(value).trim().replace(/\s+/g, ' ').slice(0, max);
+}
+
+function normalizarNumeroAdmin(value, fallback) {
+  if (value === '' || value === undefined || value === null) return fallback;
+  const numero = Number(value);
+  return Number.isFinite(numero) && numero >= 0 ? numero : Number.NaN;
 }
 
 function inicioDia(fecha = new Date()) {
@@ -347,6 +359,79 @@ router.get('/propiedades', requireAdmin, async (req, res) => {
       .limit(100);
     res.json(propiedades);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Editar propiedad desde admin
+router.put('/propiedades/:id', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const propiedad = await Propiedad.findById(req.params.id);
+    if (!propiedad) return res.status(404).json({ error: 'Propiedad no encontrada' });
+
+    const {
+      titulo,
+      precio,
+      tipoOperacion,
+      direccion,
+      habitaciones,
+      banos,
+      superficie,
+      descripcion,
+      visiblePublicamente
+    } = req.body;
+
+    if (titulo !== undefined) propiedad.titulo = limpiarTexto(titulo, 160);
+    if (direccion !== undefined) propiedad.direccion = limpiarTexto(direccion, 300);
+    if (descripcion !== undefined) propiedad.descripcion = limpiarTexto(descripcion, 5000);
+
+    if (precio !== undefined) {
+      const precioNormalizado = normalizeSpanishPrice(precio);
+      if (!Number.isFinite(precioNormalizado) || precioNormalizado < 0) {
+        return res.status(400).json({ error: 'Precio inválido' });
+      }
+      propiedad.precio = precioNormalizado;
+    }
+
+    if (tipoOperacion !== undefined) {
+      if (!['venta', 'alquiler'].includes(tipoOperacion)) {
+        return res.status(400).json({ error: 'Tipo de operación inválido' });
+      }
+      propiedad.tipoOperacion = tipoOperacion;
+    }
+
+    if (habitaciones !== undefined) {
+      const valor = normalizarNumeroAdmin(habitaciones, 0);
+      if (!Number.isFinite(valor)) return res.status(400).json({ error: 'Habitaciones inválidas' });
+      propiedad.habitaciones = valor;
+    }
+
+    if (banos !== undefined) {
+      const valor = normalizarNumeroAdmin(banos, 0);
+      if (!Number.isFinite(valor)) return res.status(400).json({ error: 'Baños inválidos' });
+      propiedad.banos = valor;
+    }
+
+    if (superficie !== undefined) {
+      const valor = normalizarNumeroAdmin(superficie, undefined);
+      if (valor !== undefined && !Number.isFinite(valor)) return res.status(400).json({ error: 'Superficie inválida' });
+      propiedad.superficie = valor;
+    }
+    if (visiblePublicamente !== undefined) {
+      propiedad.visiblePublicamente = visiblePublicamente === true || visiblePublicamente === 'true';
+    }
+
+    await propiedad.save();
+    res.json({ ok: true, propiedad });
+  } catch (err) {
+    console.error('Error editando propiedad desde admin:', {
+      propiedadId: req.params.id,
+      error: err.message
+    });
     res.status(500).json({ error: err.message });
   }
 });

@@ -528,6 +528,47 @@
 
     .modal-admin-body { padding: 24px; }
 
+    .admin-form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .admin-form-field.full { grid-column: 1 / -1; }
+    .admin-form-field label {
+      display: block;
+      font-size: 0.76rem;
+      font-weight: 700;
+      color: #777;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+
+    .admin-form-field input,
+    .admin-form-field select,
+    .admin-form-field textarea {
+      width: 100%;
+      border: 1.5px solid #e8e8e3;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font: inherit;
+      color: #1a1a1a;
+      outline: none;
+      background: #fff;
+    }
+
+    .admin-form-field textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    .admin-form-field input:focus,
+    .admin-form-field select:focus,
+    .admin-form-field textarea:focus {
+      border-color: #7cc242;
+    }
+
     .modal-summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -585,6 +626,7 @@
       .section-head { align-items: flex-start; flex-direction: column; }
       .section-actions { justify-content: flex-start; }
       .modal-header-actions { justify-content: flex-start; }
+      .admin-form-grid { grid-template-columns: 1fr; }
       .btn-estadisticas, .btn-cancelar-suscripcion { margin: 6px 0 0 0; display: block; }
     }
 
@@ -822,6 +864,68 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="modalPropiedad" onclick="cerrarModalPropiedad(event)">
+  <div class="modal-admin" onclick="event.stopPropagation()">
+    <div class="modal-admin-header">
+      <div>
+        <h3>Editar propiedad</h3>
+        <p>Corrección rápida de datos del anuncio</p>
+      </div>
+      <div class="modal-header-actions">
+        <button onclick="guardarPropiedadAdmin()" class="btn-exportar">Guardar cambios</button>
+        <button class="modal-close" onclick="cerrarModalPropiedad()" aria-label="Cerrar">×</button>
+      </div>
+    </div>
+    <div class="modal-admin-body">
+      <input type="hidden" id="editPropiedadId">
+      <div class="admin-form-grid">
+        <div class="admin-form-field full">
+          <label for="editTitulo">Título</label>
+          <input type="text" id="editTitulo">
+        </div>
+        <div class="admin-form-field">
+          <label for="editPrecio">Precio</label>
+          <input type="text" id="editPrecio" inputmode="decimal">
+        </div>
+        <div class="admin-form-field">
+          <label for="editTipoOperacion">Tipo de operación</label>
+          <select id="editTipoOperacion">
+            <option value="venta">Venta</option>
+            <option value="alquiler">Alquiler</option>
+          </select>
+        </div>
+        <div class="admin-form-field full">
+          <label for="editDireccion">Dirección</label>
+          <input type="text" id="editDireccion">
+        </div>
+        <div class="admin-form-field">
+          <label for="editHabitaciones">Habitaciones</label>
+          <input type="number" id="editHabitaciones" min="0">
+        </div>
+        <div class="admin-form-field">
+          <label for="editBanos">Baños</label>
+          <input type="number" id="editBanos" min="0" step="0.5">
+        </div>
+        <div class="admin-form-field">
+          <label for="editSuperficie">Superficie</label>
+          <input type="number" id="editSuperficie" min="0">
+        </div>
+        <div class="admin-form-field">
+          <label for="editVisible">Estado visible/publicado</label>
+          <select id="editVisible">
+            <option value="true">Visible públicamente</option>
+            <option value="false">Oculto</option>
+          </select>
+        </div>
+        <div class="admin-form-field full">
+          <label for="editDescripcion">Descripción</label>
+          <textarea id="editDescripcion"></textarea>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 let adminToken = localStorage.getItem('adminToken');
 if (adminToken) mostrarPanel();
@@ -861,9 +965,17 @@ let chartGeneralVisitas = null;
 let chartGeneralContactos = null;
 let chartUsuarioVisitas = null;
 let chartUsuarioContactos = null;
+let propiedadesAdmin = [];
 
 function numero(value) {
   return Number(value || 0).toLocaleString('es-ES');
+}
+
+function formatoPrecioAdmin(value) {
+  return Number(value || 0).toLocaleString('es-ES', {
+    minimumFractionDigits: Number(value || 0) % 1 ? 2 : 0,
+    maximumFractionDigits: 2
+  });
 }
 
 function porcentaje(value) {
@@ -1886,6 +1998,7 @@ async function cargarPropiedades() {
     headers: { 'Authorization': 'Bearer ' + adminToken }
   });
   const propiedades = await res.json();
+  propiedadesAdmin = propiedades;
 
   document.getElementById('countPropiedades').textContent = `${propiedades.length} anuncios`;
 
@@ -1896,13 +2009,71 @@ async function cargarPropiedades() {
       <tr>
         <td>${p.titulo}</td>
         <td style="color:#aaa;font-size:0.82rem;">${p.direccion || '—'}</td>
-        <td>${p.precio?.toLocaleString('es-ES')} €</td>
+        <td>${formatoPrecioAdmin(p.precio)} €</td>
         <td>${tipo}</td>
         <td>${fecha}</td>
-        <td><button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button></td>
+        <td>
+          <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
+          <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
+        </td>
       </tr>
     `;
   }).join('');
+}
+
+function editarPropiedadAdmin(id) {
+  const propiedad = propiedadesAdmin.find(p => String(p._id) === String(id));
+  if (!propiedad) return alert('No se encontró la propiedad');
+
+  document.getElementById('editPropiedadId').value = propiedad._id;
+  document.getElementById('editTitulo').value = propiedad.titulo || '';
+  document.getElementById('editPrecio').value = propiedad.precio ? formatoPrecioAdmin(propiedad.precio) : '';
+  document.getElementById('editTipoOperacion').value = propiedad.tipoOperacion || 'venta';
+  document.getElementById('editDireccion').value = propiedad.direccion || '';
+  document.getElementById('editHabitaciones').value = propiedad.habitaciones ?? 0;
+  document.getElementById('editBanos').value = propiedad.banos ?? 0;
+  document.getElementById('editSuperficie').value = propiedad.superficie ?? '';
+  document.getElementById('editDescripcion').value = propiedad.descripcion || '';
+  document.getElementById('editVisible').value = propiedad.visiblePublicamente === false ? 'false' : 'true';
+  document.getElementById('modalPropiedad').classList.add('visible');
+}
+
+function cerrarModalPropiedad(event) {
+  if (event && event.target.id !== 'modalPropiedad') return;
+  document.getElementById('modalPropiedad').classList.remove('visible');
+}
+
+async function guardarPropiedadAdmin() {
+  const id = document.getElementById('editPropiedadId').value;
+  const payload = {
+    titulo: document.getElementById('editTitulo').value,
+    precio: document.getElementById('editPrecio').value,
+    tipoOperacion: document.getElementById('editTipoOperacion').value,
+    direccion: document.getElementById('editDireccion').value,
+    habitaciones: document.getElementById('editHabitaciones').value,
+    banos: document.getElementById('editBanos').value,
+    superficie: document.getElementById('editSuperficie').value,
+    descripcion: document.getElementById('editDescripcion').value,
+    visiblePublicamente: document.getElementById('editVisible').value === 'true'
+  };
+
+  const res = await fetch(`/admin/propiedades/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': 'Bearer ' + adminToken,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json().catch(() => ({}));
+
+  if (!res.ok) {
+    alert(data.error || 'No se pudo guardar la propiedad');
+    return;
+  }
+
+  cerrarModalPropiedad();
+  await cargarPropiedades();
 }
 
 async function eliminarPropiedad(id) {

@@ -16,6 +16,7 @@ import {
   numberFromInput,
   optionalCleanString,
   optionalNumberFromInput,
+  priceFromInput,
   validateBody,
   validateQuery,
   z
@@ -60,7 +61,7 @@ const propiedadBaseSchema = {
   titulo: cleanString(160),
   referencia: optionalCleanString(80),
   direccion: cleanString(300),
-  precio: numberFromInput.pipe(z.number().min(0)),
+  precio: priceFromInput.pipe(z.number().min(0)),
   descripcion: optionalCleanString(5000),
   tipoOperacion: tipoOperacionSchema,
   habitaciones: numberFromInput.pipe(z.number().int().min(0)),
@@ -545,7 +546,7 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
     propiedad.titulo       = titulo || propiedad.titulo;
     propiedad.referencia   = req.body.referencia !== undefined ? req.body.referencia : propiedad.referencia;
     propiedad.direccion    = direccion || propiedad.direccion;
-    propiedad.precio       = precio ? Number(precio) : propiedad.precio;
+    propiedad.precio       = precio !== undefined ? Number(precio) : propiedad.precio;
     propiedad.descripcion  = descripcion || propiedad.descripcion;
     propiedad.tipoOperacion = tipoOperacion || propiedad.tipoOperacion;
     const {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { normalizeSpanishPrice } from "./prices.js";
 
 export const objectId = z
   .string()
@@ -18,6 +19,11 @@ export const optionalCleanString = (max = 500) =>
 
 export const numberFromInput = z.preprocess(
   value => value === "" || value === undefined || value === null ? undefined : Number(value),
+  z.number().finite()
+);
+
+export const priceFromInput = z.preprocess(
+  value => normalizeSpanishPrice(value),
   z.number().finite()
 );
 
