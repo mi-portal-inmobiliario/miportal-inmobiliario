@@ -1,10 +1,19 @@
 /* ===========================
    CONTENEDOR GENERAL
 =========================== */
+html,
+body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
 .container {
+  width: min(1100px, calc(100% - 40px));
   max-width: 1100px;
   margin: 30px auto;
   padding: 0 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 /* ===========================
@@ -31,9 +40,18 @@
 =========================== */
 .propiedad-layout {
   display: grid;
-  grid-template-columns: 1fr 380px;
+  grid-template-columns: minmax(0, 1fr) 380px;
   gap: 30px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.propiedad-left,
+.propiedad-right {
+  min-width: 0;
+  max-width: 100%;
 }
 
 /* ===========================
@@ -42,6 +60,7 @@
 .slider-container {
   position: relative;
   width: 100%;
+  max-width: 100%;
   height: 460px;
   border-radius: 16px;
   overflow: hidden;
@@ -51,7 +70,9 @@
 }
 
 .slider-img {
+  display: block;
   width: 100%;
+  max-width: 100%;
   height: 100%;
   object-fit: cover;
   cursor: zoom-in;
@@ -122,10 +143,17 @@
 =========================== */
 .miniaturas {
   display: flex;
+  flex-wrap: nowrap;
   gap: 8px;
   margin-top: 10px;
   overflow-x: auto;
+  overflow-y: hidden;
   padding-bottom: 4px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
 .miniaturas::-webkit-scrollbar {
@@ -137,6 +165,7 @@
 }
 
 .miniatura {
+  flex: 0 0 80px;
   width: 80px;
   height: 60px;
   object-fit: cover;
@@ -144,7 +173,6 @@
   cursor: pointer;
   opacity: 0.55;
   transition: all 0.2s ease;
-  flex-shrink: 0;
   border: 2px solid transparent;
 }
 
@@ -164,6 +192,10 @@
   padding: 24px 28px;
   margin-top: 20px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
 }
 
 .propiedad-descripcion h2,
@@ -175,6 +207,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .propiedad-descripcion h2::after {
@@ -188,6 +221,9 @@
   font-size: 0.95rem;
   color: #555;
   line-height: 1.8;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 /* ===========================
@@ -199,6 +235,9 @@
   padding: 24px 28px;
   margin-top: 20px;
   box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .propiedad-mapa-wrap h2::after {
@@ -213,6 +252,7 @@
 
 #mapa {
   width: 100%;
+  max-width: 100%;
   height: 320px;
   border-radius: 12px;
   margin-top: 10px;
@@ -231,6 +271,9 @@
   position: sticky;
   top: 90px;
   border: 1px solid rgba(0,0,0,0.05);
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 
 .estado-comercial-badge {
@@ -251,6 +294,7 @@
   color: #222;
   margin: 12px 0 4px;
   letter-spacing: -1px;
+  overflow-wrap: anywhere;
 }
 
 .propiedad-titulo {
@@ -259,6 +303,7 @@
   color: #333;
   margin-bottom: 8px;
   line-height: 1.4;
+  overflow-wrap: anywhere;
 }
 
 .propiedad-dir {
@@ -268,6 +313,8 @@
   display: flex;
   align-items: center;
   gap: 4px;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .propiedad-hab {
@@ -407,6 +454,8 @@
 
 @media (max-width: 768px) {
   .container {
+    width: min(1100px, calc(100% - 24px));
+    padding: 0 12px;
     overflow-x: hidden;
   }
 
@@ -427,16 +476,20 @@
 
 .propiedad-video {
   margin-top: 28px;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .video-wrap {
   border-radius: 16px;
   overflow: hidden;
   background: #000;
+  max-width: 100%;
 }
 
 .video-wrap iframe {
   width: 100%;
+  max-width: 100%;
   height: 500px;
   border: none;
 }
@@ -477,6 +530,7 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin: 16px 0;
+  min-width: 0;
 }
 
 .caract-item {
@@ -489,6 +543,8 @@
   border-radius: 10px;
   font-size: 0.88rem;
   color: #444;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .caract-item span {
