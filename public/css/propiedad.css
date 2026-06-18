@@ -276,9 +276,33 @@ body {
   box-sizing: border-box;
 }
 
+.propiedad-card-info > .tag-tipo {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  max-width: 100%;
+  min-width: max-content;
+  margin: 0 8px 8px 0;
+  padding: 7px 14px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: visible;
+  vertical-align: top;
+  box-sizing: border-box;
+}
+
+.propiedad-card-info > .tag-tipo:not(.tag-venta):not(.tag-alquiler) {
+  background: #eef9e8;
+  color: #2d7a18;
+  border: 1px solid #cfe8bf;
+}
+
 .estado-comercial-badge {
   display: inline-flex;
   align-items: center;
+  width: fit-content;
   max-width: 100%;
   padding: 6px 12px;
   border-radius: 999px;
@@ -286,6 +310,7 @@ body {
   font-weight: 800;
   line-height: 1;
   white-space: nowrap;
+  overflow: visible;
 }
 
 .propiedad-precio {
@@ -448,7 +473,7 @@ body {
   .propiedad-card-info {
     position: static;
     order: -1;
-    overflow: hidden;
+    overflow: visible;
   }
 }
 
