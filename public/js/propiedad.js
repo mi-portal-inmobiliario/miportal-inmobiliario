@@ -197,7 +197,6 @@ function renderPropiedad() {
       <div class="propiedad-right">
         <div class="propiedad-card-info">
           <span class="tag-tipo ${tipoCls}">${tipo}</span>
-          ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}
           <div class="propiedad-precio">${precio}</div>
           <div style="margin:8px 0 10px;">${estadoComercialBadge(propiedad.estadoComercial)}</div>
           <h1 class="propiedad-titulo">${propiedad.titulo}</h1>
