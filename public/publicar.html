@@ -27,6 +27,54 @@
     .publicar-header h1 { font-size: 1.9rem; font-weight: 800; color: #1a1a1a; margin-bottom: 6px; }
     .publicar-header p { color: #999; font-size: 0.95rem; }
 
+    .publicar-ayuda {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: -14px 0 28px;
+      padding: 18px 22px;
+      background: #f0f9e8;
+      border: 1px solid #d8edc9;
+      border-radius: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    }
+
+    .publicar-ayuda h2 {
+      margin: 0 0 4px;
+      font-size: 1rem;
+      font-weight: 800;
+      color: #2d7a18;
+    }
+
+    .publicar-ayuda p {
+      margin: 0;
+      color: #5f6f55;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .btn-guia-publicacion {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      padding: 11px 16px;
+      border-radius: 10px;
+      background: #7cc242;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 4px 14px rgba(124, 194, 66, 0.28);
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+
+    .btn-guia-publicacion:hover {
+      background: #6aad35;
+      transform: translateY(-1px);
+    }
+
     .pasos {
       display: flex;
       align-items: center;
@@ -167,6 +215,13 @@
     @media (max-width: 600px) {
       .form-grid { grid-template-columns: 1fr; }
       .pasos { display: none; }
+      .publicar-ayuda {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-top: -8px;
+        padding: 18px;
+      }
+      .btn-guia-publicacion { width: 100%; }
       .form-card { padding: 20px 18px; }
     }
   </style>
@@ -181,6 +236,16 @@
     <h1 id="titulo-pagina">Publicar propiedad</h1>
     <p id="subtitulo-pagina">Rellena los datos de tu inmueble para publicarlo en HomeClick24</p>
   </div>
+
+  <section class="publicar-ayuda" aria-label="Ayuda para publicar anuncios">
+    <div>
+      <h2>¿Necesitas ayuda para publicar?</h2>
+      <p>Consulta la guía paso a paso para iniciar sesión, completar los datos, subir fotos y compartir tu anuncio.</p>
+    </div>
+    <a class="btn-guia-publicacion" href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">
+      📘 Ver guía rápida
+    </a>
+  </section>
 
   <!-- PASOS -->
   <div class="pasos">
@@ -1081,6 +1146,7 @@ async function publicar() {
       <a href="/alquiler.html">Alquilar vivienda</a>
       <a href="/planes.html">Planes y precios</a>
       <a href="/publicar.html">Publicar anuncio</a>
+      <a href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">Ayuda para publicar</a>
     </div>
     <div class="footer-col">
       <h4>Mi cuenta</h4>
