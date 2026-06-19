@@ -40,6 +40,12 @@ const estadoComercialSchema = z.enum(["Disponible", "Reservado", "Vendido", "Alq
 const booleanInput = z
   .preprocess(value => typeof value === "boolean" ? String(value) : value, z.enum(["true", "false"]))
   .optional();
+const imagenMimeTypesPermitidos = new Set(["image/jpeg", "image/png", "image/webp"]);
+const requiredCleanString = (max, label) =>
+  z.preprocess(
+    value => typeof value === "string" ? value.trim().replace(/\s+/g, " ") : value,
+    z.string().min(1, `${label} es obligatorio`).max(max)
+  );
 
 const propiedadesQuerySchema = z.object({
   tipo: tipoOperacionSchema.optional(),
@@ -58,9 +64,9 @@ const propiedadesQuerySchema = z.object({
 });
 
 const propiedadBaseSchema = {
-  titulo: cleanString(160),
+  titulo: requiredCleanString(160, "titulo"),
   referencia: optionalCleanString(80),
-  direccion: cleanString(300),
+  direccion: requiredCleanString(300, "direccion"),
   precio: priceFromInput.pipe(z.number().min(0)),
   descripcion: optionalCleanString(5000),
   tipoOperacion: tipoOperacionSchema,
@@ -127,7 +133,11 @@ function planTieneLimiteFotos(plan) {
 }
 
 function getPlanParaFotos(usuario) {
-  return usuario?.plan || "gratis";
+  let plan = usuario?.plan || "gratis";
+  if (plan === "vip_trial" && (!usuario.trialAccepted || !usuario.planActivo)) {
+    plan = "gratis";
+  }
+  return plan;
 }
 
 function getPlanParaLimites(usuario) {
@@ -155,6 +165,17 @@ async function limpiarImagenesSubidas(files = []) {
       console.warn("No se pudo limpiar imagen subida:", errImg.message);
     }
   }
+}
+
+function logPublicacion(estado, data = {}) {
+  console.log("[Publicacion]", { estado, ...data });
+}
+
+function usuarioTienePlanActivoParaPublicar(usuario) {
+  const plan = usuario?.plan || "gratis";
+  if (plan === "gratis") return true;
+  if (plan === "vip_trial") return Boolean(usuario.trialAccepted && usuario.planActivo);
+  return Boolean(usuario.planActivo);
 }
 
 // ==================================================
@@ -189,7 +210,16 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({
   storage,
+  limits: {
+    fileSize: 15 * 1024 * 1024
+  },
   fileFilter: (req, file, cb) => {
+    if (!imagenMimeTypesPermitidos.has(file.mimetype)) {
+      const err = new Error("Formato de imagen no permitido. Sube imágenes JPG, PNG o WEBP.");
+      err.statusCode = 400;
+      return cb(err);
+    }
+
     const plan = getPlanParaFotos(req.user);
     const maxFotos = MAX_FOTOS[plan] ?? MAX_FOTOS.gratis;
     req.imagenesRecibidas = (req.imagenesRecibidas || 0) + 1;
@@ -208,8 +238,21 @@ function uploadImagenes(req, res, next) {
   upload.array("imagenes")(req, res, async err => {
     if (!err) return next();
     await limpiarImagenesSubidas(req.files);
-    return res.status(err.statusCode || 500).json({
-      error: err.message || "Error al subir imágenes"
+    const status = err.code === "LIMIT_FILE_SIZE" ? 413 : (err.statusCode || 500);
+    const mensaje = err.code === "LIMIT_FILE_SIZE"
+      ? "Una o varias imágenes superan el tamaño máximo permitido de 15 MB."
+      : (err.message || "No se han podido subir las imágenes. Revisa el formato y vuelve a intentarlo.");
+
+    logPublicacion("error_imagenes", {
+      status,
+      code: err.code || null,
+      message: mensaje,
+      userId: req.user?.id || null,
+      plan: req.user?.plan || null
+    });
+
+    return res.status(status).json({
+      error: mensaje
     });
   });
 }
@@ -374,6 +417,16 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
     usuario = await Usuario.findById(usuarioId);
 
     if (usuario) {
+      if (!usuarioTienePlanActivoParaPublicar(usuario)) {
+        logPublicacion("plan_inactivo", {
+          userId: usuarioId,
+          plan: usuario.plan || "gratis",
+          planActivo: Boolean(usuario.planActivo)
+        });
+        return res.status(403).json({
+          error: "Necesitas activar un plan para publicar."
+        });
+      }
 
       plan = getPlanParaLimites(usuario);
       
@@ -383,12 +436,24 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       const maxFotos = MAX_FOTOS[planFotos] ?? MAX_FOTOS.gratis;
       const numFotos = req.files?.length || 0;
       if (planTieneLimiteFotos(planFotos) && numFotos > maxFotos) {
+        logPublicacion("limite_fotos", {
+          userId: usuarioId,
+          plan: planFotos,
+          recibidas: numFotos,
+          limite: maxFotos
+        });
         return res.status(403).json({
           error: `Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`
         });
       }
       const totalAnuncios = await Propiedad.countDocuments({ usuarioId });
       if (totalAnuncios >= limite) {
+        logPublicacion("limite_anuncios", {
+          userId: usuarioId,
+          plan,
+          totalAnuncios,
+          limite
+        });
         return res.status(403).json({ 
           error: `Has alcanzado el límite de anuncios de tu plan ${plan}. Mejora tu plan para publicar más.` 
         });
@@ -479,6 +544,12 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
 
     // Buscar alertas que coincidan
     console.log("Nueva propiedad creada:", propiedad.titulo);
+    logPublicacion("creada", {
+      userId: usuarioId,
+      propiedadId: propiedad._id.toString(),
+      plan,
+      fotos: imagenes.length
+    });
 
     const alertasCoincidentes = await Alerta.find({
       activa: true,
@@ -518,6 +589,11 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
     res.status(201).json(propiedad);
 
   } catch (err) {
+    logPublicacion("error_servidor", {
+      userId: req.user?.id || null,
+      message: err.message,
+      name: err.name
+    });
     console.error(err);
     res.status(500).json({ message: "Error al crear propiedad" });
   }

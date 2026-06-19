@@ -34,7 +34,7 @@ export async function requireAuth(req, res, next) {
 
   if (!token) {
     logAuthDebug(req, "token_faltante_o_malformado");
-    return res.status(401).json({ error: "Token faltante" });
+    return res.status(401).json({ error: "Tu sesión ha caducado. Inicia sesión de nuevo para publicar." });
   }
 
   try {
@@ -49,7 +49,7 @@ export async function requireAuth(req, res, next) {
     const usuario = await Usuario.findById(decoded.id);
     if (!usuario) {
       logAuthDebug(req, "usuario_no_encontrado", { userId: decoded.id || null });
-      return res.status(401).json({ error: "Usuario no encontrado" });
+      return res.status(401).json({ error: "Tu sesión ha caducado. Inicia sesión de nuevo para publicar." });
     }
 
     req.user = {
@@ -75,7 +75,7 @@ export async function requireAuth(req, res, next) {
     next();
   } catch (err) {
     logAuthDebug(req, "token_invalido", { motivo: err.name || "JWTError" });
-    return res.status(401).json({ error: "Token inválido" });
+    return res.status(401).json({ error: "Tu sesión ha caducado. Inicia sesión de nuevo para publicar." });
   }
 }
 

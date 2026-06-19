@@ -476,6 +476,9 @@ let lngSel = null;
 let imgFiles = [];
 let imagenesExistentes = [];
 let usuarioActualPublicar = null;
+const FORMATOS_IMAGEN_PERMITIDOS = new Set(["image/jpeg", "image/png", "image/webp"]);
+const MAX_IMAGEN_MB = 15;
+const MAX_IMAGEN_BYTES = MAX_IMAGEN_MB * 1024 * 1024;
 
 function obtenerTokenPublicar() {
   const token = (localStorage.getItem("token") || "").trim();
@@ -502,7 +505,7 @@ function redirigirLoginPublicar() {
 
 function mostrarSesionCaducada() {
   const mensajeEl = document.getElementById("mensaje");
-  const texto = "Tu sesión no es válida. Vuelve a iniciar sesión.";
+  const texto = "Tu sesión ha caducado. Inicia sesión de nuevo para publicar.";
   if (mensajeEl) {
     mensajeEl.textContent = "⚠️ " + texto;
     mensajeEl.className = "err";
@@ -516,6 +519,13 @@ function esErrorAutorizacionSesion(data = {}) {
   return texto.includes("token") ||
     texto.includes("no autorizado") ||
     texto.includes("no tienes permisos");
+}
+
+function usuarioPuedePublicar(usuario) {
+  const plan = usuario?.plan || "gratis";
+  if (plan === "gratis") return true;
+  if (plan === "vip_trial") return Boolean(usuario.trialAccepted && usuario.planActivo);
+  return Boolean(usuario?.planActivo);
 }
 
 async function leerJsonSeguro(res) {
@@ -558,6 +568,12 @@ function actualizarTextoFotos(plan) {
   textoFotos.textContent = planTieneLimiteFotos(plan)
     ? `JPG, PNG · Máximo ${getLimiteFotos(plan)} fotos · La primera será la portada`
     : "JPG, PNG · Sin límite de fotos · La primera será la portada";
+}
+
+function mostrarErrorPublicacion(mensaje) {
+  const mensajeEl = document.getElementById("mensaje");
+  mensajeEl.textContent = "⚠️ " + mensaje;
+  mensajeEl.className = "err";
 }
 
 async function refrescarUsuarioPublicar(token) {
@@ -780,14 +796,28 @@ document.getElementById("imagenes").addEventListener("change", e => {
 
   const plan = usuario?.plan || "gratis";
   const maxFotos = getLimiteFotos(plan);
-  imgFiles = planTieneLimiteFotos(plan)
-    ? Array.from(e.target.files).slice(0, maxFotos)
-    : Array.from(e.target.files);
+  const seleccionadas = Array.from(e.target.files);
+  const conFormatoInvalido = seleccionadas.filter(file => !FORMATOS_IMAGEN_PERMITIDOS.has(file.type));
+  const demasiadoGrandes = seleccionadas.filter(file => file.size > MAX_IMAGEN_BYTES);
 
-  if (planTieneLimiteFotos(plan) && e.target.files.length > maxFotos) {
-    const mensajeEl = document.getElementById("mensaje");
-    mensajeEl.textContent = `⚠️ Tu plan ${plan} permite un máximo de ${maxFotos} fotos. Se han seleccionado las primeras ${maxFotos}.`;
-    mensajeEl.className = "err";
+  if (conFormatoInvalido.length || demasiadoGrandes.length) {
+    const mensajes = [];
+    if (conFormatoInvalido.length) mensajes.push("Formato no permitido. Sube imágenes JPG, PNG o WEBP.");
+    if (demasiadoGrandes.length) mensajes.push(`Una o varias imágenes superan ${MAX_IMAGEN_MB} MB.`);
+
+    mostrarErrorPublicacion(mensajes.join(" "));
+    e.target.value = "";
+    imgFiles = [];
+    renderPreview();
+    return;
+  }
+
+  imgFiles = planTieneLimiteFotos(plan)
+    ? seleccionadas.slice(0, maxFotos)
+    : seleccionadas;
+
+  if (planTieneLimiteFotos(plan) && seleccionadas.length > maxFotos) {
+    mostrarErrorPublicacion(`Tu plan ${plan} permite un máximo de ${maxFotos} fotos. Se han seleccionado las primeras ${maxFotos}.`);
   }
   renderPreview();
 });
@@ -845,9 +875,13 @@ async function publicar() {
     usuario = await refrescarUsuarioPublicar(token);
   } catch (err) {
     if (err.message !== "SESSION_EXPIRED") {
-      mensajeEl.textContent = "⚠️ No hemos podido comprobar tu sesión. Revisa la conexión e inténtalo de nuevo.";
-      mensajeEl.className = "err";
+      mostrarErrorPublicacion("No hemos podido comprobar tu sesión. Revisa la conexión e inténtalo de nuevo.");
     }
+    return;
+  }
+
+  if (!usuarioPuedePublicar(usuario)) {
+    mostrarErrorPublicacion("Necesitas activar un plan para publicar.");
     return;
   }
 
@@ -858,29 +892,31 @@ async function publicar() {
   mensajeEl.className = "";
   mensajeEl.textContent = "";
 
-  if (!titulo || !direccion || !precio || !tipoOperacion) {
-    mensajeEl.textContent = "⚠️ Rellena todos los campos obligatorios";
-    mensajeEl.className = "err";
+  const camposFaltantes = [];
+  if (!titulo) camposFaltantes.push("título");
+  if (!direccion) camposFaltantes.push("dirección");
+  if (!precio) camposFaltantes.push("precio");
+  if (!tipoOperacion) camposFaltantes.push("tipo de operación");
+
+  if (camposFaltantes.length) {
+    mostrarErrorPublicacion(`Faltan campos obligatorios: ${camposFaltantes.join(", ")}.`);
     return;
   }
 
   if (esResidencial && !habitaciones) {
-    mensajeEl.textContent = "⚠️ Selecciona el número de habitaciones";
-    mensajeEl.className = "err";
+    mostrarErrorPublicacion("Falta el campo obligatorio: habitaciones.");
     return;
   }
 
   if (!latSel || !lngSel) {
     if (!propiedadIdEditar) {
-      mensajeEl.textContent = "⚠️ Selecciona una dirección válida del desplegable";
-      mensajeEl.className = "err";
+      mostrarErrorPublicacion("Selecciona una dirección válida del desplegable.");
       return;
     }
   }
 
   if (!imgFiles.length && !propiedadIdEditar) {
-    mensajeEl.textContent = "⚠️ Añade al menos una foto";
-    mensajeEl.className = "err";
+    mostrarErrorPublicacion("Añade al menos una foto.");
     return;
   }
 
@@ -961,6 +997,16 @@ async function publicar() {
 
   redirigirLoginPublicar();
 
+} else if (res.status === 400) {
+
+  mensajeEl.textContent =
+    "⚠️ " + (data.message || data.error || "Revisa los datos del anuncio antes de publicarlo.");
+
+  mensajeEl.className = "err";
+
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
+
 } else if (res.status === 403) {
 
   if (esErrorAutorizacionSesion(data)) {
@@ -976,6 +1022,26 @@ async function publicar() {
 
   mensajeEl.textContent =
     "⚠️ " + (data.error || data.message || "No tienes permisos para publicar con tu plan actual.");
+
+  mensajeEl.className = "err";
+
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
+
+} else if (res.status === 413) {
+
+  mensajeEl.textContent =
+    "⚠️ " + (data.error || data.message || "Una o varias imágenes superan el tamaño máximo permitido.");
+
+  mensajeEl.className = "err";
+
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
+
+} else if (res.status >= 500) {
+
+  mensajeEl.textContent =
+    "❌ No se ha podido publicar por un error temporal del servidor. Inténtalo de nuevo en unos minutos.";
 
   mensajeEl.className = "err";
 
