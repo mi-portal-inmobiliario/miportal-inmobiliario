@@ -32,6 +32,11 @@ const tipoInmuebleSchema = z.enum([
   "terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana",
   "garaje", "plaza_aparcamiento", "trastero", "otro"
 ]);
+const tiposConPlanta = new Set([
+  "piso", "apartamento", "atico", "duplex", "estudio",
+  "casa", "chalet", "adosado", "casa_campo", "casa_madera",
+  "local", "local_comercial", "oficina"
+]);
 const estadoSchema = z.enum(["obra_nueva", "segunda_mano"]);
 const certificadoEnergeticoSchema = z.enum([
   "A", "B", "C", "D", "E", "F", "G",
@@ -476,6 +481,7 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       certificadoEnergetico,
       estadoPropiedad,
       estadoComercial,
+      plantaLocal,
       garaje,
       piscina,
       terraza
@@ -507,6 +513,7 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       certificadoEnergetico: certificadoEnergetico || "",
       estadoPropiedad: estadoPropiedad || "",
       estadoComercial: estadoComercial || "Disponible",
+      plantaLocal: tiposConPlanta.has(tipoInmueble || "piso") ? (plantaLocal || "") : "",
       garaje:        garaje === "true",
       piscina:       piscina === "true",
       terraza:       terraza === "true",
@@ -639,6 +646,7 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
       certificadoEnergetico,
       estadoPropiedad,
       estadoComercial,
+      plantaLocal,
       garaje,
       piscina,
       terraza
@@ -653,6 +661,11 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
     propiedad.certificadoEnergetico = certificadoEnergetico !== undefined ? certificadoEnergetico : propiedad.certificadoEnergetico;
     propiedad.estadoPropiedad = estadoPropiedad !== undefined ? estadoPropiedad : propiedad.estadoPropiedad;
     propiedad.estadoComercial = estadoComercial !== undefined ? estadoComercial : propiedad.estadoComercial;
+    if (plantaLocal !== undefined || tipoInmueble !== undefined) {
+      propiedad.plantaLocal = tiposConPlanta.has(propiedad.tipoInmueble)
+        ? (plantaLocal || "")
+        : "";
+    }
     propiedad.garaje       = garaje !== undefined ? garaje === "true" : propiedad.garaje;
     propiedad.piscina      = piscina !== undefined ? piscina === "true" : propiedad.piscina;
     propiedad.terraza      = terraza !== undefined ? terraza === "true" : propiedad.terraza;

@@ -719,6 +719,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ACTUALIZAR CAMPOS SEGÚN TIPO */
+const TIPOS_CON_PLANTA = [
+  "piso", "apartamento", "atico", "duplex", "estudio",
+  "casa", "chalet", "adosado", "casa_campo", "casa_madera",
+  "local", "local_comercial", "oficina"
+];
+
+function tipoAdmitePlanta(tipo) {
+  return TIPOS_CON_PLANTA.includes(tipo);
+}
+
 function actualizarCampos() {
   const tipo = document.getElementById("tipoInmueble").value;
   const esGaraje = ["garaje", "plaza_aparcamiento"].includes(tipo);
@@ -726,6 +736,7 @@ function actualizarCampos() {
   const esLocal = ["local", "local_comercial", "oficina", "nave", "hotel", "edificio", "negocio"].includes(tipo);
   const esTerreno = ["terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana"].includes(tipo);
   const esResidencial = ["piso", "apartamento", "atico", "duplex", "estudio", "casa", "chalet", "adosado", "casa_campo", "casa_madera"].includes(tipo);
+  const mostrarPlanta = tipoAdmitePlanta(tipo);
 
   // Habitaciones y baños
   document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero || esLocal || esTerreno || tipo === "otro") ? "none" : "";
@@ -733,8 +744,9 @@ function actualizarCampos() {
   
   // Campos locales/oficinas
   document.getElementById("grupo-local").style.display = esLocal ? "" : "none";
-  document.getElementById("grupo-plantaLocal").style.display = esLocal ? "" : "none";
+  document.getElementById("grupo-plantaLocal").style.display = mostrarPlanta ? "" : "none";
   document.getElementById("grupo-escaparate").style.display = esLocal ? "" : "none";
+  if (!mostrarPlanta) document.getElementById("plantaLocal").value = "";
 
   // Campos garaje
   document.getElementById("grupo-tipoGaraje").style.display = esGaraje ? "" : "none";
@@ -1028,7 +1040,7 @@ async function publicar() {
   fd.append("terraza", document.getElementById("terraza").checked);
   fd.append("escaparate", document.getElementById("escaparate")?.checked || false);
   fd.append("usoPermitido", document.getElementById("usoPermitido")?.value || "");
-  fd.append("plantaLocal", document.getElementById("plantaLocal")?.value || "");
+  fd.append("plantaLocal", tipoAdmitePlanta(tipo) ? (document.getElementById("plantaLocal")?.value || "") : "");
   fd.append("tipoGaraje", document.getElementById("tipoGaraje")?.value || "");
   fd.append("alturaMaxima", document.getElementById("alturaMaxima")?.value || "");
   fd.append("accesoTrastero", document.getElementById("accesoTrastero")?.value || "");

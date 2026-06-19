@@ -220,7 +220,7 @@ function renderPropiedad() {
 
             <!-- Locales y oficinas -->
             ${propiedad.usoPermitido ? `<div class="caract-item">📋 <span>Uso: ${propiedad.usoPermitido}</span></div>` : ""}
-            ${propiedad.plantaLocal ? `<div class="caract-item">🏢 <span>${formatearPlanta(propiedad.plantaLocal)}</span></div>` : ""}
+            ${mostrarPlantaPropiedad(propiedad) ? `<div class="caract-item">🏢 <span>${formatearPlanta(propiedad.plantaLocal)}</span></div>` : ""}
             ${propiedad.escaparate ? `<div class="caract-item">🪟 <span>Con escaparate</span></div>` : ""}
 
             <!-- Garajes -->
@@ -471,6 +471,15 @@ function formatearTipo(tipo) {
     otro: "Otro"
   };
   return tipos[tipo] || tipo;
+}
+
+function mostrarPlantaPropiedad(propiedad) {
+  if (!propiedad?.plantaLocal) return false;
+  return [
+    "piso", "apartamento", "atico", "duplex", "estudio",
+    "casa", "chalet", "adosado", "casa_campo", "casa_madera",
+    "local", "local_comercial", "oficina"
+  ].includes(propiedad.tipoInmueble);
 }
 
 function formatearPlanta(planta) {
