@@ -8,12 +8,21 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
   <style>
+    html,
+    body {
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
     body { background: #f0f0ed; }
 
     .perfil-wrap {
       max-width: 1100px;
       margin: 30px auto;
       padding: 0 20px 80px;
+      width: 100%;
+      box-sizing: border-box;
+      overflow-x: hidden;
     }
 
     .perfil-hero {
@@ -25,6 +34,9 @@
       align-items: center;
       gap: 24px;
       border: 1px solid #e5e5e0;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .perfil-avatar {
@@ -41,7 +53,11 @@
       flex-shrink: 0;
     }
 
-    .perfil-info { flex: 1; }
+    .perfil-info {
+      flex: 1;
+      min-width: 0;
+      max-width: 100%;
+    }
 
     .perfil-info h2 {
       font-family: 'DM Serif Display', serif;
@@ -55,9 +71,12 @@
       color: #999;
       font-size: 0.88rem;
       margin-bottom: 12px;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
-    .perfil-tags { display: flex; gap: 8px; flex-wrap: wrap; }
+    .perfil-tags { display: flex; gap: 8px; flex-wrap: wrap; min-width: 0; }
 
     .perfil-tag {
       font-size: 0.72rem;
@@ -76,6 +95,7 @@
       flex-direction: column;
       gap: 8px;
       flex-shrink: 0;
+      max-width: 100%;
     }
 
     .btn-perfil {
@@ -90,6 +110,7 @@
       transition: all 0.2s ease;
       text-align: center;
       white-space: nowrap;
+      box-sizing: border-box;
     }
 
     .btn-perfil.green { background: #7cc242; color: #fff; }
@@ -155,6 +176,8 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
       margin-bottom: 4px;
+      max-width: 100%;
+      min-width: 0;
     }
 
     .perfil-stat {
@@ -163,6 +186,8 @@
       border-radius: 12px;
       padding: 16px;
       text-align: center;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .perfil-stat strong {
@@ -180,6 +205,7 @@
       letter-spacing: 1px;
       margin-top: 4px;
       display: block;
+      overflow-wrap: anywhere;
     }
 
     .stat-chat-line {
@@ -211,6 +237,9 @@
       border: 1px solid #e5e5e0;
       border-radius: 16px;
       padding: 24px;
+      max-width: 100%;
+      min-width: 0;
+      box-sizing: border-box;
     }
 
     .plan-card-top {
@@ -218,6 +247,8 @@
       align-items: center;
       justify-content: space-between;
       margin-bottom: 20px;
+      gap: 14px;
+      min-width: 0;
     }
 
     .plan-nombre {
@@ -236,6 +267,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 12px;
+      min-width: 0;
     }
 
     .plan-stat {
@@ -244,6 +276,7 @@
       border-radius: 10px;
       padding: 14px;
       text-align: center;
+      min-width: 0;
     }
 
     .plan-stat-val {
@@ -272,11 +305,21 @@
       overflow: hidden;
       border: 1px solid #e5e5e0;
       transition: transform 0.2s, box-shadow 0.2s;
+      min-width: 0;
+      max-width: 100%;
     }
 
     .card-propiedad:hover {
       transform: translateY(-3px);
       box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    }
+
+    .card-propiedad h3,
+    .card-direccion,
+    .card-hab {
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
 
     .card-acciones {
@@ -338,7 +381,7 @@
       flex-shrink: 0;
     }
 
-    .chat-info { flex: 1; }
+    .chat-info { flex: 1; min-width: 0; }
     .chat-info strong { display: block; font-size: 0.95rem; font-weight: 600; color: #1a1a1a; margin-bottom: 3px; }
     .chat-info small { color: #aaa; font-size: 0.82rem; }
     .chat-last-message {
@@ -399,14 +442,53 @@
     }
     .estado-vacio a:hover { background: #6aad35; }
 
-    @media (max-width: 900px) { .lista-propiedades { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 900px) { .lista-propiedades { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     @media (max-width: 600px) {
-      .perfil-hero { flex-direction: column; text-align: center; }
+      .perfil-wrap {
+        margin: 18px auto;
+        padding: 0 12px 90px;
+      }
+      .perfil-hero {
+        flex-direction: column;
+        text-align: center;
+        align-items: center;
+        gap: 16px;
+        padding: 22px 16px;
+      }
+      .perfil-avatar {
+        width: 68px;
+        height: 68px;
+        font-size: 1.7rem;
+      }
+      .perfil-info h2 {
+        font-size: 1.45rem;
+        line-height: 1.15;
+      }
       .perfil-tags { justify-content: center; }
-      .perfil-acciones { width: 100%; flex-direction: row; flex-wrap: wrap; justify-content: center; }
+      .perfil-acciones {
+        width: 100%;
+        flex-direction: column;
+        flex-wrap: nowrap;
+        justify-content: center;
+      }
+      .btn-perfil {
+        width: 100%;
+        white-space: normal;
+      }
       .lista-propiedades { grid-template-columns: 1fr; }
-      .perfil-stats { grid-template-columns: repeat(3, 1fr); }
-      .plan-stats { grid-template-columns: repeat(3, 1fr); }
+      .perfil-stats { grid-template-columns: 1fr; }
+      .plan-card { padding: 18px 16px; }
+      .plan-card-top {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .plan-stats { grid-template-columns: 1fr; }
+      .chat-item {
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px;
+      }
+      .chat-arrow { display: none; }
     }
   </style>
 </head>
