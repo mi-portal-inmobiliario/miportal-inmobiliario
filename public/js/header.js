@@ -172,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
               <a href="/perfil.html">Mi perfil</a>
               <a href="/favoritos.html">Favoritos</a>
               <a href="/perfil.html#chats">Conversaciones</a>
+              <a href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">Ayuda para publicar</a>
               <a href="#" id="logoutBtn" class="logout">Cerrar sesión</a>
             </div>
           </div>

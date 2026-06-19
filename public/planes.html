@@ -33,6 +33,11 @@
     .planes-eyebrow { font-size: 0.75rem; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: #7cc242; margin-bottom: 12px; }
     .planes-title { font-family: 'DM Serif Display', serif; font-size: 2.6rem; font-weight: 400; color: #1a1a1a; margin-bottom: 14px; line-height: 1.2; }
     .planes-sub { font-size: 1rem; color: #888; font-weight: 300; }
+    .planes-ayuda { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: -34px 0 42px; padding: 20px 24px; background: #f0f9e8; border: 1px solid #d8edc9; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+    .planes-ayuda h2 { margin: 0 0 5px; font-size: 1.05rem; font-weight: 700; color: #2d7a18; }
+    .planes-ayuda p { margin: 0; color: #5f6f55; font-size: 0.92rem; line-height: 1.5; }
+    .btn-guia-publicacion { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 11px 16px; border-radius: 10px; background: #7cc242; color: #fff; font-size: 0.9rem; font-weight: 700; text-decoration: none; box-shadow: 0 4px 14px rgba(124, 194, 66, 0.28); transition: transform 0.2s ease, background 0.2s ease; }
+    .btn-guia-publicacion:hover { background: #6aad35; transform: translateY(-1px); }
     .planes-section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #aaa; margin: 50px 0 20px; }
     .planes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 10px; }
     .planes-grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 10px; }
@@ -55,6 +60,8 @@
       .planes-grid { grid-template-columns: 1fr; }
       .planes-grid-2 { grid-template-columns: 1fr; }
       .planes-title { font-size: 1.9rem; }
+      .planes-ayuda { align-items: flex-start; flex-direction: column; margin: -30px 0 34px; padding: 18px; }
+      .btn-guia-publicacion { width: 100%; }
     }
   </style>
 </head>
@@ -70,6 +77,16 @@
     <h1 class="planes-title">Simple, transparente, sin sorpresas</h1>
     <p class="planes-sub">Elige el plan que mejor se adapta a tus necesidades</p>
   </div>
+
+  <section class="planes-ayuda" aria-label="Ayuda para publicar anuncios">
+    <div>
+      <h2>¿Vas a publicar tu primer anuncio?</h2>
+      <p>Consulta la guía rápida paso a paso para saber cómo iniciar sesión, completar los datos, subir fotos y compartir tu anuncio.</p>
+    </div>
+    <a class="btn-guia-publicacion" href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">
+      📘 Ver guía rápida
+    </a>
+  </section>
 
   <!-- PARTICULARES -->
   <p class="planes-section-label">Particulares</p>
