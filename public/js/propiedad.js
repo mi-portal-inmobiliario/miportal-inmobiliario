@@ -443,9 +443,32 @@ function generarEnlaceWhatsapp() {
 
 function formatearTipo(tipo) {
   const tipos = {
-    piso: "Piso", casa: "Casa", chalet: "Chalet", apartamento: "Apartamento",
-    local: "Local comercial", oficina: "Oficina", terreno: "Terreno",
-    garaje: "Garaje", plaza_aparcamiento: "Plaza de aparcamiento", trastero: "Trastero"
+    piso: "Piso",
+    apartamento: "Apartamento",
+    atico: "Ático",
+    duplex: "Dúplex",
+    estudio: "Estudio",
+    casa: "Casa",
+    chalet: "Chalet",
+    adosado: "Adosado",
+    casa_campo: "Casa de campo",
+    casa_madera: "Casa de madera",
+    local: "Local comercial",
+    local_comercial: "Local comercial",
+    oficina: "Oficina",
+    nave: "Nave",
+    hotel: "Hotel",
+    edificio: "Edificio",
+    negocio: "Negocio",
+    terreno: "Terreno",
+    solar_urbano: "Solar urbano",
+    parcela: "Parcela",
+    finca_rustica: "Finca rústica",
+    finca_urbana: "Finca urbana",
+    garaje: "Garaje",
+    plaza_aparcamiento: "Plaza de aparcamiento",
+    trastero: "Trastero",
+    otro: "Otro"
   };
   return tipos[tipo] || tipo;
 }

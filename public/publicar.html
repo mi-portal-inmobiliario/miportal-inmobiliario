@@ -311,19 +311,36 @@
         <select id="tipoInmueble" onchange="actualizarCampos()">
           <optgroup label="Residencial">
             <option value="piso">Piso</option>
+            <option value="apartamento">Apartamento</option>
+            <option value="atico">Ático</option>
+            <option value="duplex">Dúplex</option>
+            <option value="estudio">Estudio</option>
             <option value="casa">Casa</option>
             <option value="chalet">Chalet</option>
-            <option value="apartamento">Apartamento</option>
+            <option value="adosado">Adosado</option>
+            <option value="casa_campo">Casa de campo</option>
+            <option value="casa_madera">Casa de madera</option>
           </optgroup>
           <optgroup label="Comercial">
             <option value="local">Local comercial</option>
             <option value="oficina">Oficina</option>
+            <option value="nave">Nave</option>
+            <option value="hotel">Hotel</option>
+            <option value="edificio">Edificio</option>
+            <option value="negocio">Negocio</option>
+          </optgroup>
+          <optgroup label="Terrenos">
             <option value="terreno">Terreno</option>
+            <option value="solar_urbano">Solar urbano</option>
+            <option value="parcela">Parcela</option>
+            <option value="finca_rustica">Finca rústica</option>
+            <option value="finca_urbana">Finca urbana</option>
           </optgroup>
           <optgroup label="Otros">
             <option value="garaje">Garaje</option>
             <option value="plaza_aparcamiento">Plaza de aparcamiento</option>
             <option value="trastero">Trastero</option>
+            <option value="otro">Otro</option>
           </optgroup>
         </select>
       </div>
@@ -706,12 +723,13 @@ function actualizarCampos() {
   const tipo = document.getElementById("tipoInmueble").value;
   const esGaraje = ["garaje", "plaza_aparcamiento"].includes(tipo);
   const esTrastero = tipo === "trastero";
-  const esLocal = ["local", "oficina"].includes(tipo);
-  const esResidencial = ["piso", "casa", "chalet", "apartamento"].includes(tipo);
+  const esLocal = ["local", "local_comercial", "oficina", "nave", "hotel", "edificio", "negocio"].includes(tipo);
+  const esTerreno = ["terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana"].includes(tipo);
+  const esResidencial = ["piso", "apartamento", "atico", "duplex", "estudio", "casa", "chalet", "adosado", "casa_campo", "casa_madera"].includes(tipo);
 
   // Habitaciones y baños
-  document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero || esLocal || tipo === "terreno") ? "none" : "";
-  document.getElementById("grupo-banos").style.display = (esGaraje || esTrastero || esLocal || tipo === "terreno") ? "none" : "";
+  document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero || esLocal || esTerreno || tipo === "otro") ? "none" : "";
+  document.getElementById("grupo-banos").style.display = (esGaraje || esTrastero || esLocal || esTerreno || tipo === "otro") ? "none" : "";
   
   // Campos locales/oficinas
   document.getElementById("grupo-local").style.display = esLocal ? "" : "none";
@@ -729,7 +747,7 @@ function actualizarCampos() {
 document.getElementById("grupo-extras").style.display = esResidencial ? "" : "none";
 
 // Parcela solo para casa, chalet y terreno
-const tieneParcela = ["casa", "chalet", "terreno"].includes(tipo);
+const tieneParcela = ["casa", "chalet", "adosado", "casa_campo", "casa_madera", "terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana"].includes(tipo);
 document.getElementById("grupo-parcela").style.display = tieneParcela ? "" : "none";
 }
 
@@ -754,7 +772,9 @@ if (propiedadIdEditar) {
       document.getElementById("banos").value         = p.banos || "1";
       document.getElementById("superficie").value    = p.superficie || "";
       document.getElementById("superficieParcela").value = p.superficieParcela || "";
-      document.getElementById("tipoInmueble").value  = p.tipoInmueble || "piso";
+      document.getElementById("tipoInmueble").value  = p.tipoInmueble === "local_comercial"
+        ? "local"
+        : (p.tipoInmueble || "piso");
       document.getElementById("estado").value        = p.estado || "segunda_mano";
       document.getElementById("estadoComercial").value = p.estadoComercial || "Disponible";
       document.getElementById("certificadoEnergetico").value = p.certificadoEnergetico || "";
@@ -951,7 +971,7 @@ async function publicar() {
   }
 
   // Habitaciones solo obligatorio para residencial
-  const esResidencial = ["piso", "casa", "chalet", "apartamento"].includes(tipo);
+  const esResidencial = ["piso", "apartamento", "atico", "duplex", "estudio", "casa", "chalet", "adosado", "casa_campo", "casa_madera"].includes(tipo);
   const habitaciones  = document.getElementById("habitaciones").value;
 
   mensajeEl.className = "";

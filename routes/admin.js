@@ -18,6 +18,14 @@ const PLANES_VALIDOS = [
   'vip', 'vip_trial'
 ];
 
+const TIPOS_INMUEBLE_VALIDOS = [
+  'piso', 'apartamento', 'atico', 'duplex', 'estudio',
+  'casa', 'chalet', 'adosado', 'casa_campo', 'casa_madera',
+  'local', 'local_comercial', 'oficina', 'nave', 'hotel', 'edificio', 'negocio',
+  'terreno', 'solar_urbano', 'parcela', 'finca_rustica', 'finca_urbana',
+  'garaje', 'plaza_aparcamiento', 'trastero', 'otro'
+];
+
 function esObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
 }
@@ -496,6 +504,7 @@ router.put('/propiedades/:id', requireAdmin, async (req, res) => {
       titulo,
       precio,
       tipoOperacion,
+      tipoInmueble,
       direccion,
       habitaciones,
       banos,
@@ -521,6 +530,13 @@ router.put('/propiedades/:id', requireAdmin, async (req, res) => {
         return res.status(400).json({ error: 'Tipo de operación inválido' });
       }
       propiedad.tipoOperacion = tipoOperacion;
+    }
+
+    if (tipoInmueble !== undefined) {
+      if (!TIPOS_INMUEBLE_VALIDOS.includes(tipoInmueble)) {
+        return res.status(400).json({ error: 'Tipo de inmueble inválido' });
+      }
+      propiedad.tipoInmueble = tipoInmueble;
     }
 
     if (habitaciones !== undefined) {

@@ -26,9 +26,11 @@ const router = express.Router();
 
 const tipoOperacionSchema = z.enum(["venta", "alquiler"]);
 const tipoInmuebleSchema = z.enum([
-  "piso", "casa", "chalet", "apartamento",
-  "local", "oficina", "terreno",
-  "garaje", "plaza_aparcamiento", "trastero"
+  "piso", "apartamento", "atico", "duplex", "estudio",
+  "casa", "chalet", "adosado", "casa_campo", "casa_madera",
+  "local", "local_comercial", "oficina", "nave", "hotel", "edificio", "negocio",
+  "terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana",
+  "garaje", "plaza_aparcamiento", "trastero", "otro"
 ]);
 const estadoSchema = z.enum(["obra_nueva", "segunda_mano"]);
 const certificadoEnergeticoSchema = z.enum([
@@ -291,7 +293,11 @@ router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
       if (sup_max) filtro.superficie.$lte = Number(sup_max);
     }
 
-    if (tipoInmueble) filtro.tipoInmueble = tipoInmueble;
+    if (tipoInmueble) {
+      filtro.tipoInmueble = ["local", "local_comercial"].includes(tipoInmueble)
+        ? { $in: ["local", "local_comercial"] }
+        : tipoInmueble;
+    }
     if (estado)       filtro.estado = estado;
     if (garaje === "true")  filtro.garaje = true;
     if (piscina === "true") filtro.piscina = true;

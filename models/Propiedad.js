@@ -22,9 +22,11 @@ const PropiedadSchema = new mongoose.Schema({
   tipoInmueble:  { 
     type: String, 
     enum: [
-      "piso", "casa", "chalet", "apartamento",  // Residencial
-      "local", "oficina", "terreno",              // Comercial
-      "garaje", "plaza_aparcamiento", "trastero"  // Otros
+      "piso", "apartamento", "atico", "duplex", "estudio",
+      "casa", "chalet", "adosado", "casa_campo", "casa_madera",
+      "local", "local_comercial", "oficina", "nave", "hotel", "edificio", "negocio",
+      "terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana",
+      "garaje", "plaza_aparcamiento", "trastero", "otro"
     ], 
     default: "piso" 
   },

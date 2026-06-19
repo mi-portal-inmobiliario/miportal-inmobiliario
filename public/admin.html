@@ -986,6 +986,44 @@
             <option value="alquiler">Alquiler</option>
           </select>
         </div>
+        <div class="admin-form-field">
+          <label for="editTipoInmueble">Tipo de inmueble</label>
+          <select id="editTipoInmueble">
+            <optgroup label="Residencial">
+              <option value="piso">Piso</option>
+              <option value="apartamento">Apartamento</option>
+              <option value="atico">Ático</option>
+              <option value="duplex">Dúplex</option>
+              <option value="estudio">Estudio</option>
+              <option value="casa">Casa</option>
+              <option value="chalet">Chalet</option>
+              <option value="adosado">Adosado</option>
+              <option value="casa_campo">Casa de campo</option>
+              <option value="casa_madera">Casa de madera</option>
+            </optgroup>
+            <optgroup label="Comercial">
+              <option value="local">Local comercial</option>
+              <option value="oficina">Oficina</option>
+              <option value="nave">Nave</option>
+              <option value="hotel">Hotel</option>
+              <option value="edificio">Edificio</option>
+              <option value="negocio">Negocio</option>
+            </optgroup>
+            <optgroup label="Terrenos">
+              <option value="terreno">Terreno</option>
+              <option value="solar_urbano">Solar urbano</option>
+              <option value="parcela">Parcela</option>
+              <option value="finca_rustica">Finca rústica</option>
+              <option value="finca_urbana">Finca urbana</option>
+            </optgroup>
+            <optgroup label="Otros">
+              <option value="garaje">Garaje</option>
+              <option value="plaza_aparcamiento">Plaza de aparcamiento</option>
+              <option value="trastero">Trastero</option>
+              <option value="otro">Otro</option>
+            </optgroup>
+          </select>
+        </div>
         <div class="admin-form-field full">
           <label for="editDireccion">Dirección</label>
           <input type="text" id="editDireccion">
@@ -2226,6 +2264,9 @@ function editarPropiedadAdmin(id) {
   document.getElementById('editTitulo').value = propiedad.titulo || '';
   document.getElementById('editPrecio').value = propiedad.precio ? formatoPrecioAdmin(propiedad.precio) : '';
   document.getElementById('editTipoOperacion').value = propiedad.tipoOperacion || 'venta';
+  document.getElementById('editTipoInmueble').value = propiedad.tipoInmueble === 'local_comercial'
+    ? 'local'
+    : (propiedad.tipoInmueble || 'piso');
   document.getElementById('editDireccion').value = propiedad.direccion || '';
   document.getElementById('editHabitaciones').value = propiedad.habitaciones ?? 0;
   document.getElementById('editBanos').value = propiedad.banos ?? 0;
@@ -2246,6 +2287,7 @@ async function guardarPropiedadAdmin() {
     titulo: document.getElementById('editTitulo').value,
     precio: document.getElementById('editPrecio').value,
     tipoOperacion: document.getElementById('editTipoOperacion').value,
+    tipoInmueble: document.getElementById('editTipoInmueble').value,
     direccion: document.getElementById('editDireccion').value,
     habitaciones: document.getElementById('editHabitaciones').value,
     banos: document.getElementById('editBanos').value,
