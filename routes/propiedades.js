@@ -119,7 +119,7 @@ const MAX_FOTOS = {
   agencia_basica: 40,
   agencia_pro: 50,
   vip_trial: Infinity,
-  vip: 99
+  vip: Infinity
 };
 
 function planTieneLimiteFotos(plan) {

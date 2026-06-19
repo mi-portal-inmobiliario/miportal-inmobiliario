@@ -511,6 +511,13 @@ function mostrarSesionCaducada() {
   }
 }
 
+function esErrorAutorizacionSesion(data = {}) {
+  const texto = String(data.error || data.message || "").toLowerCase();
+  return texto.includes("token") ||
+    texto.includes("no autorizado") ||
+    texto.includes("no tienes permisos");
+}
+
 async function leerJsonSeguro(res) {
   try {
     return await res.json();
@@ -521,9 +528,9 @@ async function leerJsonSeguro(res) {
 
 function getLimiteFotos(plan) {
   const LIMITE_FOTOS = {
-    gratis: 10, basico: 20, destacado: 30, starter: 30,
-    pro_agentes: 40, agencia_basica: 40, agencia_pro: 50,
-    vip: 99, vip_trial: Infinity
+    gratis: 7, basico: 10, destacado: 15, starter: 20,
+    pro_agentes: 30, agencia_basica: 40, agencia_pro: 50,
+    vip: Infinity, vip_trial: Infinity
   };
   return LIMITE_FOTOS[plan] || LIMITE_FOTOS.gratis;
 }
@@ -956,6 +963,17 @@ async function publicar() {
 
 } else if (res.status === 403) {
 
+  if (esErrorAutorizacionSesion(data)) {
+    limpiarSesionPublicar();
+    mostrarSesionCaducada();
+
+    btn.disabled = false;
+    btn.textContent = "🚀 Publicar anuncio";
+
+    redirigirLoginPublicar();
+    return;
+  }
+
   mensajeEl.textContent =
     "⚠️ " + (data.error || data.message || "No tienes permisos para publicar con tu plan actual.");
 
@@ -963,10 +981,6 @@ async function publicar() {
 
   btn.disabled = false;
   btn.textContent = "🚀 Publicar anuncio";
-
-  setTimeout(() => {
-    location.href = "/planes.html";
-  }, 3000);
 
 } else {
 
