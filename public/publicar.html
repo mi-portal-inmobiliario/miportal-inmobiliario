@@ -477,6 +477,12 @@ let imgFiles = [];
 let imagenesExistentes = [];
 let usuarioActualPublicar = null;
 
+function obtenerTokenPublicar() {
+  const token = (localStorage.getItem("token") || "").trim();
+  if (!token || token === "null" || token === "undefined") return null;
+  return token;
+}
+
 function limpiarSesionPublicar() {
   localStorage.removeItem("token");
   localStorage.removeItem("usuario");
@@ -496,7 +502,7 @@ function redirigirLoginPublicar() {
 
 function mostrarSesionCaducada() {
   const mensajeEl = document.getElementById("mensaje");
-  const texto = "Tu sesión ha caducado. Inicia sesión de nuevo para publicar.";
+  const texto = "Tu sesión no es válida. Vuelve a iniciar sesión.";
   if (mensajeEl) {
     mensajeEl.textContent = "⚠️ " + texto;
     mensajeEl.className = "err";
@@ -556,7 +562,7 @@ async function refrescarUsuarioPublicar(token) {
   }
 
   const res = await fetch("/usuarios/me", {
-    headers: { "Authorization": "Bearer " + token }
+    headers: { "Authorization": `Bearer ${token}` }
   });
 
   if (res.status === 401 || res.status === 403) {
@@ -578,7 +584,7 @@ async function refrescarUsuarioPublicar(token) {
 
 /* GUARD */
 document.addEventListener("DOMContentLoaded", async () => {
-  const token   = localStorage.getItem("token");
+  const token = obtenerTokenPublicar();
   if (!token) {
     limpiarSesionPublicar();
     mostrarSesionCaducada();
@@ -818,7 +824,7 @@ function cerrarModal() { document.getElementById("modal").style.display = "none"
 
 /* PUBLICAR */
 async function publicar() {
-  const token   = localStorage.getItem("token");
+  const token = obtenerTokenPublicar();
   let usuario = usuarioActualPublicar;
   const titulo        = document.getElementById("titulo").value.trim();
   const direccion     = document.getElementById("direccion").value.trim();
@@ -907,7 +913,7 @@ async function publicar() {
   try {
     const res = await fetch(
       propiedadIdEditar ? `/propiedades/${propiedadIdEditar}` : "/propiedades",
-      { method: propiedadIdEditar ? "PUT" : "POST", headers: { "Authorization": "Bearer " + token }, body: fd }
+      { method: propiedadIdEditar ? "PUT" : "POST", headers: { "Authorization": `Bearer ${token}` }, body: fd }
     );
     const data = await leerJsonSeguro(res);
 

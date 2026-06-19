@@ -79,7 +79,17 @@ async function login() {
     return;
   }
 
-  localStorage.setItem("token", data.token);
+  const token = (data.token || "").trim();
+  if (!token || token === "null" || token === "undefined") {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    mostrarMensaje("No se ha podido iniciar sesión correctamente. Inténtalo de nuevo.");
+    btn.disabled = false;
+    btn.textContent = "Iniciar sesión";
+    return;
+  }
+
+  localStorage.setItem("token", token);
   localStorage.setItem("usuario", JSON.stringify(data.usuario));
 
   mostrarMensaje("✅ Sesión iniciada. Redirigiendo...", "green");

@@ -2,14 +2,40 @@ import jwt from "jsonwebtoken";
 import Usuario from "../models/Usuario.js";
 
 function getBearerToken(req) {
-  const [type, token] = req.headers.authorization?.split(" ") || [];
-  return type === "Bearer" ? token : null;
+  const authorization = req.headers.authorization || "";
+  const [type, token] = authorization.trim().split(/\s+/);
+  if (type !== "Bearer") return null;
+  if (!token || token === "null" || token === "undefined") return null;
+  return token;
+}
+
+function shouldLogAuth(req) {
+  return req.originalUrl?.startsWith("/propiedades") || req.originalUrl?.startsWith("/usuarios/me");
+}
+
+function logAuthDebug(req, estado, extra = {}) {
+  if (!shouldLogAuth(req)) return;
+
+  const authorization = req.headers.authorization || "";
+  const [type, token] = authorization.trim().split(/\s+/);
+  console.log("[Auth]", {
+    estado,
+    method: req.method,
+    url: req.originalUrl,
+    authorizationPresente: Boolean(authorization),
+    esquema: type || null,
+    tokenLength: token ? token.length : 0,
+    ...extra
+  });
 }
 
 export async function requireAuth(req, res, next) {
   const token = getBearerToken(req);
 
-  if (!token) return res.status(401).json({ error: "Token faltante" });
+  if (!token) {
+    logAuthDebug(req, "token_faltante_o_malformado");
+    return res.status(401).json({ error: "Token faltante" });
+  }
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -21,7 +47,10 @@ export async function requireAuth(req, res, next) {
     }
 
     const usuario = await Usuario.findById(decoded.id);
-    if (!usuario) return res.status(401).json({ error: "Usuario no encontrado" });
+    if (!usuario) {
+      logAuthDebug(req, "usuario_no_encontrado", { userId: decoded.id || null });
+      return res.status(401).json({ error: "Usuario no encontrado" });
+    }
 
     req.user = {
       id: usuario._id.toString(),
@@ -38,8 +67,14 @@ export async function requireAuth(req, res, next) {
       esAdmin: false
     };
     req.usuarioId = req.user.id;
+    logAuthDebug(req, "ok", {
+      userId: req.user.id,
+      plan: req.user.plan,
+      planActivo: Boolean(req.user.planActivo)
+    });
     next();
   } catch (err) {
+    logAuthDebug(req, "token_invalido", { motivo: err.name || "JWTError" });
     return res.status(401).json({ error: "Token inválido" });
   }
 }
