@@ -221,6 +221,8 @@ function renderPropiedad() {
             <!-- Locales y oficinas -->
             ${propiedad.usoPermitido ? `<div class="caract-item">📋 <span>Uso: ${propiedad.usoPermitido}</span></div>` : ""}
             ${mostrarPlantaPropiedad(propiedad) ? `<div class="caract-item">🏢 <span>${formatearPlanta(propiedad.plantaLocal)}</span></div>` : ""}
+            ${mostrarNumeroPlantas(propiedad) ? `<div class="caract-item">🏠 <span>${formatearNumeroPlantas(propiedad.numeroPlantas)}</span></div>` : ""}
+            ${mostrarSotano(propiedad) ? `<div class="caract-item">⬇️ <span>Sótano: ${propiedad.sotano === "si" ? "Sí" : "No"}</span></div>` : ""}
             ${propiedad.escaparate ? `<div class="caract-item">🪟 <span>Con escaparate</span></div>` : ""}
 
             <!-- Garajes -->
@@ -477,9 +479,30 @@ function mostrarPlantaPropiedad(propiedad) {
   if (!propiedad?.plantaLocal) return false;
   return [
     "piso", "apartamento", "atico", "duplex", "estudio",
-    "casa", "chalet", "adosado", "casa_campo", "casa_madera",
     "local", "local_comercial", "oficina"
   ].includes(propiedad.tipoInmueble);
+}
+
+function tipoViviendaCompleta(tipo) {
+  return ["casa", "chalet", "adosado", "casa_campo", "casa_madera"].includes(tipo);
+}
+
+function mostrarNumeroPlantas(propiedad) {
+  return Boolean(propiedad?.numeroPlantas && tipoViviendaCompleta(propiedad.tipoInmueble));
+}
+
+function mostrarSotano(propiedad) {
+  return Boolean(propiedad?.sotano && tipoViviendaCompleta(propiedad.tipoInmueble));
+}
+
+function formatearNumeroPlantas(valor) {
+  const plantas = {
+    "1": "1 planta",
+    "2": "2 plantas",
+    "3": "3 plantas",
+    "4_mas": "4 o más plantas"
+  };
+  return plantas[valor] || valor;
 }
 
 function formatearPlanta(planta) {

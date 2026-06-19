@@ -52,6 +52,8 @@ const PropiedadSchema = new mongoose.Schema({
   usoPermitido:    { type: String, default: "" },  // ej: "hostelería, comercio, oficina"
   escaparate:      { type: Boolean, default: false },
   plantaLocal:     { type: String, default: "" },  // ej: "planta baja", "semisótano"
+  numeroPlantas:   { type: String, enum: ["1", "2", "3", "4_mas", ""], default: "" },
+  sotano:          { type: String, enum: ["si", "no", ""], default: "" },
 
   // Campos específicos para garajes y trasteros
   alturaMaxima:    { type: Number, default: null }, // en metros

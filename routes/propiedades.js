@@ -34,9 +34,9 @@ const tipoInmuebleSchema = z.enum([
 ]);
 const tiposConPlanta = new Set([
   "piso", "apartamento", "atico", "duplex", "estudio",
-  "casa", "chalet", "adosado", "casa_campo", "casa_madera",
   "local", "local_comercial", "oficina"
 ]);
+const tiposViviendaCompleta = new Set(["casa", "chalet", "adosado", "casa_campo", "casa_madera"]);
 const estadoSchema = z.enum(["obra_nueva", "segunda_mano"]);
 const certificadoEnergeticoSchema = z.enum([
   "A", "B", "C", "D", "E", "F", "G",
@@ -95,6 +95,8 @@ const propiedadBaseSchema = {
   escaparate: booleanInput,
   usoPermitido: optionalCleanString(200),
   plantaLocal: optionalCleanString(80),
+  numeroPlantas: z.enum(["1", "2", "3", "4_mas", ""]).optional(),
+  sotano: z.enum(["si", "no", ""]).optional(),
   tipoGaraje: optionalCleanString(40),
   alturaMaxima: optionalNumberFromInput,
   accesoTrastero: optionalCleanString(80),
@@ -482,6 +484,8 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       estadoPropiedad,
       estadoComercial,
       plantaLocal,
+      numeroPlantas,
+      sotano,
       garaje,
       piscina,
       terraza
@@ -514,6 +518,8 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
       estadoPropiedad: estadoPropiedad || "",
       estadoComercial: estadoComercial || "Disponible",
       plantaLocal: tiposConPlanta.has(tipoInmueble || "piso") ? (plantaLocal || "") : "",
+      numeroPlantas: tiposViviendaCompleta.has(tipoInmueble || "piso") ? (numeroPlantas || "") : "",
+      sotano: tiposViviendaCompleta.has(tipoInmueble || "piso") ? (sotano || "") : "",
       garaje:        garaje === "true",
       piscina:       piscina === "true",
       terraza:       terraza === "true",
@@ -647,6 +653,8 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
       estadoPropiedad,
       estadoComercial,
       plantaLocal,
+      numeroPlantas,
+      sotano,
       garaje,
       piscina,
       terraza
@@ -665,6 +673,11 @@ router.put("/:id", requireAuth, uploadImagenes, validateBody(propiedadUpdateSche
       propiedad.plantaLocal = tiposConPlanta.has(propiedad.tipoInmueble)
         ? (plantaLocal || "")
         : "";
+    }
+    if (numeroPlantas !== undefined || sotano !== undefined || tipoInmueble !== undefined) {
+      const admitePlantas = tiposViviendaCompleta.has(propiedad.tipoInmueble);
+      propiedad.numeroPlantas = admitePlantas ? (numeroPlantas || "") : "";
+      propiedad.sotano = admitePlantas ? (sotano || "") : "";
     }
     propiedad.garaje       = garaje !== undefined ? garaje === "true" : propiedad.garaje;
     propiedad.piscina      = piscina !== undefined ? piscina === "true" : propiedad.piscina;

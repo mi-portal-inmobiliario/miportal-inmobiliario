@@ -28,9 +28,9 @@ const TIPOS_INMUEBLE_VALIDOS = [
 
 const TIPOS_CON_PLANTA = new Set([
   'piso', 'apartamento', 'atico', 'duplex', 'estudio',
-  'casa', 'chalet', 'adosado', 'casa_campo', 'casa_madera',
   'local', 'local_comercial', 'oficina'
 ]);
+const TIPOS_VIVIENDA_COMPLETA = new Set(['casa', 'chalet', 'adosado', 'casa_campo', 'casa_madera']);
 
 function esObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
@@ -512,6 +512,8 @@ router.put('/propiedades/:id', requireAdmin, async (req, res) => {
       tipoOperacion,
       tipoInmueble,
       plantaLocal,
+      numeroPlantas,
+      sotano,
       direccion,
       habitaciones,
       banos,
@@ -549,6 +551,16 @@ router.put('/propiedades/:id', requireAdmin, async (req, res) => {
     if (plantaLocal !== undefined || tipoInmueble !== undefined) {
       propiedad.plantaLocal = TIPOS_CON_PLANTA.has(propiedad.tipoInmueble)
         ? limpiarTexto(plantaLocal, 80) || ''
+        : '';
+    }
+
+    if (numeroPlantas !== undefined || sotano !== undefined || tipoInmueble !== undefined) {
+      const admitePlantas = TIPOS_VIVIENDA_COMPLETA.has(propiedad.tipoInmueble);
+      propiedad.numeroPlantas = admitePlantas && ['1', '2', '3', '4_mas', ''].includes(numeroPlantas)
+        ? numeroPlantas
+        : '';
+      propiedad.sotano = admitePlantas && ['si', 'no', ''].includes(sotano)
+        ? sotano
         : '';
     }
 

@@ -442,6 +442,26 @@
         </select>
       </div>
 
+      <div class="form-group" id="grupo-numeroPlantas" style="display:none">
+        <label>Número de plantas</label>
+        <select id="numeroPlantas">
+          <option value="">Selecciona...</option>
+          <option value="1">1 planta</option>
+          <option value="2">2 plantas</option>
+          <option value="3">3 plantas</option>
+          <option value="4_mas">4 o más plantas</option>
+        </select>
+      </div>
+
+      <div class="form-group" id="grupo-sotano" style="display:none">
+        <label>Sótano</label>
+        <select id="sotano">
+          <option value="">Selecciona...</option>
+          <option value="no">No</option>
+          <option value="si">Sí</option>
+        </select>
+      </div>
+
       <div class="form-group" id="grupo-escaparate" style="display:none">
         <label>Extras local</label>
         <div class="extras-row">
@@ -721,12 +741,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 /* ACTUALIZAR CAMPOS SEGÚN TIPO */
 const TIPOS_CON_PLANTA = [
   "piso", "apartamento", "atico", "duplex", "estudio",
-  "casa", "chalet", "adosado", "casa_campo", "casa_madera",
   "local", "local_comercial", "oficina"
 ];
+const TIPOS_VIVIENDA_COMPLETA = ["casa", "chalet", "adosado", "casa_campo", "casa_madera"];
 
 function tipoAdmitePlanta(tipo) {
   return TIPOS_CON_PLANTA.includes(tipo);
+}
+
+function tipoAdmitePlantasYSotano(tipo) {
+  return TIPOS_VIVIENDA_COMPLETA.includes(tipo);
 }
 
 function actualizarCampos() {
@@ -737,6 +761,7 @@ function actualizarCampos() {
   const esTerreno = ["terreno", "solar_urbano", "parcela", "finca_rustica", "finca_urbana"].includes(tipo);
   const esResidencial = ["piso", "apartamento", "atico", "duplex", "estudio", "casa", "chalet", "adosado", "casa_campo", "casa_madera"].includes(tipo);
   const mostrarPlanta = tipoAdmitePlanta(tipo);
+  const mostrarPlantasYSotano = tipoAdmitePlantasYSotano(tipo);
 
   // Habitaciones y baños
   document.getElementById("grupo-habitaciones").style.display = (esGaraje || esTrastero || esLocal || esTerreno || tipo === "otro") ? "none" : "";
@@ -745,8 +770,14 @@ function actualizarCampos() {
   // Campos locales/oficinas
   document.getElementById("grupo-local").style.display = esLocal ? "" : "none";
   document.getElementById("grupo-plantaLocal").style.display = mostrarPlanta ? "" : "none";
+  document.getElementById("grupo-numeroPlantas").style.display = mostrarPlantasYSotano ? "" : "none";
+  document.getElementById("grupo-sotano").style.display = mostrarPlantasYSotano ? "" : "none";
   document.getElementById("grupo-escaparate").style.display = esLocal ? "" : "none";
   if (!mostrarPlanta) document.getElementById("plantaLocal").value = "";
+  if (!mostrarPlantasYSotano) {
+    document.getElementById("numeroPlantas").value = "";
+    document.getElementById("sotano").value = "";
+  }
 
   // Campos garaje
   document.getElementById("grupo-tipoGaraje").style.display = esGaraje ? "" : "none";
@@ -795,6 +826,8 @@ if (propiedadIdEditar) {
       // Campos específicos
       if (p.usoPermitido) document.getElementById("usoPermitido").value = p.usoPermitido;
       if (p.plantaLocal)  document.getElementById("plantaLocal").value  = p.plantaLocal;
+      if (p.numeroPlantas) document.getElementById("numeroPlantas").value = p.numeroPlantas;
+      if (p.sotano) document.getElementById("sotano").value = p.sotano;
       if (p.tipoGaraje)   document.getElementById("tipoGaraje").value   = p.tipoGaraje;
       if (p.alturaMaxima) document.getElementById("alturaMaxima").value = p.alturaMaxima;
       if (p.accesoTrastero) document.getElementById("accesoTrastero").value = p.accesoTrastero;
@@ -1041,6 +1074,8 @@ async function publicar() {
   fd.append("escaparate", document.getElementById("escaparate")?.checked || false);
   fd.append("usoPermitido", document.getElementById("usoPermitido")?.value || "");
   fd.append("plantaLocal", tipoAdmitePlanta(tipo) ? (document.getElementById("plantaLocal")?.value || "") : "");
+  fd.append("numeroPlantas", tipoAdmitePlantasYSotano(tipo) ? (document.getElementById("numeroPlantas")?.value || "") : "");
+  fd.append("sotano", tipoAdmitePlantasYSotano(tipo) ? (document.getElementById("sotano")?.value || "") : "");
   fd.append("tipoGaraje", document.getElementById("tipoGaraje")?.value || "");
   fd.append("alturaMaxima", document.getElementById("alturaMaxima")?.value || "");
   fd.append("accesoTrastero", document.getElementById("accesoTrastero")?.value || "");

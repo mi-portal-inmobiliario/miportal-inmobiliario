@@ -1034,6 +1034,24 @@
             <option value="primera">Primera planta</option>
           </select>
         </div>
+        <div class="admin-form-field" id="editGrupoNumeroPlantas">
+          <label for="editNumeroPlantas">Número de plantas</label>
+          <select id="editNumeroPlantas">
+            <option value="">Selecciona...</option>
+            <option value="1">1 planta</option>
+            <option value="2">2 plantas</option>
+            <option value="3">3 plantas</option>
+            <option value="4_mas">4 o más plantas</option>
+          </select>
+        </div>
+        <div class="admin-form-field" id="editGrupoSotano">
+          <label for="editSotano">Sótano</label>
+          <select id="editSotano">
+            <option value="">Selecciona...</option>
+            <option value="no">No</option>
+            <option value="si">Sí</option>
+          </select>
+        </div>
         <div class="admin-form-field full">
           <label for="editDireccion">Dirección</label>
           <input type="text" id="editDireccion">
@@ -1109,23 +1127,38 @@ let propiedadesAdmin = [];
 
 const TIPOS_CON_PLANTA_ADMIN = [
   'piso', 'apartamento', 'atico', 'duplex', 'estudio',
-  'casa', 'chalet', 'adosado', 'casa_campo', 'casa_madera',
   'local', 'local_comercial', 'oficina'
 ];
+const TIPOS_VIVIENDA_COMPLETA_ADMIN = ['casa', 'chalet', 'adosado', 'casa_campo', 'casa_madera'];
 
 function tipoAdmitePlantaAdmin(tipo) {
   return TIPOS_CON_PLANTA_ADMIN.includes(tipo);
+}
+
+function tipoAdmitePlantasYSotanoAdmin(tipo) {
+  return TIPOS_VIVIENDA_COMPLETA_ADMIN.includes(tipo);
 }
 
 function actualizarPlantaAdmin() {
   const tipo = document.getElementById('editTipoInmueble')?.value;
   const grupo = document.getElementById('editGrupoPlantaLocal');
   const planta = document.getElementById('editPlantaLocal');
+  const grupoNumeroPlantas = document.getElementById('editGrupoNumeroPlantas');
+  const numeroPlantas = document.getElementById('editNumeroPlantas');
+  const grupoSotano = document.getElementById('editGrupoSotano');
+  const sotano = document.getElementById('editSotano');
   if (!grupo || !planta) return;
 
   const mostrar = tipoAdmitePlantaAdmin(tipo);
+  const mostrarPlantasYSotano = tipoAdmitePlantasYSotanoAdmin(tipo);
   grupo.style.display = mostrar ? '' : 'none';
+  if (grupoNumeroPlantas) grupoNumeroPlantas.style.display = mostrarPlantasYSotano ? '' : 'none';
+  if (grupoSotano) grupoSotano.style.display = mostrarPlantasYSotano ? '' : 'none';
   if (!mostrar) planta.value = '';
+  if (!mostrarPlantasYSotano) {
+    if (numeroPlantas) numeroPlantas.value = '';
+    if (sotano) sotano.value = '';
+  }
 }
 
 function numero(value) {
@@ -2299,6 +2332,8 @@ function editarPropiedadAdmin(id) {
     ? 'local'
     : (propiedad.tipoInmueble || 'piso');
   document.getElementById('editPlantaLocal').value = propiedad.plantaLocal || '';
+  document.getElementById('editNumeroPlantas').value = propiedad.numeroPlantas || '';
+  document.getElementById('editSotano').value = propiedad.sotano || '';
   actualizarPlantaAdmin();
   document.getElementById('editDireccion').value = propiedad.direccion || '';
   document.getElementById('editHabitaciones').value = propiedad.habitaciones ?? 0;
@@ -2323,6 +2358,12 @@ async function guardarPropiedadAdmin() {
     tipoInmueble: document.getElementById('editTipoInmueble').value,
     plantaLocal: tipoAdmitePlantaAdmin(document.getElementById('editTipoInmueble').value)
       ? document.getElementById('editPlantaLocal').value
+      : '',
+    numeroPlantas: tipoAdmitePlantasYSotanoAdmin(document.getElementById('editTipoInmueble').value)
+      ? document.getElementById('editNumeroPlantas').value
+      : '',
+    sotano: tipoAdmitePlantasYSotanoAdmin(document.getElementById('editTipoInmueble').value)
+      ? document.getElementById('editSotano').value
       : '',
     direccion: document.getElementById('editDireccion').value,
     habitaciones: document.getElementById('editHabitaciones').value,
