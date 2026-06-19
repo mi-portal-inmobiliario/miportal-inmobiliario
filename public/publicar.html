@@ -475,6 +475,43 @@ let latSel = null;
 let lngSel = null;
 let imgFiles = [];
 let imagenesExistentes = [];
+let usuarioActualPublicar = null;
+
+function limpiarSesionPublicar() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("usuario");
+  localStorage.removeItem("authToken");
+  localStorage.removeItem("jwt");
+  document.cookie = "token=; Max-Age=0; path=/";
+  document.cookie = "authToken=; Max-Age=0; path=/";
+  document.cookie = "jwt=; Max-Age=0; path=/";
+}
+
+function redirigirLoginPublicar() {
+  const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
+  setTimeout(() => {
+    window.location.href = `/login.html?returnUrl=${returnUrl}`;
+  }, 1800);
+}
+
+function mostrarSesionCaducada() {
+  const mensajeEl = document.getElementById("mensaje");
+  const texto = "Tu sesión ha caducado. Inicia sesión de nuevo para publicar.";
+  if (mensajeEl) {
+    mensajeEl.textContent = "⚠️ " + texto;
+    mensajeEl.className = "err";
+  } else {
+    alert(texto);
+  }
+}
+
+async function leerJsonSeguro(res) {
+  try {
+    return await res.json();
+  } catch {
+    return {};
+  }
+}
 
 function getLimiteFotos(plan) {
   const LIMITE_FOTOS = {
@@ -511,33 +548,56 @@ function actualizarTextoFotos(plan) {
 }
 
 async function refrescarUsuarioPublicar(token) {
-  try {
-    const res = await fetch("/usuarios/me", {
-      headers: { "Authorization": "Bearer " + token }
-    });
-    if (!res.ok) return JSON.parse(localStorage.getItem("usuario") || "null");
-
-    const usuarioActualizado = await res.json();
-    localStorage.setItem("usuario", JSON.stringify(usuarioActualizado));
-    return usuarioActualizado;
-  } catch {
-    return JSON.parse(localStorage.getItem("usuario") || "null");
+  if (!token) {
+    limpiarSesionPublicar();
+    mostrarSesionCaducada();
+    redirigirLoginPublicar();
+    throw new Error("SESSION_EXPIRED");
   }
+
+  const res = await fetch("/usuarios/me", {
+    headers: { "Authorization": "Bearer " + token }
+  });
+
+  if (res.status === 401 || res.status === 403) {
+    limpiarSesionPublicar();
+    mostrarSesionCaducada();
+    redirigirLoginPublicar();
+    throw new Error("SESSION_EXPIRED");
+  }
+
+  const data = await leerJsonSeguro(res);
+  if (!res.ok) {
+    throw new Error(data.error || data.message || "No se pudo comprobar la sesión");
+  }
+
+  localStorage.setItem("usuario", JSON.stringify(data));
+  usuarioActualPublicar = data;
+  return data;
 }
 
 /* GUARD */
 document.addEventListener("DOMContentLoaded", async () => {
-  let usuario = JSON.parse(localStorage.getItem("usuario") || "null");
   const token   = localStorage.getItem("token");
-  if (!usuario || !token) {
-    alert("Debes iniciar sesión para publicar un anuncio");
-    location.href = "/login.html";
+  if (!token) {
+    limpiarSesionPublicar();
+    mostrarSesionCaducada();
+    redirigirLoginPublicar();
     return;
   }
 
-  usuario = await refrescarUsuarioPublicar(token);
-  const plan = usuario?.plan || "gratis";
-  actualizarTextoFotos(plan);
+  try {
+    const usuario = await refrescarUsuarioPublicar(token);
+    const plan = usuario?.plan || "gratis";
+    actualizarTextoFotos(plan);
+  } catch (err) {
+    if (err.message !== "SESSION_EXPIRED") {
+      const mensajeEl = document.getElementById("mensaje");
+      mensajeEl.textContent = "⚠️ No hemos podido comprobar tu sesión. Revisa la conexión e inténtalo de nuevo.";
+      mensajeEl.className = "err";
+    }
+    return;
+  }
 
   actualizarCampos();
 
@@ -694,7 +754,17 @@ function mostrarMapa(lat, lng) {
 
 /* FOTOS */
 document.getElementById("imagenes").addEventListener("change", e => {
-  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+  const usuario = usuarioActualPublicar;
+  if (!usuario) {
+    const mensajeEl = document.getElementById("mensaje");
+    mensajeEl.textContent = "⚠️ Estamos comprobando tu sesión. Inténtalo de nuevo en unos segundos.";
+    mensajeEl.className = "err";
+    e.target.value = "";
+    imgFiles = [];
+    renderPreview();
+    return;
+  }
+
   const plan = usuario?.plan || "gratis";
   const maxFotos = getLimiteFotos(plan);
   imgFiles = planTieneLimiteFotos(plan)
@@ -749,7 +819,7 @@ function cerrarModal() { document.getElementById("modal").style.display = "none"
 /* PUBLICAR */
 async function publicar() {
   const token   = localStorage.getItem("token");
-  const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
+  let usuario = usuarioActualPublicar;
   const titulo        = document.getElementById("titulo").value.trim();
   const direccion     = document.getElementById("direccion").value.trim();
   const precio        = document.getElementById("precio").value;
@@ -757,6 +827,16 @@ async function publicar() {
   const tipo          = document.getElementById("tipoInmueble").value;
   const mensajeEl     = document.getElementById("mensaje");
   const btn           = document.getElementById("btnPublicar");
+
+  try {
+    usuario = await refrescarUsuarioPublicar(token);
+  } catch (err) {
+    if (err.message !== "SESSION_EXPIRED") {
+      mensajeEl.textContent = "⚠️ No hemos podido comprobar tu sesión. Revisa la conexión e inténtalo de nuevo.";
+      mensajeEl.className = "err";
+    }
+    return;
+  }
 
   // Habitaciones solo obligatorio para residencial
   const esResidencial = ["piso", "casa", "chalet", "apartamento"].includes(tipo);
@@ -829,7 +909,7 @@ async function publicar() {
       propiedadIdEditar ? `/propiedades/${propiedadIdEditar}` : "/propiedades",
       { method: propiedadIdEditar ? "PUT" : "POST", headers: { "Authorization": "Bearer " + token }, body: fd }
     );
-    const data = await res.json();
+    const data = await leerJsonSeguro(res);
 
     console.log(JSON.stringify(data, null, 2));
 
@@ -858,11 +938,20 @@ async function publicar() {
 
   }, 1200);
 
+} else if (res.status === 401) {
+
+  limpiarSesionPublicar();
+  mostrarSesionCaducada();
+
+  btn.disabled = false;
+  btn.textContent = "🚀 Publicar anuncio";
+
+  redirigirLoginPublicar();
+
 } else if (res.status === 403) {
 
   mensajeEl.textContent =
-    "⚠️ " + data.error +
-    ". Mejora tu plan para publicar más anuncios.";
+    "⚠️ " + (data.error || data.message || "No tienes permisos para publicar con tu plan actual.");
 
   mensajeEl.className = "err";
 
@@ -883,9 +972,9 @@ async function publicar() {
   btn.disabled = false;
   btn.textContent = "🚀 Publicar anuncio";
 
-}
+  }
   } catch(e) {
-    mensajeEl.textContent = "❌ Error de conexión";
+    mensajeEl.textContent = "❌ Error de conexión. No se ha podido contactar con el servidor.";
     mensajeEl.className = "err";
     btn.disabled = false;
     btn.textContent = "🚀 Publicar anuncio";
