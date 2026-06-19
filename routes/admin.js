@@ -22,6 +22,10 @@ function esObjectId(id) {
   return /^[0-9a-fA-F]{24}$/.test(String(id || ''));
 }
 
+function esUsuarioAdminPrincipal(usuario) {
+  return Boolean(process.env.ADMIN_EMAIL && usuario?.email === process.env.ADMIN_EMAIL);
+}
+
 function limpiarTexto(value, max = 5000) {
   if (value === undefined || value === null) return undefined;
   return String(value).trim().replace(/\s+/g, ' ').slice(0, max);
@@ -281,13 +285,14 @@ router.patch('/usuarios/:id/verificar', requireAdmin, async (req, res) => {
       return res.status(400).json({ error: 'ID de usuario inválido' });
     }
 
-    const usuario = await Usuario.findByIdAndUpdate(
-      req.params.id,
-      { verificado: true },
-      { new: true, select: 'nombre email verificado activo' }
-    );
-
+    const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (esUsuarioAdminPrincipal(usuario)) {
+      return res.status(403).json({ error: 'No puedes modificar el usuario administrador conectado.' });
+    }
+
+    usuario.verificado = true;
+    await usuario.save();
 
     console.log('Usuario verificado manualmente desde admin', {
       usuarioId: usuario._id.toString(),
@@ -314,7 +319,7 @@ router.patch('/usuarios/:id/desactivar', requireAdmin, async (req, res) => {
     const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
 
-    if (process.env.ADMIN_EMAIL && usuario.email === process.env.ADMIN_EMAIL) {
+    if (esUsuarioAdminPrincipal(usuario)) {
       return res.status(403).json({ error: 'No puedes desactivar el usuario administrador conectado.' });
     }
 
@@ -348,6 +353,38 @@ router.patch('/usuarios/:id/desactivar', requireAdmin, async (req, res) => {
     });
   } catch (err) {
     console.error('Error desactivando usuario desde admin:', {
+      usuarioId: req.params.id,
+      error: err.message
+    });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Reactivar usuario desactivado
+router.patch('/usuarios/:id/reactivar', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario inválido' });
+    }
+
+    const usuario = await Usuario.findById(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (esUsuarioAdminPrincipal(usuario)) {
+      return res.status(403).json({ error: 'No puedes modificar el usuario administrador conectado.' });
+    }
+
+    usuario.activo = true;
+    usuario.desactivadoAt = null;
+    await usuario.save();
+
+    console.log('Usuario reactivado desde admin', {
+      usuarioId: usuario._id.toString(),
+      email: usuario.email
+    });
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Error reactivando usuario desde admin:', {
       usuarioId: req.params.id,
       error: err.message
     });
@@ -533,6 +570,9 @@ router.post('/usuarios/:id/cancelar-suscripcion', requireAdmin, async (req, res)
   try {
     const usuario = await Usuario.findById(req.params.id);
     if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (esUsuarioAdminPrincipal(usuario)) {
+      return res.status(403).json({ error: 'No puedes modificar el usuario administrador conectado.' });
+    }
 
     if (!usuario.stripeSubscriptionId) {
       return res.status(400).json({ error: 'El usuario no tiene una suscripción Stripe activa' });
@@ -582,6 +622,12 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
     const { plan } = req.body;
     if (!PLANES_VALIDOS.includes(plan)) {
       return res.status(400).json({ error: 'Plan inválido' });
+    }
+
+    const usuarioExistente = await Usuario.findById(req.params.id);
+    if (!usuarioExistente) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (esUsuarioAdminPrincipal(usuarioExistente)) {
+      return res.status(403).json({ error: 'No puedes modificar el usuario administrador conectado.' });
     }
 
     const update = { plan, planActivo: plan !== 'gratis' && plan !== 'vip_trial' };
@@ -635,7 +681,6 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
     }
 
     const usuario = await Usuario.findByIdAndUpdate(req.params.id, update, { new: true });
-    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
 
     let warning = null;
     if (plan === 'vip_trial') {

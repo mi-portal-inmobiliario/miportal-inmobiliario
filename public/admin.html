@@ -460,6 +460,82 @@
     }
     .btn-estadisticas:hover { background: #e0f4d0; }
 
+    .user-actions {
+      position: relative;
+      display: inline-block;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .btn-acciones {
+      padding: 5px 11px;
+      background: #fff;
+      color: #333;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .btn-acciones:hover {
+      background: #f8fafc;
+      border-color: #d1d5db;
+    }
+
+    .acciones-menu {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 6px);
+      display: none;
+      min-width: 210px;
+      padding: 6px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+      z-index: 40;
+    }
+
+    .acciones-menu.visible {
+      display: block;
+    }
+
+    .acciones-menu button {
+      width: 100%;
+      padding: 9px 10px;
+      border: none;
+      border-radius: 7px;
+      background: transparent;
+      color: #333;
+      text-align: left;
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .acciones-menu button:hover {
+      background: #f7fdf2;
+      color: #4d8f28;
+    }
+
+    .acciones-menu button.danger {
+      color: #b91c1c;
+    }
+
+    .acciones-menu button.danger:hover {
+      background: #fef2f2;
+      color: #991b1b;
+    }
+
+    .acciones-menu button:disabled {
+      color: #aaa;
+      cursor: not-allowed;
+      background: transparent;
+    }
+
     .btn-exportar {
       padding: 6px 14px;
       background: #f0f9e8;
@@ -641,7 +717,9 @@
       .section-actions { justify-content: flex-start; }
       .modal-header-actions { justify-content: flex-start; }
       .admin-form-grid { grid-template-columns: 1fr; }
-      .btn-estadisticas, .btn-cancelar-suscripcion { margin: 6px 0 0 0; display: block; }
+      .user-actions { display: block; margin: 8px 0 0 0; width: 100%; }
+      .btn-acciones { width: 100%; }
+      .acciones-menu { left: 0; right: auto; width: min(260px, 100%); }
     }
 
   </style>
@@ -1259,6 +1337,35 @@ function formatearFecha(value) {
   }) : '—';
 }
 
+function usuarioTieneSuscripcionActiva(u) {
+  return Boolean(u.stripeSubscriptionId) && u.subscriptionStatus === 'active';
+}
+
+function renderMenuAccionesUsuario(u, estaActivo) {
+  const tieneSuscripcionActiva = usuarioTieneSuscripcionActiva(u);
+  return `
+    <div class="user-actions">
+      <button class="btn-acciones" onclick="toggleMenuAcciones(event, '${u._id}')">Acciones ▾</button>
+      <div class="acciones-menu" id="acciones-${u._id}">
+        <button onclick="verEstadisticas('${u._id}'); cerrarMenusAcciones();">Ver estadísticas</button>
+        ${!u.verificado ? `<button onclick="verificarUsuario('${u._id}'); cerrarMenusAcciones();">Verificar usuario</button>` : ''}
+        ${!u.verificado ? `<button disabled title="Pendiente de implementar">Reenviar verificación</button>` : ''}
+        ${estaActivo ? `
+          <button class="danger" onclick="desactivarUsuario('${u._id}', ${tieneSuscripcionActiva}); cerrarMenusAcciones();">Desactivar usuario</button>
+        ` : `
+          <button onclick="reactivarUsuario('${u._id}'); cerrarMenusAcciones();">Reactivar usuario</button>
+        `}
+        <button disabled title="Acción futura">Eliminar usuario</button>
+        ${u.stripeSubscriptionId ? `
+          <button onclick="cancelarSuscripcion('${u._id}', this); cerrarMenusAcciones();" ${u.cancelAtPeriodEnd ? 'disabled' : ''}>
+            ${u.cancelAtPeriodEnd ? 'Cancelación programada' : 'Cancelar suscripción'}
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
 function renderUsuarios(usuarios) {
   const PLANES = ['gratis', 'basico', 'destacado', 'starter', 'pro_agentes', 'agencia_basica', 'vip', 'vip_trial'];
 
@@ -1277,7 +1384,6 @@ function renderUsuarios(usuarios) {
         </td>
         <td>
           <span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span>
-          ${!u.verificado && estaActivo ? `<button class="btn-verificar" onclick="verificarUsuario('${u._id}', this)">Verificar</button>` : ''}
         </td>
         <td>${fecha}</td>
         <td>
@@ -1286,17 +1392,7 @@ function renderUsuarios(usuarios) {
             style="padding:5px 8px;border:1.5px solid #eee;border-radius:6px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
             ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
-          <button class="btn-estadisticas" onclick="verEstadisticas('${u._id}')">Ver estadísticas</button>
-          ${u.stripeSubscriptionId ? `
-            <button class="btn-cancelar-suscripcion"
-              onclick="cancelarSuscripcion('${u._id}', this)"
-              ${u.cancelAtPeriodEnd ? 'disabled' : ''}>
-              ${u.cancelAtPeriodEnd ? 'Cancelación programada' : 'Cancelar suscripción'}
-            </button>
-          ` : ''}
-          ${estaActivo ? `
-            <button class="btn-eliminar" onclick="desactivarUsuario('${u._id}', this)">Desactivar</button>
-          ` : ''}
+          ${renderMenuAccionesUsuario(u, estaActivo)}
         </td>
       </tr>
     `;
@@ -1971,6 +2067,22 @@ function cerrarModalEstadisticas(event) {
   document.getElementById('modalEstadisticas').classList.remove('visible');
 }
 
+function cerrarMenusAcciones() {
+  document.querySelectorAll('.acciones-menu.visible').forEach(menu => {
+    menu.classList.remove('visible');
+  });
+}
+
+function toggleMenuAcciones(event, usuarioId) {
+  event.stopPropagation();
+  const menu = document.getElementById(`acciones-${usuarioId}`);
+  const yaVisible = menu?.classList.contains('visible');
+  cerrarMenusAcciones();
+  if (menu && !yaVisible) menu.classList.add('visible');
+}
+
+document.addEventListener('click', cerrarMenusAcciones);
+
 async function cambiarPlan(usuarioId, nuevoPlan) {
   if (!confirm(`¿Cambiar plan a "${nuevoPlan}"?`)) {
     await cargarUsuarios();
@@ -1995,11 +2107,7 @@ async function cambiarPlan(usuarioId, nuevoPlan) {
   }
 }
 
-async function verificarUsuario(usuarioId, btn) {
-  btn.disabled = true;
-  const textoOriginal = btn.textContent;
-  btn.textContent = 'Verificando...';
-
+async function verificarUsuario(usuarioId) {
   const res = await fetch(`/admin/usuarios/${usuarioId}/verificar`, {
     method: 'PATCH',
     headers: { 'Authorization': 'Bearer ' + adminToken }
@@ -2011,18 +2119,17 @@ async function verificarUsuario(usuarioId, btn) {
   } else {
     const data = await res.json().catch(() => ({}));
     alert(data.error || 'Error al verificar el usuario');
-    btn.disabled = false;
-    btn.textContent = textoOriginal;
   }
 }
 
-async function desactivarUsuario(usuarioId, btn) {
+async function desactivarUsuario(usuarioId, tieneSuscripcionActiva = false) {
+  if (tieneSuscripcionActiva) {
+    alert('Este usuario tiene una suscripción activa. Cancélala antes.');
+    return;
+  }
+
   const ok = confirm('¿Seguro que quieres desactivar este usuario? Esta acción puede afectar a sus propiedades. Sus anuncios dejarán de verse públicamente.');
   if (!ok) return;
-
-  btn.disabled = true;
-  const textoOriginal = btn.textContent;
-  btn.textContent = 'Desactivando...';
 
   const res = await fetch(`/admin/usuarios/${usuarioId}/desactivar`, {
     method: 'PATCH',
@@ -2037,8 +2144,25 @@ async function desactivarUsuario(usuarioId, btn) {
   } else {
     const data = await res.json().catch(() => ({}));
     alert(data.error || 'Error al desactivar el usuario');
-    btn.disabled = false;
-    btn.textContent = textoOriginal;
+  }
+}
+
+async function reactivarUsuario(usuarioId) {
+  const ok = confirm('¿Quieres reactivar este usuario? Podrá volver a iniciar sesión, pero sus anuncios no se publicarán automáticamente.');
+  if (!ok) return;
+
+  const res = await fetch(`/admin/usuarios/${usuarioId}/reactivar`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+
+  if (res.ok) {
+    alert('Usuario reactivado correctamente.');
+    await cargarUsuarios();
+    await cargarStats();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    alert(data.error || 'Error al reactivar el usuario');
   }
 }
 
