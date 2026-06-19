@@ -197,6 +197,12 @@ router.post("/login", validateBody(loginSchema), async (req, res) => {
       return res.status(400).json({ error: "Credenciales incorrectas" });
     }
 
+    if (usuario.activo === false) {
+      return res.status(403).json({
+        error: "Esta cuenta ha sido desactivada. Contacta con HomeClick24."
+      });
+    }
+
     if (!usuario.verificado) {
       return res.status(401).json({
         error: "Debes activar tu cuenta desde el email"

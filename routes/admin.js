@@ -264,11 +264,93 @@ router.get('/usuarios', requireAdmin, async (req, res) => {
   try {
     const usuarios = await Usuario.find({}, {
       nombre: 1, email: 1, plan: 1, planActivo: 1, createdAt: 1, verificado: 1,
-      stripeSubscriptionId: 1, cancelAtPeriodEnd: 1, subscriptionCancelAt: 1,
+      activo: 1, desactivadoAt: 1,
+      stripeSubscriptionId: 1, subscriptionStatus: 1, cancelAtPeriodEnd: 1, subscriptionCancelAt: 1,
       trialAccepted: 1, trialStartDate: 1, trialEndDate: 1, trialReminderSent: 1
     }).sort({ createdAt: -1 });
     res.json(usuarios);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Verificar usuario manualmente
+router.patch('/usuarios/:id/verificar', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario inválido' });
+    }
+
+    const usuario = await Usuario.findByIdAndUpdate(
+      req.params.id,
+      { verificado: true },
+      { new: true, select: 'nombre email verificado activo' }
+    );
+
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    console.log('Usuario verificado manualmente desde admin', {
+      usuarioId: usuario._id.toString(),
+      email: usuario.email
+    });
+
+    res.json({ ok: true, usuario });
+  } catch (err) {
+    console.error('Error verificando usuario desde admin:', {
+      usuarioId: req.params.id,
+      error: err.message
+    });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Desactivar usuario de forma segura
+router.patch('/usuarios/:id/desactivar', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario inválido' });
+    }
+
+    const usuario = await Usuario.findById(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+
+    if (process.env.ADMIN_EMAIL && usuario.email === process.env.ADMIN_EMAIL) {
+      return res.status(403).json({ error: 'No puedes desactivar el usuario administrador conectado.' });
+    }
+
+    const tieneSuscripcionActiva = Boolean(usuario.stripeSubscriptionId) &&
+      usuario.subscriptionStatus === 'active';
+    if (tieneSuscripcionActiva) {
+      return res.status(409).json({
+        error: 'Este usuario tiene una suscripción activa en Stripe. Cancela primero la suscripción antes de desactivarlo.'
+      });
+    }
+
+    usuario.activo = false;
+    usuario.planActivo = false;
+    usuario.desactivadoAt = new Date();
+    await usuario.save();
+
+    const propiedadesActualizadas = await Propiedad.updateMany(
+      { usuarioId: usuario._id },
+      { $set: { visiblePublicamente: false } }
+    );
+
+    console.log('Usuario desactivado desde admin', {
+      usuarioId: usuario._id.toString(),
+      email: usuario.email,
+      propiedadesOcultadas: propiedadesActualizadas.modifiedCount || 0
+    });
+
+    res.json({
+      ok: true,
+      propiedadesOcultadas: propiedadesActualizadas.modifiedCount || 0
+    });
+  } catch (err) {
+    console.error('Error desactivando usuario desde admin:', {
+      usuarioId: req.params.id,
+      error: err.message
+    });
     res.status(500).json({ error: err.message });
   }
 });

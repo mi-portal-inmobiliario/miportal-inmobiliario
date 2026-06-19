@@ -6,6 +6,8 @@ const UsuarioSchema = new mongoose.Schema({
   password:   { type: String },
   favoritos:  [{ type: mongoose.Schema.Types.ObjectId, ref: "Propiedad" }],
   verificado: { type: Boolean, default: false },
+  activo:     { type: Boolean, default: true },
+  desactivadoAt: { type: Date },
   token:      { type: String },
   tipoDoc:    { type: String },
   numDoc:     { type: String },

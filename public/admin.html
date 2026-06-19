@@ -378,6 +378,7 @@
 
     .badge-gratis { background: #f0f0f0; color: #888; }
     .badge-pago { background: #f0f9e8; color: #5a9e2f; }
+    .badge-inactivo { background: #fee2e2; color: #b91c1c; }
 
     .badge-verificado {
       display: inline-block;
@@ -411,6 +412,19 @@
       transition: background 0.2s;
     }
     .btn-eliminar:hover { background: #fecaca; }
+
+    .btn-verificar {
+      margin-left: 8px;
+      padding: 5px 10px;
+      background: #f0f9e8;
+      color: #4d8f28;
+      border: 1px solid #d8edc9;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-verificar:hover { background: #e5f5d8; }
 
     .btn-cancelar-suscripcion {
       margin-left: 8px;
@@ -1251,15 +1265,24 @@ function renderUsuarios(usuarios) {
   document.getElementById('tablaUsuarios').innerHTML = usuarios.map(u => {
     const fecha = u.createdAt ? new Date(u.createdAt).toLocaleDateString('es-ES') : '—';
     const esPago = u.plan && u.plan !== 'gratis';
+    const estaActivo = u.activo !== false;
     return `
       <tr>
         <td>${u.nombre}</td>
         <td>${u.email}</td>
-        <td><span class="badge-plan ${esPago ? 'badge-pago' : 'badge-gratis'}">${u.plan || 'gratis'}</span></td>
-        <td><span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span></td>
+        <td>
+          <span class="badge-plan ${estaActivo ? (esPago ? 'badge-pago' : 'badge-gratis') : 'badge-inactivo'}">
+            ${estaActivo ? (u.plan || 'gratis') : 'desactivado'}
+          </span>
+        </td>
+        <td>
+          <span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span>
+          ${!u.verificado && estaActivo ? `<button class="btn-verificar" onclick="verificarUsuario('${u._id}', this)">Verificar</button>` : ''}
+        </td>
         <td>${fecha}</td>
         <td>
           <select onchange="cambiarPlan('${u._id}', this.value)"
+            ${estaActivo ? '' : 'disabled'}
             style="padding:5px 8px;border:1.5px solid #eee;border-radius:6px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
             ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
           </select>
@@ -1270,6 +1293,9 @@ function renderUsuarios(usuarios) {
               ${u.cancelAtPeriodEnd ? 'disabled' : ''}>
               ${u.cancelAtPeriodEnd ? 'Cancelación programada' : 'Cancelar suscripción'}
             </button>
+          ` : ''}
+          ${estaActivo ? `
+            <button class="btn-eliminar" onclick="desactivarUsuario('${u._id}', this)">Desactivar</button>
           ` : ''}
         </td>
       </tr>
@@ -1966,6 +1992,53 @@ async function cambiarPlan(usuarioId, nuevoPlan) {
   } else {
     alert('Error al cambiar el plan');
     await cargarUsuarios();
+  }
+}
+
+async function verificarUsuario(usuarioId, btn) {
+  btn.disabled = true;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Verificando...';
+
+  const res = await fetch(`/admin/usuarios/${usuarioId}/verificar`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+
+  if (res.ok) {
+    alert('Usuario verificado correctamente.');
+    await cargarUsuarios();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    alert(data.error || 'Error al verificar el usuario');
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+  }
+}
+
+async function desactivarUsuario(usuarioId, btn) {
+  const ok = confirm('¿Seguro que quieres desactivar este usuario? Esta acción puede afectar a sus propiedades. Sus anuncios dejarán de verse públicamente.');
+  if (!ok) return;
+
+  btn.disabled = true;
+  const textoOriginal = btn.textContent;
+  btn.textContent = 'Desactivando...';
+
+  const res = await fetch(`/admin/usuarios/${usuarioId}/desactivar`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+
+  if (res.ok) {
+    const data = await res.json().catch(() => ({}));
+    alert(`Usuario desactivado correctamente. Propiedades ocultadas: ${data.propiedadesOcultadas || 0}.`);
+    await cargarUsuarios();
+    await cargarStats();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    alert(data.error || 'Error al desactivar el usuario');
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
   }
 }
 

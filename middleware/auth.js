@@ -52,6 +52,11 @@ export async function requireAuth(req, res, next) {
       return res.status(401).json({ error: "Tu sesión ha caducado. Inicia sesión de nuevo para publicar." });
     }
 
+    if (usuario.activo === false) {
+      logAuthDebug(req, "usuario_desactivado", { userId: usuario._id.toString() });
+      return res.status(403).json({ error: "Esta cuenta ha sido desactivada. Contacta con HomeClick24." });
+    }
+
     req.user = {
       id: usuario._id.toString(),
       _id: usuario._id,
