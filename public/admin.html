@@ -596,6 +596,15 @@
       min-height: 260px;
     }
 
+    .social-versions.compact .social-version-card:nth-child(3) {
+      grid-column: 1 / -1;
+    }
+
+    .social-versions.compact .social-version-card:nth-child(3) .social-textarea {
+      height: min(32vh, 300px);
+      min-height: 220px;
+    }
+
     .user-actions {
       position: relative;
       display: inline-block;
@@ -866,11 +875,16 @@
       .admin-tools-actions { width: 100%; flex-direction: column; }
       .btn-post-semanal { width: 100%; }
       .social-versions { grid-template-columns: 1fr; }
+      .social-versions.compact .social-version-card:nth-child(3) { grid-column: auto; }
       .modal-admin { max-height: calc(100vh - 24px); }
       .modal-admin-header { flex-direction: column; }
       .social-version-card .social-textarea {
         height: 340px;
         min-height: 300px;
+      }
+      .social-versions.compact .social-version-card .social-textarea {
+        height: 280px;
+        min-height: 240px;
       }
     }
 
@@ -2847,21 +2861,23 @@ function configurarModalRedes({ titulo, subtitulo, modo = 'simple' }) {
 
 function textosCaptacionInmobiliarias() {
   return {
-    whatsapp: `Hola, somos HomeClick24, un portal inmobiliario donde puedes publicar viviendas en venta o alquiler y darles visibilidad online.
+    whatsapp: `Hola, somos HomeClick24 👋
 
-Estamos incorporando agencias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz.
+Estamos incorporando agencias inmobiliarias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz.
 
-Puedes ver más información aquí:
+En HomeClick24 podéis publicar vuestros inmuebles en venta o alquiler y darles más visibilidad online desde un portal sencillo y local.
+
+Podéis ver más información aquí:
 https://www.homeclick24.com/profesionales.html`,
-    email: `Asunto: Publicación de inmuebles en HomeClick24
+    email: `Asunto: Publicar inmuebles en HomeClick24
 
 Hola,
 
-Somos HomeClick24, un portal inmobiliario pensado para dar visibilidad online a viviendas en venta y alquiler.
+Somos HomeClick24, un portal inmobiliario creado para dar visibilidad online a viviendas en venta y alquiler.
 
 Estamos incorporando agencias e inmobiliarias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz, y nos gustaría presentaros la plataforma.
 
-Desde HomeClick24 podéis publicar inmuebles, gestionarlos desde vuestro panel y aumentar su visibilidad en internet.
+Desde HomeClick24 podéis publicar vuestros inmuebles, gestionarlos desde vuestro panel y aumentar su presencia online en una web orientada al mercado local.
 
 Podéis ver más información aquí:
 https://www.homeclick24.com/profesionales.html
@@ -2874,8 +2890,12 @@ En HomeClick24 puedes publicar tus inmuebles en venta o alquiler y darles más v
 
 Estamos incorporando agencias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz.
 
+Un portal sencillo, local y pensado para que más personas encuentren viviendas como las tuyas.
+
 Más información:
-https://www.homeclick24.com/profesionales.html`
+https://www.homeclick24.com/profesionales.html
+
+#HomeClick24 #Inmobiliaria #Chipiona #Rota #Sanlucar #ElPuertoDeSantaMaria #Cadiz #AgenciasInmobiliarias`
   };
 }
 
