@@ -60,6 +60,16 @@ function actualizarSEO() {
     ?.setAttribute("content", propiedad.titulo);
   document.querySelector("meta[property='og:description']")
     ?.setAttribute("content", `${propiedad.precio?.toLocaleString("es-ES")} € · ${propiedad.direccion}`);
+  document.querySelector("meta[property='og:url']")
+    ?.setAttribute("content", window.location.href);
+
+  let canonical = document.querySelector("link[rel='canonical']");
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical.href = window.location.href;
 
   // Schema.org
   const schema = {

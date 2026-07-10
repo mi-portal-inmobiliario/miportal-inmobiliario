@@ -2,11 +2,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const cont = document.getElementById("main-header");
   if (!cont) return;
 
-// Canonical URL - evitar contenido duplicado
-  const canonical = document.createElement('link');
-  canonical.rel = 'canonical';
-  canonical.href = 'https://www.homeclick24.com' + window.location.pathname;
-  document.head.appendChild(canonical);
+  // Canonical URL - evitar contenido duplicado sin pisar canonicals definidos en cada página.
+  if (!document.querySelector('link[rel="canonical"]')) {
+    const canonical = document.createElement('link');
+    canonical.rel = 'canonical';
+    canonical.href = 'https://www.homeclick24.com' + window.location.pathname + (window.location.pathname === '/propiedad.html' ? window.location.search : '');
+    document.head.appendChild(canonical);
+  }
 
   const raw = localStorage.getItem("usuario");
   let usuario = null;

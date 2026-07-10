@@ -89,6 +89,11 @@ Disallow: /perfil.html
 Disallow: /publicar.html
 Disallow: /chat.html
 Disallow: /favoritos.html
+Disallow: /admin.html
+Disallow: /recuperar.html
+Disallow: /reset.html
+Disallow: /set-password.html
+Disallow: /añadir.html
 
 Sitemap: https://www.homeclick24.com/sitemap.xml`);
 });
@@ -107,8 +112,13 @@ app.get("/sitemap.xml", async (req, res) => {
       { loc: "/", priority: "1.0" },
       { loc: "/comprar.html", priority: "0.9" },
       { loc: "/alquiler.html", priority: "0.9" },
-      { loc: "/registro.html", priority: "0.5" },
-      { loc: "/login.html", priority: "0.3" },
+      { loc: "/planes.html", priority: "0.8" },
+      { loc: "/profesionales.html", priority: "0.7" },
+      { loc: "/contacto.html", priority: "0.6" },
+      { loc: "/sobre.html", priority: "0.5" },
+      { loc: "/integraciones.html", priority: "0.4" },
+      { loc: "/legal.html", priority: "0.3" },
+      { loc: "/terminos.html", priority: "0.3" },
       ...propiedades.map(p => ({
         loc: `/propiedad.html?id=${p._id}`,
         priority: "0.8",
