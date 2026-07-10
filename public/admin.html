@@ -2424,28 +2424,55 @@ function ciudadDesdeDireccion(direccion = '') {
   return partes.length >= 3 ? partes[1] : (partes[0] || 'tu zona');
 }
 
+function formatearPrecioRedes(precio, operacion) {
+  const numero = Number(precio || 0);
+  if (!Number.isFinite(numero) || numero <= 0) return '';
+  const precioFormateado = numero.toLocaleString('es-ES', {
+    minimumFractionDigits: numero % 1 ? 2 : 0,
+    maximumFractionDigits: 2
+  });
+  return `${precioFormateado} €${operacion === 'alquiler' ? '/mes' : ''}`;
+}
+
+function pluralizarRedes(cantidad, singular, plural) {
+  const numero = Number(cantidad || 0);
+  if (!numero) return '';
+  return `${numero} ${numero === 1 ? singular : plural}`;
+}
+
+function unirNaturalRedes(items) {
+  const limpios = items.filter(Boolean);
+  if (limpios.length <= 1) return limpios.join('');
+  if (limpios.length === 2) return `${limpios[0]} y ${limpios[1]}`;
+  return `${limpios.slice(0, -1).join(', ')} y ${limpios[limpios.length - 1]}`;
+}
+
 function crearTextoRedes(propiedad) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
   const ciudad = ciudadDesdeDireccion(propiedad.direccion);
   const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble);
-  const precio = `${formatoPrecioAdmin(propiedad.precio)} €${operacion === 'alquiler' ? '/mes' : ''}`;
+  const precio = formatearPrecioRedes(propiedad.precio, operacion);
   const caracteristicas = [
     propiedad.piscina ? 'piscina' : '',
-    propiedad.habitaciones ? `${propiedad.habitaciones} habitacion${Number(propiedad.habitaciones) === 1 ? '' : 'es'}` : '',
+    pluralizarRedes(propiedad.habitaciones, 'habitación', 'habitaciones'),
+    pluralizarRedes(propiedad.banos, 'baño', 'baños'),
     propiedad.terraza ? 'terraza' : '',
     propiedad.garaje ? 'garaje' : '',
     propiedad.superficie ? `${propiedad.superficie} m²` : ''
   ].filter(Boolean);
   const fraseCaracteristicas = caracteristicas.length
-    ? `${tipo} con ${caracteristicas.join(', ')}.`
+    ? `${tipo} con ${unirNaturalRedes(caracteristicas)}.`
     : `${tipo} disponible en HomeClick24.`;
   const url = `https://www.homeclick24.com/propiedad.html?id=${propiedad._id}`;
+  const lineasDetalle = [
+    precio ? `💶 Precio: ${precio}` : '',
+    propiedad.direccion ? `📍 Ubicación: ${direccionResumen(propiedad.direccion)}` : ''
+  ].filter(Boolean).join('\n');
 
   return `🏡 Nueva vivienda en ${operacion} en ${ciudad}
 
 ${fraseCaracteristicas}
-Precio: ${precio}
-Ubicación: ${direccionResumen(propiedad.direccion)}
+${lineasDetalle ? `\n${lineasDetalle}\n` : ''}
 
 Ver anuncio completo en HomeClick24:
 ${url}`;
