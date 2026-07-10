@@ -304,8 +304,27 @@ if (btnCompartir) {
 }
 
 window.dispatchEvent(new Event("propiedad:renderizada"));
+ajustarOffsetRelacionadas();
 
 }
+
+function ajustarOffsetRelacionadas() {
+  const relacionadas = document.getElementById("propiedadesRelacionadas");
+  const sidebar = document.querySelector(".propiedad-card-info");
+  const referencia = document.querySelector(".propiedad-mapa-wrap") || document.querySelector(".propiedad-descripcion");
+
+  if (!relacionadas || !sidebar || !referencia || window.innerWidth <= 900) {
+    if (relacionadas) relacionadas.style.setProperty("--relacionadas-offset", "0px");
+    return;
+  }
+
+  const sidebarRect = sidebar.getBoundingClientRect();
+  const referenciaRect = referencia.getBoundingClientRect();
+  const offset = Math.max(0, Math.ceil(sidebarRect.bottom - referenciaRect.bottom));
+  relacionadas.style.setProperty("--relacionadas-offset", `${offset}px`);
+}
+
+window.addEventListener("resize", ajustarOffsetRelacionadas);
 
 /* ================================
    MAPA CON GEOCODING AUTOMÁTICO

@@ -434,9 +434,9 @@ body {
 .relacionadas-section {
   position: relative;
   z-index: 2;
-  width: 100%;
-  max-width: 100%;
-  margin: 42px 0 0;
+  width: calc(100% + 410px);
+  max-width: calc(100vw - 80px);
+  margin: calc(42px + var(--relacionadas-offset, 0px)) 0 0;
   padding: 0;
   box-sizing: border-box;
   background: transparent;
@@ -643,6 +643,12 @@ body {
 
   .relacionadas-grid {
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .relacionadas-section {
+    width: 100%;
+    max-width: 100%;
+    --relacionadas-offset: 0px;
   }
 }
 
