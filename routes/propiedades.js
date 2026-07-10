@@ -329,6 +329,29 @@ router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
 });
 
 // ==================================================
+// GET /propiedades/destacadas — bloque público home
+// ==================================================
+router.get("/destacadas", async (req, res) => {
+  try {
+    const propiedades = await Propiedad.find({ visiblePublicamente: true })
+      .sort({
+        destacado: -1,
+        esDestacada: -1,
+        destacada: -1,
+        updatedAt: -1,
+        createdAt: -1
+      })
+      .limit(8)
+      .lean();
+
+    res.json(propiedades);
+  } catch (err) {
+    console.error("Error obteniendo propiedades destacadas:", err.message);
+    res.status(500).json({ error: "Error al obtener propiedades destacadas" });
+  }
+});
+
+// ==================================================
 // GET /propiedades/mias — anuncios del propietario
 // ==================================================
 router.get("/mias", requireAuth, async (req, res) => {

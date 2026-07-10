@@ -460,6 +460,48 @@
     }
     .btn-estadisticas:hover { background: #e0f4d0; }
 
+    .btn-redes {
+      margin-left: 8px;
+      padding: 5px 10px;
+      background: #eff6ff;
+      color: #2563eb;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+      font-family: inherit;
+    }
+    .btn-redes:hover { background: #dbeafe; }
+
+    .social-textarea {
+      width: 100%;
+      min-height: 260px;
+      resize: vertical;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 14px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      line-height: 1.6;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    .social-textarea:focus {
+      border-color: #7cc242;
+      box-shadow: 0 0 0 3px rgba(124, 194, 66, 0.12);
+    }
+
+    .social-copy-status {
+      min-height: 20px;
+      margin-top: 10px;
+      color: #5a9e2f;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
     .user-actions {
       position: relative;
       display: inline-block;
@@ -934,6 +976,25 @@
      </table>
     </div>
 
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalRedes" onclick="cerrarModalRedes(event)">
+  <div class="modal-admin" onclick="event.stopPropagation()">
+    <div class="modal-admin-header">
+      <div>
+        <h3>Texto para redes</h3>
+        <p>Texto listo para Instagram, Facebook o WhatsApp</p>
+      </div>
+      <div class="modal-header-actions">
+        <button onclick="copiarTextoRedes()" class="btn-exportar">Copiar texto</button>
+        <button class="modal-close" onclick="cerrarModalRedes()" aria-label="Cerrar">×</button>
+      </div>
+    </div>
+    <div class="modal-admin-body">
+      <textarea id="textoRedes" class="social-textarea" readonly></textarea>
+      <div id="estadoCopiaRedes" class="social-copy-status"></div>
+    </div>
   </div>
 </div>
 
@@ -2313,11 +2374,115 @@ async function cargarPropiedades() {
         <td>${fecha}</td>
         <td>
           <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
+          <button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>
           <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+function etiquetaTipoInmueble(tipo) {
+  const tipos = {
+    piso: 'Piso',
+    apartamento: 'Apartamento',
+    atico: 'Ático',
+    duplex: 'Dúplex',
+    estudio: 'Estudio',
+    casa: 'Casa',
+    chalet: 'Chalet',
+    adosado: 'Adosado',
+    casa_campo: 'Casa de campo',
+    casa_madera: 'Casa de madera',
+    local: 'Local comercial',
+    local_comercial: 'Local comercial',
+    oficina: 'Oficina',
+    nave: 'Nave',
+    hotel: 'Hotel',
+    edificio: 'Edificio',
+    negocio: 'Negocio',
+    terreno: 'Terreno',
+    solar_urbano: 'Solar urbano',
+    parcela: 'Parcela',
+    finca_rustica: 'Finca rústica',
+    finca_urbana: 'Finca urbana',
+    garaje: 'Garaje',
+    plaza_aparcamiento: 'Plaza de aparcamiento',
+    trastero: 'Trastero',
+    otro: 'Vivienda'
+  };
+  return tipos[tipo] || 'Vivienda';
+}
+
+function direccionResumen(direccion = '') {
+  const partes = String(direccion).split(',').map(p => p.trim()).filter(Boolean);
+  return partes.slice(0, 2).join(', ') || direccion || 'Consultar ubicación';
+}
+
+function ciudadDesdeDireccion(direccion = '') {
+  const partes = String(direccion).split(',').map(p => p.trim()).filter(Boolean);
+  return partes.length >= 3 ? partes[1] : (partes[0] || 'tu zona');
+}
+
+function crearTextoRedes(propiedad) {
+  const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
+  const ciudad = ciudadDesdeDireccion(propiedad.direccion);
+  const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble);
+  const precio = `${formatoPrecioAdmin(propiedad.precio)} €${operacion === 'alquiler' ? '/mes' : ''}`;
+  const caracteristicas = [
+    propiedad.piscina ? 'piscina' : '',
+    propiedad.habitaciones ? `${propiedad.habitaciones} habitacion${Number(propiedad.habitaciones) === 1 ? '' : 'es'}` : '',
+    propiedad.terraza ? 'terraza' : '',
+    propiedad.garaje ? 'garaje' : '',
+    propiedad.superficie ? `${propiedad.superficie} m²` : ''
+  ].filter(Boolean);
+  const fraseCaracteristicas = caracteristicas.length
+    ? `${tipo} con ${caracteristicas.join(', ')}.`
+    : `${tipo} disponible en HomeClick24.`;
+  const url = `https://www.homeclick24.com/propiedad.html?id=${propiedad._id}`;
+
+  return `🏡 Nueva vivienda en ${operacion} en ${ciudad}
+
+${fraseCaracteristicas}
+Precio: ${precio}
+Ubicación: ${direccionResumen(propiedad.direccion)}
+
+Ver anuncio completo en HomeClick24:
+${url}`;
+}
+
+function generarTextoRedes(id) {
+  const propiedad = propiedadesAdmin.find(p => String(p._id) === String(id));
+  if (!propiedad) return alert('No se encontró la propiedad');
+
+  document.getElementById('textoRedes').value = crearTextoRedes(propiedad);
+  document.getElementById('estadoCopiaRedes').textContent = '';
+  document.getElementById('modalRedes').classList.add('visible');
+}
+
+function cerrarModalRedes(event) {
+  if (event && event.target.id !== 'modalRedes') return;
+  document.getElementById('modalRedes').classList.remove('visible');
+}
+
+async function copiarTextoRedes() {
+  const textarea = document.getElementById('textoRedes');
+  const estado = document.getElementById('estadoCopiaRedes');
+  const texto = textarea.value;
+
+  try {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(texto);
+    } else {
+      textarea.removeAttribute('readonly');
+      textarea.select();
+      document.execCommand('copy');
+      textarea.setAttribute('readonly', 'readonly');
+    }
+    estado.textContent = 'Texto copiado al portapapeles.';
+  } catch (err) {
+    estado.textContent = 'No se pudo copiar automáticamente. Puedes seleccionar el texto manualmente.';
+  }
 }
 
 function editarPropiedadAdmin(id) {
