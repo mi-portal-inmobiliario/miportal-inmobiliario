@@ -2598,39 +2598,60 @@ function crearTextoRedes(propiedad) {
   ].filter(Boolean).join('\n\n');
 }
 
-function capitalizarFraseRedes(texto = '') {
-  return String(texto)
-    .toLowerCase()
-    .replace(/(^|[\s,])([a-záéíóúüñ])/g, (match, prefijo, letra) => prefijo + letra.toUpperCase())
-    .replace(/\bEn\b/g, 'en')
-    .replace(/\bCon\b/g, 'con')
-    .replace(/\bDe\b/g, 'de')
-    .replace(/\bLa\b/g, 'la')
-    .replace(/\bEl\b/g, 'el')
-    .replace(/\bY\b/g, 'y');
+function textoFrasePostSemanal(texto = '') {
+  const limpio = String(texto).trim().replace(/\s+/g, ' ');
+  return limpio ? limpio.charAt(0).toUpperCase() + limpio.slice(1) : '';
+}
+
+function detectarZonaDesdeTitulo(titulo = '') {
+  const texto = normalizarParteDireccion(titulo);
+  const zonas = [
+    { patron: 'playa de regla', nombre: 'Playa de Regla' },
+    { patron: 'regla', nombre: 'Playa de Regla' },
+    { patron: 'el bercial', nombre: 'El Bercial' },
+    { patron: 'pinar de la villa', nombre: 'Pinar de la Villa' },
+    { patron: 'capuchinos', nombre: 'Capuchinos' }
+  ];
+  return zonas.find(zona => texto.includes(zona.patron))?.nombre || '';
+}
+
+function ubicacionPostSemanal(propiedad) {
+  const partes = limpiarPartesDireccionRedes(propiedad.direccion);
+  const zonaTitulo = detectarZonaDesdeTitulo(propiedad.titulo);
+  const ciudad = partes.length > 1 ? partes[partes.length - 1] : partes[0] || '';
+  let zona = zonaTitulo;
+
+  if (!zona && partes.length >= 2) {
+    zona = pareceViaPublica(partes[0]) ? partes[1] : partes[0];
+  }
+
+  if (zona && ciudad && normalizarParteDireccion(zona) !== normalizarParteDireccion(ciudad)) {
+    return `${zona}, ${ciudad}`;
+  }
+
+  return ciudad || zona || 'la zona';
+}
+
+function extrasPostSemanal(propiedad) {
+  const tituloOriginal = String(propiedad.titulo || '');
+  const direccion = String(propiedad.direccion || '');
+  const textoBusqueda = `${tituloOriginal} ${direccion}`.toLowerCase();
+  const extras = [];
+
+  if (propiedad.piscina || /pool|piscina/.test(textoBusqueda)) extras.push('piscina');
+  if (propiedad.terraza || /terraza|jard[ií]n|garden/.test(textoBusqueda)) extras.push('terraza');
+  if (propiedad.garaje || /garaje|parking/.test(textoBusqueda)) extras.push('garaje');
+
+  return [...new Set(extras)];
 }
 
 function limpiarTituloPostSemanal(propiedad) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
   const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble).replace(/^Vivienda$/i, 'Casa');
-  const tituloOriginal = String(propiedad.titulo || '');
-  const direccion = String(propiedad.direccion || '');
-  const ubicacion = ubicacionPrincipalRedes(direccion);
-  const ubicacionLimpia = ubicacion && ubicacion !== 'tu zona' ? ubicacion : 'la zona';
-  const textoBusqueda = `${tituloOriginal} ${direccion}`.toLowerCase();
-  const extras = [];
-
-  if (propiedad.piscina || /pool|piscina/.test(textoBusqueda)) {
-    extras.push(/private pool|piscina privada/.test(textoBusqueda) ? 'piscina privada' : 'piscina');
-  }
-  if (propiedad.terraza || /terraza|jard[ií]n|garden/.test(textoBusqueda)) extras.push('terraza');
-  if (propiedad.garaje || /garaje|parking/.test(textoBusqueda)) extras.push('garaje');
-  if (/playa de regla|regla/.test(textoBusqueda) && !String(ubicacionLimpia).toLowerCase().includes('regla')) {
-    extras.unshift('Playa de Regla');
-  }
-
-  const extraTexto = extras.length ? ` con ${unirNaturalRedes([...new Set(extras)])}` : '';
-  return capitalizarFraseRedes(`${tipo} en ${operacion} en ${ubicacionLimpia}${extraTexto}`);
+  const ubicacion = ubicacionPostSemanal(propiedad);
+  const extras = extrasPostSemanal(propiedad);
+  const extraTexto = extras.length ? `, con ${unirNaturalRedes(extras)}` : '';
+  return textoFrasePostSemanal(`${tipo} en ${operacion} en ${ubicacion}${extraTexto}`);
 }
 
 function seleccionarPropiedadesPostSemanal() {
