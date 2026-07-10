@@ -426,6 +426,154 @@ body {
 }
 
 /* ===========================
+   PROPIEDADES RELACIONADAS
+=========================== */
+.relacionadas-section {
+  width: min(1100px, calc(100% - 40px));
+  max-width: 1100px;
+  margin: 10px auto 46px;
+  padding: 0 20px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+}
+
+.relacionadas-section[hidden] {
+  display: none;
+}
+
+.relacionadas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.relacionadas-header h2 {
+  margin: 0 0 6px;
+  font-size: 1.55rem;
+  color: #222;
+  letter-spacing: 0;
+}
+
+.relacionadas-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.96rem;
+}
+
+.relacionadas-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.relacionada-card,
+.relacionada-link {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.relacionada-card {
+  background: #fff;
+  border: 1px solid #edf2e8;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 22px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.relacionada-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.12);
+}
+
+.relacionada-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+
+.relacionada-img-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  background: #eef2ea;
+  overflow: hidden;
+}
+
+.relacionada-img-wrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.relacionada-op {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.relacionada-op.venta {
+  background: #7cc242;
+}
+
+.relacionada-op.alquiler {
+  background: #2563eb;
+}
+
+.relacionada-body {
+  padding: 14px;
+  min-width: 0;
+}
+
+.relacionada-precio {
+  color: #222;
+  font-size: 1.15rem;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.relacionada-body h3 {
+  margin: 0 0 8px;
+  color: #222;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.relacionada-dir,
+.relacionada-meta {
+  margin: 0 0 8px;
+  color: #6b7280;
+  font-size: 0.86rem;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.relacionada-meta {
+  color: #4b5563;
+  font-weight: 600;
+}
+
+.relacionada-cta {
+  display: inline-flex;
+  align-items: center;
+  color: #5a9e2f;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+/* ===========================
    MODAL IMÁGENES
 =========================== */
 .modal {
@@ -475,6 +623,10 @@ body {
     order: -1;
     overflow: visible;
   }
+
+  .relacionadas-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 768px) {
@@ -491,11 +643,26 @@ body {
   .propiedad-precio {
     font-size: 1.8rem;
   }
+
+  .relacionadas-section {
+    width: min(1100px, calc(100% - 24px));
+    padding: 0 12px;
+    margin-bottom: 34px;
+  }
+
+  .relacionadas-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 480px) {
   .slider-container {
     height: 240px;
+  }
+
+  .relacionadas-grid {
+    grid-template-columns: 1fr;
   }
 }
 

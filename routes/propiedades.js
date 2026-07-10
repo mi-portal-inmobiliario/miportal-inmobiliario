@@ -113,6 +113,26 @@ const propiedadUpdateSchema = z.object({
   habitaciones: propiedadBaseSchema.habitaciones.optional()
 });
 
+function escapeRegex(value = "") {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extraerLocalidadPropiedad(propiedad = {}) {
+  if (propiedad.ciudad) return propiedad.ciudad;
+  if (propiedad.localidad) return propiedad.localidad;
+
+  const partes = String(propiedad.direccion || "")
+    .split(",")
+    .map(p => p.trim())
+    .filter(Boolean)
+    .filter(p => !/^\d{4,6}$/.test(p));
+
+  const descartadas = new Set(["españa", "andalucía", "cadiz", "cádiz", "costa noroeste"]);
+  const limpias = partes.filter(p => !descartadas.has(p.toLowerCase()));
+
+  return limpias.length > 1 ? limpias[limpias.length - 1] : "";
+}
+
 const LIMITES_ANUNCIOS = {
   gratis: 2,
   basico: 3,
@@ -381,6 +401,82 @@ router.get("/ultimas", async (req, res) => {
   } catch (err) {
     console.error("Error obteniendo últimos anuncios:", err.message);
     res.status(500).json({ error: "Error al obtener últimos anuncios" });
+  }
+});
+
+// ==================================================
+// GET /propiedades/relacionadas/:id — anuncios similares
+// ==================================================
+router.get("/relacionadas/:id", async (req, res) => {
+  try {
+    if (!isObjectId(req.params.id)) {
+      return res.status(400).json({ message: "ID inválido" });
+    }
+
+    const actual = await Propiedad.findById(req.params.id).lean();
+    if (!actual || actual.visiblePublicamente === false) {
+      return res.status(404).json({ message: "Propiedad no encontrada" });
+    }
+
+    const projection = {
+      titulo: 1,
+      precio: 1,
+      tipoOperacion: 1,
+      tipoInmueble: 1,
+      direccion: 1,
+      ciudad: 1,
+      localidad: 1,
+      habitaciones: 1,
+      banos: 1,
+      superficie: 1,
+      imagenes: 1,
+      createdAt: 1
+    };
+    const base = { visiblePublicamente: true };
+    const relacionadas = [];
+    const idsUsados = new Set([String(actual._id)]);
+
+    const agregar = (items = []) => {
+      items.forEach(item => {
+        const id = String(item._id);
+        if (relacionadas.length < 4 && !idsUsados.has(id)) {
+          idsUsados.add(id);
+          relacionadas.push(item);
+        }
+      });
+    };
+    const buscar = async filtro => Propiedad.find(
+      { ...base, _id: { $nin: [...idsUsados] }, ...filtro },
+      projection
+    )
+      .sort({ createdAt: -1 })
+      .limit(4 - relacionadas.length)
+      .lean();
+
+    const localidad = extraerLocalidadPropiedad(actual);
+    if (localidad) {
+      const localidadRegex = new RegExp(escapeRegex(localidad), "i");
+      agregar(await buscar({
+        $or: [
+          { ciudad: localidadRegex },
+          { localidad: localidadRegex },
+          { direccion: localidadRegex }
+        ]
+      }));
+    }
+
+    if (relacionadas.length < 4 && actual.tipoOperacion) {
+      agregar(await buscar({ tipoOperacion: actual.tipoOperacion }));
+    }
+
+    if (relacionadas.length < 4) {
+      agregar(await buscar({}));
+    }
+
+    res.json(relacionadas);
+  } catch (err) {
+    console.error("Error obteniendo propiedades relacionadas:", err.message);
+    res.status(500).json({ error: "Error al obtener propiedades relacionadas" });
   }
 });
 
