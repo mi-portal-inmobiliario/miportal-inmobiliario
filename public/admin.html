@@ -2537,22 +2537,30 @@ function ubicacionPrincipalRedes(direccion = '') {
 
 function normalizarNumeroRedes(valor) {
   if (typeof valor === 'number') return valor;
-  const limpio = String(valor || '').trim();
+  const limpio = String(valor || '')
+    .trim()
+    .replace(/[^\d.,-]/g, '');
   if (!limpio) return 0;
+  const partesPorPunto = limpio.split('.');
+  const ultimoGrupoPunto = partesPorPunto[partesPorPunto.length - 1] || '';
   const normalizado = limpio.includes(',')
     ? limpio.replace(/\./g, '').replace(',', '.')
-    : limpio.replace(/\./g, '');
+    : partesPorPunto.length > 1 && ultimoGrupoPunto.length !== 3
+      ? limpio
+      : limpio.replace(/\./g, '');
   return Number(normalizado);
 }
 
 function formatearPrecioRedes(precio, operacion) {
   const numero = normalizarNumeroRedes(precio);
   if (!Number.isFinite(numero) || numero <= 0) return '';
+  const esAlquiler = operacion === 'alquiler' || /\/mes|\bmes\b/i.test(String(precio || ''));
   const precioFormateado = numero.toLocaleString('es-ES', {
+    useGrouping: true,
     minimumFractionDigits: numero % 1 ? 2 : 0,
     maximumFractionDigits: 2
   });
-  return `${precioFormateado} €${operacion === 'alquiler' ? '/mes' : ''}`;
+  return `${precioFormateado} €${esAlquiler ? '/mes' : ''}`;
 }
 
 function pluralizarRedes(cantidad, singular, plural) {
