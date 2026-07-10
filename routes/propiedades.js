@@ -352,6 +352,39 @@ router.get("/destacadas", async (req, res) => {
 });
 
 // ==================================================
+// GET /propiedades/ultimas — últimos anuncios públicos home
+// ==================================================
+router.get("/ultimas", async (req, res) => {
+  try {
+    const propiedades = await Propiedad.find(
+      { visiblePublicamente: true },
+      {
+        titulo: 1,
+        precio: 1,
+        tipoOperacion: 1,
+        tipoInmueble: 1,
+        direccion: 1,
+        ciudad: 1,
+        localidad: 1,
+        habitaciones: 1,
+        banos: 1,
+        superficie: 1,
+        imagenes: 1,
+        createdAt: 1
+      }
+    )
+      .sort({ createdAt: -1 })
+      .limit(8)
+      .lean();
+
+    res.json(propiedades);
+  } catch (err) {
+    console.error("Error obteniendo últimos anuncios:", err.message);
+    res.status(500).json({ error: "Error al obtener últimos anuncios" });
+  }
+});
+
+// ==================================================
 // GET /propiedades/mias — anuncios del propietario
 // ==================================================
 router.get("/mias", requireAuth, async (req, res) => {
