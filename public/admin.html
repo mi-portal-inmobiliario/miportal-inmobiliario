@@ -475,6 +475,51 @@
     }
     .btn-redes:hover { background: #dbeafe; }
 
+    .admin-tools-card {
+      background: linear-gradient(135deg, #f9fdf5 0%, #ffffff 100%);
+      border: 1px solid #e5f0d8;
+      border-radius: 16px;
+      padding: 20px 22px;
+      margin: 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    .admin-tools-card h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .admin-tools-card p {
+      color: #777;
+      font-size: 0.86rem;
+      line-height: 1.5;
+    }
+
+    .btn-post-semanal {
+      padding: 11px 16px;
+      background: #7cc242;
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+
+    .btn-post-semanal:hover {
+      background: #6aad35;
+      transform: translateY(-1px);
+    }
+
     .social-textarea {
       width: 100%;
       min-height: 260px;
@@ -762,6 +807,8 @@
       .user-actions { display: block; margin: 8px 0 0 0; width: 100%; }
       .btn-acciones { width: 100%; }
       .acciones-menu { left: 0; right: auto; width: min(260px, 100%); }
+      .admin-tools-card { align-items: flex-start; flex-direction: column; }
+      .btn-post-semanal { width: 100%; }
     }
 
   </style>
@@ -927,6 +974,15 @@
     <h2 style="font-size:1rem;font-weight:700;margin-bottom:14px;">Distribución de planes</h2>
     <div class="planes-grid" id="planesGrid"></div>
 
+    <!-- HERRAMIENTAS INTERNAS -->
+    <section class="admin-tools-card">
+      <div>
+        <h2>Herramientas de comunicación</h2>
+        <p>Genera textos listos para copiar en Instagram, Facebook o WhatsApp usando anuncios reales.</p>
+      </div>
+      <button class="btn-post-semanal" onclick="generarPostSemanal()">📣 Generar post semanal</button>
+    </section>
+
    <!-- USUARIOS -->
    <div class="tabla-wrap">
      <div class="tabla-header">
@@ -983,8 +1039,8 @@
   <div class="modal-admin" onclick="event.stopPropagation()">
     <div class="modal-admin-header">
       <div>
-        <h3>Texto para redes</h3>
-        <p>Texto listo para Instagram, Facebook o WhatsApp</p>
+        <h3 id="modalRedesTitulo">Texto para redes</h3>
+        <p id="modalRedesSubtitulo">Texto listo para Instagram, Facebook o WhatsApp</p>
       </div>
       <div class="modal-header-actions">
         <button onclick="copiarTextoRedes()" class="btn-exportar">Copiar texto</button>
@@ -2542,10 +2598,98 @@ function crearTextoRedes(propiedad) {
   ].filter(Boolean).join('\n\n');
 }
 
+function capitalizarFraseRedes(texto = '') {
+  return String(texto)
+    .toLowerCase()
+    .replace(/(^|[\s,])([a-záéíóúüñ])/g, (match, prefijo, letra) => prefijo + letra.toUpperCase())
+    .replace(/\bEn\b/g, 'en')
+    .replace(/\bCon\b/g, 'con')
+    .replace(/\bDe\b/g, 'de')
+    .replace(/\bLa\b/g, 'la')
+    .replace(/\bEl\b/g, 'el')
+    .replace(/\bY\b/g, 'y');
+}
+
+function limpiarTituloPostSemanal(propiedad) {
+  const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
+  const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble).replace(/^Vivienda$/i, 'Casa');
+  const tituloOriginal = String(propiedad.titulo || '');
+  const direccion = String(propiedad.direccion || '');
+  const ubicacion = ubicacionPrincipalRedes(direccion);
+  const ubicacionLimpia = ubicacion && ubicacion !== 'tu zona' ? ubicacion : 'la zona';
+  const textoBusqueda = `${tituloOriginal} ${direccion}`.toLowerCase();
+  const extras = [];
+
+  if (propiedad.piscina || /pool|piscina/.test(textoBusqueda)) {
+    extras.push(/private pool|piscina privada/.test(textoBusqueda) ? 'piscina privada' : 'piscina');
+  }
+  if (propiedad.terraza || /terraza|jard[ií]n|garden/.test(textoBusqueda)) extras.push('terraza');
+  if (propiedad.garaje || /garaje|parking/.test(textoBusqueda)) extras.push('garaje');
+  if (/playa de regla|regla/.test(textoBusqueda) && !String(ubicacionLimpia).toLowerCase().includes('regla')) {
+    extras.unshift('Playa de Regla');
+  }
+
+  const extraTexto = extras.length ? ` con ${unirNaturalRedes([...new Set(extras)])}` : '';
+  return capitalizarFraseRedes(`${tipo} en ${operacion} en ${ubicacionLimpia}${extraTexto}`);
+}
+
+function seleccionarPropiedadesPostSemanal() {
+  return [...propiedadesAdmin]
+    .filter(p => p && p.visiblePublicamente !== false)
+    .sort((a, b) => {
+      const destacadoA = Number(Boolean(a.destacado || a.esDestacada || a.destacada));
+      const destacadoB = Number(Boolean(b.destacado || b.esDestacada || b.destacada));
+      if (destacadoA !== destacadoB) return destacadoB - destacadoA;
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    })
+    .slice(0, 5);
+}
+
+function crearPostSemanalRedes(propiedades = []) {
+  const iconos = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣'];
+  const bloques = propiedades.map((propiedad, index) => {
+    const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion);
+    const ubicacion = direccionResumen(propiedad.direccion);
+    const url = `https://www.homeclick24.com/propiedad.html?id=${propiedad._id}`;
+    return [
+      `${iconos[index]} ${limpiarTituloPostSemanal(propiedad)}`,
+      precio ? `💶 Precio: ${precio}` : '',
+      ubicacion ? `📍 Ubicación: ${ubicacion}` : '',
+      `🔗 ${url}`
+    ].filter(Boolean).join('\n');
+  });
+
+  return [
+    '🏠 Viviendas destacadas de la semana en HomeClick24',
+    bloques.join('\n\n'),
+    '¿Buscas vivienda o quieres publicar la tuya?\nEntra en HomeClick24:\nhttps://www.homeclick24.com'
+  ].filter(Boolean).join('\n\n');
+}
+
+async function generarPostSemanal() {
+  if (!propiedadesAdmin.length) {
+    await cargarPropiedades();
+  }
+
+  const seleccionadas = seleccionarPropiedadesPostSemanal();
+  if (seleccionadas.length < 3) {
+    alert('Necesitas al menos 3 propiedades públicas para generar un post semanal.');
+    return;
+  }
+
+  document.getElementById('modalRedesTitulo').textContent = 'Post semanal para redes';
+  document.getElementById('modalRedesSubtitulo').textContent = 'Texto listo para copiar en Instagram, Facebook o WhatsApp';
+  document.getElementById('textoRedes').value = crearPostSemanalRedes(seleccionadas);
+  document.getElementById('estadoCopiaRedes').textContent = '';
+  document.getElementById('modalRedes').classList.add('visible');
+}
+
 function generarTextoRedes(id) {
   const propiedad = propiedadesAdmin.find(p => String(p._id) === String(id));
   if (!propiedad) return alert('No se encontró la propiedad');
 
+  document.getElementById('modalRedesTitulo').textContent = 'Texto para redes';
+  document.getElementById('modalRedesSubtitulo').textContent = 'Texto listo para Instagram, Facebook o WhatsApp';
   document.getElementById('textoRedes').value = crearTextoRedes(propiedad);
   document.getElementById('estadoCopiaRedes').textContent = '';
   document.getElementById('modalRedes').classList.add('visible');
