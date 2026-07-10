@@ -523,6 +523,8 @@
     .social-textarea {
       width: 100%;
       min-height: 260px;
+      max-height: 58vh;
+      overflow-y: auto;
       resize: vertical;
       border: 1.5px solid #e5e7eb;
       border-radius: 12px;
@@ -558,6 +560,7 @@
       border: 1px solid #e5e7eb;
       border-radius: 14px;
       padding: 14px;
+      min-width: 0;
     }
 
     .social-version-head {
@@ -575,7 +578,8 @@
     }
 
     .social-version-card .social-textarea {
-      min-height: 430px;
+      height: min(58vh, 560px);
+      min-height: 460px;
       background: #fff;
       font-size: 0.88rem;
     }
@@ -688,11 +692,14 @@
 
     .modal-admin {
       width: min(1080px, 100%);
+      max-height: calc(100vh - 48px);
       background: #fff;
       border-radius: 16px;
       border: 1px solid #e5e5e0;
       box-shadow: 0 24px 80px rgba(0,0,0,0.18);
       overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
 
     .modal-admin-header {
@@ -736,7 +743,10 @@
       line-height: 1;
     }
 
-    .modal-admin-body { padding: 24px; }
+    .modal-admin-body {
+      padding: 24px;
+      overflow-y: auto;
+    }
 
     .admin-form-grid {
       display: grid;
@@ -843,6 +853,12 @@
       .admin-tools-card { align-items: flex-start; flex-direction: column; }
       .btn-post-semanal { width: 100%; }
       .social-versions { grid-template-columns: 1fr; }
+      .modal-admin { max-height: calc(100vh - 24px); }
+      .modal-admin-header { flex-direction: column; }
+      .social-version-card .social-textarea {
+        height: 340px;
+        min-height: 300px;
+      }
     }
 
   </style>
@@ -2705,11 +2721,11 @@ function extrasPostSemanal(propiedad) {
   return [...new Set(extras)];
 }
 
-function limpiarTituloPostSemanal(propiedad) {
+function limpiarTituloPostSemanal(propiedad, opciones = {}) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
   const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble).replace(/^Vivienda$/i, 'Casa');
   const ubicacion = ubicacionPostSemanal(propiedad);
-  const extras = extrasPostSemanal(propiedad);
+  const extras = opciones.incluirExtras === false ? [] : extrasPostSemanal(propiedad);
   const extraTexto = extras.length ? `, con ${unirNaturalRedes(extras)}` : '';
   return textoFrasePostSemanal(`${tipo} en ${operacion} en ${ubicacion}${extraTexto}`);
 }
@@ -2763,9 +2779,11 @@ function textoCiudadesPostSemanal(propiedades = []) {
 
 function crearPostSemanalInstagram(propiedades = []) {
   const bloques = propiedades.map(propiedad => {
-    const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion);
+    const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion)
+      .replace(/\s€/g, '\u00a0€')
+      .replace(/€\/mes/g, '€\u2060/mes');
     const icono = propiedad.tipoOperacion === 'alquiler' ? '🔑' : '🏡';
-    return `${icono} ${limpiarTituloPostSemanal(propiedad)}${precio ? ` — ${precio}` : ''}`;
+    return `${icono} ${limpiarTituloPostSemanal(propiedad, { incluirExtras: false })}${precio ? ` — ${precio}` : ''}`;
   });
 
   return [
