@@ -547,6 +547,39 @@
       font-weight: 700;
     }
 
+    .social-versions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .social-version-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .social-version-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .social-version-head h4 {
+      font-size: 0.92rem;
+      color: #1a1a1a;
+      margin: 0;
+    }
+
+    .social-version-card .social-textarea {
+      min-height: 430px;
+      background: #fff;
+      font-size: 0.88rem;
+    }
+
     .user-actions {
       position: relative;
       display: inline-block;
@@ -809,6 +842,7 @@
       .acciones-menu { left: 0; right: auto; width: min(260px, 100%); }
       .admin-tools-card { align-items: flex-start; flex-direction: column; }
       .btn-post-semanal { width: 100%; }
+      .social-versions { grid-template-columns: 1fr; }
     }
 
   </style>
@@ -1043,12 +1077,30 @@
         <p id="modalRedesSubtitulo">Texto listo para Instagram, Facebook o WhatsApp</p>
       </div>
       <div class="modal-header-actions">
-        <button onclick="copiarTextoRedes()" class="btn-exportar">Copiar texto</button>
+        <button id="btnCopiarTextoRedes" onclick="copiarTextoRedes()" class="btn-exportar">Copiar texto</button>
         <button class="modal-close" onclick="cerrarModalRedes()" aria-label="Cerrar">×</button>
       </div>
     </div>
     <div class="modal-admin-body">
-      <textarea id="textoRedes" class="social-textarea" readonly></textarea>
+      <div id="redesTextoSimple">
+        <textarea id="textoRedes" class="social-textarea" readonly></textarea>
+      </div>
+      <div id="redesPostSemanal" class="social-versions" style="display:none;">
+        <div class="social-version-card">
+          <div class="social-version-head">
+            <h4>Facebook / WhatsApp</h4>
+            <button onclick="copiarTextoRedesCampo('textoRedesFacebook', 'Facebook/WhatsApp')" class="btn-exportar">Copiar Facebook/WhatsApp</button>
+          </div>
+          <textarea id="textoRedesFacebook" class="social-textarea" readonly></textarea>
+        </div>
+        <div class="social-version-card">
+          <div class="social-version-head">
+            <h4>Instagram</h4>
+            <button onclick="copiarTextoRedesCampo('textoRedesInstagram', 'Instagram')" class="btn-exportar">Copiar Instagram</button>
+          </div>
+          <textarea id="textoRedesInstagram" class="social-textarea" readonly></textarea>
+        </div>
+      </div>
       <div id="estadoCopiaRedes" class="social-copy-status"></div>
     </div>
   </div>
@@ -2695,6 +2747,46 @@ function crearPostSemanalRedes(propiedades = []) {
   ].filter(Boolean).join('\n\n');
 }
 
+function ciudadPostSemanal(propiedad) {
+  const ubicacion = ubicacionPostSemanal(propiedad);
+  const partes = String(ubicacion).split(',').map(p => p.trim()).filter(Boolean);
+  return partes[partes.length - 1] || partes[0] || '';
+}
+
+function textoCiudadesPostSemanal(propiedades = []) {
+  const ciudades = [...new Set(propiedades.map(ciudadPostSemanal).filter(Boolean))];
+  if (!ciudades.length) return 'Chipiona, Rota y alrededores';
+  if (ciudades.length === 1) return `${ciudades[0]} y alrededores`;
+  if (ciudades.length === 2) return `${ciudades[0]}, ${ciudades[1]} y alrededores`;
+  return `${ciudades.slice(0, -1).join(', ')} y ${ciudades[ciudades.length - 1]}`;
+}
+
+function crearPostSemanalInstagram(propiedades = []) {
+  const bloques = propiedades.map(propiedad => {
+    const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion);
+    const icono = propiedad.tipoOperacion === 'alquiler' ? '🔑' : '🏡';
+    return `${icono} ${limpiarTituloPostSemanal(propiedad)}${precio ? ` — ${precio}` : ''}`;
+  });
+
+  return [
+    '🏠 Viviendas destacadas de la semana en HomeClick24',
+    `Esta semana tenemos viviendas en alquiler y venta en ${textoCiudadesPostSemanal(propiedades)}:`,
+    bloques.join('\n'),
+    'Consulta los anuncios completos en:\nwww.homeclick24.com',
+    '¿Quieres vender o alquilar tu vivienda?\nPublícala en HomeClick24.',
+    '#HomeClick24 #Inmobiliaria #Chipiona #Rota #Cadiz #ViviendasEnVenta #AlquilerChipiona #CasasEnVenta #PortalInmobiliario'
+  ].filter(Boolean).join('\n\n');
+}
+
+function configurarModalRedes({ titulo, subtitulo, modo = 'simple' }) {
+  document.getElementById('modalRedesTitulo').textContent = titulo;
+  document.getElementById('modalRedesSubtitulo').textContent = subtitulo;
+  document.getElementById('estadoCopiaRedes').textContent = '';
+  document.getElementById('redesTextoSimple').style.display = modo === 'simple' ? '' : 'none';
+  document.getElementById('redesPostSemanal').style.display = modo === 'semanal' ? '' : 'none';
+  document.getElementById('btnCopiarTextoRedes').style.display = modo === 'simple' ? '' : 'none';
+}
+
 async function generarPostSemanal() {
   if (!propiedadesAdmin.length) {
     await cargarPropiedades();
@@ -2706,10 +2798,13 @@ async function generarPostSemanal() {
     return;
   }
 
-  document.getElementById('modalRedesTitulo').textContent = 'Post semanal para redes';
-  document.getElementById('modalRedesSubtitulo').textContent = 'Texto listo para copiar en Instagram, Facebook o WhatsApp';
-  document.getElementById('textoRedes').value = crearPostSemanalRedes(seleccionadas);
-  document.getElementById('estadoCopiaRedes').textContent = '';
+  configurarModalRedes({
+    titulo: 'Post semanal para redes',
+    subtitulo: 'Dos versiones listas para copiar: Facebook/WhatsApp e Instagram',
+    modo: 'semanal'
+  });
+  document.getElementById('textoRedesFacebook').value = crearPostSemanalRedes(seleccionadas);
+  document.getElementById('textoRedesInstagram').value = crearPostSemanalInstagram(seleccionadas);
   document.getElementById('modalRedes').classList.add('visible');
 }
 
@@ -2717,10 +2812,12 @@ function generarTextoRedes(id) {
   const propiedad = propiedadesAdmin.find(p => String(p._id) === String(id));
   if (!propiedad) return alert('No se encontró la propiedad');
 
-  document.getElementById('modalRedesTitulo').textContent = 'Texto para redes';
-  document.getElementById('modalRedesSubtitulo').textContent = 'Texto listo para Instagram, Facebook o WhatsApp';
+  configurarModalRedes({
+    titulo: 'Texto para redes',
+    subtitulo: 'Texto listo para Instagram, Facebook o WhatsApp',
+    modo: 'simple'
+  });
   document.getElementById('textoRedes').value = crearTextoRedes(propiedad);
-  document.getElementById('estadoCopiaRedes').textContent = '';
   document.getElementById('modalRedes').classList.add('visible');
 }
 
@@ -2730,7 +2827,11 @@ function cerrarModalRedes(event) {
 }
 
 async function copiarTextoRedes() {
-  const textarea = document.getElementById('textoRedes');
+  await copiarTextoRedesCampo('textoRedes', 'texto');
+}
+
+async function copiarTextoRedesCampo(textareaId, etiqueta = 'texto') {
+  const textarea = document.getElementById(textareaId);
   const estado = document.getElementById('estadoCopiaRedes');
   const texto = textarea.value;
 
@@ -2743,7 +2844,9 @@ async function copiarTextoRedes() {
       document.execCommand('copy');
       textarea.setAttribute('readonly', 'readonly');
     }
-    estado.textContent = 'Texto copiado al portapapeles.';
+    estado.textContent = etiqueta === 'texto'
+      ? 'Texto copiado al portapapeles.'
+      : `Texto de ${etiqueta} copiado al portapapeles.`;
   } catch (err) {
     estado.textContent = 'No se pudo copiar automáticamente. Puedes seleccionar el texto manualmente.';
   }
