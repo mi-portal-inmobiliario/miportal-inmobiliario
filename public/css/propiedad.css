@@ -705,12 +705,26 @@ body {
   }
 
   .relacionada-card {
-    flex: 0 0 min(85vw, 330px);
+    flex: 0 0 min(78vw, 320px);
     scroll-snap-align: start;
   }
 
   .relacionada-img-wrap {
-    min-height: 190px;
+    height: 190px;
+    min-height: 0;
+  }
+
+  .relacionada-precio {
+    font-size: 1.08rem;
+  }
+
+  .relacionada-body h3 {
+    display: -webkit-box;
+    font-size: 0.94rem;
+    line-height: 1.35;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
 }
 
@@ -720,15 +734,17 @@ body {
   }
 
   .relacionada-card {
-    flex-basis: 84vw;
+    flex-basis: 78vw;
+    max-width: 320px;
   }
 
   .relacionada-img-wrap {
-    min-height: 180px;
+    height: 175px;
+    min-height: 0;
   }
 
   .relacionada-body {
-    padding: 14px;
+    padding: 13px;
   }
 }
 
