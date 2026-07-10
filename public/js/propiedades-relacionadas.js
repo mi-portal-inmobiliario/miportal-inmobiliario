@@ -51,12 +51,16 @@ function renderPropiedadRelacionada(p) {
   `;
 }
 
+let propiedadesRelacionadasCargadas = false;
+
 async function cargarPropiedadesRelacionadas() {
   const seccion = document.getElementById("propiedadesRelacionadas");
   const grid = document.getElementById("propiedadesRelacionadasGrid");
   const id = new URLSearchParams(window.location.search).get("id");
 
   if (!seccion || !grid || !id) return;
+  if (propiedadesRelacionadasCargadas) return;
+  propiedadesRelacionadasCargadas = true;
 
   try {
     const res = await fetch(`/propiedades/relacionadas/${encodeURIComponent(id)}`);
@@ -77,3 +81,4 @@ async function cargarPropiedadesRelacionadas() {
 }
 
 document.addEventListener("DOMContentLoaded", cargarPropiedadesRelacionadas);
+window.addEventListener("propiedad:renderizada", cargarPropiedadesRelacionadas);

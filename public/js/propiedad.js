@@ -201,6 +201,17 @@ function renderPropiedad() {
           <div id="mapa"></div>
         </div>
 
+        <!-- PROPIEDADES RELACIONADAS -->
+        <section class="relacionadas-section" id="propiedadesRelacionadas" hidden>
+          <div class="relacionadas-header">
+            <div>
+              <h2>También te puede interesar</h2>
+              <p>Otras viviendas similares publicadas en HomeClick24</p>
+            </div>
+          </div>
+          <div class="relacionadas-grid" id="propiedadesRelacionadasGrid"></div>
+        </section>
+
       </div>
 
       <!-- COLUMNA DERECHA -->
@@ -291,6 +302,8 @@ if (btnCompartir) {
   });
 
 }
+
+window.dispatchEvent(new Event("propiedad:renderizada"));
 
 }
 
