@@ -2419,13 +2419,31 @@ function direccionResumen(direccion = '') {
   return partes.slice(0, 2).join(', ') || direccion || 'Consultar ubicación';
 }
 
-function ciudadDesdeDireccion(direccion = '') {
+function pareceViaPublica(valor = '') {
+  return /^(calle|c\/|avenida|avda\.?|plaza|paseo|camino|carretera|ctra\.?|urbanización|urb\.?|residencial|bloque|edificio)\b/i.test(valor.trim());
+}
+
+function ubicacionPrincipalRedes(direccion = '') {
   const partes = String(direccion).split(',').map(p => p.trim()).filter(Boolean);
-  return partes.length >= 3 ? partes[1] : (partes[0] || 'tu zona');
+  if (!partes.length) return 'tu zona';
+  if (partes.length >= 3) {
+    return pareceViaPublica(partes[0]) ? partes[1] : `${partes[0]}, ${partes[1]}`;
+  }
+  return partes[0];
+}
+
+function normalizarNumeroRedes(valor) {
+  if (typeof valor === 'number') return valor;
+  const limpio = String(valor || '').trim();
+  if (!limpio) return 0;
+  const normalizado = limpio.includes(',')
+    ? limpio.replace(/\./g, '').replace(',', '.')
+    : limpio.replace(/\./g, '');
+  return Number(normalizado);
 }
 
 function formatearPrecioRedes(precio, operacion) {
-  const numero = Number(precio || 0);
+  const numero = normalizarNumeroRedes(precio);
   if (!Number.isFinite(numero) || numero <= 0) return '';
   const precioFormateado = numero.toLocaleString('es-ES', {
     minimumFractionDigits: numero % 1 ? 2 : 0,
@@ -2449,7 +2467,7 @@ function unirNaturalRedes(items) {
 
 function crearTextoRedes(propiedad) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
-  const ciudad = ciudadDesdeDireccion(propiedad.direccion);
+  const ubicacionTitulo = ubicacionPrincipalRedes(propiedad.direccion);
   const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble);
   const precio = formatearPrecioRedes(propiedad.precio, operacion);
   const caracteristicas = [
@@ -2467,15 +2485,14 @@ function crearTextoRedes(propiedad) {
   const lineasDetalle = [
     precio ? `💶 Precio: ${precio}` : '',
     propiedad.direccion ? `📍 Ubicación: ${direccionResumen(propiedad.direccion)}` : ''
-  ].filter(Boolean).join('\n');
+  ].filter(Boolean);
 
-  return `🏡 Nueva vivienda en ${operacion} en ${ciudad}
-
-${fraseCaracteristicas}
-${lineasDetalle ? `\n${lineasDetalle}\n` : ''}
-
-Ver anuncio completo en HomeClick24:
-${url}`;
+  return [
+    `🏡 Nueva vivienda en ${operacion} en ${ubicacionTitulo}`,
+    fraseCaracteristicas,
+    lineasDetalle.join('\n'),
+    `Ver anuncio completo en HomeClick24:\n${url}`
+  ].filter(Boolean).join('\n\n');
 }
 
 function generarTextoRedes(id) {
