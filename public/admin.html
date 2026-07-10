@@ -501,6 +501,13 @@
       line-height: 1.5;
     }
 
+    .admin-tools-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
     .btn-post-semanal {
       padding: 11px 16px;
       background: #7cc242;
@@ -582,6 +589,11 @@
       min-height: 460px;
       background: #fff;
       font-size: 0.88rem;
+    }
+
+    .social-versions.compact .social-textarea {
+      height: min(42vh, 340px);
+      min-height: 260px;
     }
 
     .user-actions {
@@ -851,6 +863,7 @@
       .btn-acciones { width: 100%; }
       .acciones-menu { left: 0; right: auto; width: min(260px, 100%); }
       .admin-tools-card { align-items: flex-start; flex-direction: column; }
+      .admin-tools-actions { width: 100%; flex-direction: column; }
       .btn-post-semanal { width: 100%; }
       .social-versions { grid-template-columns: 1fr; }
       .modal-admin { max-height: calc(100vh - 24px); }
@@ -1024,13 +1037,16 @@
     <h2 style="font-size:1rem;font-weight:700;margin-bottom:14px;">Distribución de planes</h2>
     <div class="planes-grid" id="planesGrid"></div>
 
-    <!-- HERRAMIENTAS INTERNAS -->
+    <!-- HERRAMIENTAS DE DIFUSIÓN -->
     <section class="admin-tools-card">
       <div>
-        <h2>Herramientas de comunicación</h2>
-        <p>Genera textos listos para copiar en Instagram, Facebook o WhatsApp usando anuncios reales.</p>
+        <h2>Herramientas de difusión</h2>
+        <p>Genera textos listos para copiar y compartir HomeClick24 en redes, WhatsApp o email.</p>
       </div>
-      <button class="btn-post-semanal" onclick="generarPostSemanal()">📣 Generar post semanal</button>
+      <div class="admin-tools-actions">
+        <button class="btn-post-semanal" onclick="generarPostSemanal()">📣 Generar post semanal</button>
+        <button class="btn-post-semanal" onclick="generarMensajeInmobiliarias()">🏢 Mensaje para captar inmobiliarias</button>
+      </div>
     </section>
 
    <!-- USUARIOS -->
@@ -1115,6 +1131,29 @@
             <button onclick="copiarTextoRedesCampo('textoRedesInstagram', 'Instagram')" class="btn-exportar">Copiar Instagram</button>
           </div>
           <textarea id="textoRedesInstagram" class="social-textarea" readonly></textarea>
+        </div>
+      </div>
+      <div id="redesCaptacion" class="social-versions compact" style="display:none;">
+        <div class="social-version-card">
+          <div class="social-version-head">
+            <h4>WhatsApp corto</h4>
+            <button onclick="copiarTextoRedesCampo('textoCaptacionWhatsapp', 'WhatsApp')" class="btn-exportar">Copiar WhatsApp</button>
+          </div>
+          <textarea id="textoCaptacionWhatsapp" class="social-textarea" readonly></textarea>
+        </div>
+        <div class="social-version-card">
+          <div class="social-version-head">
+            <h4>Email profesional</h4>
+            <button onclick="copiarTextoRedesCampo('textoCaptacionEmail', 'Email')" class="btn-exportar">Copiar Email</button>
+          </div>
+          <textarea id="textoCaptacionEmail" class="social-textarea" readonly></textarea>
+        </div>
+        <div class="social-version-card">
+          <div class="social-version-head">
+            <h4>Facebook / Instagram</h4>
+            <button onclick="copiarTextoRedesCampo('textoCaptacionSocial', 'Facebook/Instagram')" class="btn-exportar">Copiar Facebook/Instagram</button>
+          </div>
+          <textarea id="textoCaptacionSocial" class="social-textarea" readonly></textarea>
         </div>
       </div>
       <div id="estadoCopiaRedes" class="social-copy-status"></div>
@@ -2802,7 +2841,55 @@ function configurarModalRedes({ titulo, subtitulo, modo = 'simple' }) {
   document.getElementById('estadoCopiaRedes').textContent = '';
   document.getElementById('redesTextoSimple').style.display = modo === 'simple' ? '' : 'none';
   document.getElementById('redesPostSemanal').style.display = modo === 'semanal' ? '' : 'none';
+  document.getElementById('redesCaptacion').style.display = modo === 'captacion' ? '' : 'none';
   document.getElementById('btnCopiarTextoRedes').style.display = modo === 'simple' ? '' : 'none';
+}
+
+function textosCaptacionInmobiliarias() {
+  return {
+    whatsapp: `Hola, somos HomeClick24, un portal inmobiliario donde puedes publicar viviendas en venta o alquiler y darles visibilidad online.
+
+Estamos incorporando agencias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz.
+
+Puedes ver más información aquí:
+https://www.homeclick24.com/profesionales.html`,
+    email: `Asunto: Publicación de inmuebles en HomeClick24
+
+Hola,
+
+Somos HomeClick24, un portal inmobiliario pensado para dar visibilidad online a viviendas en venta y alquiler.
+
+Estamos incorporando agencias e inmobiliarias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz, y nos gustaría presentaros la plataforma.
+
+Desde HomeClick24 podéis publicar inmuebles, gestionarlos desde vuestro panel y aumentar su visibilidad en internet.
+
+Podéis ver más información aquí:
+https://www.homeclick24.com/profesionales.html
+
+Un saludo,
+HomeClick24`,
+    social: `🏠 ¿Tienes una agencia inmobiliaria?
+
+En HomeClick24 puedes publicar tus inmuebles en venta o alquiler y darles más visibilidad online.
+
+Estamos incorporando agencias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz.
+
+Más información:
+https://www.homeclick24.com/profesionales.html`
+  };
+}
+
+function generarMensajeInmobiliarias() {
+  const textos = textosCaptacionInmobiliarias();
+  configurarModalRedes({
+    titulo: 'Mensaje para captar inmobiliarias',
+    subtitulo: 'Versiones listas para copiar en WhatsApp, email y redes',
+    modo: 'captacion'
+  });
+  document.getElementById('textoCaptacionWhatsapp').value = textos.whatsapp;
+  document.getElementById('textoCaptacionEmail').value = textos.email;
+  document.getElementById('textoCaptacionSocial').value = textos.social;
+  document.getElementById('modalRedes').classList.add('visible');
 }
 
 async function generarPostSemanal() {
