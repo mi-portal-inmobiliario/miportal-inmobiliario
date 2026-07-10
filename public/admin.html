@@ -2414,21 +2414,68 @@ function etiquetaTipoInmueble(tipo) {
   return tipos[tipo] || 'Vivienda';
 }
 
-function direccionResumen(direccion = '') {
-  const partes = String(direccion).split(',').map(p => p.trim()).filter(Boolean);
-  return partes.slice(0, 2).join(', ') || direccion || 'Consultar ubicación';
-}
-
 function pareceViaPublica(valor = '') {
   return /^(calle|c\/|avenida|avda\.?|plaza|paseo|camino|carretera|ctra\.?|urbanización|urb\.?|residencial|bloque|edificio)\b/i.test(valor.trim());
 }
 
+function normalizarParteDireccion(valor = '') {
+  return String(valor)
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function esParteDireccionGenerica(valor = '') {
+  const normalizada = normalizarParteDireccion(valor);
+  const genericas = new Set([
+    'espana',
+    'andalucia',
+    'costa noroeste'
+  ]);
+  return /^\d{4,6}$/.test(normalizada) || genericas.has(normalizada);
+}
+
+function limpiarPartesDireccionRedes(direccion = '') {
+  const vistas = new Set();
+  const partes = String(direccion)
+    .split(',')
+    .map(p => p.trim())
+    .filter(Boolean)
+    .filter(parte => !esParteDireccionGenerica(parte))
+    .filter(parte => {
+      const key = normalizarParteDireccion(parte);
+      if (vistas.has(key)) return false;
+      vistas.add(key);
+      return true;
+    });
+
+  const provincias = new Set([
+    'cadiz', 'huelva', 'sevilla', 'malaga', 'cordoba', 'granada', 'jaen', 'almeria'
+  ]);
+  const sinProvincias = partes.filter(parte => !provincias.has(normalizarParteDireccion(parte)));
+  return sinProvincias.length >= 2 ? sinProvincias : partes;
+}
+
+function direccionResumen(direccion = '') {
+  const partes = limpiarPartesDireccionRedes(direccion);
+  return partes.slice(0, 4).join(', ') || String(direccion || '').trim() || 'Consultar ubicación';
+}
+
 function ubicacionPrincipalRedes(direccion = '') {
-  const partes = String(direccion).split(',').map(p => p.trim()).filter(Boolean);
+  const partes = limpiarPartesDireccionRedes(direccion);
   if (!partes.length) return 'tu zona';
+
   if (partes.length >= 3) {
-    return pareceViaPublica(partes[0]) ? partes[1] : `${partes[0]}, ${partes[1]}`;
+    return pareceViaPublica(partes[0])
+      ? `${partes[1]}, ${partes[partes.length - 1]}`
+      : `${partes[0]}, ${partes[partes.length - 1]}`;
   }
+
+  if (partes.length === 2 && pareceViaPublica(partes[0])) {
+    return partes[1];
+  }
+
   return partes[0];
 }
 
