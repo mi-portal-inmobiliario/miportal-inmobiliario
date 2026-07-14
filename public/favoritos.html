@@ -149,7 +149,7 @@
     <h1>❤️ Mis favoritos</h1>
     <div style="display:flex;align-items:center;gap:12px;">
       <span id="resultado-count" class="result-count" style="display:none;"></span>
-      <a href="/comprar.html">🔍 Buscar más</a>
+      <a href="/comprar">🔍 Buscar más</a>
     </div>
   </div>
 </div>
@@ -161,13 +161,13 @@
     <div class="vacio-icono">❤️</div>
     <h2>Aún no tienes favoritos</h2>
     <p>Guarda las propiedades que te gusten pulsando el corazón<br>y encuéntralas aquí cuando quieras.</p>
-    <a href="/comprar.html" class="btn-buscar">🔍 Explorar propiedades</a>
+    <a href="/comprar" class="btn-buscar">🔍 Explorar propiedades</a>
   </div>
 </div>
 
 <nav class="mobile-nav">
   <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
-  <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
+  <a href="/comprar"><span>🔍</span><small>Buscar</small></a>
   <a href="/favoritos.html" class="active"><span>❤️</span><small>Favoritos</small></a>
   <a href="/perfil.html#chats"><span>💬</span><small>Chats</small></a>
   <a href="/perfil.html"><span>👤</span><small>Perfil</small></a>
@@ -177,7 +177,7 @@
 const usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 const token   = localStorage.getItem("token");
 
-if (!usuario || !token) location.replace("/login.html");
+if (!usuario || !token) location.replace("/login");
 
 async function cargarFavoritos() {
   try {
@@ -206,7 +206,7 @@ async function cargarFavoritos() {
       const sup     = p.superficie ? `📐 ${p.superficie} m²` : "";
 
       return `
-        <div class="card-propiedad" onclick="location.href='/propiedad.html?id=${p._id}'">
+        <div class="card-propiedad" onclick="location.href='/propiedad?id=${p._id}'">
           <div class="card-img-wrap">
             <img src="${img}" alt="${p.titulo}" loading="lazy">
             <span class="tag-tipo ${tipoCls}">${tipo}</span>

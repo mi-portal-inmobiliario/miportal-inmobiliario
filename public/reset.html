@@ -109,7 +109,7 @@ async function resetear() {
   if (res.ok) {
     msg.textContent = "✅ Contraseña actualizada. Redirigiendo...";
     msg.style.color = "green";
-    setTimeout(() => location.href = "/login.html", 1500);
+    setTimeout(() => location.href = "/login", 1500);
   } else {
     msg.textContent = "❌ " + (data.error || "Error al actualizar");
     msg.style.color = "red";

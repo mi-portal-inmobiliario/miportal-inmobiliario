@@ -2713,7 +2713,7 @@ function crearTextoRedes(propiedad) {
   const fraseCaracteristicas = caracteristicas.length
     ? `${tipo} con ${unirNaturalRedes(caracteristicas)}.`
     : `${tipo} disponible en HomeClick24.`;
-  const url = `https://www.homeclick24.com/propiedad.html?id=${propiedad._id}`;
+  const url = `https://www.homeclick24.com/propiedad?id=${propiedad._id}`;
   const lineasDetalle = [
     precio ? `💶 Precio: ${precio}` : '',
     propiedad.direccion ? `📍 Ubicación: ${direccionResumen(propiedad.direccion)}` : ''
@@ -2800,7 +2800,7 @@ function crearPostSemanalRedes(propiedades = []) {
   const bloques = propiedades.map((propiedad, index) => {
     const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion);
     const ubicacion = direccionResumen(propiedad.direccion);
-    const url = `https://www.homeclick24.com/propiedad.html?id=${propiedad._id}`;
+    const url = `https://www.homeclick24.com/propiedad?id=${propiedad._id}`;
     return [
       `${iconos[index]} ${limpiarTituloPostSemanal(propiedad)}`,
       precio ? `💶 Precio: ${precio}` : '',
@@ -2868,7 +2868,7 @@ Estamos incorporando agencias inmobiliarias de Chipiona, Rota, Sanlúcar, El Pue
 En HomeClick24 podéis publicar vuestros inmuebles en venta o alquiler y darles más visibilidad online desde un portal sencillo y local.
 
 Podéis ver más información aquí:
-https://www.homeclick24.com/profesionales.html`,
+https://www.homeclick24.com/profesionales`,
     email: `Asunto: Publicar inmuebles en HomeClick24
 
 Hola,
@@ -2880,7 +2880,7 @@ Estamos incorporando agencias e inmobiliarias de Chipiona, Rota, Sanlúcar, El P
 Desde HomeClick24 podéis publicar vuestros inmuebles, gestionarlos desde vuestro panel y aumentar su presencia online en una web orientada al mercado local.
 
 Podéis ver más información aquí:
-https://www.homeclick24.com/profesionales.html
+https://www.homeclick24.com/profesionales
 
 Un saludo,
 HomeClick24`,
@@ -2893,7 +2893,7 @@ Estamos incorporando agencias de Chipiona, Rota, Sanlúcar, El Puerto y Cádiz.
 Un portal sencillo, local y pensado para que más personas encuentren viviendas como las tuyas.
 
 Más información:
-https://www.homeclick24.com/profesionales.html
+https://www.homeclick24.com/profesionales
 
 #HomeClick24 #Inmobiliaria #Chipiona #Rota #Sanlucar #ElPuertoDeSantaMaria #Cadiz #AgenciasInmobiliarias`
   };

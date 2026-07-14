@@ -25,12 +25,12 @@
   "shortcuts": [
     {
       "name": "Propiedades en venta",
-      "url": "/comprar.html",
+      "url": "/comprar",
       "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     },
     {
       "name": "Propiedades en alquiler",
-      "url": "/alquiler.html",
+      "url": "/alquiler",
       "icons": [{ "src": "/icons/icon-192x192.png", "sizes": "192x192" }]
     }
   ]

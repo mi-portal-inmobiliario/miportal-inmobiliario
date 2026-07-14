@@ -112,7 +112,7 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${process.env.APP_URL}/perfil.html?pago=exitoso`,
-      cancel_url: `${process.env.APP_URL}/planes.html?pago=cancelado`,
+      cancel_url: `${process.env.APP_URL}/planes?pago=cancelado`,
       client_reference_id: req.user.id,
       metadata,
       subscription_data: {

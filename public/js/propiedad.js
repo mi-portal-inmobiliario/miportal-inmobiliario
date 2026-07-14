@@ -132,7 +132,7 @@ function renderPropiedad() {
       <div class="banner-publicado-acciones">
 
         <a
-          href="/publicar.html"
+          href="/publicar"
           class="btn-banner-publicar"
         >
           ➕ Publicar otro
@@ -448,7 +448,7 @@ async function contactar() {
 
   if (!usuario || !usuario._id || !token) {
     alert("Debes iniciar sesión para contactar");
-    window.location.href = "/login.html";
+    window.location.href = "/login";
     return;
   }
 

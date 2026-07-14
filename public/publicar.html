@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <link rel="icon" type="image/png" href="/favicon.png?v=2">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="canonical" href="https://www.homeclick24.com/publicar">
   <title>Publicar propiedad - HomeClick24</title>
   <link rel="stylesheet" href="/css/styles.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
@@ -601,7 +602,7 @@ function limpiarSesionPublicar() {
 function redirigirLoginPublicar() {
   const returnUrl = encodeURIComponent(window.location.pathname + window.location.search);
   setTimeout(() => {
-    window.location.href = `/login.html?returnUrl=${returnUrl}`;
+    window.location.href = `/login?returnUrl=${returnUrl}`;
   }, 1800);
 }
 
@@ -1113,7 +1114,7 @@ async function publicar() {
   setTimeout(() => {
 
     window.location.href =
-      "/propiedad.html?id=" +
+      "/propiedad?id=" +
       data._id +
       "&publicado=1";
 
@@ -1209,16 +1210,16 @@ async function publicar() {
     </div>
     <div class="footer-col">
       <h4>Explorar</h4>
-      <a href="/comprar.html">Comprar vivienda</a>
-      <a href="/alquiler.html">Alquilar vivienda</a>
-      <a href="/planes.html">Planes y precios</a>
-      <a href="/publicar.html">Publicar anuncio</a>
+      <a href="/comprar">Comprar vivienda</a>
+      <a href="/alquiler">Alquilar vivienda</a>
+      <a href="/planes">Planes y precios</a>
+      <a href="/publicar">Publicar anuncio</a>
       <a href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">Ayuda para publicar</a>
     </div>
     <div class="footer-col">
       <h4>Mi cuenta</h4>
-      <a href="/login.html">Iniciar sesión</a>
-      <a href="/registro.html">Registrarse</a>
+      <a href="/login">Iniciar sesión</a>
+      <a href="/registro">Registrarse</a>
       <a href="/perfil.html">Mi perfil</a>
       <a href="/favoritos.html">Favoritos</a>
     </div>
@@ -1227,9 +1228,9 @@ async function publicar() {
       <a href="/legal.html#aviso-legal">Aviso legal</a>
       <a href="/legal.html#privacidad">Política de privacidad</a>
       <a href="/legal.html#cookies">Cookies</a>
-      <a href="/terminos.html">Términos y condiciones</a>
+      <a href="/terminos">Términos y condiciones</a>
       <a href="/contacto.html">Contacto</a>
-      <a href="/integraciones.html">Integraciones</a>
+      <a href="/integraciones">Integraciones</a>
     </div>
   </div>
   <div class="footer-bottom">

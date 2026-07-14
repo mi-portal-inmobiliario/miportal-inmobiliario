@@ -163,7 +163,7 @@ function toggleFiltrosMobile() {
 // ABRIR PROPIEDAD
 // =====================================
 function abrirPropiedad(id) {
-  location.href = "/propiedad.html?id=" + id;
+  location.href = "/propiedad?id=" + id;
 }
 
 // =====================================
@@ -182,7 +182,7 @@ async function toggleFavorito(e, propiedadId, btn) {
   const token   = localStorage.getItem("token");
 
   if (!usuario || !token) {
-    location.href = "/login.html";
+    location.href = "/login";
     return;
   }
 

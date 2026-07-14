@@ -29,7 +29,7 @@ function renderUltimaHome(p) {
   const banos = p.banos ? `${p.banos} baño${p.banos > 1 ? "s" : ""}` : "";
   const superficie = p.superficie ? `${p.superficie} m²` : "";
   const meta = [hab, banos, superficie].filter(Boolean).join(" · ");
-  const url = `/propiedad.html?id=${encodeURIComponent(p._id)}`;
+  const url = `/propiedad?id=${encodeURIComponent(p._id)}`;
   const direccion = ultimasDireccionCorta(p);
 
   return `

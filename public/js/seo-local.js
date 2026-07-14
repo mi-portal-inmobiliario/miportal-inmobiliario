@@ -27,7 +27,7 @@ function renderPropiedadLocal(p) {
 
   return `
     <article class="seo-local-card">
-      <a href="/propiedad.html?id=${encodeURIComponent(p._id)}" aria-label="${escapeHtml(p.titulo)}">
+      <a href="/propiedad?id=${encodeURIComponent(p._id)}" aria-label="${escapeHtml(p.titulo)}">
         <img src="${escapeHtml(img)}" alt="${escapeHtml(p.titulo)}" loading="lazy">
         <div class="seo-local-card-body">
           <div class="seo-local-price">${precio}</div>
@@ -68,9 +68,9 @@ async function cargarSeoLocal() {
           <h2>${escapeHtml(config.emptyTitle || "Todavía no hay anuncios publicados en esta zona")}</h2>
           <p>${escapeHtml(config.emptyText || "Estamos incorporando nuevos inmuebles. Puedes consultar las búsquedas generales o publicar tu anuncio para aparecer en esta página local.")}</p>
           <div class="seo-local-actions">
-            <a href="/comprar.html">Ver viviendas en venta</a>
-            <a href="/alquiler.html">Ver alquileres</a>
-            <a href="/planes.html">Publicar anuncio</a>
+            <a href="/comprar">Ver viviendas en venta</a>
+            <a href="/alquiler">Ver alquileres</a>
+            <a href="/planes">Publicar anuncio</a>
           </div>
         </div>
       `;

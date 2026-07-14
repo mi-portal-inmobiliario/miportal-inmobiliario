@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!document.querySelector('link[rel="canonical"]')) {
     const canonical = document.createElement('link');
     canonical.rel = 'canonical';
-    canonical.href = 'https://www.homeclick24.com' + window.location.pathname + (window.location.pathname === '/propiedad.html' ? window.location.search : '');
+    canonical.href = 'https://www.homeclick24.com' + window.location.pathname + (window.location.pathname === '/propiedad' ? window.location.search : '');
     document.head.appendChild(canonical);
   }
 
@@ -77,11 +77,11 @@ document.addEventListener("DOMContentLoaded", () => {
             <span class="logo-text">Home<span class="logo-green">Click24</span></span>
           </div>
           <div class="header-actions">
-            <a href="/comprar.html" class="btn-outline">Comprar</a>
-            <a href="/alquiler.html" class="btn-outline">Alquilar</a>
-            <a href="/planes.html" class="btn-publish">Pon tu anuncio</a>
+            <a href="/comprar" class="btn-outline">Comprar</a>
+            <a href="/alquiler" class="btn-outline">Alquilar</a>
+            <a href="/planes" class="btn-publish">Pon tu anuncio</a>
             ${langSelector}
-            <a href="/login.html" class="btn-primary">👤 Acceder</a>
+            <a href="/login" class="btn-primary">👤 Acceder</a>
           </div>
         </div>
       </header>
@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
      HEADER CON SESIÓN
   ====================== */
   const puedePublicar = usuario.planActivo === true;
-  const publicarHref = puedePublicar ? "/publicar.html" : "/planes.html";
+  const publicarHref = puedePublicar ? "/publicar" : "/planes";
   const publicarTexto = puedePublicar ? "+ Publicar anuncio" : "Pon tu anuncio";
 
   cont.innerHTML = `
@@ -106,8 +106,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <span class="logo-text">Home<span class="logo-green">Click24</span></span>
         </div>
         <div class="header-actions">
-          <a href="/comprar.html" class="btn-outline">Comprar</a>
-          <a href="/alquiler.html" class="btn-outline">Alquilar</a>
+          <a href="/comprar" class="btn-outline">Comprar</a>
+          <a href="/alquiler" class="btn-outline">Alquilar</a>
           <a href="${publicarHref}" class="btn-publish">${publicarTexto}</a>
           <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
           <a href="/perfil.html#chats" class="btn-icon" title="Chats" style="position:relative;">
@@ -391,7 +391,7 @@ window.marcarLeida = async function(id, propiedadId) {
     method: "PUT",
     headers: token ? { "Authorization": "Bearer " + token } : {}
   });
-  if (propiedadId) window.location.href = `/propiedad.html?id=${propiedadId}`;
+  if (propiedadId) window.location.href = `/propiedad?id=${propiedadId}`;
   else cargarNotificaciones();
 };
 

@@ -61,6 +61,31 @@ app.use(express.urlencoded({ extended: true }));
 // FRONTEND (PUBLIC)
 // =============================
 const publicPath = path.resolve(__dirname, "public");
+const cleanHtmlRoutes = {
+  "/comprar": "comprar.html",
+  "/alquiler": "alquiler.html",
+  "/publicar": "publicar.html",
+  "/planes": "planes.html",
+  "/profesionales": "profesionales.html",
+  "/integraciones": "integraciones.html",
+  "/login": "login.html",
+  "/registro": "registro.html",
+  "/recuperar": "recuperar.html",
+  "/terminos": "terminos.html",
+  "/propiedad": "propiedad.html"
+};
+
+Object.keys(cleanHtmlRoutes).forEach(route => {
+  app.get(`${route}.html`, (req, res) => {
+    const query = req.url.slice(req.path.length);
+    res.redirect(301, `${route}${query}`);
+  });
+
+  app.get(route, (req, res) => {
+    res.sendFile(path.join(publicPath, cleanHtmlRoutes[route]));
+  });
+});
+
 app.use(express.static(publicPath));
 
 // =============================
@@ -86,11 +111,11 @@ app.get("/robots.txt", (req, res) => {
   res.send(`User-agent: *
 Allow: /
 Disallow: /perfil.html
-Disallow: /publicar.html
+Disallow: /publicar
 Disallow: /chat.html
 Disallow: /favoritos.html
 Disallow: /admin.html
-Disallow: /recuperar.html
+Disallow: /recuperar
 Disallow: /reset.html
 Disallow: /set-password.html
 Disallow: /añadir.html
@@ -110,22 +135,14 @@ app.get("/sitemap.xml", async (req, res) => {
 
     const urls = [
       { loc: "/", priority: "1.0" },
-      { loc: "/comprar.html", priority: "0.9" },
-      { loc: "/alquiler.html", priority: "0.9" },
-      { loc: "/planes.html", priority: "0.8" },
-      { loc: "/alquiler-chipiona.html", priority: "0.8" },
-      { loc: "/venta-chipiona.html", priority: "0.8" },
-      { loc: "/alquiler-rota.html", priority: "0.8" },
-      { loc: "/venta-el-puerto-de-santa-maria.html", priority: "0.8" },
-      { loc: "/inmobiliarias-cadiz.html", priority: "0.7" },
-      { loc: "/profesionales.html", priority: "0.7" },
-      { loc: "/contacto.html", priority: "0.6" },
-      { loc: "/sobre.html", priority: "0.5" },
-      { loc: "/integraciones.html", priority: "0.4" },
-      { loc: "/legal.html", priority: "0.3" },
-      { loc: "/terminos.html", priority: "0.3" },
+      { loc: "/comprar", priority: "0.9" },
+      { loc: "/alquiler", priority: "0.9" },
+      { loc: "/planes", priority: "0.8" },
+      { loc: "/profesionales", priority: "0.7" },
+      { loc: "/integraciones", priority: "0.4" },
+      { loc: "/terminos", priority: "0.3" },
       ...propiedades.map(p => ({
-        loc: `/propiedad.html?id=${p._id}`,
+        loc: `/propiedad?id=${p._id}`,
         priority: "0.8",
         lastmod: p.updatedAt ? p.updatedAt.toISOString().split("T")[0] : ""
       }))

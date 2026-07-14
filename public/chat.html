@@ -261,7 +261,7 @@
 
 <nav class="mobile-nav">
   <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
-  <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
+  <a href="/comprar"><span>🔍</span><small>Buscar</small></a>
   <a href="/favoritos.html"><span>❤️</span><small>Favoritos</small></a>
   <a href="/perfil.html#chats" class="active"><span>💬</span><small>Chats</small></a>
   <a href="/perfil.html"><span>👤</span><small>Perfil</small></a>
@@ -272,7 +272,7 @@ const usuario       = JSON.parse(localStorage.getItem("usuario") || "null");
 const token         = localStorage.getItem("token");
 const conversacionId = new URLSearchParams(window.location.search).get("id");
 
-if (!usuario || !usuario._id || !token) location.replace("/login.html");
+if (!usuario || !usuario._id || !token) location.replace("/login");
 if (!conversacionId) location.replace("/perfil.html");
 
 function direccionCorta(direccion = "") {
@@ -302,7 +302,7 @@ function renderPropiedadContext(propiedad) {
       <div class="property-context-price">${precio} €</div>
       <div class="property-context-address">${escapeHtml(direccionCorta(propiedad.direccion || ""))}</div>
     </div>
-    <a class="property-context-link" href="/propiedad.html?id=${escapeHtml(propiedad._id)}">Ver anuncio</a>
+    <a class="property-context-link" href="/propiedad?id=${escapeHtml(propiedad._id)}">Ver anuncio</a>
   `;
   cont.style.display = "flex";
 }

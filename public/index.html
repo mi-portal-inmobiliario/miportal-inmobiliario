@@ -756,7 +756,7 @@
       <h2 id="homeDestacadasTitulo">Viviendas destacadas</h2>
       <p>Una selección automática de anuncios publicados en HomeClick24, actualizada con viviendas reales disponibles.</p>
     </div>
-    <a class="home-feature-all" href="/comprar.html">Ver más viviendas →</a>
+    <a class="home-feature-all" href="/comprar">Ver más viviendas →</a>
   </div>
   <div class="home-feature-grid" id="homeDestacadasGrid">
     <div class="home-feature-empty">Cargando viviendas destacadas...</div>
@@ -772,7 +772,7 @@
       <h2 id="homeUltimasTitulo">Últimos anuncios publicados</h2>
       <p>Nuevas viviendas añadidas recientemente a HomeClick24.</p>
     </div>
-    <a class="home-feature-all" href="/comprar.html">Ver todos los anuncios →</a>
+    <a class="home-feature-all" href="/comprar">Ver todos los anuncios →</a>
   </div>
   <div class="home-feature-grid" id="homeUltimasGrid">
     <div class="home-feature-empty">Cargando últimos anuncios...</div>
@@ -788,7 +788,7 @@
   </div>
 
   <div class="lista">
-    <div class="item" onclick="location.href='comprar.html'">
+    <div class="item" onclick="location.href='comprar'">
       <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=800" alt="Comprar vivienda" loading="lazy">
       <div class="item-arrow">→</div>
       <div class="info">
@@ -797,7 +797,7 @@
       </div>
     </div>
 
-    <div class="item" onclick="location.href='alquiler.html'">
+    <div class="item" onclick="location.href='alquiler'">
       <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800" alt="Alquilar vivienda" loading="lazy">
       <div class="item-arrow">→</div>
       <div class="info">
@@ -806,7 +806,7 @@
       </div>
     </div>
 
-    <div class="item" onclick="location.href='planes.html'">
+    <div class="item" onclick="location.href='planes'">
       <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=800" alt="Publicar anuncio" loading="lazy">
       <div class="item-arrow">→</div>
       <div class="info">
@@ -879,15 +879,15 @@
     </div>
     <div class="footer-col">
       <h4>Explorar</h4>
-      <a href="/comprar.html">Comprar vivienda</a>
-      <a href="/alquiler.html">Alquilar vivienda</a>
-      <a href="/planes.html">Planes y precios</a>
-      <a href="/publicar.html">Publicar anuncio</a>
+      <a href="/comprar">Comprar vivienda</a>
+      <a href="/alquiler">Alquilar vivienda</a>
+      <a href="/planes">Planes y precios</a>
+      <a href="/publicar">Publicar anuncio</a>
     </div>
     <div class="footer-col">
       <h4>Mi cuenta</h4>
-      <a href="/login.html">Iniciar sesión</a>
-      <a href="/registro.html">Registrarse</a>
+      <a href="/login">Iniciar sesión</a>
+      <a href="/registro">Registrarse</a>
       <a href="/perfil.html">Mi perfil</a>
       <a href="/favoritos.html">Favoritos</a>
     </div>
@@ -896,9 +896,9 @@
       <a href="/legal.html#aviso-legal">Aviso legal</a>
       <a href="/legal.html#privacidad">Política de privacidad</a>
       <a href="/legal.html#cookies">Cookies</a>
-      <a href="/terminos.html">Términos y condiciones</a>
+      <a href="/terminos">Términos y condiciones</a>
       <a href="/contacto.html">Contacto</a>
-      <a href="/integraciones.html">Integraciones</a>
+      <a href="/integraciones">Integraciones</a>
     </div>
   </div>
   <div class="footer-bottom">
@@ -913,7 +913,7 @@
     <span>🏠</span>
     <small>Inicio</small>
   </a>
-  <a href="/comprar.html">
+  <a href="/comprar">
     <span>🔍</span>
     <small>Buscar</small>
   </a>
@@ -997,7 +997,7 @@ document.addEventListener("click", (e) => {
 function buscar() {
   const q = input.value.trim();
   if (!q) return;
-  location.href = `comprar.html?search=${encodeURIComponent(q)}`;
+  location.href = `comprar?search=${encodeURIComponent(q)}`;
 }
 
 input.addEventListener("keypress", (e) => {

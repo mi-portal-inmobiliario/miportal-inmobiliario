@@ -511,7 +511,7 @@
       </div>
     </div>
     <div class="perfil-acciones">
-      <a href="/publicar.html" class="btn-perfil green">➕ Publicar anuncio</a>
+      <a href="/publicar" class="btn-perfil green">➕ Publicar anuncio</a>
       <a href="/favoritos.html" class="btn-perfil outline">❤️ Mis favoritos</a>
       <button class="btn-perfil red" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
@@ -545,7 +545,7 @@
         <div class="plan-nombre" id="planNombre">Gratis</div>
         <div class="plan-precio" id="planDetalle">0€/mes</div>
       </div>
-      <a href="/planes.html" class="btn-perfil green" id="btnMejorarPlan">Mejorar plan ↗</a>
+      <a href="/planes" class="btn-perfil green" id="btnMejorarPlan">Mejorar plan ↗</a>
       <button class="btn-perfil outline" id="btnGestionarPlan" style="display:none" onclick="gestionarSuscripcion()">Gestionar suscripción</button>
     </div>
     <div class="plan-stats" id="planStats"></div>
@@ -560,7 +560,7 @@
     <div class="estado-vacio">
       <div class="icono">🏠</div>
       <p>Aún no has publicado ninguna propiedad</p>
-      <a href="/publicar.html">Publicar mi primera propiedad</a>
+      <a href="/publicar">Publicar mi primera propiedad</a>
     </div>
   </div>
 
@@ -571,7 +571,7 @@
     <div class="estado-vacio">
       <div class="icono">💬</div>
       <p>No tienes conversaciones activas</p>
-      <a href="/comprar.html">Explorar propiedades</a>
+      <a href="/comprar">Explorar propiedades</a>
     </div>
   </div>
 
@@ -579,7 +579,7 @@
 
 <nav class="mobile-nav">
   <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
-  <a href="/comprar.html"><span>🔍</span><small>Buscar</small></a>
+  <a href="/comprar"><span>🔍</span><small>Buscar</small></a>
   <a href="/favoritos.html"><span>❤️</span><small>Favoritos</small></a>
   <a href="/perfil.html#chats"><span>💬</span><small>Chats</small></a>
   <a href="/perfil.html" class="active"><span>👤</span><small>Perfil</small></a>
@@ -589,7 +589,7 @@
 let usuario = JSON.parse(localStorage.getItem("usuario") || "null");
 const token   = localStorage.getItem("token");
 
-if (!usuario || !usuario._id || !token) location.replace("/login.html");
+if (!usuario || !usuario._id || !token) location.replace("/login");
 
 const paramsUrl = new URLSearchParams(window.location.search);
 const pagoExitoso = paramsUrl.get("pago") === "exitoso";
@@ -791,7 +791,7 @@ async function cargarPropiedades() {
     const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
     return `
       <div class="card-propiedad">
-        <div class="card-img-wrap" onclick="location.href='/propiedad.html?id=${p._id}'" style="cursor:pointer;">
+        <div class="card-img-wrap" onclick="location.href='/propiedad?id=${p._id}'" style="cursor:pointer;">
           <img src="${img}" alt="${p.titulo}" loading="lazy">
           <span class="tag-tipo ${tipoCls}">${tipo}</span>
         </div>
@@ -926,7 +926,7 @@ function cerrarSesion() {
   location.href = "/index.html";
 }
 
-function editarPropiedad(id) { location.href = `/publicar.html?editar=${id}`; }
+function editarPropiedad(id) { location.href = `/publicar?editar=${id}`; }
 
 async function eliminarPropiedad(id, btn) {
   if (!confirm("¿Seguro que quieres eliminar este anuncio?")) return;
@@ -953,11 +953,11 @@ async function gestionarSuscripcion() {
     const usuario = JSON.parse(localStorage.getItem('usuario'));
     const token = localStorage.getItem('token');
     if (!usuario?.stripeCustomerId || !usuario?.stripeSubscriptionId) {
-      window.location.href = '/planes.html';
+      window.location.href = '/planes';
       return;
     }
     if (!token) {
-      window.location.href = '/login.html?returnUrl=/perfil.html';
+      window.location.href = '/login?returnUrl=/perfil.html';
       return;
     }
 

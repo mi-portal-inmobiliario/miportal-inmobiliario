@@ -3,8 +3,8 @@ const CACHE_NAME = 'HomeClick24-v1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/comprar.html',
-  '/alquiler.html',
+  '/comprar',
+  '/alquiler',
   '/css/styles.css',
   '/icons/icon-192x192.png',
   '/icons/icon-512x512.png'

@@ -5,7 +5,7 @@ export async function abrirChat(propiedadId, anuncianteId) {
   const usuario = JSON.parse(localStorage.getItem("usuario") || "{}");
   if (!usuario._id) {
     alert("Debes iniciar sesión para escribir");
-    location.href = "login.html";
+    location.href = "login";
     return;
   }
 

@@ -35,7 +35,7 @@
     const mensaje = document.getElementById("mensaje");
 
     if (!token || !usuario) {
-      btn.outerHTML = '<a class="btn" href="/login.html">Iniciar sesión</a>';
+      btn.outerHTML = '<a class="btn" href="/login">Iniciar sesión</a>';
       mensaje.className = "err";
       mensaje.textContent = "Inicia sesión con tu cuenta para aceptar la prueba.";
     } else {

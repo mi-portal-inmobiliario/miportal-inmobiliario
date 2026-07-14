@@ -211,7 +211,7 @@ router.post('/', async (req, res) => {
               <p style="margin:0;color:#5a9e2f;font-weight:600;">📅 Válido hasta: ${fechaFin.toLocaleDateString('es-ES')}</p>
             </div>
             <p style="color:#555;line-height:1.6;">Ya puedes publicar tus anuncios en HomeClick24.</p>
-            <a href="https://www.homeclick24.com/publicar.html"
+            <a href="https://www.homeclick24.com/publicar"
               style="display:inline-block;background:#7cc242;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px;">
               Publicar anuncio
             </a>
@@ -426,7 +426,7 @@ router.post('/', async (req, res) => {
             <img src="https://www.homeclick24.com/HomeClick-full.png" alt="HomeClick24" style="height:60px;margin-bottom:24px;">
             <h1 style="color:#1a1a1a;font-size:1.4rem;">Tu suscripción ha finalizado</h1>
             <p style="color:#555;line-height:1.6;">Tu plan ha expirado y tu cuenta ha vuelto al plan gratuito. Tus anuncios activos pueden haberse desactivado.</p>
-            <a href="https://www.homeclick24.com/planes.html"
+            <a href="https://www.homeclick24.com/planes"
               style="display:inline-block;background:#7cc242;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px;">
               Ver planes
             </a>

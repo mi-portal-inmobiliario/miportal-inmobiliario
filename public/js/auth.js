@@ -45,7 +45,7 @@ async function registro() {
   }
 
   mostrarMensaje("✅ Cuenta creada. Redirigiendo...", "green");
-  setTimeout(() => location.href = "/login.html", 1500);
+  setTimeout(() => location.href = "/login", 1500);
 }
 
 /* ================================
