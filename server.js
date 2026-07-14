@@ -86,11 +86,32 @@ Object.keys(cleanHtmlRoutes).forEach(route => {
   });
 });
 
-["/añadir.html", "/añadir", "/anadir", "/anadir.html"].forEach(route => {
-  app.get(route, (req, res) => {
-    const query = req.url.slice(req.path.length);
-    res.redirect(301, `/publicar${query}`);
-  });
+const legacyPublicarRoutes = new Set([
+  "/añadir",
+  "/añadir.html",
+  "/anadir",
+  "/anadir.html",
+  "/a%C3%B1adir",
+  "/a%C3%B1adir.html"
+]);
+
+app.use((req, res, next) => {
+  const queryIndex = req.originalUrl.indexOf("?");
+  const rawPath = queryIndex === -1 ? req.originalUrl : req.originalUrl.slice(0, queryIndex);
+  const query = queryIndex === -1 ? "" : req.originalUrl.slice(queryIndex);
+  let decodedPath = rawPath;
+
+  try {
+    decodedPath = decodeURIComponent(rawPath);
+  } catch (err) {
+    decodedPath = rawPath;
+  }
+
+  if (legacyPublicarRoutes.has(rawPath) || legacyPublicarRoutes.has(decodedPath)) {
+    return res.redirect(301, `/publicar${query}`);
+  }
+
+  next();
 });
 
 app.use(express.static(publicPath));
