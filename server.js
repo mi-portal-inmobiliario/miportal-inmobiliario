@@ -86,6 +86,13 @@ Object.keys(cleanHtmlRoutes).forEach(route => {
   });
 });
 
+["/añadir.html", "/añadir", "/anadir", "/anadir.html"].forEach(route => {
+  app.get(route, (req, res) => {
+    const query = req.url.slice(req.path.length);
+    res.redirect(301, `/publicar${query}`);
+  });
+});
+
 app.use(express.static(publicPath));
 
 // =============================
@@ -111,14 +118,12 @@ app.get("/robots.txt", (req, res) => {
   res.send(`User-agent: *
 Allow: /
 Disallow: /perfil.html
-Disallow: /publicar
 Disallow: /chat.html
 Disallow: /favoritos.html
 Disallow: /admin.html
 Disallow: /recuperar
 Disallow: /reset.html
 Disallow: /set-password.html
-Disallow: /añadir.html
 
 Sitemap: https://www.homeclick24.com/sitemap.xml`);
 });
@@ -137,6 +142,7 @@ app.get("/sitemap.xml", async (req, res) => {
       { loc: "/", priority: "1.0" },
       { loc: "/comprar", priority: "0.9" },
       { loc: "/alquiler", priority: "0.9" },
+      { loc: "/publicar", priority: "0.8" },
       { loc: "/planes", priority: "0.8" },
       { loc: "/profesionales", priority: "0.7" },
       { loc: "/integraciones", priority: "0.4" },
