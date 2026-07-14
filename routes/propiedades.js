@@ -60,6 +60,14 @@ const propiedadesQuerySchema = z.object({
   max: optionalNumberFromInput,
   hab: optionalNumberFromInput,
   texto: optionalCleanString(120),
+  zona: z.enum([
+    "cadiz",
+    "el-puerto-de-santa-maria",
+    "jerez-de-la-frontera",
+    "sanlucar-de-barrameda",
+    "rota",
+    "chipiona"
+  ]).optional(),
   banos: optionalNumberFromInput,
   sup_min: optionalNumberFromInput,
   sup_max: optionalNumberFromInput,
@@ -115,6 +123,20 @@ const propiedadUpdateSchema = z.object({
 
 function escapeRegex(value = "") {
   return String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const zonaSeoAliases = {
+  cadiz: ["Cadiz", "Cádiz"],
+  "el-puerto-de-santa-maria": ["El Puerto de Santa Maria", "El Puerto de Santa María", "Puerto de Santa Maria", "Puerto de Santa María"],
+  "jerez-de-la-frontera": ["Jerez de la Frontera", "Jerez"],
+  "sanlucar-de-barrameda": ["Sanlucar de Barrameda", "Sanlúcar de Barrameda", "Sanlucar", "Sanlúcar"],
+  rota: ["Rota"],
+  chipiona: ["Chipiona"]
+};
+
+function regexZonaSeo(slug) {
+  const aliases = zonaSeoAliases[slug] || [];
+  return aliases.map(escapeRegex).join("|");
 }
 
 function extraerLocalidadPropiedad(propiedad = {}) {
@@ -297,8 +319,9 @@ function inicioDia(fecha = new Date()) {
 // ==================================================
 router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
   try {
-    const { tipo, min, max, hab, texto } = req.query;
+    const { tipo, min, max, hab, texto, zona } = req.query;
     const filtro = { visiblePublicamente: { $ne: false } };
+    const condicionesTexto = [];
 
     if (tipo) filtro.tipoOperacion = tipo;
 
@@ -331,10 +354,26 @@ router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
     if (terraza === "true") filtro.terraza = true;
 
     if (texto) {
-      filtro.$or = [
-        { titulo: { $regex: texto, $options: "i" } },
-        { direccion: { $regex: texto, $options: "i" } }
-      ];
+      condicionesTexto.push({
+        $or: [
+          { titulo: { $regex: texto, $options: "i" } },
+          { direccion: { $regex: texto, $options: "i" } }
+        ]
+      });
+    }
+
+    if (zona) {
+      const zonaRegex = regexZonaSeo(zona);
+      condicionesTexto.push({
+        $or: [
+          { titulo: { $regex: zonaRegex, $options: "i" } },
+          { direccion: { $regex: zonaRegex, $options: "i" } }
+        ]
+      });
+    }
+
+    if (condicionesTexto.length) {
+      filtro.$and = condicionesTexto;
     }
 
     console.log("FILTRO APLICADO:", filtro);

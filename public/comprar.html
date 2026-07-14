@@ -317,6 +317,53 @@
       color: #5a6a7a;
     }
 
+    .zonas-seo {
+      max-width: 1200px;
+      margin: 0 auto 34px;
+      padding: 0 20px;
+    }
+
+    .zonas-seo h2 {
+      font-size: 1.05rem;
+      margin-bottom: 8px;
+      color: #1a1a1a;
+    }
+
+    .zonas-seo p {
+      color: #777;
+      font-size: 0.9rem;
+      margin-bottom: 14px;
+      max-width: 760px;
+    }
+
+    .zonas-seo-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .zonas-seo-links a,
+    .btn-zona-publicar {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: #f0f9e8;
+      color: #4d8d2c;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border: 1px solid #d9edca;
+    }
+
+    .zonas-seo-links a:hover,
+    .btn-zona-publicar:hover {
+      background: #7cc242;
+      color: #fff;
+    }
+
   </style>
 </head>
 
@@ -499,6 +546,19 @@
 
 </div>
 
+<section class="zonas-seo" aria-labelledby="zonasCompraTitulo">
+  <h2 id="zonasCompraTitulo">Comprar vivienda por zonas</h2>
+  <p>Accede directamente a viviendas en venta en las principales zonas de Cádiz y encuentra anuncios filtrados por ciudad.</p>
+  <div class="zonas-seo-links" id="zonasCompraLinks">
+    <a href="/comprar/cadiz">Cádiz</a>
+    <a href="/comprar/el-puerto-de-santa-maria">El Puerto de Santa María</a>
+    <a href="/comprar/jerez-de-la-frontera">Jerez de la Frontera</a>
+    <a href="/comprar/sanlucar-de-barrameda">Sanlúcar de Barrameda</a>
+    <a href="/comprar/rota">Rota</a>
+    <a href="/comprar/chipiona">Chipiona</a>
+  </div>
+</section>
+
 <!-- FILTROS MÓVIL FLOTANTE -->
 <button class="btn-filtros-mobile" onclick="toggleFiltrosMobile()">
   ⚙️ Filtros
@@ -584,6 +644,7 @@ async function crearAlerta() {
 </footer>
 
 <script src="/js/header.js" defer></script>
+<script src="/js/seo-zonas.js" defer></script>
 <script src="/js/filtros.js" defer></script>
 <script src="/js/cookies.js"></script>
 

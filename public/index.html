@@ -30,6 +30,29 @@
   <meta name="twitter:description" content="Encuentra tu vivienda ideal en España.">
   <meta name="twitter:image" content="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?w=1200">
 
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "HomeClick24",
+    "url": "https://www.homeclick24.com/",
+    "logo": "https://www.homeclick24.com/HomeClick-full.png"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "HomeClick24",
+    "url": "https://www.homeclick24.com/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://www.homeclick24.com/comprar?search={search_term_string}",
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
   <style>
     /* ==============================
        HERO
@@ -703,6 +726,74 @@
     @media (max-width: 480px) {
       .footer-inner { grid-template-columns: 1fr; }
     }
+
+    .zonas-home {
+      background: #fff;
+      padding: 44px 20px;
+    }
+
+    .zonas-home-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .zonas-home h2 {
+      font-size: 1.45rem;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .zonas-home p {
+      color: #777;
+      max-width: 760px;
+      margin-bottom: 22px;
+      line-height: 1.6;
+    }
+
+    .zonas-home-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 24px;
+    }
+
+    .zonas-home-col h3 {
+      font-size: 0.95rem;
+      color: #1a1a1a;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .zonas-home-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .zonas-home-links a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 9px 13px;
+      border-radius: 8px;
+      background: #f0f9e8;
+      color: #4d8d2c;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.88rem;
+      border: 1px solid #d9edca;
+    }
+
+    .zonas-home-links a:hover {
+      background: #7cc242;
+      color: #fff;
+    }
+
+    @media (max-width: 760px) {
+      .zonas-home-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
     <!-- PWA -->
   <link rel="manifest" href="/manifest.json">
@@ -812,6 +903,37 @@
       <div class="info">
         <div class="titulo">Publicar mi anuncio</div>
         <div class="direccion">Pon tu vivienda en HomeClick24 en minutos</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="zonas-home" aria-labelledby="zonasHomeTitulo">
+  <div class="zonas-home-inner">
+    <h2 id="zonasHomeTitulo">Viviendas por zonas en Cádiz</h2>
+    <p>Empieza tu búsqueda por ciudad y accede a listados limpios de viviendas en venta y alquiler en las principales zonas donde trabaja HomeClick24.</p>
+    <div class="zonas-home-grid">
+      <div class="zonas-home-col">
+        <h3>Comprar</h3>
+        <div class="zonas-home-links">
+          <a href="/comprar/cadiz">Cádiz</a>
+          <a href="/comprar/el-puerto-de-santa-maria">El Puerto de Santa María</a>
+          <a href="/comprar/jerez-de-la-frontera">Jerez de la Frontera</a>
+          <a href="/comprar/sanlucar-de-barrameda">Sanlúcar de Barrameda</a>
+          <a href="/comprar/rota">Rota</a>
+          <a href="/comprar/chipiona">Chipiona</a>
+        </div>
+      </div>
+      <div class="zonas-home-col">
+        <h3>Alquiler</h3>
+        <div class="zonas-home-links">
+          <a href="/alquiler/cadiz">Cádiz</a>
+          <a href="/alquiler/el-puerto-de-santa-maria">El Puerto de Santa María</a>
+          <a href="/alquiler/jerez-de-la-frontera">Jerez de la Frontera</a>
+          <a href="/alquiler/sanlucar-de-barrameda">Sanlúcar de Barrameda</a>
+          <a href="/alquiler/rota">Rota</a>
+          <a href="/alquiler/chipiona">Chipiona</a>
+        </div>
       </div>
     </div>
   </div>

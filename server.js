@@ -75,6 +75,15 @@ const cleanHtmlRoutes = {
   "/propiedad": "propiedad.html"
 };
 
+const seoZoneSlugs = [
+  "cadiz",
+  "el-puerto-de-santa-maria",
+  "jerez-de-la-frontera",
+  "sanlucar-de-barrameda",
+  "rota",
+  "chipiona"
+];
+
 Object.keys(cleanHtmlRoutes).forEach(route => {
   app.get(`${route}.html`, (req, res) => {
     const query = req.url.slice(req.path.length);
@@ -114,6 +123,16 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get(["/comprar/:zona", "/alquiler/:zona"], (req, res, next) => {
+  if (!seoZoneSlugs.includes(req.params.zona)) return next();
+
+  const htmlFile = req.path.startsWith("/comprar/")
+    ? "comprar.html"
+    : "alquiler.html";
+
+  res.sendFile(path.join(publicPath, htmlFile));
+});
+
 app.use(express.static(publicPath));
 
 // =============================
@@ -138,13 +157,6 @@ app.get("/robots.txt", (req, res) => {
   res.type("text/plain");
   res.send(`User-agent: *
 Allow: /
-Disallow: /perfil.html
-Disallow: /chat.html
-Disallow: /favoritos.html
-Disallow: /admin.html
-Disallow: /recuperar
-Disallow: /reset.html
-Disallow: /set-password.html
 
 Sitemap: https://www.homeclick24.com/sitemap.xml`);
 });
@@ -163,6 +175,10 @@ app.get("/sitemap.xml", async (req, res) => {
       { loc: "/", priority: "1.0" },
       { loc: "/comprar", priority: "0.9" },
       { loc: "/alquiler", priority: "0.9" },
+      ...seoZoneSlugs.flatMap(slug => [
+        { loc: `/comprar/${slug}`, priority: "0.8" },
+        { loc: `/alquiler/${slug}`, priority: "0.8" }
+      ]),
       { loc: "/publicar", priority: "0.8" },
       { loc: "/planes", priority: "0.8" },
       { loc: "/profesionales", priority: "0.7" },

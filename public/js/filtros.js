@@ -1,4 +1,40 @@
 let propiedades = [];
+let seoZoneContext = null;
+
+function initSeoZona() {
+  if (typeof getSeoZoneContext !== "function") return;
+  seoZoneContext = getSeoZoneContext();
+
+  if (typeof addBaseStructuredData === "function") addBaseStructuredData();
+  if (!seoZoneContext) return;
+
+  document.title = seoZoneContext.title;
+  if (typeof setCanonicalUrl === "function") setCanonicalUrl(seoZoneContext.canonical);
+  if (typeof setMetaContent === "function") {
+    setMetaContent("meta[name='description']", seoZoneContext.description);
+    setMetaContent("meta[property='og:title']", seoZoneContext.title);
+    setMetaContent("meta[property='og:description']", seoZoneContext.description);
+    setMetaContent("meta[property='og:url']", seoZoneContext.canonical);
+    setMetaContent("meta[name='twitter:title']", seoZoneContext.title);
+    setMetaContent("meta[name='twitter:description']", seoZoneContext.description);
+  }
+
+  const h1 = document.querySelector(".page-header h1");
+  if (h1) h1.textContent = seoZoneContext.h1;
+
+  const intro = document.querySelector(".page-header p");
+  if (intro) intro.textContent = seoZoneContext.intro;
+
+  const texto = document.getElementById("f_texto");
+  if (texto) {
+    texto.value = seoZoneContext.zona.filtro;
+    texto.readOnly = true;
+  }
+
+  if (typeof addZoneBreadcrumbSchema === "function") {
+    addZoneBreadcrumbSchema(seoZoneContext);
+  }
+}
 
 function estadoComercialBadge(estado = "Disponible") {
   const actual = estado || "Disponible";
@@ -23,7 +59,7 @@ async function cargarPropiedades() {
     if (window.location.pathname.includes("comprar")) tipo = "venta";
     if (window.location.pathname.includes("alquiler")) tipo = "alquiler";
 
-    const texto = document.getElementById("f_texto")?.value.trim();
+    const texto = seoZoneContext ? "" : document.getElementById("f_texto")?.value.trim();
     const min   = document.getElementById("f_min")?.value;
     const max   = document.getElementById("f_max")?.value;
     const hab   = document.getElementById("f_hab")?.value;
@@ -39,6 +75,7 @@ async function cargarPropiedades() {
 
     const params = new URLSearchParams();
     if (tipo)         params.append("tipo", tipo);
+    if (seoZoneContext) params.append("zona", seoZoneContext.slug);
     if (texto)        params.append("texto", texto);
     if (min)          params.append("min", min);
     if (max)          params.append("max", max);
@@ -82,6 +119,15 @@ function renderLista(lista) {
   if (!cont) return;
 
   if (!lista.length) {
+    if (seoZoneContext) {
+      cont.innerHTML = `
+        <div class="no-resultados">
+          <p>Aún no hay inmuebles disponibles en esta zona. Vuelve pronto o publica tu propiedad.</p>
+          <a href="/publicar" class="btn-zona-publicar">Publicar propiedad</a>
+        </div>`;
+      return;
+    }
+
     cont.innerHTML = `
       <div class="no-resultados">
         <p>😕 No hay propiedades con estos filtros</p>
@@ -147,7 +193,11 @@ function resetFiltros() {
     const el = document.getElementById(id);
     if (el) el.checked = false;
   });
-  
+  if (seoZoneContext) {
+    const texto = document.getElementById("f_texto");
+    if (texto) texto.value = seoZoneContext.zona.filtro;
+  }
+
   cargarPropiedades();
 }
 
@@ -169,7 +219,10 @@ function abrirPropiedad(id) {
 // =====================================
 // INIT
 // =====================================
-document.addEventListener("DOMContentLoaded", cargarPropiedades);
+document.addEventListener("DOMContentLoaded", () => {
+  initSeoZona();
+  cargarPropiedades();
+});
 window.cargarPropiedades = cargarPropiedades;
 window.resetFiltros = resetFiltros;
 

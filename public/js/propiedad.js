@@ -48,20 +48,27 @@ async function cargarPropiedad() {
    SEO
 ================================ */
 function actualizarSEO() {
-  document.title = `${propiedad.titulo} · ${propiedad.precio?.toLocaleString("es-ES")} € | HomeClick24`;
+  const precio = propiedad.precio?.toLocaleString("es-ES");
+  const precioTexto = precio ? `${precio} €` : "precio a consultar";
+  const zonaTexto = propiedad.direccion || "HomeClick24";
+  const canonicalUrl = `https://www.homeclick24.com/propiedad?id=${encodeURIComponent(propiedad._id)}`;
+
+  document.title = `${propiedad.titulo} en ${zonaTexto} | ${precioTexto} | HomeClick24`;
   
   const metaDesc = document.querySelector("meta[name='description']");
   if (metaDesc) metaDesc.setAttribute("content",
-    `${propiedad.titulo}. Precio ${propiedad.precio} €. ${propiedad.direccion || ""}`
+    `${propiedad.titulo} en ${zonaTexto}. Precio ${precioTexto}. Consulta fotos, detalles y contacto en HomeClick24.`
   );
 
   // Open Graph
   document.querySelector("meta[property='og:title']")
-    ?.setAttribute("content", propiedad.titulo);
+    ?.setAttribute("content", `${propiedad.titulo} | HomeClick24`);
   document.querySelector("meta[property='og:description']")
-    ?.setAttribute("content", `${propiedad.precio?.toLocaleString("es-ES")} € · ${propiedad.direccion}`);
+    ?.setAttribute("content", `${precioTexto} · ${zonaTexto}`);
   document.querySelector("meta[property='og:url']")
-    ?.setAttribute("content", window.location.href);
+    ?.setAttribute("content", canonicalUrl);
+  document.querySelector("meta[property='og:image']")
+    ?.setAttribute("content", fotos[0] || "https://www.homeclick24.com/HomeClick-full.png");
 
   let canonical = document.querySelector("link[rel='canonical']");
   if (!canonical) {
@@ -69,7 +76,7 @@ function actualizarSEO() {
     canonical.rel = "canonical";
     document.head.appendChild(canonical);
   }
-  canonical.href = window.location.href;
+  canonical.href = canonicalUrl;
 
   // Schema.org
   const schema = {
@@ -77,7 +84,7 @@ function actualizarSEO() {
     "@type": "RealEstateListing",
     "name": propiedad.titulo,
     "description": propiedad.descripcion || "",
-    "url": window.location.href,
+    "url": canonicalUrl,
     "price": propiedad.precio,
     "priceCurrency": "EUR",
     "address": {
@@ -104,6 +111,42 @@ function actualizarSEO() {
   script.id = "schema-propiedad";
   script.textContent = JSON.stringify(schema);
   document.head.appendChild(script);
+
+  const breadcrumbAnterior = document.getElementById("schema-breadcrumb-propiedad");
+  if (breadcrumbAnterior) breadcrumbAnterior.remove();
+
+  const tipoPath = propiedad.tipoOperacion === "alquiler" ? "alquiler" : "comprar";
+  const tipoNombre = propiedad.tipoOperacion === "alquiler" ? "Alquiler" : "Comprar";
+  const breadcrumb = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Inicio",
+        "item": "https://www.homeclick24.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": tipoNombre,
+        "item": `https://www.homeclick24.com/${tipoPath}`
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": propiedad.titulo,
+        "item": canonicalUrl
+      }
+    ]
+  };
+
+  const breadcrumbScript = document.createElement("script");
+  breadcrumbScript.type = "application/ld+json";
+  breadcrumbScript.id = "schema-breadcrumb-propiedad";
+  breadcrumbScript.textContent = JSON.stringify(breadcrumb);
+  document.head.appendChild(breadcrumbScript);
 }
 
 /* ================================
