@@ -509,6 +509,71 @@
       justify-content: flex-end;
     }
 
+    .social-generator {
+      background: #fff;
+      border: 1px solid #e7eadf;
+      border-radius: 16px;
+      padding: 22px;
+      margin: 0 0 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    .social-generator-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .social-generator-head h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0 0 4px;
+    }
+
+    .social-generator-head p {
+      color: #777;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .social-generator-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .social-generator-form select {
+      width: 100%;
+      padding: 11px 12px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fff;
+      color: #333;
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .social-generator-form select:focus {
+      border-color: #7cc242;
+      box-shadow: 0 0 0 3px rgba(124, 194, 66, 0.12);
+    }
+
+    .social-generator-empty {
+      padding: 16px;
+      background: #f9fafb;
+      border: 1px dashed #d8ddcf;
+      border-radius: 12px;
+      color: #777;
+      font-size: 0.9rem;
+      text-align: center;
+    }
+
     .btn-post-semanal {
       padding: 11px 16px;
       background: #7cc242;
@@ -604,6 +669,20 @@
     .social-versions.compact .social-version-card:nth-child(3) .social-textarea {
       height: min(32vh, 300px);
       min-height: 220px;
+    }
+
+    .social-versions.property .social-version-card:first-child {
+      grid-column: 1 / -1;
+    }
+
+    .social-versions.property .social-version-card:first-child .social-textarea {
+      min-height: 360px;
+      height: min(46vh, 460px);
+    }
+
+    .social-versions.property .social-version-card:nth-child(2) .social-textarea {
+      min-height: 180px;
+      height: 220px;
     }
 
     .user-actions {
@@ -874,8 +953,11 @@
       .acciones-menu { left: 0; right: auto; width: min(260px, 100%); }
       .admin-tools-card { align-items: flex-start; flex-direction: column; }
       .admin-tools-actions { width: 100%; flex-direction: column; }
+      .social-generator-head { flex-direction: column; }
+      .social-generator-form { grid-template-columns: 1fr; }
       .btn-post-semanal { width: 100%; }
       .social-versions { grid-template-columns: 1fr; }
+      .social-versions.property .social-version-card:first-child { grid-column: auto; }
       .social-versions.compact .social-version-card:nth-child(3) { grid-column: auto; }
       .modal-admin { max-height: calc(100vh - 24px); }
       .modal-admin-header { flex-direction: column; }
@@ -1064,6 +1146,19 @@
       </div>
     </section>
 
+    <!-- PUBLICACIONES PARA REDES -->
+    <section class="social-generator">
+      <div class="social-generator-head">
+        <div>
+          <h2>Publicaciones para redes</h2>
+          <p>Elige una propiedad visible y genera textos para Facebook o WhatsApp. Nada se publica automáticamente.</p>
+        </div>
+      </div>
+      <div id="redesPropiedadesPublicas">
+        <div class="social-generator-empty">Cargando propiedades públicas...</div>
+      </div>
+    </section>
+
    <!-- USUARIOS -->
    <div class="tabla-wrap">
      <div class="tabla-header">
@@ -1130,7 +1225,25 @@
     </div>
     <div class="modal-admin-body">
       <div id="redesTextoSimple">
-        <textarea id="textoRedes" class="social-textarea" readonly></textarea>
+        <div class="social-versions property">
+          <div class="social-version-card">
+            <div class="social-version-head">
+              <h4>Facebook</h4>
+              <div class="admin-tools-actions">
+                <button onclick="copiarTextoRedesCampo('textoRedesFacebookPropiedad', 'Facebook')" class="btn-exportar">Copiar publicación</button>
+                <button onclick="abrirFacebookManual()" class="btn-exportar">Abrir Facebook</button>
+              </div>
+            </div>
+            <textarea id="textoRedesFacebookPropiedad" class="social-textarea" readonly></textarea>
+          </div>
+          <div class="social-version-card">
+            <div class="social-version-head">
+              <h4>WhatsApp corto</h4>
+              <button onclick="copiarTextoRedesCampo('textoRedesWhatsappPropiedad', 'WhatsApp')" class="btn-exportar">Copiar WhatsApp</button>
+            </div>
+            <textarea id="textoRedesWhatsappPropiedad" class="social-textarea" readonly></textarea>
+          </div>
+        </div>
       </div>
       <div id="redesPostSemanal" class="social-versions" style="display:none;">
         <div class="social-version-card">
@@ -2539,10 +2652,14 @@ async function cargarPropiedades() {
   propiedadesAdmin = propiedades;
 
   document.getElementById('countPropiedades').textContent = `${propiedades.length} anuncios`;
+  renderPublicacionesRedes();
 
   document.getElementById('tablaPropiedades').innerHTML = propiedades.map(p => {
     const fecha = p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-ES') : '—';
     const tipo = p.tipoOperacion === 'venta' ? '🏠 Venta' : '🔑 Alquiler';
+    const botonRedes = p.visiblePublicamente !== false
+      ? `<button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>`
+      : '';
     return `
       <tr>
         <td>${p.titulo}</td>
@@ -2552,7 +2669,7 @@ async function cargarPropiedades() {
         <td>${fecha}</td>
         <td>
           <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
-          <button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>
+          ${botonRedes}
           <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
         </td>
       </tr>
@@ -2718,34 +2835,91 @@ function urlPropiedadSeoAdmin(propiedad) {
   return `https://www.homeclick24.com/propiedad/${crearSlugSeoAdmin(propiedad.titulo || 'propiedad')}-${propiedad._id}`;
 }
 
-function crearTextoRedes(propiedad) {
+function propiedadesPublicasParaRedes() {
+  return [...propiedadesAdmin]
+    .filter(p => p && p.visiblePublicamente !== false)
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+}
+
+function textoSelectorPropiedadRedes(propiedad) {
+  const operacion = propiedad.tipoOperacion === 'alquiler' ? 'Alquiler' : 'Venta';
+  const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion) || 'precio a consultar';
+  const zona = ubicacionPrincipalRedes(propiedad.direccion);
+  return `${propiedad.titulo || 'Sin título'} · ${operacion} · ${precio} · ${zona}`;
+}
+
+function renderPublicacionesRedes() {
+  const contenedor = document.getElementById('redesPropiedadesPublicas');
+  if (!contenedor) return;
+
+  const publicas = propiedadesPublicasParaRedes();
+  if (!publicas.length) {
+    contenedor.innerHTML = '<div class="social-generator-empty">No hay propiedades públicas visibles para generar publicaciones.</div>';
+    return;
+  }
+
+  contenedor.innerHTML = `
+    <div class="social-generator-form">
+      <select id="selectorPropiedadRedes" aria-label="Propiedad para generar publicación">
+        ${publicas.map(p => `<option value="${escapeHtml(p._id)}">${escapeHtml(textoSelectorPropiedadRedes(p))}</option>`).join('')}
+      </select>
+      <button class="btn-post-semanal" onclick="generarPublicacionPropiedadSeleccionada()">Generar publicación</button>
+    </div>
+  `;
+}
+
+function hashtagsOperacionRedes(operacion) {
+  const base = ['#HomeClick24', '#Inmuebles'];
+  return operacion === 'alquiler'
+    ? [...base, '#AlquilerDeViviendas', '#PisosEnAlquiler', '#CasasEnAlquiler']
+    : [...base, '#VentaDeViviendas', '#CasasEnVenta', '#PisosEnVenta'];
+}
+
+function lineaDetalleRedes(etiqueta, valor) {
+  return valor || valor === 0 ? `${etiqueta}: ${valor}` : '';
+}
+
+function zonaPropiedadRedes(propiedad) {
+  return propiedad.zona || propiedad.ciudad || propiedad.localidad || ubicacionPrincipalRedes(propiedad.direccion);
+}
+
+function crearPublicacionFacebookPropiedad(propiedad) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
-  const ubicacionTitulo = ubicacionPrincipalRedes(propiedad.direccion);
-  const tipo = etiquetaTipoInmueble(propiedad.tipoInmueble);
   const precio = formatearPrecioRedes(propiedad.precio, operacion);
-  const caracteristicas = [
-    propiedad.piscina ? 'piscina' : '',
-    pluralizarRedes(propiedad.habitaciones, 'habitación', 'habitaciones'),
-    pluralizarRedes(propiedad.banos, 'baño', 'baños'),
-    propiedad.terraza ? 'terraza' : '',
-    propiedad.garaje ? 'garaje' : '',
-    propiedad.superficie ? `${propiedad.superficie} m²` : ''
-  ].filter(Boolean);
-  const fraseCaracteristicas = caracteristicas.length
-    ? `${tipo} con ${unirNaturalRedes(caracteristicas)}.`
-    : `${tipo} disponible en HomeClick24.`;
+  const zona = zonaPropiedadRedes(propiedad);
   const url = urlPropiedadSeoAdmin(propiedad);
-  const lineasDetalle = [
-    precio ? `💶 Precio: ${precio}` : '',
-    propiedad.direccion ? `📍 Ubicación: ${direccionResumen(propiedad.direccion)}` : ''
+  const detalles = [
+    lineaDetalleRedes('🏷️ Operación', operacion === 'alquiler' ? 'Alquiler' : 'Venta'),
+    lineaDetalleRedes('📍 Zona', zona),
+    lineaDetalleRedes('💰 Precio', precio || 'Consultar precio'),
+    lineaDetalleRedes('🛏️ Habitaciones', propiedad.habitaciones || ''),
+    lineaDetalleRedes('🚿 Baños', propiedad.banos || ''),
+    lineaDetalleRedes('📐 Superficie', propiedad.superficie ? `${propiedad.superficie} m²` : '')
   ].filter(Boolean);
 
   return [
-    `🏡 Nueva vivienda en ${operacion} en ${ubicacionTitulo}`,
-    fraseCaracteristicas,
-    lineasDetalle.join('\n'),
-    `Ver anuncio completo en HomeClick24:\n${url}`
+    '🏡 Nuevo inmueble en HomeClick24',
+    propiedad.titulo || 'Propiedad publicada en HomeClick24',
+    detalles.join('\n'),
+    'Consulta todos los detalles aquí:',
+    url,
+    'HomeClick24 — Tu hogar, a un clic de distancia.',
+    hashtagsOperacionRedes(operacion).join(' ')
   ].filter(Boolean).join('\n\n');
+}
+
+function crearPublicacionWhatsappPropiedad(propiedad) {
+  const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
+  const precio = formatearPrecioRedes(propiedad.precio, operacion);
+  const zona = zonaPropiedadRedes(propiedad);
+  const url = urlPropiedadSeoAdmin(propiedad);
+
+  return [
+    `🏡 ${propiedad.titulo || 'Nuevo inmueble en HomeClick24'}`,
+    zona ? `📍 ${zona}` : '',
+    precio ? `💰 ${precio}` : '',
+    `Ver detalles: ${url}`
+  ].filter(Boolean).join('\n');
 }
 
 function textoFrasePostSemanal(texto = '') {
@@ -2954,16 +3128,26 @@ async function generarPostSemanal() {
   document.getElementById('modalRedes').classList.add('visible');
 }
 
+function generarPublicacionPropiedadSeleccionada() {
+  const selector = document.getElementById('selectorPropiedadRedes');
+  if (!selector?.value) return alert('Selecciona una propiedad pública.');
+  generarTextoRedes(selector.value);
+}
+
 function generarTextoRedes(id) {
   const propiedad = propiedadesAdmin.find(p => String(p._id) === String(id));
   if (!propiedad) return alert('No se encontró la propiedad');
+  if (propiedad.visiblePublicamente === false) {
+    return alert('Esta propiedad no está visible públicamente.');
+  }
 
   configurarModalRedes({
-    titulo: 'Texto para redes',
-    subtitulo: 'Texto listo para Instagram, Facebook o WhatsApp',
+    titulo: 'Publicación para redes',
+    subtitulo: 'Texto listo para revisar, copiar y pegar manualmente',
     modo: 'simple'
   });
-  document.getElementById('textoRedes').value = crearTextoRedes(propiedad);
+  document.getElementById('textoRedesFacebookPropiedad').value = crearPublicacionFacebookPropiedad(propiedad);
+  document.getElementById('textoRedesWhatsappPropiedad').value = crearPublicacionWhatsappPropiedad(propiedad);
   document.getElementById('modalRedes').classList.add('visible');
 }
 
@@ -2973,7 +3157,11 @@ function cerrarModalRedes(event) {
 }
 
 async function copiarTextoRedes() {
-  await copiarTextoRedesCampo('textoRedes', 'texto');
+  await copiarTextoRedesCampo('textoRedesFacebookPropiedad', 'Facebook');
+}
+
+function abrirFacebookManual() {
+  window.open('https://www.facebook.com/', '_blank', 'noopener');
 }
 
 async function copiarTextoRedesCampo(textareaId, etiqueta = 'texto') {
