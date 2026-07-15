@@ -1436,6 +1436,7 @@
   </div>
 </div>
 
+<script src="/js/seo-slug.js"></script>
 <script>
 let adminToken = localStorage.getItem('adminToken');
 if (adminToken) mostrarPanel();
@@ -1476,6 +1477,7 @@ let chartGeneralContactos = null;
 let chartUsuarioVisitas = null;
 let chartUsuarioContactos = null;
 let propiedadesAdmin = [];
+let urlFacebookPropiedadActual = 'https://www.facebook.com/';
 
 const TIPOS_CON_PLANTA_ADMIN = [
   'piso', 'apartamento', 'atico', 'duplex', 'estudio',
@@ -2815,24 +2817,21 @@ function unirNaturalRedes(items) {
   return `${limpios.slice(0, -1).join(', ')} y ${limpios[limpios.length - 1]}`;
 }
 
-function crearSlugSeoAdmin(texto = '', maxLength = 80) {
-  const slug = String(texto)
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-z0-9\s-]/g, '')
-    .trim()
-    .replace(/\s+/g, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-|-$/g, '')
-    .slice(0, maxLength)
-    .replace(/-+$/g, '');
-
-  return slug || 'propiedad';
-}
-
 function urlPropiedadSeoAdmin(propiedad) {
-  return `https://www.homeclick24.com/propiedad/${crearSlugSeoAdmin(propiedad.titulo || 'propiedad')}-${propiedad._id}`;
+  const ruta = typeof getPropiedadSeoUrl === 'function'
+    ? getPropiedadSeoUrl(propiedad)
+    : `/propiedad/${String(propiedad.titulo || 'propiedad')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9\s-]/g, '')
+        .trim()
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '')
+        .slice(0, 80)
+        .replace(/-+$/g, '') || 'propiedad'}-${propiedad._id}`;
+  return new URL(ruta, 'https://www.homeclick24.com').href;
 }
 
 function propiedadesPublicasParaRedes() {
@@ -3146,6 +3145,7 @@ function generarTextoRedes(id) {
     subtitulo: 'Texto listo para revisar, copiar y pegar manualmente',
     modo: 'simple'
   });
+  urlFacebookPropiedadActual = urlPropiedadSeoAdmin(propiedad);
   document.getElementById('textoRedesFacebookPropiedad').value = crearPublicacionFacebookPropiedad(propiedad);
   document.getElementById('textoRedesWhatsappPropiedad').value = crearPublicacionWhatsappPropiedad(propiedad);
   document.getElementById('modalRedes').classList.add('visible');
@@ -3161,7 +3161,9 @@ async function copiarTextoRedes() {
 }
 
 function abrirFacebookManual() {
-  window.open('https://www.facebook.com/', '_blank', 'noopener');
+  const shareUrl = new URL('https://www.facebook.com/sharer/sharer.php');
+  shareUrl.searchParams.set('u', urlFacebookPropiedadActual);
+  window.open(shareUrl.href, '_blank', 'noopener');
 }
 
 async function copiarTextoRedesCampo(textareaId, etiqueta = 'texto') {
