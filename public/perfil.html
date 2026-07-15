@@ -514,7 +514,7 @@
     </div>
     <div class="perfil-acciones">
       <a href="/publicar" class="btn-perfil green">➕ Publicar anuncio</a>
-      <a href="/favoritos.html" class="btn-perfil outline">❤️ Mis favoritos</a>
+      <a href="/favoritos" class="btn-perfil outline">❤️ Mis favoritos</a>
       <button class="btn-perfil red" onclick="cerrarSesion()">Cerrar sesión</button>
     </div>
   </div>
@@ -582,9 +582,9 @@
 <nav class="mobile-nav">
   <a href="/index.html"><span>🏠</span><small>Inicio</small></a>
   <a href="/comprar"><span>🔍</span><small>Buscar</small></a>
-  <a href="/favoritos.html"><span>❤️</span><small>Favoritos</small></a>
-  <a href="/perfil.html#chats"><span>💬</span><small>Chats</small></a>
-  <a href="/perfil.html" class="active"><span>👤</span><small>Perfil</small></a>
+  <a href="/favoritos"><span>❤️</span><small>Favoritos</small></a>
+  <a href="/perfil#chats"><span>💬</span><small>Chats</small></a>
+  <a href="/perfil" class="active"><span>👤</span><small>Perfil</small></a>
 </nav>
 
 <script>
@@ -626,7 +626,7 @@ async function refrescarUsuarioTrasPago() {
         usuarioActualizado.plan !== planAnterior ||
         usuarioActualizado.stripeSubscriptionId
       ) {
-        window.location.replace("/perfil.html");
+        window.location.replace("/perfil");
         return;
       }
     }
@@ -634,7 +634,7 @@ async function refrescarUsuarioTrasPago() {
   }
 
   if (usuarioActualizado) {
-    window.location.replace("/perfil.html");
+    window.location.replace("/perfil");
   }
 }
 
@@ -645,7 +645,7 @@ await refrescarUsuarioDesdeBackend("al cargar perfil");
 
 if (vueltaStripe) {
   await refrescarUsuarioDesdeBackend("tras volver de Stripe");
-  history.replaceState(null, "", "/perfil.html" + window.location.hash);
+  history.replaceState(null, "", "/perfil" + window.location.hash);
 }
 
 document.getElementById("nombreUsuario").textContent = usuario.nombre;
@@ -892,7 +892,7 @@ async function cargarChats() {
       const noLeidos = Number(c.noLeidos) || 0;
       const ultimoMensaje = escapeHtml(c.ultimoMensaje || "Conversación iniciada");
       return `
-        <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='/chat.html?id=${c._id}'">
+        <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='/chat?id=${c._id}'">
           <div class="chat-avatar">${otroNombre.charAt(0).toUpperCase()}</div>
           <div class="chat-info">
             <strong>${otroNombre}</strong>
@@ -959,7 +959,7 @@ async function gestionarSuscripcion() {
       return;
     }
     if (!token) {
-      window.location.href = '/login?returnUrl=/perfil.html';
+      window.location.href = '/login?returnUrl=/perfil';
       return;
     }
 

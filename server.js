@@ -76,6 +76,15 @@ const cleanHtmlRoutes = {
   "/propiedad": "propiedad.html"
 };
 
+const privateCleanHtmlRoutes = {
+  "/admin": "admin.html",
+  "/perfil": "perfil.html",
+  "/chat": "chat.html",
+  "/favoritos": "favoritos.html",
+  "/reset-password": "reset.html",
+  "/set-password": "set-password.html"
+};
+
 const seoZoneSlugs = [
   "cadiz",
   "el-puerto-de-santa-maria",
@@ -84,6 +93,29 @@ const seoZoneSlugs = [
   "rota",
   "chipiona"
 ];
+
+app.get("/propiedad.html", async (req, res) => {
+  const id = req.query.id;
+  const query = req.url.slice(req.path.length);
+
+  if (!id) return res.redirect(301, `/propiedad${query}`);
+
+  try {
+    const propiedad = await Propiedad.findById(id, {
+      _id: 1,
+      titulo: 1,
+      visiblePublicamente: 1
+    }).lean();
+
+    if (propiedad?.visiblePublicamente !== false) {
+      return res.redirect(301, crearRutaPropiedadSeo(propiedad));
+    }
+  } catch (err) {
+    console.warn("No se pudo resolver slug legacy de propiedad:", err.message);
+  }
+
+  res.redirect(301, `/propiedad${query}`);
+});
 
 Object.keys(cleanHtmlRoutes).forEach(route => {
   app.get(`${route}.html`, (req, res) => {
@@ -94,6 +126,22 @@ Object.keys(cleanHtmlRoutes).forEach(route => {
   app.get(route, (req, res) => {
     res.sendFile(path.join(publicPath, cleanHtmlRoutes[route]));
   });
+});
+
+Object.keys(privateCleanHtmlRoutes).forEach(route => {
+  app.get(`${route}.html`, (req, res) => {
+    const query = req.url.slice(req.path.length);
+    res.redirect(301, `${route}${query}`);
+  });
+
+  app.get(route, (req, res) => {
+    res.sendFile(path.join(publicPath, privateCleanHtmlRoutes[route]));
+  });
+});
+
+app.get(["/reset", "/reset.html"], (req, res) => {
+  const query = req.url.slice(req.path.length);
+  res.redirect(301, `/reset-password${query}`);
 });
 
 const legacyPublicarRoutes = new Set([

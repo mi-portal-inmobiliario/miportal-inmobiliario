@@ -109,8 +109,8 @@ document.addEventListener("DOMContentLoaded", () => {
           <a href="/comprar" class="btn-outline">Comprar</a>
           <a href="/alquiler" class="btn-outline">Alquilar</a>
           <a href="${publicarHref}" class="btn-publish">${publicarTexto}</a>
-          <a href="/favoritos.html" class="btn-icon" title="Favoritos">❤️</a>
-          <a href="/perfil.html#chats" class="btn-icon" title="Chats" style="position:relative;">
+          <a href="/favoritos" class="btn-icon" title="Favoritos">❤️</a>
+          <a href="/perfil#chats" class="btn-icon" title="Chats" style="position:relative;">
             💬
             <span id="chatBadge" style="
               display:none;
@@ -171,9 +171,9 @@ document.addEventListener("DOMContentLoaded", () => {
               ${usuario.nombre || "Usuario"}
             </div>
             <div class="dropdown" id="userDropdown">
-              <a href="/perfil.html">Mi perfil</a>
-              <a href="/favoritos.html">Favoritos</a>
-              <a href="/perfil.html#chats">Conversaciones</a>
+              <a href="/perfil">Mi perfil</a>
+              <a href="/favoritos">Favoritos</a>
+              <a href="/perfil#chats">Conversaciones</a>
               <a href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">Ayuda para publicar</a>
               <a href="#" id="logoutBtn" class="logout">Cerrar sesión</a>
             </div>

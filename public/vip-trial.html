@@ -63,7 +63,7 @@
           localStorage.setItem("usuario", JSON.stringify({ ...usuario, ...data }));
           mensaje.className = "ok";
           mensaje.textContent = "Prueba VIP activada correctamente. Redirigiendo...";
-          setTimeout(() => location.href = "/perfil.html", 1500);
+          setTimeout(() => location.href = "/perfil", 1500);
         } catch (e) {
           mensaje.className = "err";
           mensaje.textContent = "Error de conexión.";

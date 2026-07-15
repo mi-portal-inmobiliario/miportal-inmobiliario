@@ -385,7 +385,7 @@ router.post('/', async (req, res) => {
             <img src="https://www.homeclick24.com/HomeClick-full.png" alt="HomeClick24" style="height:60px;margin-bottom:24px;">
             <h1 style="color:#1a1a1a;font-size:1.4rem;">No hemos podido procesar tu pago ⚠️</h1>
             <p style="color:#555;line-height:1.6;">Ha habido un problema al renovar tu suscripción. Por favor actualiza tu método de pago para no perder el acceso.</p>
-            <a href="https://www.homeclick24.com/perfil.html"
+            <a href="https://www.homeclick24.com/perfil"
               style="display:inline-block;background:#f59e0b;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:600;margin-top:8px;">
               Actualizar método de pago
             </a>

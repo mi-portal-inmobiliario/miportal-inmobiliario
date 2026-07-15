@@ -126,7 +126,7 @@ async function cargarChats() {
     const ultimoMensaje = escapeHtml(c.ultimoMensaje || "Conversación iniciada");
 
     cont.innerHTML += `
-      <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='chat.html?id=${c._id}'">
+      <div class="chat-item ${noLeidos > 0 ? "unread" : ""}" onclick="location.href='chat?id=${c._id}'">
         <div style="display:flex; align-items:center; gap:10px;">
           <div style="width:40px; height:40px; border-radius:50%; background:#2563eb; color:white; display:flex; align-items:center; justify-content:center; font-weight:bold; flex-shrink:0;">
             ${otroNombre.charAt(0).toUpperCase()}

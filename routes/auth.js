@@ -120,7 +120,7 @@ router.post("/register", validateBody(registerSchema), async (req, res) => {
 
     await usuario.save();
 
-    const enlace = `${process.env.APP_URL}/set-password.html?token=${token}`;
+    const enlace = `${process.env.APP_URL}/set-password?token=${token}`;
 
     await resend.emails.send({
       from: 'HomeClick24 <contacto@homeclick24.com>',
@@ -272,7 +272,7 @@ router.post("/recuperar", validateBody(recuperarSchema), async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    const enlace = `${process.env.APP_URL}/reset.html?token=${token}`;
+    const enlace = `${process.env.APP_URL}/reset-password?token=${token}`;
 
     await resend.emails.send({
       from: 'HomeClick24 <contacto@homeclick24.com>',

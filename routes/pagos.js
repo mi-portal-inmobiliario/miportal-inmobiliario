@@ -111,7 +111,7 @@ router.post('/crear-sesion', requireAuth, validateBody(crearSesionSchema), async
       mode: 'subscription',
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${process.env.APP_URL}/perfil.html?pago=exitoso`,
+      success_url: `${process.env.APP_URL}/perfil?pago=exitoso`,
       cancel_url: `${process.env.APP_URL}/planes?pago=cancelado`,
       client_reference_id: req.user.id,
       metadata,
@@ -285,7 +285,7 @@ router.post('/portal-cliente', requireAuth, validateBody(portalClienteSchema), a
     const frontendUrl = process.env.FRONTEND_URL || process.env.APP_URL;
     const session = await stripe.billingPortal.sessions.create({
       customer: req.user.stripeCustomerId,
-      return_url: `${frontendUrl}/perfil.html?stripe=return`,
+      return_url: `${frontendUrl}/perfil?stripe=return`,
     });
     
     res.json({ url: session.url });

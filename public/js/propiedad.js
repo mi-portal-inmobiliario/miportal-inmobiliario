@@ -520,7 +520,7 @@ async function contactar() {
 
   const data = await res.json();
   if (!res.ok || !data._id) { alert("No se pudo abrir el chat"); return; }
-  window.location.href = `/chat.html?id=${data._id}`;
+  window.location.href = `/chat?id=${data._id}`;
 }
 
 /* ================================

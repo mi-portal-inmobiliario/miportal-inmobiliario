@@ -167,7 +167,7 @@ router.post("/conversaciones/:id/mensajes", requireAuth, validateBody(mensajeSch
                     <p style="margin: 0; color: #4a7c24;"><strong>${comprador?.nombre || "Un usuario"}:</strong></p>
                     <p style="margin: 8px 0 0;">"${texto}"</p>
                   </div>
-                  <a href="https://www.homeclick24.com/chat.html" 
+                  <a href="https://www.homeclick24.com/chat"
                      style="display: inline-block; background: #7cc242; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; margin-top: 8px;">
                    Ver mensaje
                   </a>
