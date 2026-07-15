@@ -1236,7 +1236,7 @@
               <h4>Facebook</h4>
               <div class="admin-tools-actions">
                 <button onclick="copiarTextoRedesCampo('textoRedesFacebookPropiedad', 'Facebook')" class="btn-exportar">Copiar publicación</button>
-                <button onclick="abrirFacebookPropiedad()" class="btn-exportar">Abrir Facebook</button>
+                <button onclick="abrirFacebookPropiedad()" class="btn-exportar">Copiar y abrir Facebook</button>
               </div>
             </div>
             <textarea id="textoRedesFacebookPropiedad" class="social-textarea" readonly></textarea>
@@ -1266,7 +1266,7 @@
             <h4>Facebook / WhatsApp</h4>
             <div class="admin-tools-actions">
               <button onclick="copiarTextoRedesCampo('textoRedesFacebook', 'Facebook/WhatsApp')" class="btn-exportar">Copiar Facebook/WhatsApp</button>
-              <button onclick="abrirFacebookPostSemanal()" class="btn-exportar">Abrir Facebook</button>
+              <button onclick="abrirFacebookPostSemanal()" class="btn-exportar">Copiar y abrir Facebook</button>
             </div>
           </div>
           <textarea id="textoRedesFacebook" class="social-textarea" readonly></textarea>
@@ -3210,11 +3210,9 @@ function mostrarAvisoRedes(mensaje) {
   alert(mensaje);
 }
 
-async function abrirFacebookConTexto(textareaId, urlCompartida, mensaje) {
+async function abrirFacebookConTexto(textareaId, mensaje) {
   await copiarTextoRedesCampo(textareaId, 'Facebook');
-  const shareUrl = new URL('https://www.facebook.com/sharer/sharer.php');
-  shareUrl.searchParams.set('u', urlCompartida);
-  window.open(shareUrl.href, '_blank', 'noopener');
+  window.open('https://www.facebook.com/HomeClick24', '_blank', 'noopener');
   mostrarAvisoRedes(mensaje);
 }
 
@@ -3227,30 +3225,28 @@ async function abrirInstagramConTexto(textareaId, mensaje) {
 async function abrirFacebookPropiedad() {
   await abrirFacebookConTexto(
     'textoRedesFacebookPropiedad',
-    urlFacebookPropiedadActual,
-    'Texto copiado. Facebook se ha abierto en otra pestaña. Pega el texto manualmente si no aparece.'
+    'Texto copiado. Pégalo en una nueva publicación de Facebook.'
   );
 }
 
 async function abrirInstagramPropiedad() {
   await abrirInstagramConTexto(
     'textoRedesInstagramPropiedad',
-    'Texto copiado. Abre una nueva publicación en Instagram y pega el texto manualmente.'
+    'Texto copiado. Abre Instagram y pégalo manualmente.'
   );
 }
 
 async function abrirFacebookPostSemanal() {
   await abrirFacebookConTexto(
     'textoRedesFacebook',
-    'https://www.homeclick24.com/',
-    'Texto copiado. Facebook se ha abierto en otra pestaña. Pega el texto manualmente si no aparece.'
+    'Texto copiado. Pégalo en una nueva publicación de Facebook.'
   );
 }
 
 async function abrirInstagramPostSemanal() {
   await abrirInstagramConTexto(
     'textoRedesInstagram',
-    'Texto copiado. Abre una nueva publicación en Instagram y pega el texto manualmente.'
+    'Texto copiado. Abre Instagram y pégalo manualmente.'
   );
 }
 
