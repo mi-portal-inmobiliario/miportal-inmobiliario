@@ -36,7 +36,9 @@
     .planes-ayuda { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: -34px 0 42px; padding: 20px 24px; background: #f0f9e8; border: 1px solid #d8edc9; border-radius: 16px; box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
     .planes-ayuda h2 { margin: 0 0 5px; font-size: 1.05rem; font-weight: 700; color: #2d7a18; }
     .planes-ayuda p { margin: 0; color: #5f6f55; font-size: 0.92rem; line-height: 1.5; }
+    .planes-ayuda-actions { display: flex; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
     .btn-guia-publicacion { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 11px 16px; border-radius: 10px; background: #7cc242; color: #fff; font-size: 0.9rem; font-weight: 700; text-decoration: none; box-shadow: 0 4px 14px rgba(124, 194, 66, 0.28); transition: transform 0.2s ease, background 0.2s ease; }
+    .btn-guia-publicacion.secondary { background: #fff; color: #4d8d2c; border: 1px solid #d8edc9; box-shadow: none; }
     .btn-guia-publicacion:hover { background: #6aad35; transform: translateY(-1px); }
     .planes-section-label { font-size: 0.72rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #aaa; margin: 50px 0 20px; }
     .planes-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 10px; }
@@ -61,6 +63,7 @@
       .planes-grid-2 { grid-template-columns: 1fr; }
       .planes-title { font-size: 1.9rem; }
       .planes-ayuda { align-items: flex-start; flex-direction: column; margin: -30px 0 34px; padding: 18px; }
+      .planes-ayuda-actions { width: 100%; justify-content: flex-start; }
       .btn-guia-publicacion { width: 100%; }
     }
   </style>
@@ -83,9 +86,12 @@
       <h2>¿Vas a publicar tu primer anuncio?</h2>
       <p>Consulta la guía rápida paso a paso para saber cómo iniciar sesión, completar los datos, subir fotos y compartir tu anuncio.</p>
     </div>
-    <a class="btn-guia-publicacion" href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">
-      📘 Ver guía rápida
-    </a>
+    <div class="planes-ayuda-actions">
+      <a class="btn-guia-publicacion secondary" href="/profesionales">Para profesionales</a>
+      <a class="btn-guia-publicacion" href="/docs/guia-publicacion-homeclick24.pdf" target="_blank" rel="noopener">
+        📘 Ver guía rápida
+      </a>
+    </div>
   </section>
 
   <!-- PARTICULARES -->
@@ -301,6 +307,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       <a href="/comprar">Comprar vivienda</a>
       <a href="/alquiler">Alquilar vivienda</a>
       <a href="/planes">Planes y precios</a>
+      <a href="/profesionales">Profesionales</a>
       <a href="/publicar">Publicar anuncio</a>
     </div>
 

@@ -789,9 +789,46 @@
       color: #fff;
     }
 
+    .profesionales-home-link {
+      background: #f8faf5;
+      padding: 24px 20px;
+      border-top: 1px solid #edf2e7;
+      border-bottom: 1px solid #edf2e7;
+    }
+
+    .profesionales-home-link .inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .profesionales-home-link p {
+      margin: 0;
+      color: #66717c;
+      line-height: 1.5;
+    }
+
+    .profesionales-home-link strong {
+      color: #1a1a1a;
+    }
+
+    .profesionales-home-link a {
+      color: #4d8d2c;
+      font-weight: 800;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
     @media (max-width: 760px) {
       .zonas-home-grid {
         grid-template-columns: 1fr;
+      }
+      .profesionales-home-link .inner {
+        align-items: flex-start;
+        flex-direction: column;
       }
     }
   </style>
@@ -908,6 +945,13 @@
   </div>
 </section>
 
+<section class="profesionales-home-link" aria-label="Profesionales inmobiliarios">
+  <div class="inner">
+    <p><strong>¿Eres inmobiliaria o agente?</strong> Publica tus inmuebles online y gana visibilidad en HomeClick24.</p>
+    <a href="/profesionales">Ver soluciones para profesionales →</a>
+  </div>
+</section>
+
 <section class="zonas-home" aria-labelledby="zonasHomeTitulo">
   <div class="zonas-home-inner">
     <h2 id="zonasHomeTitulo">Viviendas por zonas en Cádiz</h2>
@@ -1004,6 +1048,7 @@
       <a href="/comprar">Comprar vivienda</a>
       <a href="/alquiler">Alquilar vivienda</a>
       <a href="/planes">Planes y precios</a>
+      <a href="/profesionales">Profesionales</a>
       <a href="/publicar">Publicar anuncio</a>
     </div>
     <div class="footer-col">
