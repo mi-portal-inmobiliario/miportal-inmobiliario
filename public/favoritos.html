@@ -143,6 +143,7 @@
 
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
+<script src="/js/seo-slug.js"></script>
 
 <!-- HEADER -->
 <div class="favoritos-header">
@@ -207,7 +208,7 @@ async function cargarFavoritos() {
       const sup     = p.superficie ? `📐 ${p.superficie} m²` : "";
 
       return `
-        <div class="card-propiedad" onclick="location.href='/propiedad?id=${p._id}'">
+        <div class="card-propiedad" onclick="location.href='${typeof getPropiedadSeoUrl === "function" ? getPropiedadSeoUrl(p) : `/propiedad?id=${p._id}`}'">
           <div class="card-img-wrap">
             <img src="${img}" alt="${p.titulo}" loading="lazy">
             <span class="tag-tipo ${tipoCls}">${tipo}</span>

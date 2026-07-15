@@ -150,8 +150,12 @@ function renderLista(lista) {
     const tipo = p.tipoOperacion === "venta" ? "Venta" : "Alquiler";
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
 
+    const url = typeof getPropiedadSeoUrl === "function"
+      ? getPropiedadSeoUrl(p)
+      : `/propiedad?id=${encodeURIComponent(p._id)}`;
+
    return `
-  <div class="card-propiedad" onclick="abrirPropiedad('${p._id}')">
+  <div class="card-propiedad" onclick="abrirPropiedad('${url}')">
     <div class="card-img-wrap">
       <img src="${img}" alt="${p.titulo}" loading="lazy">
       <span class="tag-tipo ${tipoCls}">${tipo}</span>
@@ -212,8 +216,8 @@ function toggleFiltrosMobile() {
 // =====================================
 // ABRIR PROPIEDAD
 // =====================================
-function abrirPropiedad(id) {
-  location.href = "/propiedad?id=" + id;
+function abrirPropiedad(url) {
+  location.href = url;
 }
 
 // =====================================

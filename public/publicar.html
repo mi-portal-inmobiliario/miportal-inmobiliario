@@ -1113,10 +1113,11 @@ async function publicar() {
 
   setTimeout(() => {
 
-    window.location.href =
-      "/propiedad?id=" +
-      data._id +
-      "&publicado=1";
+    const propiedadUrl = typeof getPropiedadSeoUrl === "function"
+      ? getPropiedadSeoUrl(data)
+      : `/propiedad?id=${data._id}`;
+
+    window.location.href = `${propiedadUrl}?publicado=1`;
 
   }, 1200);
 
@@ -1240,6 +1241,7 @@ async function publicar() {
 </footer>
 
 <script src="/js/header.js" defer></script>
+<script src="/js/seo-slug.js"></script>
 <script src="/js/cookies.js"></script>
 
 </body>

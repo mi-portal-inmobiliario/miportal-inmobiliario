@@ -29,7 +29,9 @@ function renderPropiedadRelacionada(p) {
   const banos = p.banos ? `${p.banos} baño${p.banos > 1 ? "s" : ""}` : "";
   const superficie = p.superficie ? `${p.superficie} m²` : "";
   const meta = [hab, banos, superficie].filter(Boolean).join(" · ");
-  const url = `/propiedad?id=${encodeURIComponent(p._id)}`;
+  const url = typeof getPropiedadSeoUrl === "function"
+    ? getPropiedadSeoUrl(p)
+    : `/propiedad?id=${encodeURIComponent(p._id)}`;
   const direccion = relacionadasDireccionCorta(p);
 
   return `
@@ -56,7 +58,9 @@ let propiedadesRelacionadasCargadas = false;
 async function cargarPropiedadesRelacionadas() {
   const seccion = document.getElementById("propiedadesRelacionadas");
   const grid = document.getElementById("propiedadesRelacionadasGrid");
-  const id = new URLSearchParams(window.location.search).get("id");
+  const id = typeof getPropiedadIdFromLocation === "function"
+    ? getPropiedadIdFromLocation()
+    : new URLSearchParams(window.location.search).get("id");
 
   if (!seccion || !grid || !id) return;
   if (propiedadesRelacionadasCargadas) return;

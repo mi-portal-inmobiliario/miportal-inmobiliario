@@ -2698,6 +2698,26 @@ function unirNaturalRedes(items) {
   return `${limpios.slice(0, -1).join(', ')} y ${limpios[limpios.length - 1]}`;
 }
 
+function crearSlugSeoAdmin(texto = '', maxLength = 80) {
+  const slug = String(texto)
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, maxLength)
+    .replace(/-+$/g, '');
+
+  return slug || 'propiedad';
+}
+
+function urlPropiedadSeoAdmin(propiedad) {
+  return `https://www.homeclick24.com/propiedad/${crearSlugSeoAdmin(propiedad.titulo || 'propiedad')}-${propiedad._id}`;
+}
+
 function crearTextoRedes(propiedad) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
   const ubicacionTitulo = ubicacionPrincipalRedes(propiedad.direccion);
@@ -2714,7 +2734,7 @@ function crearTextoRedes(propiedad) {
   const fraseCaracteristicas = caracteristicas.length
     ? `${tipo} con ${unirNaturalRedes(caracteristicas)}.`
     : `${tipo} disponible en HomeClick24.`;
-  const url = `https://www.homeclick24.com/propiedad?id=${propiedad._id}`;
+  const url = urlPropiedadSeoAdmin(propiedad);
   const lineasDetalle = [
     precio ? `💶 Precio: ${precio}` : '',
     propiedad.direccion ? `📍 Ubicación: ${direccionResumen(propiedad.direccion)}` : ''
@@ -2801,7 +2821,7 @@ function crearPostSemanalRedes(propiedades = []) {
   const bloques = propiedades.map((propiedad, index) => {
     const precio = formatearPrecioRedes(propiedad.precio, propiedad.tipoOperacion);
     const ubicacion = direccionResumen(propiedad.direccion);
-    const url = `https://www.homeclick24.com/propiedad?id=${propiedad._id}`;
+    const url = urlPropiedadSeoAdmin(propiedad);
     return [
       `${iconos[index]} ${limpiarTituloPostSemanal(propiedad)}`,
       precio ? `💶 Precio: ${precio}` : '',

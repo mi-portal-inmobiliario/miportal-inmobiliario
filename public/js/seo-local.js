@@ -25,9 +25,13 @@ function renderPropiedadLocal(p) {
   const banos = p.banos ? `${p.banos} baño${p.banos > 1 ? "s" : ""}` : "";
   const superficie = p.superficie ? `${p.superficie} m²` : "";
 
+  const url = typeof getPropiedadSeoUrl === "function"
+    ? getPropiedadSeoUrl(p)
+    : `/propiedad?id=${encodeURIComponent(p._id)}`;
+
   return `
     <article class="seo-local-card">
-      <a href="/propiedad?id=${encodeURIComponent(p._id)}" aria-label="${escapeHtml(p.titulo)}">
+      <a href="${escapeHtml(url)}" aria-label="${escapeHtml(p.titulo)}">
         <img src="${escapeHtml(img)}" alt="${escapeHtml(p.titulo)}" loading="lazy">
         <div class="seo-local-card-body">
           <div class="seo-local-price">${precio}</div>

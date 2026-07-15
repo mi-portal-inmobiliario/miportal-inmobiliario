@@ -61,7 +61,7 @@ async function cargarPropiedades() {
     const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
 
     cont.innerHTML += `
-      <div class="card" onclick="location.href='propiedad?id=${p._id}'">
+      <div class="card" onclick="location.href='${typeof getPropiedadSeoUrl === "function" ? getPropiedadSeoUrl(p) : `propiedad?id=${p._id}`}'">
         <img src="${img}">
         <div class="info">
           <div class="precio">${p.precio} €</div>

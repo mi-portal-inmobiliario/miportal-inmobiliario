@@ -24,7 +24,9 @@ function estadoComercialBadge(estado = "Disponible") {
    CARGAR PROPIEDAD
 ================================ */
 async function cargarPropiedad() {
-  const id = new URLSearchParams(window.location.search).get("id");
+  const id = typeof getPropiedadIdFromLocation === "function"
+    ? getPropiedadIdFromLocation()
+    : new URLSearchParams(window.location.search).get("id");
   if (!id) return mostrarError("ID de propiedad inválido");
 
   try {
@@ -51,7 +53,10 @@ function actualizarSEO() {
   const precio = propiedad.precio?.toLocaleString("es-ES");
   const precioTexto = precio ? `${precio} €` : "precio a consultar";
   const zonaTexto = propiedad.direccion || "HomeClick24";
-  const canonicalUrl = `https://www.homeclick24.com/propiedad?id=${encodeURIComponent(propiedad._id)}`;
+  const canonicalPath = typeof getPropiedadSeoUrl === "function"
+    ? getPropiedadSeoUrl(propiedad)
+    : `/propiedad?id=${encodeURIComponent(propiedad._id)}`;
+  const canonicalUrl = `https://www.homeclick24.com${canonicalPath}`;
 
   document.title = `${propiedad.titulo} en ${zonaTexto} | ${precioTexto} | HomeClick24`;
   

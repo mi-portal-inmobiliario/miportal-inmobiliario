@@ -497,6 +497,7 @@
 
 <div id="main-header"></div>
 <script src="/js/header.js" defer></script>
+<script src="/js/seo-slug.js"></script>
 
 <div class="perfil-wrap">
 
@@ -792,7 +793,7 @@ async function cargarPropiedades() {
     const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
     return `
       <div class="card-propiedad">
-        <div class="card-img-wrap" onclick="location.href='/propiedad?id=${p._id}'" style="cursor:pointer;">
+        <div class="card-img-wrap" onclick="location.href='${typeof getPropiedadSeoUrl === "function" ? getPropiedadSeoUrl(p) : `/propiedad?id=${p._id}`}'" style="cursor:pointer;">
           <img src="${img}" alt="${p.titulo}" loading="lazy">
           <span class="tag-tipo ${tipoCls}">${tipo}</span>
         </div>

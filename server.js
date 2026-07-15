@@ -11,6 +11,7 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { scheduleVipTrialExpiration } from "./utils/trials.js";
+import { crearRutaPropiedadSeo } from "./utils/seoSlug.js";
 
 // =============================
 // MODELOS
@@ -133,6 +134,10 @@ app.get(["/comprar/:zona", "/alquiler/:zona"], (req, res, next) => {
   res.sendFile(path.join(publicPath, htmlFile));
 });
 
+app.get("/propiedad/:slug", (req, res) => {
+  res.sendFile(path.join(publicPath, "propiedad.html"));
+});
+
 app.use(express.static(publicPath));
 
 // =============================
@@ -167,9 +172,12 @@ Sitemap: https://www.homeclick24.com/sitemap.xml`);
 app.get("/sitemap.xml", async (req, res) => {
   try {
     const propiedades = await Propiedad.find(
-      { visiblePublicamente: { $ne: false } },
-      { _id: 1, updatedAt: 1 }
-    );
+      {
+        visiblePublicamente: { $ne: false },
+        estadoComercial: { $nin: ["Vendido", "Alquilado"] }
+      },
+      { _id: 1, titulo: 1, updatedAt: 1 }
+    ).lean();
 
     const urls = [
       { loc: "/", priority: "1.0" },
@@ -185,7 +193,7 @@ app.get("/sitemap.xml", async (req, res) => {
       { loc: "/integraciones", priority: "0.4" },
       { loc: "/terminos", priority: "0.3" },
       ...propiedades.map(p => ({
-        loc: `/propiedad?id=${p._id}`,
+        loc: crearRutaPropiedadSeo(p),
         priority: "0.8",
         lastmod: p.updatedAt ? p.updatedAt.toISOString().split("T")[0] : ""
       }))
