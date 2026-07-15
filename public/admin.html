@@ -681,6 +681,11 @@
     }
 
     .social-versions.property .social-version-card:nth-child(2) .social-textarea {
+      min-height: 300px;
+      height: 320px;
+    }
+
+    .social-versions.property .social-version-card:nth-child(3) .social-textarea {
       min-height: 180px;
       height: 220px;
     }
@@ -1231,10 +1236,20 @@
               <h4>Facebook</h4>
               <div class="admin-tools-actions">
                 <button onclick="copiarTextoRedesCampo('textoRedesFacebookPropiedad', 'Facebook')" class="btn-exportar">Copiar publicación</button>
-                <button onclick="abrirFacebookManual()" class="btn-exportar">Abrir Facebook</button>
+                <button onclick="abrirFacebookPropiedad()" class="btn-exportar">Abrir Facebook</button>
               </div>
             </div>
             <textarea id="textoRedesFacebookPropiedad" class="social-textarea" readonly></textarea>
+          </div>
+          <div class="social-version-card">
+            <div class="social-version-head">
+              <h4>Instagram</h4>
+              <div class="admin-tools-actions">
+                <button onclick="copiarTextoRedesCampo('textoRedesInstagramPropiedad', 'Instagram')" class="btn-exportar">Copiar Instagram</button>
+                <button onclick="abrirInstagramPropiedad()" class="btn-exportar">Abrir Instagram</button>
+              </div>
+            </div>
+            <textarea id="textoRedesInstagramPropiedad" class="social-textarea" readonly></textarea>
           </div>
           <div class="social-version-card">
             <div class="social-version-head">
@@ -1249,14 +1264,20 @@
         <div class="social-version-card">
           <div class="social-version-head">
             <h4>Facebook / WhatsApp</h4>
-            <button onclick="copiarTextoRedesCampo('textoRedesFacebook', 'Facebook/WhatsApp')" class="btn-exportar">Copiar Facebook/WhatsApp</button>
+            <div class="admin-tools-actions">
+              <button onclick="copiarTextoRedesCampo('textoRedesFacebook', 'Facebook/WhatsApp')" class="btn-exportar">Copiar Facebook/WhatsApp</button>
+              <button onclick="abrirFacebookPostSemanal()" class="btn-exportar">Abrir Facebook</button>
+            </div>
           </div>
           <textarea id="textoRedesFacebook" class="social-textarea" readonly></textarea>
         </div>
         <div class="social-version-card">
           <div class="social-version-head">
             <h4>Instagram</h4>
-            <button onclick="copiarTextoRedesCampo('textoRedesInstagram', 'Instagram')" class="btn-exportar">Copiar Instagram</button>
+            <div class="admin-tools-actions">
+              <button onclick="copiarTextoRedesCampo('textoRedesInstagram', 'Instagram')" class="btn-exportar">Copiar Instagram</button>
+              <button onclick="abrirInstagramPostSemanal()" class="btn-exportar">Abrir Instagram</button>
+            </div>
           </div>
           <textarea id="textoRedesInstagram" class="social-textarea" readonly></textarea>
         </div>
@@ -2921,6 +2942,28 @@ function crearPublicacionWhatsappPropiedad(propiedad) {
   ].filter(Boolean).join('\n');
 }
 
+function crearPublicacionInstagramPropiedad(propiedad) {
+  const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
+  const precio = formatearPrecioRedes(propiedad.precio, operacion);
+  const zona = zonaPropiedadRedes(propiedad);
+  const url = urlPropiedadSeoAdmin(propiedad);
+  const detalles = [
+    zona ? `📍 ${zona}` : '',
+    precio ? `💰 ${precio}` : '',
+    propiedad.habitaciones ? `🛏️ ${propiedad.habitaciones} hab.` : '',
+    propiedad.banos ? `🚿 ${propiedad.banos} baños` : '',
+    propiedad.superficie ? `📐 ${propiedad.superficie} m²` : ''
+  ].filter(Boolean).join('\n');
+
+  return [
+    `🏡 ${propiedad.titulo || 'Nuevo inmueble en HomeClick24'}`,
+    operacion === 'alquiler' ? 'Disponible en alquiler.' : 'Disponible en venta.',
+    detalles,
+    `Más información:\n${url}`,
+    hashtagsOperacionRedes(operacion).join(' ')
+  ].filter(Boolean).join('\n\n');
+}
+
 function textoFrasePostSemanal(texto = '') {
   const limpio = String(texto).trim().replace(/\s+/g, ' ');
   return limpio ? limpio.charAt(0).toUpperCase() + limpio.slice(1) : '';
@@ -3147,6 +3190,7 @@ function generarTextoRedes(id) {
   });
   urlFacebookPropiedadActual = urlPropiedadSeoAdmin(propiedad);
   document.getElementById('textoRedesFacebookPropiedad').value = crearPublicacionFacebookPropiedad(propiedad);
+  document.getElementById('textoRedesInstagramPropiedad').value = crearPublicacionInstagramPropiedad(propiedad);
   document.getElementById('textoRedesWhatsappPropiedad').value = crearPublicacionWhatsappPropiedad(propiedad);
   document.getElementById('modalRedes').classList.add('visible');
 }
@@ -3160,10 +3204,54 @@ async function copiarTextoRedes() {
   await copiarTextoRedesCampo('textoRedesFacebookPropiedad', 'Facebook');
 }
 
-function abrirFacebookManual() {
+function mostrarAvisoRedes(mensaje) {
+  const estado = document.getElementById('estadoCopiaRedes');
+  if (estado) estado.textContent = mensaje;
+  alert(mensaje);
+}
+
+async function abrirFacebookConTexto(textareaId, urlCompartida, mensaje) {
+  await copiarTextoRedesCampo(textareaId, 'Facebook');
   const shareUrl = new URL('https://www.facebook.com/sharer/sharer.php');
-  shareUrl.searchParams.set('u', urlFacebookPropiedadActual);
+  shareUrl.searchParams.set('u', urlCompartida);
   window.open(shareUrl.href, '_blank', 'noopener');
+  mostrarAvisoRedes(mensaje);
+}
+
+async function abrirInstagramConTexto(textareaId, mensaje) {
+  await copiarTextoRedesCampo(textareaId, 'Instagram');
+  window.open('https://www.instagram.com/', '_blank', 'noopener');
+  mostrarAvisoRedes(mensaje);
+}
+
+async function abrirFacebookPropiedad() {
+  await abrirFacebookConTexto(
+    'textoRedesFacebookPropiedad',
+    urlFacebookPropiedadActual,
+    'Texto copiado. Facebook se ha abierto en otra pestaña. Pega el texto manualmente si no aparece.'
+  );
+}
+
+async function abrirInstagramPropiedad() {
+  await abrirInstagramConTexto(
+    'textoRedesInstagramPropiedad',
+    'Texto copiado. Abre una nueva publicación en Instagram y pega el texto manualmente.'
+  );
+}
+
+async function abrirFacebookPostSemanal() {
+  await abrirFacebookConTexto(
+    'textoRedesFacebook',
+    'https://www.homeclick24.com/',
+    'Texto copiado. Facebook se ha abierto en otra pestaña. Pega el texto manualmente si no aparece.'
+  );
+}
+
+async function abrirInstagramPostSemanal() {
+  await abrirInstagramConTexto(
+    'textoRedesInstagram',
+    'Texto copiado. Abre una nueva publicación en Instagram y pega el texto manualmente.'
+  );
 }
 
 async function copiarTextoRedesCampo(textareaId, etiqueta = 'texto') {
