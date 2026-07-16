@@ -1306,6 +1306,19 @@
       </div>
     </section>
 
+    <!-- CALENDARIO DE REDES -->
+    <section class="social-recommendations">
+      <div class="social-recommendations-head">
+        <div>
+          <h2>Calendario de redes</h2>
+          <p>Planifica manualmente publicaciones futuras de Facebook e Instagram. No publica nada automáticamente.</p>
+        </div>
+      </div>
+      <div id="calendarioRedes" class="social-recommendations-grid">
+        <div class="social-generator-empty">Cargando calendario...</div>
+      </div>
+    </section>
+
    <!-- USUARIOS -->
    <div class="tabla-wrap">
      <div class="tabla-header">
@@ -1459,6 +1472,44 @@
         </div>
       </div>
       <div id="estadoCopiaRedes" class="social-copy-status"></div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalProgramacionRedes" onclick="cerrarModalProgramacionRedes(event)">
+  <div class="modal-admin" onclick="event.stopPropagation()">
+    <div class="modal-admin-header">
+      <div>
+        <h3>Programar próxima publicación</h3>
+        <p id="programacionRedesTitulo">Planificación interna para redes</p>
+      </div>
+      <div class="modal-header-actions">
+        <button onclick="guardarProgramacionRedes()" class="btn-exportar">Guardar programación</button>
+        <button class="modal-close" onclick="cerrarModalProgramacionRedes()" aria-label="Cerrar">×</button>
+      </div>
+    </div>
+    <div class="modal-admin-body">
+      <input type="hidden" id="programacionRedesPropiedadId">
+      <div class="admin-form-grid">
+        <div class="admin-form-field">
+          <label for="programacionRedesFecha">Fecha</label>
+          <input type="datetime-local" id="programacionRedesFecha">
+        </div>
+        <div class="admin-form-field">
+          <label for="programacionRedesCanal">Canal</label>
+          <select id="programacionRedesCanal">
+            <option value="">Sin definir</option>
+            <option value="facebook">Facebook</option>
+            <option value="instagram">Instagram</option>
+            <option value="ambos">Ambos</option>
+          </select>
+        </div>
+        <div class="admin-form-field full">
+          <label for="programacionRedesNotas">Nota interna</label>
+          <textarea id="programacionRedesNotas" rows="4" placeholder="Ej: publicar por la mañana con imagen de historia"></textarea>
+        </div>
+      </div>
+      <div id="estadoProgramacionRedes" class="social-copy-status"></div>
     </div>
   </div>
 </div>
@@ -1655,6 +1706,7 @@ let filtroRedesPropiedades = 'todas';
 const FACEBOOK_PAGE_URL = 'https://www.facebook.com/profile.php?id=61589930586330';
 let urlFacebookPropiedadActual = 'https://www.facebook.com/';
 let propiedadRedesActual = null;
+let propiedadProgramacionRedesActual = null;
 
 const TIPOS_CON_PLANTA_ADMIN = [
   'piso', 'apartamento', 'atico', 'duplex', 'estudio',
@@ -2832,6 +2884,7 @@ async function cargarPropiedades() {
 
   renderPublicacionesRedes();
   renderRecomendacionesRedes();
+  renderCalendarioRedes();
   renderTablaPropiedades();
 }
 
@@ -2952,6 +3005,12 @@ function resumenRedesRecomendacion(propiedad = {}) {
   return `Última publicación: ${fecha} · Publicada ${count} ${count === 1 ? 'vez' : 'veces'}`;
 }
 
+function textoBotonPublicacionRedes(propiedad = {}) {
+  return propiedadPublicadaEnRedes(propiedad)
+    ? 'Añadir nueva publicación'
+    : 'Marcar como publicado';
+}
+
 function renderRecomendacionesRedes() {
   const contenedor = document.getElementById('recomendacionesRedes');
   if (!contenedor) return;
@@ -2966,9 +3025,7 @@ function renderRecomendacionesRedes() {
     const operacion = p.tipoOperacion === 'alquiler' ? 'Alquiler' : 'Venta';
     const precio = formatearPrecioRedes(p.precio, p.tipoOperacion) || 'Consultar precio';
     const zona = zonaPropiedadRedes(p);
-    const textoBotonPublicado = propiedadPublicadaEnRedes(p)
-      ? 'Añadir nueva publicación'
-      : 'Marcar como publicado';
+    const textoBotonPublicado = textoBotonPublicacionRedes(p);
 
     return `
       <article class="social-recommendation-card">
@@ -2981,6 +3038,110 @@ function renderRecomendacionesRedes() {
         <div class="social-recommendation-actions">
           <button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>
           <button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">${textoBotonPublicado}</button>
+        </div>
+      </article>
+    `;
+  }).join('');
+}
+
+function timestampProximaPublicacion(propiedad = {}) {
+  return propiedad.redesProximaPublicacionAt
+    ? new Date(propiedad.redesProximaPublicacionAt).getTime()
+    : 0;
+}
+
+function fechaRedesTexto(value) {
+  if (!value) return '';
+  const fecha = new Date(value);
+  if (Number.isNaN(fecha.getTime())) return '';
+  return fecha.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function canalRedesTexto(canal = '') {
+  const canales = {
+    facebook: 'Facebook',
+    instagram: 'Instagram',
+    ambos: 'Ambos'
+  };
+  return canales[String(canal || '').toLowerCase()] || 'Sin definir';
+}
+
+function valorDatetimeLocal(value) {
+  if (!value) return '';
+  const fecha = new Date(value);
+  if (Number.isNaN(fecha.getTime())) return '';
+  const offset = fecha.getTimezoneOffset();
+  const local = new Date(fecha.getTime() - offset * 60000);
+  return local.toISOString().slice(0, 16);
+}
+
+function seleccionarCalendarioRedes() {
+  return propiedadesVisiblesParaRedes()
+    .sort((a, b) => {
+      const proximaA = timestampProximaPublicacion(a);
+      const proximaB = timestampProximaPublicacion(b);
+      if (proximaA && proximaB && proximaA !== proximaB) return proximaA - proximaB;
+      if (proximaA !== proximaB) return proximaA ? -1 : 1;
+
+      const publicadaA = Number(propiedadPublicadaEnRedes(a));
+      const publicadaB = Number(propiedadPublicadaEnRedes(b));
+      if (publicadaA !== publicadaB) return publicadaA - publicadaB;
+
+      if (publicadaA && publicadaB) {
+        const ultimaA = timestampRedes(a);
+        const ultimaB = timestampRedes(b);
+        if (ultimaA !== ultimaB) return ultimaA - ultimaB;
+      }
+
+      return timestampCreacion(b) - timestampCreacion(a);
+    })
+    .slice(0, 7);
+}
+
+function renderCalendarioRedes() {
+  const contenedor = document.getElementById('calendarioRedes');
+  if (!contenedor) return;
+
+  const calendario = seleccionarCalendarioRedes();
+  if (!calendario.length) {
+    contenedor.innerHTML = '<div class="social-generator-empty">No hay propiedades promocionables para planificar.</div>';
+    return;
+  }
+
+  contenedor.innerHTML = calendario.map(p => {
+    const operacion = p.tipoOperacion === 'alquiler' ? 'Alquiler' : 'Venta';
+    const precio = formatearPrecioRedes(p.precio, p.tipoOperacion) || 'Consultar precio';
+    const zona = zonaPropiedadRedes(p);
+    const ultima = fechaRedesTexto(p.redesUltimaPublicacionAt);
+    const proxima = fechaRedesTexto(p.redesProximaPublicacionAt);
+    const count = Number(p.redesPublicadoCount || 0);
+    const estadoRedes = propiedadPublicadaEnRedes(p)
+      ? `Publicada ${count} ${count === 1 ? 'vez' : 'veces'}`
+      : 'No publicada';
+    const textoBotonPublicado = textoBotonPublicacionRedes(p);
+
+    return `
+      <article class="social-recommendation-card">
+        <h3>${escapeHtml(p.titulo || 'Sin título')}</h3>
+        <div class="social-recommendation-meta">
+          <span>${escapeHtml(operacion)} · ${escapeHtml(precio)}</span>
+          <span>${escapeHtml(zona || 'Zona no indicada')}</span>
+          <span>Estado de redes: ${escapeHtml(estadoRedes)}</span>
+          ${ultima ? `<span>Última publicación: ${escapeHtml(ultima)}</span>` : ''}
+          ${proxima ? `<span>Próxima publicación: ${escapeHtml(proxima)}</span>` : ''}
+          <span>Canal preferente: ${escapeHtml(canalRedesTexto(p.redesCanalPreferente))}</span>
+          ${p.redesNotasPublicacion ? `<span>Nota: ${escapeHtml(p.redesNotasPublicacion)}</span>` : ''}
+        </div>
+        <div class="social-recommendation-actions">
+          <button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>
+          <button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">${textoBotonPublicado}</button>
+          <button class="btn-redes" onclick="abrirModalProgramacionRedes('${p._id}')">Programar próxima publicación</button>
         </div>
       </article>
     `;
@@ -3010,9 +3171,7 @@ function renderTablaPropiedades() {
     const botonRedes = p.visiblePublicamente !== false
       ? `<button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>`
       : '';
-    const textoBotonPublicado = propiedadPublicadaEnRedes(p)
-      ? 'Añadir nueva publicación'
-      : 'Marcar como publicado';
+    const textoBotonPublicado = textoBotonPublicacionRedes(p);
     const botonMarcarRedes = p.visiblePublicamente !== false
       ? `<button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">${textoBotonPublicado}</button>`
       : '';
@@ -3063,6 +3222,7 @@ async function marcarPropiedadPublicadaRedes(id, btn) {
     }
 
     renderRecomendacionesRedes();
+    renderCalendarioRedes();
     renderTablaPropiedades();
     alert('Propiedad marcada como publicada en redes.');
   } catch (error) {
@@ -3071,6 +3231,74 @@ async function marcarPropiedadPublicadaRedes(id, btn) {
       btn.disabled = false;
       btn.textContent = textoOriginal;
     }
+  }
+}
+
+function abrirModalProgramacionRedes(id) {
+  const propiedad = propiedadesAdmin.find(p => String(p._id) === String(id));
+  if (!propiedad) return alert('No se encontró la propiedad');
+
+  propiedadProgramacionRedesActual = propiedad;
+  document.getElementById('programacionRedesPropiedadId').value = propiedad._id;
+  document.getElementById('programacionRedesTitulo').textContent = propiedad.titulo || 'Planificación interna para redes';
+  document.getElementById('programacionRedesFecha').value = valorDatetimeLocal(propiedad.redesProximaPublicacionAt);
+  document.getElementById('programacionRedesCanal').value = propiedad.redesCanalPreferente || '';
+  document.getElementById('programacionRedesNotas').value = propiedad.redesNotasPublicacion || '';
+  document.getElementById('estadoProgramacionRedes').textContent = '';
+  document.getElementById('modalProgramacionRedes').classList.add('visible');
+}
+
+function cerrarModalProgramacionRedes(event) {
+  if (event && event.target.id !== 'modalProgramacionRedes') return;
+  document.getElementById('modalProgramacionRedes').classList.remove('visible');
+  propiedadProgramacionRedesActual = null;
+}
+
+async function guardarProgramacionRedes() {
+  const id = document.getElementById('programacionRedesPropiedadId').value;
+  const estado = document.getElementById('estadoProgramacionRedes');
+  const fecha = document.getElementById('programacionRedesFecha').value;
+  const canal = document.getElementById('programacionRedesCanal').value;
+  const notas = document.getElementById('programacionRedesNotas').value;
+
+  if (!id) return alert('No se encontró la propiedad');
+  if (!fecha) return alert('Selecciona una fecha para la próxima publicación.');
+
+  try {
+    if (estado) estado.textContent = 'Guardando programación...';
+    const res = await fetch(`/admin/propiedades/${id}/redes-programacion`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': 'Bearer ' + adminToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        redesProximaPublicacionAt: fecha,
+        redesCanalPreferente: canal,
+        redesNotasPublicacion: notas
+      })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) throw new Error(data.error || 'No se pudo guardar la programación');
+
+    const index = propiedadesAdmin.findIndex(p => String(p._id) === String(id));
+    if (index !== -1) {
+      propiedadesAdmin[index] = {
+        ...propiedadesAdmin[index],
+        ...data.propiedad
+      };
+    }
+
+    renderRecomendacionesRedes();
+    renderCalendarioRedes();
+    renderTablaPropiedades();
+    if (estado) estado.textContent = 'Programación guardada.';
+    alert('Programación de redes guardada.');
+    cerrarModalProgramacionRedes();
+  } catch (error) {
+    if (estado) estado.textContent = error.message || 'Error al guardar la programación';
+    alert(error.message || 'Error al guardar la programación');
   }
 }
 

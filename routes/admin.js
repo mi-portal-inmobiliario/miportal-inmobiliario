@@ -608,12 +608,83 @@ router.patch('/propiedades/:id/redes-publicado', requireAdmin, async (req, res) 
         $inc: { redesPublicadoCount: 1 },
         $set: {
           redesUltimaPublicacionAt: new Date(),
-          redesPublicadoManual: true
+          redesPublicadoManual: true,
+          redesProximaPublicacionAt: null
         }
       },
       {
         new: true,
         projection: {
+          redesPublicadoCount: 1,
+          redesUltimaPublicacionAt: 1,
+          redesPublicadoManual: 1,
+          redesProximaPublicacionAt: 1,
+          redesCanalPreferente: 1,
+          redesNotasPublicacion: 1
+        }
+      }
+    );
+
+    if (!propiedad) return res.status(404).json({ error: 'Propiedad no encontrada' });
+
+    res.json({
+      ok: true,
+      propiedad: {
+        _id: propiedad._id,
+        redesPublicadoCount: propiedad.redesPublicadoCount || 0,
+        redesUltimaPublicacionAt: propiedad.redesUltimaPublicacionAt || null,
+        redesPublicadoManual: propiedad.redesPublicadoManual === true,
+        redesProximaPublicacionAt: propiedad.redesProximaPublicacionAt || null,
+        redesCanalPreferente: propiedad.redesCanalPreferente || '',
+        redesNotasPublicacion: propiedad.redesNotasPublicacion || ''
+      }
+    });
+  } catch (err) {
+    console.error('Error marcando propiedad publicada en redes:', {
+      propiedadId: req.params.id,
+      error: err.message
+    });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.patch('/propiedades/:id/redes-programacion', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const { redesProximaPublicacionAt, redesCanalPreferente, redesNotasPublicacion } = req.body;
+    const canalesValidos = new Set(['facebook', 'instagram', 'ambos', '']);
+    const canal = redesCanalPreferente === undefined ? '' : String(redesCanalPreferente || '').trim().toLowerCase();
+
+    if (!canalesValidos.has(canal)) {
+      return res.status(400).json({ error: 'Canal de redes inválido' });
+    }
+
+    let fecha = null;
+    if (redesProximaPublicacionAt) {
+      fecha = new Date(redesProximaPublicacionAt);
+      if (Number.isNaN(fecha.getTime())) {
+        return res.status(400).json({ error: 'Fecha de programación inválida' });
+      }
+    }
+
+    const propiedad = await Propiedad.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          redesProximaPublicacionAt: fecha,
+          redesCanalPreferente: canal,
+          redesNotasPublicacion: limpiarTexto(redesNotasPublicacion || '', 500)
+        }
+      },
+      {
+        new: true,
+        projection: {
+          redesProximaPublicacionAt: 1,
+          redesCanalPreferente: 1,
+          redesNotasPublicacion: 1,
           redesPublicadoCount: 1,
           redesUltimaPublicacionAt: 1,
           redesPublicadoManual: 1
@@ -627,13 +698,16 @@ router.patch('/propiedades/:id/redes-publicado', requireAdmin, async (req, res) 
       ok: true,
       propiedad: {
         _id: propiedad._id,
+        redesProximaPublicacionAt: propiedad.redesProximaPublicacionAt || null,
+        redesCanalPreferente: propiedad.redesCanalPreferente || '',
+        redesNotasPublicacion: propiedad.redesNotasPublicacion || '',
         redesPublicadoCount: propiedad.redesPublicadoCount || 0,
         redesUltimaPublicacionAt: propiedad.redesUltimaPublicacionAt || null,
         redesPublicadoManual: propiedad.redesPublicadoManual === true
       }
     });
   } catch (err) {
-    console.error('Error marcando propiedad publicada en redes:', {
+    console.error('Error guardando programación de redes:', {
       propiedadId: req.params.id,
       error: err.message
     });

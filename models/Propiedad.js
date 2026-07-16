@@ -72,6 +72,9 @@ const PropiedadSchema = new mongoose.Schema({
   redesPublicadoCount: { type: Number, default: 0 },
   redesUltimaPublicacionAt: { type: Date, default: null },
   redesPublicadoManual: { type: Boolean, default: false },
+  redesProximaPublicacionAt: { type: Date, default: null },
+  redesNotasPublicacion: { type: String, default: "" },
+  redesCanalPreferente: { type: String, enum: ["facebook", "instagram", "ambos", ""], default: "" },
   fechaExpiracion: { type: Date, default: null },
   videoUrl: { type: String, default: "" },
 }, { timestamps: true });
