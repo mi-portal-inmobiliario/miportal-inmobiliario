@@ -553,9 +553,7 @@
       background: #ddd;
     }
 
-    @media (max-width: 768px) {
-      .stats-grid { grid-template-columns: repeat(2, 1fr); }
-    }
+    .mobile-only { display: none; }
 
     .btn-eliminar {
       padding: 5px 12px;
@@ -1234,19 +1232,47 @@
     }
 
     @media (max-width: 768px) {
-      .panel-header { padding: 18px 20px; }
-      .panel-body { margin: 20px auto; padding: 0 14px; }
-      .admin-nav { border-radius: 12px; margin-bottom: 18px; }
+      body { overflow-x: hidden; }
+      .panel-header {
+        padding: 16px 14px;
+        gap: 12px;
+      }
+      .panel-header h1 { font-size: 1.12rem; }
+      .btn-logout {
+        padding: 9px 12px;
+        min-height: 42px;
+      }
+      .panel-body { margin: 18px auto; padding: 0 12px; }
+      .admin-nav {
+        border-radius: 12px;
+        margin: -4px -2px 18px;
+        padding: 8px;
+        scroll-snap-type: x proximity;
+        -webkit-overflow-scrolling: touch;
+      }
+      .admin-nav a {
+        min-height: 42px;
+        display: inline-flex;
+        align-items: center;
+        scroll-snap-align: start;
+      }
       .admin-section { scroll-margin-top: 74px; margin-bottom: 24px; }
       .admin-section-title { align-items: flex-start; flex-direction: column; }
       .admin-help { white-space: normal; }
       .gestion-redes { padding: 16px; border-radius: 16px; }
-      .modal-overlay { padding: 12px; }
+      .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+      .stat-card { padding: 18px; border-radius: 12px; }
+      .stat-card .value { font-size: 1.6rem; }
+      .modal-overlay { padding: 8px; align-items: flex-start; }
       .modal-summary-grid { grid-template-columns: repeat(2, 1fr); }
-      .general-stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .general-stats-section { padding: 18px; border-radius: 14px; }
+      .general-stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .general-stat-card { padding: 14px; }
+      .general-stat-card .value { font-size: 1.35rem; }
       .general-tops-grid { grid-template-columns: 1fr; }
       .charts-grid { grid-template-columns: 1fr; }
-      .chart-box { height: 220px; }
+      .charts-section { padding: 14px; }
+      .chart-box { height: 260px; min-height: 240px; }
       .section-head { align-items: flex-start; flex-direction: column; }
       .section-actions { justify-content: flex-start; }
       .modal-header-actions { justify-content: flex-start; }
@@ -1258,26 +1284,154 @@
       .admin-tools-actions { width: 100%; flex-direction: column; }
       .social-generator-head { flex-direction: column; }
       .social-generator-form { grid-template-columns: 1fr; }
+      .social-generator,
+      .social-recommendations,
+      .admin-tools-card {
+        padding: 16px;
+        border-radius: 14px;
+      }
+      .social-generator-form select { min-height: 46px; }
       .social-recommendations-head { flex-direction: column; }
       .social-recommendations-grid { grid-template-columns: 1fr; }
+      .social-recommendation-card { min-height: 0; }
       .social-recommendation-actions { flex-direction: column; }
       .social-recommendation-actions .btn-redes { width: 100%; }
-      .btn-post-semanal { width: 100%; }
-      .tabla-header { align-items: flex-start; }
-      .tabla-actions { min-width: 220px; }
+      .btn-post-semanal,
+      .btn-redes,
+      .btn-estadisticas,
+      .btn-eliminar,
+      .btn-exportar,
+      .btn-acciones {
+        width: 100%;
+        min-height: 44px;
+        text-align: center;
+        justify-content: center;
+      }
+      .tabla-header {
+        align-items: flex-start;
+        padding: 16px;
+      }
+      .propiedades-toolbar { padding: 12px 16px; align-items: flex-start; }
+      .propiedades-toolbar select { width: 100%; min-height: 44px; }
+      .tabla-scroll { overflow: visible; }
+      .tabla-scroll table,
+      .tabla-wrap.users .tabla-scroll table {
+        min-width: 0;
+      }
+      .tabla-wrap > .tabla-scroll table,
+      .tabla-wrap > .tabla-scroll thead,
+      .tabla-wrap > .tabla-scroll tbody,
+      .tabla-wrap > .tabla-scroll tr,
+      .tabla-wrap > .tabla-scroll td {
+        display: block;
+        width: 100%;
+      }
+      .tabla-wrap > .tabla-scroll thead { display: none; }
+      .tabla-wrap > .tabla-scroll tbody {
+        display: grid;
+        gap: 12px;
+        padding: 12px;
+        background: #f8faf7;
+      }
+      .tabla-wrap > .tabla-scroll tr {
+        border: 1px solid #e5e7eb;
+        border-radius: 14px;
+        background: #fff;
+        overflow: visible;
+        box-shadow: 0 8px 18px rgba(0,0,0,0.035);
+      }
+      .tabla-wrap > .tabla-scroll td {
+        position: relative;
+        padding: 11px 14px 11px 112px;
+        min-height: 44px;
+        border-bottom: 1px solid #f0f0f0;
+        overflow-wrap: anywhere;
+      }
+      .tabla-wrap > .tabla-scroll td::before {
+        content: attr(data-label);
+        position: absolute;
+        left: 14px;
+        top: 12px;
+        width: 82px;
+        color: #8a8f98;
+        font-size: 0.68rem;
+        font-weight: 800;
+        line-height: 1.2;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+      }
+      .tabla-wrap > .tabla-scroll td:last-child { border-bottom: none; }
+      .tabla-title-cell,
+      .tabla-muted-cell {
+        max-width: none;
+      }
+      .cell-title-text {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .tabla-actions {
+        min-width: 0;
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .tabla-actions select {
+        width: 100%;
+        min-height: 44px;
+      }
+      .mobile-only { display: inline; }
       .social-versions { grid-template-columns: 1fr; }
       .social-versions.property .social-version-card:first-child { grid-column: auto; }
       .social-versions.compact .social-version-card:nth-child(3) { grid-column: auto; }
-      .modal-admin { max-height: calc(100vh - 24px); }
+      .modal-admin {
+        width: 100%;
+        max-height: calc(100vh - 16px);
+        border-radius: 14px;
+      }
       .modal-admin-header { flex-direction: column; }
+      .modal-admin-body { padding: 16px; }
+      .modal-header-actions { width: 100%; }
+      .modal-close { width: 44px; height: 44px; }
+      .social-version-head {
+        align-items: flex-start;
+        flex-direction: column;
+      }
       .social-version-card .social-textarea {
-        height: 340px;
-        min-height: 300px;
+        height: 300px;
+        min-height: 260px;
+      }
+      .social-versions.property .social-version-card:first-child .social-textarea,
+      .social-versions.property .social-version-card:nth-child(2) .social-textarea,
+      .social-versions.property .social-version-card:nth-child(3) .social-textarea {
+        height: 260px;
+        min-height: 220px;
       }
       .social-versions.compact .social-version-card .social-textarea {
         height: 280px;
         min-height: 240px;
       }
+    }
+
+    @media (max-width: 430px) {
+      .panel-header { flex-direction: column; align-items: stretch; }
+      .panel-header h1 { text-align: center; }
+      .stats-grid,
+      .general-stats-grid,
+      .modal-summary-grid {
+        grid-template-columns: 1fr;
+      }
+      .chart-box { height: 280px; }
+      .tabla-wrap > .tabla-scroll td {
+        padding: 34px 14px 12px;
+      }
+      .tabla-wrap > .tabla-scroll td::before {
+        top: 12px;
+        width: auto;
+      }
+      .trial-info { font-size: 0.78rem; }
     }
 
   </style>
@@ -2305,19 +2459,20 @@ function renderUsuarios(usuarios) {
     const estaActivo = u.activo !== false;
     return `
       <tr>
-        <td class="tabla-title-cell">${escapeHtml(u.nombre || 'Sin nombre')}</td>
-        <td class="tabla-muted-cell">${escapeHtml(u.email || '—')}</td>
-        <td>
+        <td class="tabla-title-cell" data-label="Nombre"><span class="cell-title-text">${escapeHtml(u.nombre || 'Sin nombre')}</span></td>
+        <td class="tabla-muted-cell" data-label="Email">${escapeHtml(u.email || '—')}</td>
+        <td data-label="Plan">
           <span class="badge-plan ${estaActivo ? (esPago ? 'badge-pago' : 'badge-gratis') : 'badge-inactivo'}">
             ${estaActivo ? (u.plan || 'gratis') : 'desactivado'}
           </span>
           ${renderInfoVipTrial(u)}
         </td>
-        <td>
+        <td data-label="Verificado">
           <span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span>
+          <span class="mobile-only">${u.verificado ? ' Verificado' : ' Pendiente'}</span>
         </td>
-        <td>${fecha}</td>
-        <td>
+        <td data-label="Registro">${fecha}</td>
+        <td data-label="Acción">
           <div class="tabla-actions">
             <select onchange="cambiarPlan('${u._id}', this.value)"
               ${estaActivo ? '' : 'disabled'}
@@ -3445,18 +3600,18 @@ function renderTablaPropiedades() {
       : '';
     return `
       <tr>
-        <td class="tabla-title-cell">${escapeHtml(p.titulo || 'Sin título')}</td>
-        <td class="tabla-muted-cell">${escapeHtml(p.direccion || '—')}</td>
-        <td>${formatoPrecioAdmin(p.precio)} €</td>
-        <td>${tipo}</td>
-        <td>${fecha}</td>
-        <td>${renderEstadoRedesPropiedad(p)}</td>
-        <td>
+        <td class="tabla-title-cell" data-label="Título"><span class="cell-title-text">${escapeHtml(p.titulo || 'Sin título')}</span></td>
+        <td class="tabla-muted-cell" data-label="Dirección">${escapeHtml(p.direccion || '—')}</td>
+        <td data-label="Precio">${formatoPrecioAdmin(p.precio)} €</td>
+        <td data-label="Operación">${tipo}</td>
+        <td data-label="Fecha">${fecha}</td>
+        <td data-label="Redes">${renderEstadoRedesPropiedad(p)}</td>
+        <td data-label="Acción">
           <div class="tabla-actions">
-          <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
-          ${botonRedes}
-          ${botonMarcarRedes}
-          <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
+            <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
+            ${botonRedes}
+            ${botonMarcarRedes}
+            <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
           </div>
         </td>
       </tr>
