@@ -1498,6 +1498,7 @@ let chartGeneralContactos = null;
 let chartUsuarioVisitas = null;
 let chartUsuarioContactos = null;
 let propiedadesAdmin = [];
+const FACEBOOK_PAGE_URL = 'https://www.facebook.com/profile.php?id=61589930586330';
 let urlFacebookPropiedadActual = 'https://www.facebook.com/';
 
 const TIPOS_CON_PLANTA_ADMIN = [
@@ -3212,7 +3213,7 @@ function mostrarAvisoRedes(mensaje) {
 
 async function abrirFacebookConTexto(textareaId, mensaje) {
   await copiarTextoRedesCampo(textareaId, 'Facebook');
-  window.open('https://www.facebook.com/HomeClick24', '_blank', 'noopener');
+  window.open(FACEBOOK_PAGE_URL, '_blank', 'noopener');
   mostrarAvisoRedes(mensaje);
 }
 
