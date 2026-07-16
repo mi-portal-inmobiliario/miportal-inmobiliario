@@ -381,6 +381,28 @@
     .badge-pago { background: #f0f9e8; color: #5a9e2f; }
     .badge-inactivo { background: #fee2e2; color: #b91c1c; }
 
+    .trial-info {
+      margin-top: 8px;
+      display: grid;
+      gap: 3px;
+      color: #666;
+      font-size: 0.74rem;
+      line-height: 1.35;
+    }
+
+    .trial-info strong {
+      color: #2f7d32;
+      font-weight: 700;
+    }
+
+    .trial-info.warning strong {
+      color: #b45309;
+    }
+
+    .trial-info.expired strong {
+      color: #b91c1c;
+    }
+
     .badge-verificado {
       display: inline-block;
       width: 8px;
@@ -2026,6 +2048,35 @@ function usuarioTieneSuscripcionActiva(u) {
   return Boolean(u.stripeSubscriptionId) && u.subscriptionStatus === 'active';
 }
 
+function diasRestantesTrial(u = {}) {
+  if (!u.trialEndDate) return null;
+  const fin = new Date(u.trialEndDate).getTime();
+  if (!Number.isFinite(fin)) return null;
+  return Math.ceil((fin - Date.now()) / (24 * 60 * 60 * 1000));
+}
+
+function renderInfoVipTrial(u = {}) {
+  if (u.plan !== 'vip_trial') return '';
+
+  const inicio = u.trialStartDate ? formatearFecha(u.trialStartDate) : 'Sin fecha';
+  const fin = u.trialEndDate ? formatearFecha(u.trialEndDate) : 'Sin fecha';
+  const dias = diasRestantesTrial(u);
+  const sinFechas = !u.trialStartDate || !u.trialEndDate;
+  const vencida = dias !== null && dias <= 0;
+  const estado = sinFechas
+    ? 'Trial sin fechas'
+    : (vencida ? 'Prueba vencida' : `${dias} día${dias === 1 ? '' : 's'} restante${dias === 1 ? '' : 's'}`);
+  const clase = sinFechas ? 'warning' : (vencida ? 'expired' : '');
+
+  return `
+    <div class="trial-info ${clase}">
+      <strong>${estado}</strong>
+      <span>Inicio: ${inicio}</span>
+      <span>Fin: ${fin}</span>
+    </div>
+  `;
+}
+
 function renderMenuAccionesUsuario(u, estaActivo) {
   const tieneSuscripcionActiva = usuarioTieneSuscripcionActiva(u);
   return `
@@ -2045,6 +2096,9 @@ function renderMenuAccionesUsuario(u, estaActivo) {
           <button onclick="cancelarSuscripcion('${u._id}', this); cerrarMenusAcciones();" ${u.cancelAtPeriodEnd ? 'disabled' : ''}>
             ${u.cancelAtPeriodEnd ? 'Cancelación programada' : 'Cancelar suscripción'}
           </button>
+        ` : ''}
+        ${u.plan === 'vip_trial' ? `
+          <button class="danger" onclick="finalizarVipTrial('${u._id}'); cerrarMenusAcciones();">Finalizar prueba VIP</button>
         ` : ''}
       </div>
     </div>
@@ -2066,6 +2120,7 @@ function renderUsuarios(usuarios) {
           <span class="badge-plan ${estaActivo ? (esPago ? 'badge-pago' : 'badge-gratis') : 'badge-inactivo'}">
             ${estaActivo ? (u.plan || 'gratis') : 'desactivado'}
           </span>
+          ${renderInfoVipTrial(u)}
         </td>
         <td>
           <span class="${u.verificado ? 'badge-verificado' : 'badge-noverificado'}"></span>
@@ -2848,6 +2903,26 @@ async function reactivarUsuario(usuarioId) {
   } else {
     const data = await res.json().catch(() => ({}));
     alert(data.error || 'Error al reactivar el usuario');
+  }
+}
+
+async function finalizarVipTrial(usuarioId) {
+  const ok = confirm('¿Finalizar la prueba VIP y pasar este usuario al plan gratis? Sus anuncios se conservarán, pero dejarán de verse públicamente.');
+  if (!ok) return;
+
+  const res = await fetch(`/admin/usuarios/${usuarioId}/finalizar-vip-trial`, {
+    method: 'PATCH',
+    headers: { 'Authorization': 'Bearer ' + adminToken }
+  });
+
+  if (res.ok) {
+    const data = await res.json().catch(() => ({}));
+    alert(`Prueba VIP finalizada. Propiedades ocultadas: ${data.propiedadesOcultadas || 0}.`);
+    await cargarUsuarios();
+    await cargarStats();
+  } else {
+    const data = await res.json().catch(() => ({}));
+    alert(data.error || 'Error al finalizar la prueba VIP');
   }
 }
 
@@ -4098,7 +4173,7 @@ async function abrirInstagramConTexto(textareaId, mensaje) {
 async function abrirFacebookPropiedad() {
   await abrirFacebookConTexto(
     'textoRedesFacebookPropiedad',
-    'Texto copiado. Pégalo en una nueva publicación de Facebook.'
+    'Texto copiado. Pégalo manualmente en Facebook.'
   );
 }
 
@@ -4112,7 +4187,7 @@ async function abrirInstagramPropiedad() {
 async function abrirFacebookPostSemanal() {
   await abrirFacebookConTexto(
     'textoRedesFacebook',
-    'Texto copiado. Pégalo en una nueva publicación de Facebook.'
+    'Texto copiado. Pégalo manualmente en Facebook.'
   );
 }
 

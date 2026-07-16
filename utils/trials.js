@@ -3,6 +3,32 @@ import Propiedad from "../models/Propiedad.js";
 import { enviarCorreo } from "./email.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
+const VIP_TRIAL_DAYS = 30;
+
+export function usuarioTieneStripeActivo(usuario) {
+  const status = String(usuario?.subscriptionStatus || "").toLowerCase();
+  return Boolean(usuario?.stripeSubscriptionId) && ["active", "trialing"].includes(status);
+}
+
+export function crearDatosVipTrial(now = new Date()) {
+  const trialStartDate = new Date(now);
+  const trialEndDate = new Date(trialStartDate.getTime() + VIP_TRIAL_DAYS * DAY_MS);
+  return {
+    plan: "vip_trial",
+    planActivo: true,
+    planFechaFin: null,
+    trialAccepted: true,
+    trialStartDate,
+    trialEndDate,
+    trialReminderSent: false,
+    trialReminders: {
+      sevenDays: false,
+      threeDays: false,
+      lastDay: false,
+      expired: false
+    }
+  };
+}
 
 function ensureTrialReminders(usuario) {
   usuario.trialReminders = {
@@ -68,6 +94,80 @@ async function sendTrialReminder(usuario, stage, mailer = enviarCorreo) {
   return true;
 }
 
+export async function expirarVipTrialUsuario(usuario, { mailer = enviarCorreo, enviarEmail = true } = {}) {
+  if (!usuario || usuario.plan !== "vip_trial") {
+    return { ok: false, reason: "not_vip_trial" };
+  }
+
+  if (usuarioTieneStripeActivo(usuario)) {
+    return { ok: false, reason: "stripe_active" };
+  }
+
+  if (enviarEmail) {
+    await sendTrialReminder(usuario, "expired", mailer);
+  }
+
+  ensureTrialReminders(usuario);
+  usuario.plan = "gratis";
+  usuario.planActivo = false;
+  usuario.planFechaFin = null;
+  usuario.trialAccepted = false;
+  usuario.trialReminderSent = true;
+  usuario.trialReminders.expired = true;
+  await usuario.save();
+
+  const propiedadesActualizadas = await Propiedad.updateMany(
+    { usuarioId: usuario._id },
+    { visiblePublicamente: false }
+  );
+
+  return {
+    ok: true,
+    propiedadesOcultadas: propiedadesActualizadas.modifiedCount || 0
+  };
+}
+
+async function normalizarVipTrialsSinFechas(now = new Date(), mailer = enviarCorreo) {
+  const usuarios = await Usuario.find({
+    plan: "vip_trial",
+    $or: [
+      { trialEndDate: { $exists: false } },
+      { trialEndDate: null }
+    ]
+  });
+
+  let normalizados = 0;
+  let expirados = 0;
+
+  for (const usuario of usuarios) {
+    if (usuarioTieneStripeActivo(usuario)) continue;
+
+    const base = usuario.trialStartDate || usuario.updatedAt || usuario.createdAt || now;
+    const trialStartDate = new Date(base);
+    const trialEndDate = new Date(trialStartDate.getTime() + VIP_TRIAL_DAYS * DAY_MS);
+
+    usuario.trialAccepted = true;
+    usuario.trialStartDate = usuario.trialStartDate || trialStartDate;
+    usuario.trialEndDate = trialEndDate;
+    ensureTrialReminders(usuario);
+
+    if (trialEndDate <= now) {
+      await usuario.save();
+      const resultado = await expirarVipTrialUsuario(usuario, { mailer, enviarEmail: true });
+      if (resultado.ok) expirados += 1;
+      continue;
+    }
+
+    usuario.planActivo = true;
+    usuario.trialReminderSent = false;
+    usuario.trialReminders.expired = false;
+    await usuario.save();
+    normalizados += 1;
+  }
+
+  return { normalizados, expirados };
+}
+
 export async function sendVipTrialReminders(now = new Date(), mailer = enviarCorreo) {
   const usuarios = await Usuario.find({
     trialAccepted: true,
@@ -92,27 +192,20 @@ export async function sendVipTrialReminders(now = new Date(), mailer = enviarCor
 }
 
 export async function expireVipTrials(now = new Date(), mailer = enviarCorreo) {
+  const legacy = await normalizarVipTrialsSinFechas(now, mailer);
   const expirados = await Usuario.find({
     plan: "vip_trial",
-    trialAccepted: true,
     trialEndDate: { $lte: now }
   });
 
+  let totalExpirados = legacy.expirados;
+
   for (const usuario of expirados) {
-    await sendTrialReminder(usuario, "expired", mailer);
-
-    usuario.plan = "gratis";
-    usuario.planActivo = false;
-    usuario.planFechaFin = null;
-    await usuario.save();
-
-    await Propiedad.updateMany(
-      { usuarioId: usuario._id },
-      { visiblePublicamente: false }
-    );
+    const resultado = await expirarVipTrialUsuario(usuario, { mailer, enviarEmail: true });
+    if (resultado.ok) totalExpirados += 1;
   }
 
-  return expirados.length;
+  return totalExpirados;
 }
 
 export function scheduleVipTrialExpiration() {

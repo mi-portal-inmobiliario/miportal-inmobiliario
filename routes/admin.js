@@ -7,6 +7,7 @@ import Propiedad from '../models/Propiedad.js';
 import EstadisticaAnuncio from '../models/EstadisticaAnuncio.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { normalizeSpanishPrice } from '../utils/prices.js';
+import { crearDatosVipTrial, expirarVipTrialUsuario } from '../utils/trials.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -122,12 +123,12 @@ async function enviarInvitacionVipTrial(usuario) {
       <div style="font-family:Inter,Arial,sans-serif;max-width:560px;margin:auto;padding:32px;background:#fff;">
         <h2 style="color:#7cc242;margin:0 0 18px;">HomeClick24</h2>
         <p>Hola <strong>${usuario.nombre || ""}</strong>,</p>
-        <p>Has sido invitado a una <strong>prueba gratuita VIP de 30 días</strong> en HomeClick24.</p>
-        <p>La prueba empezará cuando aceptes las condiciones desde tu cuenta.</p>
+        <p>Tu <strong>prueba gratuita VIP de 30 días</strong> ya está activa en HomeClick24.</p>
+        <p>Puedes revisar las condiciones de la prueba desde tu cuenta.</p>
         <a href="${enlace}" style="display:inline-block;margin:22px 0;padding:14px 24px;background:#7cc242;color:#fff;border-radius:8px;text-decoration:none;font-weight:700;">
-          Aceptar prueba VIP
+          Ver prueba VIP
         </a>
-        <p style="color:#777;font-size:0.9rem;">Por seguridad, inicia sesión con este mismo email antes de aceptar la prueba.</p>
+        <p style="color:#777;font-size:0.9rem;">Por seguridad, inicia sesión con este mismo email para revisar tu prueba.</p>
       </div>
     `
   });
@@ -399,6 +400,44 @@ router.patch('/usuarios/:id/reactivar', requireAdmin, async (req, res) => {
     res.json({ ok: true });
   } catch (err) {
     console.error('Error reactivando usuario desde admin:', {
+      usuarioId: req.params.id,
+      error: err.message
+    });
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Finalizar manualmente una prueba VIP
+router.patch('/usuarios/:id/finalizar-vip-trial', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID de usuario inválido' });
+    }
+
+    const usuario = await Usuario.findById(req.params.id);
+    if (!usuario) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (esUsuarioAdminPrincipal(usuario)) {
+      return res.status(403).json({ error: 'No puedes modificar el usuario administrador conectado.' });
+    }
+    if (usuario.plan !== 'vip_trial') {
+      return res.status(400).json({ error: 'El usuario no tiene una prueba VIP activa.' });
+    }
+
+    const resultado = await expirarVipTrialUsuario(usuario, { enviarEmail: false });
+    if (!resultado.ok) {
+      return res.status(409).json({
+        error: resultado.reason === 'stripe_active'
+          ? 'Este usuario tiene una suscripción activa en Stripe. No se finalizará automáticamente.'
+          : 'No se pudo finalizar la prueba VIP.'
+      });
+    }
+
+    res.json({
+      ok: true,
+      propiedadesOcultadas: resultado.propiedadesOcultadas || 0
+    });
+  } catch (err) {
+    console.error('Error finalizando prueba VIP desde admin:', {
       usuarioId: req.params.id,
       error: err.message
     });
@@ -811,20 +850,7 @@ router.put('/usuarios/:id/plan', requireAdmin, async (req, res) => {
         }
       });
     } else if (plan === 'vip_trial') {
-      Object.assign(update, {
-        planActivo: false,
-        trialAccepted: false,
-        trialStartDate: null,
-        trialEndDate: null,
-        trialReminderSent: false,
-        trialReminders: {
-          sevenDays: false,
-          threeDays: false,
-          lastDay: false,
-          expired: false
-        },
-        planFechaFin: null
-      });
+      Object.assign(update, crearDatosVipTrial());
     } else {
       Object.assign(update, {
         trialAccepted: false,
