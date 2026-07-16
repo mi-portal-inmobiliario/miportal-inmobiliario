@@ -2816,8 +2816,11 @@ function renderTablaPropiedades() {
     const botonRedes = p.visiblePublicamente !== false
       ? `<button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>`
       : '';
+    const textoBotonPublicado = propiedadPublicadaEnRedes(p)
+      ? 'Añadir nueva publicación'
+      : 'Marcar como publicado';
     const botonMarcarRedes = p.visiblePublicamente !== false
-      ? `<button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">Marcar como publicado</button>`
+      ? `<button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">${textoBotonPublicado}</button>`
       : '';
     return `
       <tr>
