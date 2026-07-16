@@ -1246,6 +1246,8 @@
               <h4>Instagram</h4>
               <div class="admin-tools-actions">
                 <button onclick="copiarTextoRedesCampo('textoRedesInstagramPropiedad', 'Instagram')" class="btn-exportar">Copiar Instagram</button>
+                <button onclick="descargarInstagramPropiedad('feed')" class="btn-exportar">Descargar imagen Instagram</button>
+                <button onclick="descargarInstagramPropiedad('story')" class="btn-exportar">Descargar historia Instagram</button>
                 <button onclick="abrirInstagramPropiedad()" class="btn-exportar">Abrir Instagram</button>
               </div>
             </div>
@@ -1500,6 +1502,7 @@ let chartUsuarioContactos = null;
 let propiedadesAdmin = [];
 const FACEBOOK_PAGE_URL = 'https://www.facebook.com/profile.php?id=61589930586330';
 let urlFacebookPropiedadActual = 'https://www.facebook.com/';
+let propiedadRedesActual = null;
 
 const TIPOS_CON_PLANTA_ADMIN = [
   'piso', 'apartamento', 'atico', 'duplex', 'estudio',
@@ -2965,6 +2968,231 @@ function crearPublicacionInstagramPropiedad(propiedad) {
   ].filter(Boolean).join('\n\n');
 }
 
+function urlImagenAbsolutaAdmin(url = '') {
+  const limpia = String(url || '').trim();
+  if (!limpia) return `${window.location.origin}/HomeClick-full.png`;
+  if (/^https?:\/\//i.test(limpia)) return limpia.replace(/^http:\/\//i, 'https://');
+  return new URL(limpia.startsWith('/') ? limpia : `/${limpia}`, window.location.origin).href;
+}
+
+function imagenPrincipalInstagram(propiedad = {}) {
+  const primera = Array.isArray(propiedad.imagenes) ? propiedad.imagenes.find(Boolean) : '';
+  return urlImagenAbsolutaAdmin(primera || '/HomeClick-full.png');
+}
+
+function cargarImagenCanvas(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+
+async function cargarImagenConFallback(src) {
+  try {
+    return await cargarImagenCanvas(src);
+  } catch (error) {
+    return cargarImagenCanvas(`${window.location.origin}/HomeClick-full.png`);
+  }
+}
+
+function recortarTextoCanvas(ctx, texto, maxWidth) {
+  const limpio = String(texto || '').trim();
+  if (ctx.measureText(limpio).width <= maxWidth) return limpio;
+
+  let recortado = limpio;
+  while (recortado.length > 3 && ctx.measureText(`${recortado}...`).width > maxWidth) {
+    recortado = recortado.slice(0, -1);
+  }
+  return `${recortado.trim()}...`;
+}
+
+function envolverTextoCanvas(ctx, texto, maxWidth, maxLines = 2) {
+  const palabras = String(texto || '').trim().split(/\s+/).filter(Boolean);
+  const lineas = [];
+  let actual = '';
+
+  palabras.forEach(palabra => {
+    const intento = actual ? `${actual} ${palabra}` : palabra;
+    if (ctx.measureText(intento).width <= maxWidth) {
+      actual = intento;
+      return;
+    }
+    if (actual) lineas.push(actual);
+    actual = palabra;
+  });
+  if (actual) lineas.push(actual);
+
+  if (lineas.length <= maxLines) return lineas;
+  const visibles = lineas.slice(0, maxLines);
+  visibles[maxLines - 1] = recortarTextoCanvas(ctx, visibles[maxLines - 1], maxWidth);
+  return visibles;
+}
+
+function dibujarImagenCover(ctx, img, x, y, width, height) {
+  const ratio = Math.max(width / img.width, height / img.height);
+  const drawWidth = img.width * ratio;
+  const drawHeight = img.height * ratio;
+  const dx = x + (width - drawWidth) / 2;
+  const dy = y + (height - drawHeight) / 2;
+  ctx.drawImage(img, dx, dy, drawWidth, drawHeight);
+}
+
+function dibujarRectRedondeado(ctx, x, y, width, height, radius) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.arcTo(x + width, y, x + width, y + height, radius);
+  ctx.arcTo(x + width, y + height, x, y + height, radius);
+  ctx.arcTo(x, y + height, x, y, radius);
+  ctx.arcTo(x, y, x + width, y, radius);
+  ctx.closePath();
+}
+
+function datosCreatividadInstagram(propiedad = {}) {
+  const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
+  const precio = formatearPrecioRedes(propiedad.precio, operacion) || 'Consultar precio';
+  const zona = zonaPropiedadRedes(propiedad);
+  const caracteristicas = [
+    propiedad.habitaciones ? `${propiedad.habitaciones} hab.` : '',
+    propiedad.banos ? `${propiedad.banos} baños` : '',
+    propiedad.superficie ? `${propiedad.superficie} m²` : ''
+  ].filter(Boolean).join(' · ');
+
+  return {
+    titulo: propiedad.titulo || 'Nuevo inmueble en HomeClick24',
+    operacion: operacion === 'alquiler' ? 'ALQUILER' : 'VENTA',
+    precio,
+    zona,
+    caracteristicas,
+    imagen: imagenPrincipalInstagram(propiedad)
+  };
+}
+
+function nombreArchivoInstagram(propiedad = {}, formato = 'feed') {
+  const base = typeof crearSlugSeo === 'function'
+    ? crearSlugSeo(propiedad.titulo || 'propiedad', 54)
+    : String(propiedad.titulo || 'propiedad').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return `homeclick24-${formato}-${base || 'propiedad'}.png`;
+}
+
+async function generarCreatividadInstagram(propiedad, formato = 'feed') {
+  const esStory = formato === 'story';
+  const width = 1080;
+  const height = esStory ? 1920 : 1350;
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  const datos = datosCreatividadInstagram(propiedad);
+  const [foto, logo] = await Promise.all([
+    cargarImagenConFallback(datos.imagen),
+    cargarImagenConFallback(`${window.location.origin}/HomeClick-full.png`)
+  ]);
+
+  ctx.fillStyle = '#1a1a1a';
+  ctx.fillRect(0, 0, width, height);
+  dibujarImagenCover(ctx, foto, 0, 0, width, height);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, 'rgba(0,0,0,0.08)');
+  gradient.addColorStop(0.45, 'rgba(0,0,0,0.18)');
+  gradient.addColorStop(1, 'rgba(0,0,0,0.82)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  const margin = 72;
+  const panelHeight = esStory ? 650 : 450;
+  const panelY = height - panelHeight - 64;
+  dibujarRectRedondeado(ctx, margin, panelY, width - margin * 2, panelHeight, 34);
+  ctx.fillStyle = 'rgba(255,255,255,0.94)';
+  ctx.fill();
+
+  const logoWidth = 260;
+  const logoHeight = logo.height ? logoWidth * (logo.height / logo.width) : 86;
+  ctx.drawImage(logo, margin + 34, panelY + 30, logoWidth, logoHeight);
+
+  ctx.fillStyle = '#7cc242';
+  dibujarRectRedondeado(ctx, width - margin - 250, panelY + 34, 216, 58, 29);
+  ctx.fill();
+  ctx.fillStyle = '#fff';
+  ctx.font = '800 30px DM Sans, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.fillText(datos.operacion, width - margin - 142, panelY + 73);
+  ctx.textAlign = 'left';
+
+  ctx.fillStyle = '#1a1a1a';
+  ctx.font = `800 ${esStory ? 58 : 52}px DM Sans, Arial, sans-serif`;
+  const lineasTitulo = envolverTextoCanvas(ctx, datos.titulo, width - margin * 2 - 68, esStory ? 3 : 2);
+  let y = panelY + (esStory ? 160 : 148);
+  lineasTitulo.forEach(linea => {
+    ctx.fillText(linea, margin + 34, y);
+    y += esStory ? 68 : 62;
+  });
+
+  ctx.fillStyle = '#5a9e2f';
+  ctx.font = `800 ${esStory ? 54 : 48}px DM Sans, Arial, sans-serif`;
+  ctx.fillText(datos.precio, margin + 34, y + 24);
+
+  ctx.fillStyle = '#444';
+  ctx.font = `600 ${esStory ? 34 : 30}px DM Sans, Arial, sans-serif`;
+  const detalleY = y + (esStory ? 92 : 84);
+  if (datos.zona) ctx.fillText(`Zona: ${recortarTextoCanvas(ctx, datos.zona, width - margin * 2 - 68)}`, margin + 34, detalleY);
+  if (datos.caracteristicas) ctx.fillText(datos.caracteristicas, margin + 34, detalleY + 48);
+
+  ctx.fillStyle = '#1a1a1a';
+  ctx.font = `800 ${esStory ? 34 : 30}px DM Sans, Arial, sans-serif`;
+  ctx.fillText('Ver anuncio en HomeClick24', margin + 34, panelY + panelHeight - 54);
+
+  ctx.fillStyle = '#7cc242';
+  ctx.beginPath();
+  ctx.arc(width - margin - 54, panelY + panelHeight - 64, 24, 0, Math.PI * 2);
+  ctx.fill();
+
+  return canvas;
+}
+
+function descargarCanvas(canvas, filename) {
+  return new Promise((resolve, reject) => {
+    canvas.toBlob(blob => {
+      if (!blob) return reject(new Error('No se pudo generar la imagen'));
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      resolve();
+    }, 'image/png', 0.94);
+  });
+}
+
+async function descargarInstagramPropiedad(formato = 'feed') {
+  if (!propiedadRedesActual) {
+    alert('Genera primero una publicación de propiedad.');
+    return;
+  }
+
+  const estado = document.getElementById('estadoCopiaRedes');
+  try {
+    if (estado) estado.textContent = 'Generando imagen de Instagram...';
+    const canvas = await generarCreatividadInstagram(propiedadRedesActual, formato);
+    await descargarCanvas(canvas, nombreArchivoInstagram(propiedadRedesActual, formato));
+    if (estado) {
+      estado.textContent = formato === 'story'
+        ? 'Historia de Instagram descargada.'
+        : 'Imagen de Instagram descargada.';
+    }
+  } catch (error) {
+    console.error('No se pudo generar la imagen de Instagram:', error);
+    if (estado) estado.textContent = 'No se pudo generar la imagen. Prueba con otra propiedad o revisa la foto principal.';
+    alert('No se pudo generar la imagen de Instagram.');
+  }
+}
+
 function textoFrasePostSemanal(texto = '') {
   const limpio = String(texto).trim().replace(/\s+/g, ' ');
   return limpio ? limpio.charAt(0).toUpperCase() + limpio.slice(1) : '';
@@ -3189,6 +3417,7 @@ function generarTextoRedes(id) {
     subtitulo: 'Texto listo para revisar, copiar y pegar manualmente',
     modo: 'simple'
   });
+  propiedadRedesActual = propiedad;
   urlFacebookPropiedadActual = urlPropiedadSeoAdmin(propiedad);
   document.getElementById('textoRedesFacebookPropiedad').value = crearPublicacionFacebookPropiedad(propiedad);
   document.getElementById('textoRedesInstagramPropiedad').value = crearPublicacionInstagramPropiedad(propiedad);
