@@ -3009,8 +3009,31 @@ function recortarTextoCanvas(ctx, texto, maxWidth) {
   return `${recortado.trim()}...`;
 }
 
+function partirPalabraLargaCanvas(ctx, palabra, maxWidth) {
+  const partes = [];
+  let restante = String(palabra || '');
+
+  while (restante && ctx.measureText(restante).width > maxWidth) {
+    let corte = restante.length;
+    while (corte > 1 && ctx.measureText(`${restante.slice(0, corte)}-`).width > maxWidth) {
+      corte -= 1;
+    }
+    partes.push(`${restante.slice(0, corte)}-`);
+    restante = restante.slice(corte);
+  }
+
+  if (restante) partes.push(restante);
+  return partes;
+}
+
 function envolverTextoCanvas(ctx, texto, maxWidth, maxLines = 2) {
-  const palabras = String(texto || '').trim().split(/\s+/).filter(Boolean);
+  const palabras = String(texto || '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .flatMap(palabra => ctx.measureText(palabra).width > maxWidth
+      ? partirPalabraLargaCanvas(ctx, palabra, maxWidth)
+      : [palabra]);
   const lineas = [];
   let actual = '';
 
@@ -3025,9 +3048,10 @@ function envolverTextoCanvas(ctx, texto, maxWidth, maxLines = 2) {
   });
   if (actual) lineas.push(actual);
 
-  if (lineas.length <= maxLines) return lineas;
   const visibles = lineas.slice(0, maxLines);
-  visibles[maxLines - 1] = recortarTextoCanvas(ctx, visibles[maxLines - 1], maxWidth);
+  if (lineas.length > maxLines) {
+    visibles[maxLines - 1] = recortarTextoCanvas(ctx, visibles[maxLines - 1], maxWidth);
+  }
   return visibles;
 }
 
@@ -3054,18 +3078,18 @@ function datosCreatividadInstagram(propiedad = {}) {
   const operacion = propiedad.tipoOperacion === 'alquiler' ? 'alquiler' : 'venta';
   const precio = formatearPrecioRedes(propiedad.precio, operacion) || 'Consultar precio';
   const zona = zonaPropiedadRedes(propiedad);
-  const caracteristicas = [
+  const detalles = [
     propiedad.habitaciones ? `${propiedad.habitaciones} hab.` : '',
     propiedad.banos ? `${propiedad.banos} baños` : '',
     propiedad.superficie ? `${propiedad.superficie} m²` : ''
-  ].filter(Boolean).join(' · ');
+  ].filter(Boolean);
 
   return {
     titulo: propiedad.titulo || 'Nuevo inmueble en HomeClick24',
     operacion: operacion === 'alquiler' ? 'ALQUILER' : 'VENTA',
     precio,
     zona,
-    caracteristicas,
+    detalles,
     imagen: imagenPrincipalInstagram(propiedad)
   };
 }
@@ -3102,52 +3126,73 @@ async function generarCreatividadInstagram(propiedad, formato = 'feed') {
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  const margin = 72;
-  const panelHeight = esStory ? 650 : 450;
-  const panelY = height - panelHeight - 64;
-  dibujarRectRedondeado(ctx, margin, panelY, width - margin * 2, panelHeight, 34);
+  const margin = esStory ? 78 : 72;
+  const safeBottom = esStory ? 138 : 96;
+  const panelHeight = esStory ? 520 : 350;
+  const panelY = height - panelHeight - safeBottom;
+  const panelWidth = width - margin * 2;
+  const panelX = margin;
+  const innerX = panelX + 34;
+  const innerWidth = panelWidth - 68;
+  dibujarRectRedondeado(ctx, panelX, panelY, panelWidth, panelHeight, 30);
   ctx.fillStyle = 'rgba(255,255,255,0.94)';
   ctx.fill();
 
-  const logoWidth = 260;
-  const logoHeight = logo.height ? logoWidth * (logo.height / logo.width) : 86;
-  ctx.drawImage(logo, margin + 34, panelY + 30, logoWidth, logoHeight);
+  const logoWidth = esStory ? 205 : 185;
+  const logoHeight = logo.height ? logoWidth * (logo.height / logo.width) : 62;
+  ctx.drawImage(logo, innerX, panelY + 26, logoWidth, logoHeight);
 
   ctx.fillStyle = '#7cc242';
-  dibujarRectRedondeado(ctx, width - margin - 250, panelY + 34, 216, 58, 29);
+  dibujarRectRedondeado(ctx, panelX + panelWidth - 212, panelY + 30, 178, 50, 25);
   ctx.fill();
   ctx.fillStyle = '#fff';
-  ctx.font = '800 30px DM Sans, Arial, sans-serif';
+  ctx.font = '800 26px DM Sans, Arial, sans-serif';
   ctx.textAlign = 'center';
-  ctx.fillText(datos.operacion, width - margin - 142, panelY + 73);
+  ctx.fillText(datos.operacion, panelX + panelWidth - 123, panelY + 64);
   ctx.textAlign = 'left';
 
   ctx.fillStyle = '#1a1a1a';
-  ctx.font = `800 ${esStory ? 58 : 52}px DM Sans, Arial, sans-serif`;
-  const lineasTitulo = envolverTextoCanvas(ctx, datos.titulo, width - margin * 2 - 68, esStory ? 3 : 2);
-  let y = panelY + (esStory ? 160 : 148);
+  ctx.font = `800 ${esStory ? 48 : 42}px DM Sans, Arial, sans-serif`;
+  const lineasTitulo = envolverTextoCanvas(ctx, datos.titulo, innerWidth, 2);
+  let y = panelY + (esStory ? 138 : 122);
   lineasTitulo.forEach(linea => {
-    ctx.fillText(linea, margin + 34, y);
-    y += esStory ? 68 : 62;
+    ctx.fillText(linea, innerX, y);
+    y += esStory ? 56 : 50;
   });
 
   ctx.fillStyle = '#5a9e2f';
-  ctx.font = `800 ${esStory ? 54 : 48}px DM Sans, Arial, sans-serif`;
-  ctx.fillText(datos.precio, margin + 34, y + 24);
+  ctx.font = `800 ${esStory ? 46 : 40}px DM Sans, Arial, sans-serif`;
+  ctx.fillText(recortarTextoCanvas(ctx, datos.precio, innerWidth), innerX, y + 16);
 
   ctx.fillStyle = '#444';
-  ctx.font = `600 ${esStory ? 34 : 30}px DM Sans, Arial, sans-serif`;
-  const detalleY = y + (esStory ? 92 : 84);
-  if (datos.zona) ctx.fillText(`Zona: ${recortarTextoCanvas(ctx, datos.zona, width - margin * 2 - 68)}`, margin + 34, detalleY);
-  if (datos.caracteristicas) ctx.fillText(datos.caracteristicas, margin + 34, detalleY + 48);
+  ctx.font = `600 ${esStory ? 30 : 27}px DM Sans, Arial, sans-serif`;
+  const detalleY = y + (esStory ? 68 : 60);
+  if (datos.zona) {
+    ctx.fillText(`Zona: ${recortarTextoCanvas(ctx, datos.zona, innerWidth)}`, innerX, detalleY);
+  }
+  if (datos.detalles.length) {
+    const chipsY = detalleY + (esStory ? 42 : 38);
+    let chipX = innerX;
+    datos.detalles.forEach(detalle => {
+      const texto = recortarTextoCanvas(ctx, detalle, 190);
+      const chipWidth = Math.min(ctx.measureText(texto).width + 34, 224);
+      dibujarRectRedondeado(ctx, chipX, chipsY - 28, chipWidth, 42, 21);
+      ctx.fillStyle = '#f0f9e8';
+      ctx.fill();
+      ctx.fillStyle = '#4d8f28';
+      ctx.font = `700 ${esStory ? 25 : 23}px DM Sans, Arial, sans-serif`;
+      ctx.fillText(texto, chipX + 17, chipsY);
+      chipX += chipWidth + 14;
+    });
+  }
 
   ctx.fillStyle = '#1a1a1a';
-  ctx.font = `800 ${esStory ? 34 : 30}px DM Sans, Arial, sans-serif`;
-  ctx.fillText('Ver anuncio en HomeClick24', margin + 34, panelY + panelHeight - 54);
+  ctx.font = `800 ${esStory ? 30 : 27}px DM Sans, Arial, sans-serif`;
+  ctx.fillText('Ver anuncio en HomeClick24', innerX, panelY + panelHeight - 46);
 
   ctx.fillStyle = '#7cc242';
   ctx.beginPath();
-  ctx.arc(width - margin - 54, panelY + panelHeight - 64, 24, 0, Math.PI * 2);
+  ctx.arc(panelX + panelWidth - 44, panelY + panelHeight - 56, 19, 0, Math.PI * 2);
   ctx.fill();
 
   return canvas;
