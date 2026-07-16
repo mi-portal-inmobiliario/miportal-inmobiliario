@@ -476,6 +476,64 @@
     }
     .btn-redes:hover { background: #dbeafe; }
 
+    .redes-status {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      margin-bottom: 5px;
+      white-space: nowrap;
+    }
+
+    .redes-status.no-publicada {
+      background: #f3f4f6;
+      color: #6b7280;
+      border: 1px solid #e5e7eb;
+    }
+
+    .redes-status.publicada {
+      background: #f0f9e8;
+      color: #4d8f28;
+      border: 1px solid #c3e6a0;
+    }
+
+    .redes-info {
+      display: grid;
+      gap: 3px;
+      color: #777;
+      font-size: 0.76rem;
+      line-height: 1.35;
+    }
+
+    .propiedades-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 24px;
+      border-bottom: 1px solid #eee;
+      color: #777;
+      font-size: 0.82rem;
+      flex-wrap: wrap;
+    }
+
+    .propiedades-toolbar select {
+      padding: 8px 10px;
+      border: 1.5px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+      font-family: inherit;
+      font-size: 0.82rem;
+      outline: none;
+    }
+
+    .propiedades-toolbar select:focus {
+      border-color: #7cc242;
+      box-shadow: 0 0 0 3px rgba(124, 194, 66, 0.12);
+    }
+
     .admin-tools-card {
       background: linear-gradient(135deg, #f9fdf5 0%, #ffffff 100%);
       border: 1px solid #e5f0d8;
@@ -1198,6 +1256,14 @@
         <span id="countPropiedades"></span>
         <button onclick="exportarPropiedades()" class="btn-exportar">⬇ Exportar Excel</button>
       </div>
+      <div class="propiedades-toolbar">
+        <label for="filtroRedesPropiedades">Redes</label>
+        <select id="filtroRedesPropiedades" onchange="cambiarFiltroRedesPropiedades(this.value)">
+          <option value="todas">Todas</option>
+          <option value="no-publicadas">No publicadas en redes</option>
+          <option value="publicadas">Ya publicadas en redes</option>
+        </select>
+      </div>
       <table>
         <thead>
           <tr>
@@ -1206,6 +1272,7 @@
             <th>Precio</th>
             <th>Tipo</th>
             <th>Fecha</th>
+            <th>Redes</th>
             <th>Acción</th>
           </tr>
         </thead>
@@ -1500,6 +1567,7 @@ let chartGeneralContactos = null;
 let chartUsuarioVisitas = null;
 let chartUsuarioContactos = null;
 let propiedadesAdmin = [];
+let filtroRedesPropiedades = 'todas';
 const FACEBOOK_PAGE_URL = 'https://www.facebook.com/profile.php?id=61589930586330';
 let urlFacebookPropiedadActual = 'https://www.facebook.com/';
 let propiedadRedesActual = null;
@@ -2678,30 +2746,134 @@ async function cargarPropiedades() {
   const propiedades = await res.json();
   propiedadesAdmin = propiedades;
 
-  document.getElementById('countPropiedades').textContent = `${propiedades.length} anuncios`;
   renderPublicacionesRedes();
+  renderTablaPropiedades();
+}
 
-  document.getElementById('tablaPropiedades').innerHTML = propiedades.map(p => {
+function propiedadPublicadaEnRedes(propiedad = {}) {
+  return propiedad.redesPublicadoManual === true && Number(propiedad.redesPublicadoCount || 0) > 0;
+}
+
+function propiedadesFiltradasPorRedes() {
+  if (filtroRedesPropiedades === 'no-publicadas') {
+    return propiedadesAdmin.filter(p => !propiedadPublicadaEnRedes(p));
+  }
+  if (filtroRedesPropiedades === 'publicadas') {
+    return propiedadesAdmin.filter(propiedadPublicadaEnRedes);
+  }
+  return propiedadesAdmin;
+}
+
+function cambiarFiltroRedesPropiedades(valor) {
+  filtroRedesPropiedades = valor || 'todas';
+  renderTablaPropiedades();
+}
+
+function renderEstadoRedesPropiedad(propiedad = {}) {
+  if (!propiedadPublicadaEnRedes(propiedad)) {
+    return `
+      <div class="redes-info">
+        <span class="redes-status no-publicada">No publicada</span>
+        <span>No publicada en redes</span>
+      </div>
+    `;
+  }
+
+  const count = Number(propiedad.redesPublicadoCount || 0);
+  const fecha = propiedad.redesUltimaPublicacionAt
+    ? new Date(propiedad.redesUltimaPublicacionAt).toLocaleDateString('es-ES')
+    : '—';
+
+  return `
+    <div class="redes-info">
+      <span class="redes-status publicada">Publicada</span>
+      <span>Última publicación en redes: ${fecha}</span>
+      <span>Publicado ${count} ${count === 1 ? 'vez' : 'veces'}</span>
+    </div>
+  `;
+}
+
+function renderTablaPropiedades() {
+  const filtradas = propiedadesFiltradasPorRedes();
+  const countEl = document.getElementById('countPropiedades');
+  if (countEl) {
+    countEl.textContent = filtroRedesPropiedades === 'todas'
+      ? `${propiedadesAdmin.length} anuncios`
+      : `${filtradas.length} de ${propiedadesAdmin.length} anuncios`;
+  }
+
+  const tabla = document.getElementById('tablaPropiedades');
+  if (!tabla) return;
+
+  if (!filtradas.length) {
+    tabla.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#999;padding:22px;">No hay propiedades con este filtro.</td></tr>';
+    return;
+  }
+
+  tabla.innerHTML = filtradas.map(p => {
     const fecha = p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-ES') : '—';
     const tipo = p.tipoOperacion === 'venta' ? '🏠 Venta' : '🔑 Alquiler';
     const botonRedes = p.visiblePublicamente !== false
       ? `<button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>`
       : '';
+    const botonMarcarRedes = p.visiblePublicamente !== false
+      ? `<button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">Marcar como publicado</button>`
+      : '';
     return `
       <tr>
-        <td>${p.titulo}</td>
-        <td style="color:#aaa;font-size:0.82rem;">${p.direccion || '—'}</td>
+        <td>${escapeHtml(p.titulo || 'Sin título')}</td>
+        <td style="color:#aaa;font-size:0.82rem;">${escapeHtml(p.direccion || '—')}</td>
         <td>${formatoPrecioAdmin(p.precio)} €</td>
         <td>${tipo}</td>
         <td>${fecha}</td>
+        <td>${renderEstadoRedesPropiedad(p)}</td>
         <td>
           <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
           ${botonRedes}
+          ${botonMarcarRedes}
           <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
         </td>
       </tr>
     `;
   }).join('');
+}
+
+async function marcarPropiedadPublicadaRedes(id, btn) {
+  const ok = confirm('¿Marcar este inmueble como publicado en redes?');
+  if (!ok) return;
+
+  const textoOriginal = btn?.textContent || 'Marcar como publicado';
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = 'Marcando...';
+  }
+
+  try {
+    const res = await fetch(`/admin/propiedades/${id}/redes-publicado`, {
+      method: 'PATCH',
+      headers: { 'Authorization': 'Bearer ' + adminToken }
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) throw new Error(data.error || 'No se pudo marcar la propiedad');
+
+    const index = propiedadesAdmin.findIndex(p => String(p._id) === String(id));
+    if (index !== -1) {
+      propiedadesAdmin[index] = {
+        ...propiedadesAdmin[index],
+        ...data.propiedad
+      };
+    }
+
+    renderTablaPropiedades();
+    alert('Propiedad marcada como publicada en redes.');
+  } catch (error) {
+    alert(error.message || 'Error al marcar la propiedad');
+    if (btn) {
+      btn.disabled = false;
+      btn.textContent = textoOriginal;
+    }
+  }
 }
 
 function etiquetaTipoInmueble(tipo) {

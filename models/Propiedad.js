@@ -69,6 +69,9 @@ const PropiedadSchema = new mongoose.Schema({
   contactos:      { type: Number, default: 0 },
   ultimaVisita:   { type: Date, default: null },
   ultimoContacto: { type: Date, default: null },
+  redesPublicadoCount: { type: Number, default: 0 },
+  redesUltimaPublicacionAt: { type: Date, default: null },
+  redesPublicadoManual: { type: Boolean, default: false },
   fechaExpiracion: { type: Date, default: null },
   videoUrl: { type: String, default: "" },
 }, { timestamps: true });

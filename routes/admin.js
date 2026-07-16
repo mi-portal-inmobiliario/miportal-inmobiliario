@@ -596,6 +596,51 @@ router.put('/propiedades/:id', requireAdmin, async (req, res) => {
   }
 });
 
+router.patch('/propiedades/:id/redes-publicado', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID inválido' });
+    }
+
+    const propiedad = await Propiedad.findByIdAndUpdate(
+      req.params.id,
+      {
+        $inc: { redesPublicadoCount: 1 },
+        $set: {
+          redesUltimaPublicacionAt: new Date(),
+          redesPublicadoManual: true
+        }
+      },
+      {
+        new: true,
+        projection: {
+          redesPublicadoCount: 1,
+          redesUltimaPublicacionAt: 1,
+          redesPublicadoManual: 1
+        }
+      }
+    );
+
+    if (!propiedad) return res.status(404).json({ error: 'Propiedad no encontrada' });
+
+    res.json({
+      ok: true,
+      propiedad: {
+        _id: propiedad._id,
+        redesPublicadoCount: propiedad.redesPublicadoCount || 0,
+        redesUltimaPublicacionAt: propiedad.redesUltimaPublicacionAt || null,
+        redesPublicadoManual: propiedad.redesPublicadoManual === true
+      }
+    });
+  } catch (err) {
+    console.error('Error marcando propiedad publicada en redes:', {
+      propiedadId: req.params.id,
+      error: err.message
+    });
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // Eliminar propiedad
 router.delete('/propiedades/:id', requireAdmin, async (req, res) => {
   try {
