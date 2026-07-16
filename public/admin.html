@@ -11,6 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body { font-family: 'DM Sans', sans-serif; background: #f5f5f5; color: #1a1a1a; }
 
     /* LOGIN */
@@ -112,6 +113,101 @@
       max-width: 1200px;
       margin: 32px auto;
       padding: 0 24px;
+    }
+
+    .admin-nav {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      margin: -8px 0 24px;
+      padding: 10px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      overflow-x: auto;
+      background: rgba(245, 245, 245, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid #e8e8e3;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    }
+
+    .admin-nav a {
+      flex: 0 0 auto;
+      padding: 9px 14px;
+      border-radius: 10px;
+      color: #43505f;
+      background: #fff;
+      border: 1px solid #ececec;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .admin-nav a:hover {
+      color: #4d8f28;
+      border-color: #c3e6a0;
+      background: #f7fdf2;
+    }
+
+    .admin-section {
+      scroll-margin-top: 88px;
+      margin-bottom: 32px;
+    }
+
+    .admin-section-title {
+      margin: 0 0 14px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .admin-section-title h2 {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: #1a1a1a;
+    }
+
+    .admin-section-title p {
+      color: #777;
+      font-size: 0.86rem;
+      line-height: 1.45;
+      margin-top: 4px;
+    }
+
+    .admin-help {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: #f7fdf2;
+      border: 1px solid #d8edc9;
+      color: #4d8f28;
+      font-size: 0.78rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .admin-block-grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .gestion-redes {
+      background: #fff;
+      border: 1px solid #e3ead8;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.04);
+    }
+
+    .gestion-redes > .admin-section-title {
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid #edf2e6;
     }
 
     /* STATS */
@@ -322,6 +418,7 @@
       border-radius: 14px;
       border: 1px solid #eee;
       overflow: hidden;
+      box-shadow: 0 8px 22px rgba(0,0,0,0.025);
     }
 
     .tabla-header {
@@ -330,6 +427,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
     }
 
     .tabla-header h2 {
@@ -340,6 +439,41 @@
     .tabla-header span {
       font-size: 0.82rem;
       color: #aaa;
+    }
+
+    .tabla-scroll {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    .tabla-scroll table {
+      min-width: 920px;
+    }
+
+    .tabla-wrap.users .tabla-scroll table {
+      min-width: 980px;
+    }
+
+    .tabla-title-cell {
+      max-width: 260px;
+      font-weight: 700;
+      color: #1f2937;
+      line-height: 1.35;
+    }
+
+    .tabla-muted-cell {
+      max-width: 240px;
+      color: #888;
+      font-size: 0.82rem;
+      line-height: 1.35;
+    }
+
+    .tabla-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      min-width: 260px;
     }
 
     table {
@@ -437,7 +571,6 @@
     .btn-eliminar:hover { background: #fecaca; }
 
     .btn-verificar {
-      margin-left: 8px;
       padding: 5px 10px;
       background: #f0f9e8;
       color: #4d8f28;
@@ -450,7 +583,6 @@
     .btn-verificar:hover { background: #e5f5d8; }
 
     .btn-cancelar-suscripcion {
-      margin-left: 8px;
       padding: 5px 10px;
       background: #fff7ed;
       color: #c2410c;
@@ -469,7 +601,6 @@
     }
 
     .btn-estadisticas {
-      margin-left: 8px;
       padding: 5px 10px;
       background: #f0f9e8;
       color: #5a9e2f;
@@ -484,7 +615,6 @@
     .btn-estadisticas:hover { background: #e0f4d0; }
 
     .btn-redes {
-      margin-left: 8px;
       padding: 5px 10px;
       background: #eff6ff;
       color: #2563eb;
@@ -561,7 +691,7 @@
       border: 1px solid #e5f0d8;
       border-radius: 16px;
       padding: 20px 22px;
-      margin: 24px 0;
+      margin: 0;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -594,7 +724,7 @@
       border: 1px solid #e7eadf;
       border-radius: 16px;
       padding: 22px;
-      margin: 0 0 24px;
+      margin: 0;
       box-shadow: 0 8px 24px rgba(0,0,0,0.04);
     }
 
@@ -659,7 +789,7 @@
       border: 1px solid #e7eadf;
       border-radius: 16px;
       padding: 22px;
-      margin: 0 0 24px;
+      margin: 0;
       box-shadow: 0 8px 24px rgba(0,0,0,0.04);
     }
 
@@ -687,16 +817,20 @@
 
     .social-recommendations-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
       gap: 14px;
+      align-items: stretch;
     }
 
     .social-recommendation-card {
       border: 1px solid #e5e7eb;
       border-radius: 14px;
-      padding: 14px;
+      padding: 16px;
       background: #fafafa;
       min-width: 0;
+      min-height: 210px;
+      display: flex;
+      flex-direction: column;
     }
 
     .social-recommendation-card h3 {
@@ -704,6 +838,10 @@
       font-size: 0.94rem;
       line-height: 1.25;
       color: #1a1a1a;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
     }
 
     .social-recommendation-meta {
@@ -719,7 +857,12 @@
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
-      margin-top: 12px;
+      margin-top: auto;
+      padding-top: 12px;
+    }
+
+    .social-recommendation-actions .btn-redes {
+      margin-left: 0;
     }
 
     .btn-post-semanal {
@@ -841,7 +984,7 @@
     .user-actions {
       position: relative;
       display: inline-block;
-      margin-left: 8px;
+      margin-left: 0;
       vertical-align: middle;
     }
 
@@ -1091,6 +1234,13 @@
     }
 
     @media (max-width: 768px) {
+      .panel-header { padding: 18px 20px; }
+      .panel-body { margin: 20px auto; padding: 0 14px; }
+      .admin-nav { border-radius: 12px; margin-bottom: 18px; }
+      .admin-section { scroll-margin-top: 74px; margin-bottom: 24px; }
+      .admin-section-title { align-items: flex-start; flex-direction: column; }
+      .admin-help { white-space: normal; }
+      .gestion-redes { padding: 16px; border-radius: 16px; }
       .modal-overlay { padding: 12px; }
       .modal-summary-grid { grid-template-columns: repeat(2, 1fr); }
       .general-stats-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1101,7 +1251,7 @@
       .section-actions { justify-content: flex-start; }
       .modal-header-actions { justify-content: flex-start; }
       .admin-form-grid { grid-template-columns: 1fr; }
-      .user-actions { display: block; margin: 8px 0 0 0; width: 100%; }
+      .user-actions { display: block; margin: 0; width: 100%; }
       .btn-acciones { width: 100%; }
       .acciones-menu { left: 0; right: auto; width: min(260px, 100%); }
       .admin-tools-card { align-items: flex-start; flex-direction: column; }
@@ -1111,7 +1261,10 @@
       .social-recommendations-head { flex-direction: column; }
       .social-recommendations-grid { grid-template-columns: 1fr; }
       .social-recommendation-actions { flex-direction: column; }
+      .social-recommendation-actions .btn-redes { width: 100%; }
       .btn-post-semanal { width: 100%; }
+      .tabla-header { align-items: flex-start; }
+      .tabla-actions { min-width: 220px; }
       .social-versions { grid-template-columns: 1fr; }
       .social-versions.property .social-version-card:first-child { grid-column: auto; }
       .social-versions.compact .social-version-card:nth-child(3) { grid-column: auto; }
@@ -1151,9 +1304,15 @@
   </div>
 
   <div class="panel-body">
+    <nav class="admin-nav" aria-label="Navegación del panel admin">
+      <a href="#resumen-admin">Resumen</a>
+      <a href="#redes-admin">Redes</a>
+      <a href="#propiedades-admin">Propiedades</a>
+      <a href="#usuarios-admin">Usuarios</a>
+    </nav>
 
     <!-- ESTADÍSTICAS GENERALES -->
-    <section class="general-stats-section">
+    <section class="general-stats-section admin-section" id="resumen-admin">
       <div class="section-head">
         <div>
           <h2>Estadísticas generales</h2>
@@ -1290,59 +1449,119 @@
     <h2 style="font-size:1rem;font-weight:700;margin-bottom:14px;">Distribución de planes</h2>
     <div class="planes-grid" id="planesGrid"></div>
 
-    <!-- HERRAMIENTAS DE DIFUSIÓN -->
-    <section class="admin-tools-card">
-      <div>
-        <h2>Herramientas de difusión</h2>
-        <p>Genera textos listos para copiar y compartir HomeClick24 en redes, WhatsApp o email.</p>
+    <!-- GESTIÓN DE REDES -->
+    <section class="gestion-redes admin-section" id="redes-admin">
+      <div class="admin-section-title">
+        <div>
+          <h2>Gestión de redes</h2>
+          <p>Herramientas para preparar, priorizar y planificar publicaciones de Facebook, Instagram y WhatsApp.</p>
+        </div>
+        <span class="admin-help">Nada se publica automáticamente.</span>
       </div>
-      <div class="admin-tools-actions">
-        <button class="btn-post-semanal" onclick="generarPostSemanal()">📣 Generar post semanal</button>
-        <button class="btn-post-semanal" onclick="generarMensajeInmobiliarias()">🏢 Mensaje para captar inmobiliarias</button>
+
+      <div class="admin-block-grid">
+        <section class="admin-tools-card">
+          <div>
+            <h2>Herramientas de difusión</h2>
+            <p>Genera textos listos para copiar y compartir HomeClick24 en redes, WhatsApp o email.</p>
+          </div>
+          <div class="admin-tools-actions">
+            <button class="btn-post-semanal" onclick="generarPostSemanal()">📣 Generar post semanal</button>
+            <button class="btn-post-semanal" onclick="generarMensajeInmobiliarias()">🏢 Mensaje para captar inmobiliarias</button>
+          </div>
+        </section>
+
+        <section class="social-generator">
+          <div class="social-generator-head">
+            <div>
+              <h2>Publicaciones para redes</h2>
+              <p>Elige una propiedad visible y genera textos para Facebook o WhatsApp. Copia, revisa y publica manualmente.</p>
+            </div>
+          </div>
+          <div id="redesPropiedadesPublicas">
+            <div class="social-generator-empty">Cargando propiedades públicas...</div>
+          </div>
+        </section>
+
+        <section class="social-recommendations">
+          <div class="social-recommendations-head">
+            <div>
+              <h2>Próximas propiedades recomendadas para publicar</h2>
+              <p>Marca una propiedad como publicada solo después de publicarla en redes.</p>
+            </div>
+          </div>
+          <div id="recomendacionesRedes" class="social-recommendations-grid">
+            <div class="social-generator-empty">Cargando recomendaciones...</div>
+          </div>
+        </section>
+
+        <section class="social-recommendations">
+          <div class="social-recommendations-head">
+            <div>
+              <h2>Calendario de redes</h2>
+              <p>El calendario es solo planificación interna. Las publicaciones se hacen manualmente.</p>
+            </div>
+          </div>
+          <div id="calendarioRedes" class="social-recommendations-grid">
+            <div class="social-generator-empty">Cargando calendario...</div>
+          </div>
+        </section>
       </div>
     </section>
 
-    <!-- PUBLICACIONES PARA REDES -->
-    <section class="social-generator">
-      <div class="social-generator-head">
+    <!-- PROPIEDADES -->
+    <section class="admin-section" id="propiedades-admin">
+      <div class="admin-section-title">
         <div>
-          <h2>Publicaciones para redes</h2>
-          <p>Elige una propiedad visible y genera textos para Facebook o WhatsApp. Nada se publica automáticamente.</p>
+          <h2>Propiedades</h2>
+          <p>Listado operativo de anuncios, visibilidad y control de publicaciones en redes.</p>
         </div>
       </div>
-      <div id="redesPropiedadesPublicas">
-        <div class="social-generator-empty">Cargando propiedades públicas...</div>
-      </div>
-    </section>
 
-    <!-- RECOMENDACIONES PARA REDES -->
-    <section class="social-recommendations">
-      <div class="social-recommendations-head">
-        <div>
-          <h2>Próximas propiedades recomendadas para publicar</h2>
-          <p>Prioriza anuncios visibles que aún no se han publicado o que llevan más tiempo sin moverse en redes.</p>
+      <div class="tabla-wrap">
+        <div class="tabla-header">
+          <h2>Propiedades</h2>
+          <span id="countPropiedades"></span>
+          <button onclick="exportarPropiedades()" class="btn-exportar">⬇ Exportar Excel</button>
         </div>
-      </div>
-      <div id="recomendacionesRedes" class="social-recommendations-grid">
-        <div class="social-generator-empty">Cargando recomendaciones...</div>
-      </div>
-    </section>
-
-    <!-- CALENDARIO DE REDES -->
-    <section class="social-recommendations">
-      <div class="social-recommendations-head">
-        <div>
-          <h2>Calendario de redes</h2>
-          <p>Planifica manualmente publicaciones futuras de Facebook e Instagram. No publica nada automáticamente.</p>
+        <div class="propiedades-toolbar">
+          <label for="filtroRedesPropiedades">Redes</label>
+          <select id="filtroRedesPropiedades" onchange="cambiarFiltroRedesPropiedades(this.value)">
+            <option value="todas">Todas</option>
+            <option value="no-publicadas">No publicadas en redes</option>
+            <option value="publicadas">Ya publicadas en redes</option>
+          </select>
+          <span>Marca como publicada solo después de hacer la publicación manual.</span>
         </div>
-      </div>
-      <div id="calendarioRedes" class="social-recommendations-grid">
-        <div class="social-generator-empty">Cargando calendario...</div>
+        <div class="tabla-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Título</th>
+                <th>Dirección</th>
+                <th>Precio</th>
+                <th>Tipo</th>
+                <th>Fecha</th>
+                <th>Redes</th>
+                <th>Acción</th>
+              </tr>
+            </thead>
+            <tbody id="tablaPropiedades"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
    <!-- USUARIOS -->
-   <div class="tabla-wrap">
+   <section class="admin-section" id="usuarios-admin">
+     <div class="admin-section-title">
+        <div>
+          <h2>Usuarios</h2>
+          <p>Gestión visual de cuentas, planes, verificación y estado de pruebas VIP.</p>
+        </div>
+      </div>
+
+   <div class="tabla-wrap users">
      <div class="tabla-header">
        <h2>Usuarios</h2>
        <span id="countUsuarios"></span>
@@ -1353,51 +1572,23 @@
          oninput="filtrarUsuarios()"
          style="width:100%;padding:10px 14px;border:1.5px solid #eee;border-radius:10px;font-size:0.88rem;outline:none;font-family:inherit;">
      </div>
-     <table>
-       <thead>
-         <tr>
-           <th>Nombre</th>
-           <th>Email</th>
-           <th>Plan</th>
-           <th>Verificado</th>
-           <th>Registro</th>
-           <th>Acción</th>
-         </tr>
-       </thead>
-       <tbody id="tablaUsuarios"></tbody>
-     </table>
+     <div class="tabla-scroll">
+       <table>
+         <thead>
+           <tr>
+             <th>Nombre</th>
+             <th>Email</th>
+             <th>Plan</th>
+             <th>Verificado</th>
+             <th>Registro</th>
+             <th>Acción</th>
+           </tr>
+         </thead>
+         <tbody id="tablaUsuarios"></tbody>
+       </table>
+     </div>
    </div>
-
-    <!-- PROPIEDADES -->
-    <div class="tabla-wrap" style="margin-top:24px;">
-      <div class="tabla-header">
-        <h2>Propiedades</h2>
-        <span id="countPropiedades"></span>
-        <button onclick="exportarPropiedades()" class="btn-exportar">⬇ Exportar Excel</button>
-      </div>
-      <div class="propiedades-toolbar">
-        <label for="filtroRedesPropiedades">Redes</label>
-        <select id="filtroRedesPropiedades" onchange="cambiarFiltroRedesPropiedades(this.value)">
-          <option value="todas">Todas</option>
-          <option value="no-publicadas">No publicadas en redes</option>
-          <option value="publicadas">Ya publicadas en redes</option>
-        </select>
-      </div>
-      <table>
-        <thead>
-          <tr>
-            <th>Título</th>
-            <th>Dirección</th>
-            <th>Precio</th>
-            <th>Tipo</th>
-            <th>Fecha</th>
-            <th>Redes</th>
-            <th>Acción</th>
-          </tr>
-        </thead>
-        <tbody id="tablaPropiedades"></tbody>
-     </table>
-    </div>
+   </section>
 
   </div>
 </div>
@@ -2114,8 +2305,8 @@ function renderUsuarios(usuarios) {
     const estaActivo = u.activo !== false;
     return `
       <tr>
-        <td>${u.nombre}</td>
-        <td>${u.email}</td>
+        <td class="tabla-title-cell">${escapeHtml(u.nombre || 'Sin nombre')}</td>
+        <td class="tabla-muted-cell">${escapeHtml(u.email || '—')}</td>
         <td>
           <span class="badge-plan ${estaActivo ? (esPago ? 'badge-pago' : 'badge-gratis') : 'badge-inactivo'}">
             ${estaActivo ? (u.plan || 'gratis') : 'desactivado'}
@@ -2127,12 +2318,14 @@ function renderUsuarios(usuarios) {
         </td>
         <td>${fecha}</td>
         <td>
-          <select onchange="cambiarPlan('${u._id}', this.value)"
-            ${estaActivo ? '' : 'disabled'}
-            style="padding:5px 8px;border:1.5px solid #eee;border-radius:6px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
-            ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
-          </select>
-          ${renderMenuAccionesUsuario(u, estaActivo)}
+          <div class="tabla-actions">
+            <select onchange="cambiarPlan('${u._id}', this.value)"
+              ${estaActivo ? '' : 'disabled'}
+              style="padding:7px 9px;border:1.5px solid #eee;border-radius:8px;font-size:0.78rem;font-family:inherit;cursor:pointer;outline:none;">
+              ${PLANES.map(p => `<option value="${p}" ${u.plan === p ? 'selected' : ''}>${p}</option>`).join('')}
+            </select>
+            ${renderMenuAccionesUsuario(u, estaActivo)}
+          </div>
         </td>
       </tr>
     `;
@@ -3252,17 +3445,19 @@ function renderTablaPropiedades() {
       : '';
     return `
       <tr>
-        <td>${escapeHtml(p.titulo || 'Sin título')}</td>
-        <td style="color:#aaa;font-size:0.82rem;">${escapeHtml(p.direccion || '—')}</td>
+        <td class="tabla-title-cell">${escapeHtml(p.titulo || 'Sin título')}</td>
+        <td class="tabla-muted-cell">${escapeHtml(p.direccion || '—')}</td>
         <td>${formatoPrecioAdmin(p.precio)} €</td>
         <td>${tipo}</td>
         <td>${fecha}</td>
         <td>${renderEstadoRedesPropiedad(p)}</td>
         <td>
+          <div class="tabla-actions">
           <button class="btn-estadisticas" onclick="editarPropiedadAdmin('${p._id}')">Editar</button>
           ${botonRedes}
           ${botonMarcarRedes}
           <button class="btn-eliminar" onclick="eliminarPropiedad('${p._id}')">Eliminar</button>
+          </div>
         </td>
       </tr>
     `;
