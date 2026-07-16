@@ -632,6 +632,74 @@
       text-align: center;
     }
 
+    .social-recommendations {
+      background: #fff;
+      border: 1px solid #e7eadf;
+      border-radius: 16px;
+      padding: 22px;
+      margin: 0 0 24px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.04);
+    }
+
+    .social-recommendations-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 16px;
+    }
+
+    .social-recommendations-head h2 {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #1a1a1a;
+      margin: 0 0 4px;
+    }
+
+    .social-recommendations-head p {
+      color: #777;
+      font-size: 0.86rem;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .social-recommendations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 14px;
+    }
+
+    .social-recommendation-card {
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      padding: 14px;
+      background: #fafafa;
+      min-width: 0;
+    }
+
+    .social-recommendation-card h3 {
+      margin: 0 0 8px;
+      font-size: 0.94rem;
+      line-height: 1.25;
+      color: #1a1a1a;
+    }
+
+    .social-recommendation-meta {
+      display: grid;
+      gap: 4px;
+      color: #666;
+      font-size: 0.8rem;
+      line-height: 1.35;
+      margin-bottom: 10px;
+    }
+
+    .social-recommendation-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
     .btn-post-semanal {
       padding: 11px 16px;
       background: #7cc242;
@@ -1018,6 +1086,9 @@
       .admin-tools-actions { width: 100%; flex-direction: column; }
       .social-generator-head { flex-direction: column; }
       .social-generator-form { grid-template-columns: 1fr; }
+      .social-recommendations-head { flex-direction: column; }
+      .social-recommendations-grid { grid-template-columns: 1fr; }
+      .social-recommendation-actions { flex-direction: column; }
       .btn-post-semanal { width: 100%; }
       .social-versions { grid-template-columns: 1fr; }
       .social-versions.property .social-version-card:first-child { grid-column: auto; }
@@ -1219,6 +1290,19 @@
       </div>
       <div id="redesPropiedadesPublicas">
         <div class="social-generator-empty">Cargando propiedades públicas...</div>
+      </div>
+    </section>
+
+    <!-- RECOMENDACIONES PARA REDES -->
+    <section class="social-recommendations">
+      <div class="social-recommendations-head">
+        <div>
+          <h2>Próximas propiedades recomendadas para publicar</h2>
+          <p>Prioriza anuncios visibles que aún no se han publicado o que llevan más tiempo sin moverse en redes.</p>
+        </div>
+      </div>
+      <div id="recomendacionesRedes" class="social-recommendations-grid">
+        <div class="social-generator-empty">Cargando recomendaciones...</div>
       </div>
     </section>
 
@@ -2747,6 +2831,7 @@ async function cargarPropiedades() {
   propiedadesAdmin = propiedades;
 
   renderPublicacionesRedes();
+  renderRecomendacionesRedes();
   renderTablaPropiedades();
 }
 
@@ -2791,6 +2876,92 @@ function renderEstadoRedesPropiedad(propiedad = {}) {
       <span>Publicado ${count} ${count === 1 ? 'vez' : 'veces'}</span>
     </div>
   `;
+}
+
+function propiedadesVisiblesParaRedes() {
+  return propiedadesAdmin.filter(p => p && p.visiblePublicamente === true);
+}
+
+function prioridadEstadoComercial(propiedad = {}) {
+  const estado = String(propiedad.estadoComercial || 'Disponible').toLowerCase();
+  return estado === 'disponible' || estado === '' ? 0 : 1;
+}
+
+function timestampRedes(propiedad = {}) {
+  return propiedad.redesUltimaPublicacionAt
+    ? new Date(propiedad.redesUltimaPublicacionAt).getTime()
+    : 0;
+}
+
+function timestampCreacion(propiedad = {}) {
+  return propiedad.createdAt ? new Date(propiedad.createdAt).getTime() : 0;
+}
+
+function seleccionarRecomendacionesRedes() {
+  return propiedadesVisiblesParaRedes()
+    .sort((a, b) => {
+      const publicadaA = Number(propiedadPublicadaEnRedes(a));
+      const publicadaB = Number(propiedadPublicadaEnRedes(b));
+      if (publicadaA !== publicadaB) return publicadaA - publicadaB;
+
+      const estadoA = prioridadEstadoComercial(a);
+      const estadoB = prioridadEstadoComercial(b);
+      if (estadoA !== estadoB) return estadoA - estadoB;
+
+      if (publicadaA && publicadaB) {
+        const ultimaA = timestampRedes(a);
+        const ultimaB = timestampRedes(b);
+        if (ultimaA !== ultimaB) return ultimaA - ultimaB;
+      }
+
+      return timestampCreacion(b) - timestampCreacion(a);
+    })
+    .slice(0, 5);
+}
+
+function resumenRedesRecomendacion(propiedad = {}) {
+  if (!propiedadPublicadaEnRedes(propiedad)) return 'No publicada en redes';
+
+  const count = Number(propiedad.redesPublicadoCount || 0);
+  const fecha = propiedad.redesUltimaPublicacionAt
+    ? new Date(propiedad.redesUltimaPublicacionAt).toLocaleDateString('es-ES')
+    : '—';
+  return `Última publicación: ${fecha} · Publicada ${count} ${count === 1 ? 'vez' : 'veces'}`;
+}
+
+function renderRecomendacionesRedes() {
+  const contenedor = document.getElementById('recomendacionesRedes');
+  if (!contenedor) return;
+
+  const recomendaciones = seleccionarRecomendacionesRedes();
+  if (!recomendaciones.length) {
+    contenedor.innerHTML = '<div class="social-generator-empty">No hay propiedades públicas visibles para recomendar.</div>';
+    return;
+  }
+
+  contenedor.innerHTML = recomendaciones.map(p => {
+    const operacion = p.tipoOperacion === 'alquiler' ? 'Alquiler' : 'Venta';
+    const precio = formatearPrecioRedes(p.precio, p.tipoOperacion) || 'Consultar precio';
+    const zona = zonaPropiedadRedes(p);
+    const textoBotonPublicado = propiedadPublicadaEnRedes(p)
+      ? 'Añadir nueva publicación'
+      : 'Marcar como publicado';
+
+    return `
+      <article class="social-recommendation-card">
+        <h3>${escapeHtml(p.titulo || 'Sin título')}</h3>
+        <div class="social-recommendation-meta">
+          <span>${escapeHtml(operacion)} · ${escapeHtml(precio)}</span>
+          <span>${escapeHtml(zona || 'Zona no indicada')}</span>
+          <span>${escapeHtml(resumenRedesRecomendacion(p))}</span>
+        </div>
+        <div class="social-recommendation-actions">
+          <button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>
+          <button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">${textoBotonPublicado}</button>
+        </div>
+      </article>
+    `;
+  }).join('');
 }
 
 function renderTablaPropiedades() {
@@ -2868,6 +3039,7 @@ async function marcarPropiedadPublicadaRedes(id, btn) {
       };
     }
 
+    renderRecomendacionesRedes();
     renderTablaPropiedades();
     alert('Propiedad marcada como publicada en redes.');
   } catch (error) {
