@@ -72,8 +72,7 @@ const cleanHtmlRoutes = {
   "/login": "login.html",
   "/registro": "registro.html",
   "/recuperar": "recuperar.html",
-  "/terminos": "terminos.html",
-  "/propiedad": "propiedad.html"
+  "/terminos": "terminos.html"
 };
 
 const privateCleanHtmlRoutes = {
@@ -93,6 +92,125 @@ const seoZoneSlugs = [
   "rota",
   "chipiona"
 ];
+
+const SITE_URL = "https://www.homeclick24.com";
+const PROPERTY_HTML_PATH = path.join(publicPath, "propiedad.html");
+const FALLBACK_OG_IMAGE = `${SITE_URL}/HomeClick-full.png`;
+
+function escapeHtml(value = "") {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    "\"": "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+function textoPlano(value = "") {
+  return String(value).replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function resumirDescripcion(propiedad = {}) {
+  const base = textoPlano(propiedad.descripcion)
+    || [
+      propiedad.titulo,
+      propiedad.direccion ? `en ${propiedad.direccion}` : "",
+      propiedad.precio ? `Precio ${Number(propiedad.precio).toLocaleString("es-ES")} €` : ""
+    ].filter(Boolean).join(". ");
+
+  return base.length > 165 ? `${base.slice(0, 162).trim()}...` : base;
+}
+
+function extraerIdPropiedadDesdeSlug(slug = "") {
+  const match = String(slug).match(/([a-f0-9]{24})$/i);
+  return match ? match[1] : "";
+}
+
+function urlAbsolutaHttps(url = "") {
+  if (!url) return "";
+  const limpia = String(url).trim();
+  if (/^https?:\/\//i.test(limpia)) {
+    return limpia.replace(/^http:\/\//i, "https://");
+  }
+  return new URL(limpia.startsWith("/") ? limpia : `/${limpia}`, SITE_URL).href;
+}
+
+function optimizarImagenCloudinary(url = "") {
+  if (!/res\.cloudinary\.com\/.+\/image\/upload\//i.test(url)) return url;
+  if (/\/upload\/[^/]*(c_|w_|h_|q_|f_)/i.test(url)) return url;
+  return url.replace("/upload/", "/upload/c_fill,w_1200,h_630,g_auto,q_auto,f_auto/");
+}
+
+function imagenOgPropiedad(propiedad = {}) {
+  const primera = Array.isArray(propiedad.imagenes) ? propiedad.imagenes.find(Boolean) : "";
+  if (!primera) return FALLBACK_OG_IMAGE;
+  return optimizarImagenCloudinary(urlAbsolutaHttps(primera));
+}
+
+function construirMetaPropiedad(propiedad = {}) {
+  const canonicalPath = crearRutaPropiedadSeo(propiedad);
+  const canonicalUrl = `${SITE_URL}${canonicalPath}`;
+  const title = `${propiedad.titulo || "Propiedad"} | HomeClick24`;
+  const description = resumirDescripcion(propiedad);
+  const imageUrl = imagenOgPropiedad(propiedad);
+  const escapedTitle = escapeHtml(propiedad.titulo || "Propiedad en HomeClick24");
+  const escapedDescription = escapeHtml(description);
+  const escapedCanonical = escapeHtml(canonicalUrl);
+  const escapedImage = escapeHtml(imageUrl);
+
+  return `  <title>${escapeHtml(title)}</title>
+  <meta name="description" content="${escapedDescription}">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="${escapedCanonical}">
+
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="${escapedTitle}">
+  <meta property="og:description" content="${escapedDescription}">
+  <meta property="og:url" content="${escapedCanonical}">
+  <meta property="og:image" content="${escapedImage}">
+  <meta property="og:image:secure_url" content="${escapedImage}">
+  <meta property="og:image:alt" content="${escapedTitle} en HomeClick24">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${escapedTitle}">
+  <meta name="twitter:description" content="${escapedDescription}">
+  <meta name="twitter:image" content="${escapedImage}">`;
+}
+
+function inyectarMetaPropiedad(html, propiedad) {
+  return html.replace(
+    /  <!-- SEO dinámico[\s\S]*?  <meta name="twitter:image" content="[^"]*">/,
+    construirMetaPropiedad(propiedad)
+  );
+}
+
+function enviarHtmlPropiedad(res, propiedad = null) {
+  const html = fs.readFileSync(PROPERTY_HTML_PATH, "utf8");
+  res.type("html").send(propiedad ? inyectarMetaPropiedad(html, propiedad) : html);
+}
+
+async function buscarPropiedadPublicaPorId(id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) return null;
+  return Propiedad.findOne({
+    _id: id,
+    visiblePublicamente: { $ne: false }
+  }).lean();
+}
+
+app.get("/propiedad", async (req, res) => {
+  const id = req.query.id;
+  if (!id) return enviarHtmlPropiedad(res);
+
+  try {
+    const propiedad = await buscarPropiedadPublicaPorId(id);
+    if (propiedad) return res.redirect(301, crearRutaPropiedadSeo(propiedad));
+  } catch (err) {
+    console.warn("No se pudo resolver propiedad legacy:", err.message);
+  }
+
+  enviarHtmlPropiedad(res);
+});
 
 app.get("/propiedad.html", async (req, res) => {
   const id = req.query.id;
@@ -182,8 +300,24 @@ app.get(["/comprar/:zona", "/alquiler/:zona"], (req, res, next) => {
   res.sendFile(path.join(publicPath, htmlFile));
 });
 
-app.get("/propiedad/:slug", (req, res) => {
-  res.sendFile(path.join(publicPath, "propiedad.html"));
+app.get("/propiedad/:slug", async (req, res, next) => {
+  const id = extraerIdPropiedadDesdeSlug(req.params.slug);
+  if (!id) return next();
+
+  try {
+    const propiedad = await buscarPropiedadPublicaPorId(id);
+    if (!propiedad) return next();
+
+    const canonicalPath = crearRutaPropiedadSeo(propiedad);
+    if (req.path !== canonicalPath) {
+      return res.redirect(301, canonicalPath);
+    }
+
+    return enviarHtmlPropiedad(res, propiedad);
+  } catch (err) {
+    console.error("Error generando HTML SEO de propiedad:", err.message);
+    return res.status(500).send("Error generando propiedad");
+  }
 });
 
 app.use(express.static(publicPath));
