@@ -2878,12 +2878,35 @@ function renderEstadoRedesPropiedad(propiedad = {}) {
   `;
 }
 
+function normalizarEstadoRedes(valor = '') {
+  return String(valor || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+}
+
+function propiedadPromocionableEnRedes(propiedad = {}) {
+  if (!propiedad || propiedad.visiblePublicamente !== true) return false;
+  if (propiedad.activo === false || propiedad.eliminada === true || propiedad.oculto === true) return false;
+
+  const estado = normalizarEstadoRedes(propiedad.estadoComercial || 'Disponible');
+  const estadosNoPromocionables = new Set([
+    'vendido',
+    'alquilado',
+    'reservado',
+    'no disponible'
+  ]);
+
+  return !estadosNoPromocionables.has(estado);
+}
+
 function propiedadesVisiblesParaRedes() {
-  return propiedadesAdmin.filter(p => p && p.visiblePublicamente === true);
+  return propiedadesAdmin.filter(propiedadPromocionableEnRedes);
 }
 
 function prioridadEstadoComercial(propiedad = {}) {
-  const estado = String(propiedad.estadoComercial || 'Disponible').toLowerCase();
+  const estado = normalizarEstadoRedes(propiedad.estadoComercial || 'Disponible');
   return estado === 'disponible' || estado === '' ? 0 : 1;
 }
 
@@ -3643,7 +3666,7 @@ function limpiarTituloPostSemanal(propiedad, opciones = {}) {
 
 function seleccionarPropiedadesPostSemanal() {
   return [...propiedadesAdmin]
-    .filter(p => p && p.visiblePublicamente !== false)
+    .filter(propiedadPromocionableEnRedes)
     .sort((a, b) => {
       const destacadoA = Number(Boolean(a.destacado || a.esDestacada || a.destacada));
       const destacadoB = Number(Boolean(b.destacado || b.esDestacada || b.destacada));
