@@ -163,6 +163,60 @@
       font-size: 0.88rem;
     }
 
+    .promo-code-card {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px solid #e5e5e0;
+      border-radius: 16px;
+      padding: 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .promo-code-card h3 {
+      font-size: 1rem;
+      margin: 0;
+      color: #1a1a1a;
+    }
+
+    .promo-code-card p {
+      margin: 0;
+      color: #777;
+      font-size: 0.9rem;
+      line-height: 1.45;
+    }
+
+    .promo-code-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+    }
+
+    .promo-code-form input {
+      width: 100%;
+      min-height: 44px;
+      padding: 11px 12px;
+      border: 1.5px solid #e5e5e0;
+      border-radius: 10px;
+      font: inherit;
+      outline: none;
+    }
+
+    .promo-code-form input:focus {
+      border-color: #7cc242;
+    }
+
+    .promo-code-status {
+      min-height: 18px;
+      color: #5a9e2f;
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .promo-code-status.error {
+      color: #dc2626;
+    }
+
     .seccion-label {
       font-size: 0.72rem;
       font-weight: 600;
@@ -478,6 +532,7 @@
       }
       .lista-propiedades { grid-template-columns: 1fr; }
       .perfil-stats { grid-template-columns: 1fr; }
+      .promo-code-form { grid-template-columns: 1fr; }
       .plan-card { padding: 18px 16px; }
       .plan-card-top {
         align-items: stretch;
@@ -553,6 +608,16 @@
     <div class="plan-stats" id="planStats"></div>
     <div class="pending-plan-notice" id="pendingPlanNotice"></div>
     <div class="launch-promo-card" id="launchPromoCard"></div>
+  </div>
+
+  <div class="promo-code-card">
+    <h3>Canjear código promocional</h3>
+    <p>Si tienes una invitación privada, introduce el código para activar tu prueba VIP.</p>
+    <div class="promo-code-form">
+      <input type="text" id="codigoVipTrialPerfil" placeholder="HC24-VIP-XXXXXX">
+      <button class="btn-perfil green" onclick="canjearCodigoVipTrialPerfil()">Canjear código</button>
+    </div>
+    <div class="promo-code-status" id="estadoCodigoVipTrialPerfil"></div>
   </div>
 
   <!-- MIS PROPIEDADES -->
@@ -921,6 +986,50 @@ function refrescarChatsSiVisible() {
 window.addEventListener("pageshow", refrescarChatsSiVisible);
 window.addEventListener("focus", refrescarChatsSiVisible);
 window.addEventListener("hashchange", refrescarChatsSiVisible);
+
+async function canjearCodigoVipTrialPerfil() {
+  const input = document.getElementById("codigoVipTrialPerfil");
+  const estado = document.getElementById("estadoCodigoVipTrialPerfil");
+  const code = input.value.trim();
+
+  estado.className = "promo-code-status";
+  estado.textContent = "";
+
+  if (!code) {
+    estado.textContent = "Código no válido.";
+    estado.className = "promo-code-status error";
+    return;
+  }
+
+  try {
+    estado.textContent = "Validando código...";
+    const res = await fetch("/usuarios/codigos-vip-trial/canjear", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ code })
+    });
+    const data = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      estado.textContent = data.error || "Código no válido.";
+      estado.className = "promo-code-status error";
+      return;
+    }
+
+    if (data.usuario) {
+      localStorage.setItem("usuario", JSON.stringify(data.usuario));
+    }
+    estado.textContent = data.message || "Código aplicado. Tu prueba VIP está activa.";
+    input.value = "";
+    setTimeout(() => location.reload(), 900);
+  } catch (e) {
+    estado.textContent = "Error al canjear el código.";
+    estado.className = "promo-code-status error";
+  }
+}
 
 function cerrarSesion() {
   localStorage.removeItem("token");

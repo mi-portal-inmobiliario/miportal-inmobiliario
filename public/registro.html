@@ -354,6 +354,12 @@
     </div>
     <p class="doc-nota">🔒 Solo para verificar tu identidad. No se comparte con terceros.</p>
 
+    <div class="form-group">
+      <label>Código promocional</label>
+      <input type="text" id="codigoPromocional" placeholder="HC24-VIP-XXXXXX">
+    </div>
+    <p class="doc-nota">Si tienes un código de invitación, introdúcelo aquí.</p>
+
     <div class="cf-turnstile"
      data-sitekey="0x4AAAAAADQhW7vF518gz2_e">
     </div>
@@ -395,6 +401,7 @@ async function registro() {
   const email   = document.getElementById("email").value.trim();
   const tipoDoc = document.getElementById("tipoDoc").value;
   const numDoc  = document.getElementById("numDoc").value.trim();
+  const codigoPromocional = document.getElementById("codigoPromocional").value.trim();
   const mensaje = document.getElementById("mensaje");
   const btn     = document.getElementById("btnRegistro");
   const token = document.querySelector(
@@ -428,6 +435,7 @@ async function registro() {
         email,
         tipoDoc,
         numDoc,
+        codigoPromocional,
         token
       })
     });  

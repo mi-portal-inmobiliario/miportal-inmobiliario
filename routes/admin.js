@@ -5,9 +5,11 @@ import { Resend } from 'resend';
 import Usuario from '../models/Usuario.js';
 import Propiedad from '../models/Propiedad.js';
 import EstadisticaAnuncio from '../models/EstadisticaAnuncio.js';
+import CodigoVipTrial from '../models/CodigoVipTrial.js';
 import { requireAdmin } from '../middleware/auth.js';
 import { normalizeSpanishPrice } from '../utils/prices.js';
 import { crearDatosVipTrial, expirarVipTrialUsuario } from '../utils/trials.js';
+import { generarCodigoVipTrial } from '../utils/vipTrialCodes.js';
 
 const router = express.Router();
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
@@ -290,6 +292,68 @@ router.get('/usuarios', requireAdmin, async (req, res) => {
     res.json(usuarios);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+// Códigos privados VIP Trial
+router.get('/codigos-vip-trial', requireAdmin, async (req, res) => {
+  try {
+    const now = new Date();
+    await CodigoVipTrial.updateMany(
+      { estado: 'disponible', expiresAt: { $lte: now } },
+      { $set: { estado: 'caducado' } }
+    );
+
+    const codigos = await CodigoVipTrial.find({})
+      .sort({ createdAt: -1 })
+      .limit(200)
+      .populate('usedBy', 'nombre email')
+      .lean();
+
+    res.json(codigos);
+  } catch (err) {
+    console.error('Error listando códigos VIP Trial:', err.message);
+    res.status(500).json({ error: 'Error al listar códigos VIP Trial' });
+  }
+});
+
+router.post('/codigos-vip-trial', requireAdmin, async (req, res) => {
+  try {
+    const diasValidez = Number(req.body?.diasValidez || 30);
+    const codigo = await generarCodigoVipTrial({
+      emailAsignado: limpiarTexto(req.body?.emailAsignado, 254),
+      nombreAsignado: limpiarTexto(req.body?.nombreAsignado, 120),
+      notaInterna: limpiarTexto(req.body?.notaInterna, 500),
+      diasValidez,
+      creadoPorAdmin: 'admin'
+    });
+
+    res.status(201).json({ ok: true, codigo });
+  } catch (err) {
+    console.error('Error generando código VIP Trial:', err.message);
+    res.status(500).json({ error: 'No se pudo generar el código VIP Trial' });
+  }
+});
+
+router.patch('/codigos-vip-trial/:id/cancelar', requireAdmin, async (req, res) => {
+  try {
+    if (!esObjectId(req.params.id)) {
+      return res.status(400).json({ error: 'ID de código inválido' });
+    }
+
+    const codigo = await CodigoVipTrial.findById(req.params.id);
+    if (!codigo) return res.status(404).json({ error: 'Código no encontrado' });
+    if (codigo.estado === 'usado') {
+      return res.status(400).json({ error: 'No se puede cancelar un código ya utilizado.' });
+    }
+
+    codigo.estado = 'cancelado';
+    await codigo.save();
+
+    res.json({ ok: true, codigo });
+  } catch (err) {
+    console.error('Error cancelando código VIP Trial:', err.message);
+    res.status(500).json({ error: 'No se pudo cancelar el código VIP Trial' });
   }
 });
 

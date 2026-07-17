@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import Usuario from "../models/Usuario.js";
 import { requireAuth } from "../middleware/auth.js";
+import { canjearCodigoVipTrial, mensajeErrorCodigoVipTrial } from "../utils/vipTrialCodes.js";
 
 const router = express.Router();
 
@@ -56,6 +57,32 @@ router.get("/me", requireAuth, async (req, res) => {
     res.json(usuarioSeguro(usuario));
   } catch (e) {
     res.status(500).json({ error: "Error en servidor" });
+  }
+});
+
+// Canjear código promocional VIP Trial desde perfil
+router.post("/codigos-vip-trial/canjear", requireAuth, async (req, res) => {
+  try {
+    const code = String(req.body?.code || "").trim();
+    if (!code) return res.status(400).json({ error: "Código no válido." });
+
+    const usuario = await Usuario.findById(req.user.id);
+    if (!usuario) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    try {
+      await canjearCodigoVipTrial({ code, usuario });
+    } catch (codigoErr) {
+      return res.status(400).json({ error: mensajeErrorCodigoVipTrial(codigoErr) });
+    }
+
+    res.json({
+      ok: true,
+      usuario: usuarioSeguro(usuario),
+      message: "Código aplicado. Tu prueba VIP está activa durante 30 días."
+    });
+  } catch (e) {
+    console.error("Error canjeando código VIP Trial:", e);
+    res.status(500).json({ error: "Error al canjear el código" });
   }
 });
 

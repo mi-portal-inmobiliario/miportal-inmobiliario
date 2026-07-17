@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { Resend } from "resend";
 import Usuario from "../models/Usuario.js";
 import { cleanString, objectId, optionalCleanString, validateBody, z } from "../utils/validation.js";
+import { canjearCodigoVipTrial, mensajeErrorCodigoVipTrial } from "../utils/vipTrialCodes.js";
 
 const router = express.Router();
 
@@ -25,6 +26,7 @@ const registerSchema = z.object({
   email: emailSchema,
   tipoDoc: optionalCleanString(40),
   numDoc: optionalCleanString(80),
+  codigoPromocional: optionalCleanString(40),
   token: optionalCleanString(2048)
 });
 
@@ -64,6 +66,7 @@ router.post("/register", validateBody(registerSchema), async (req, res) => {
       email,
       tipoDoc,
       numDoc,
+      codigoPromocional,
       token: turnstileToken
     } = req.body;
 
@@ -118,7 +121,19 @@ router.post("/register", validateBody(registerSchema), async (req, res) => {
       numDoc:  numDoc  || ""
     });
 
-    await usuario.save();
+    if (codigoPromocional) {
+      try {
+        await canjearCodigoVipTrial({
+          code: codigoPromocional,
+          usuario,
+          email
+        });
+      } catch (codigoErr) {
+        return res.status(400).json({ error: mensajeErrorCodigoVipTrial(codigoErr) });
+      }
+    } else {
+      await usuario.save();
+    }
 
     const enlace = `${process.env.APP_URL}/set-password?token=${token}`;
 
