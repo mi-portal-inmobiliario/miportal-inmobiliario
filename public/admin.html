@@ -907,7 +907,7 @@
 
     .vip-code-card {
       display: grid;
-      grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr) auto;
+      grid-template-columns: minmax(180px, 1fr) minmax(0, 2fr) minmax(220px, auto);
       gap: 14px;
       align-items: center;
       border: 1px solid #e5e7eb;
@@ -936,6 +936,12 @@
       gap: 8px;
       flex-wrap: wrap;
       justify-content: flex-end;
+      max-width: 430px;
+    }
+
+    .vip-code-actions .btn-exportar,
+    .vip-code-actions .btn-eliminar {
+      white-space: nowrap;
     }
 
     .btn-post-semanal {
@@ -2623,6 +2629,81 @@ function textoUsuarioCodigo(codigo = {}) {
   return [codigo.usedBy.nombre, codigo.usedBy.email].filter(Boolean).join(' · ');
 }
 
+function obtenerCodigoVipTrialAdmin(index) {
+  return codigosVipTrialAdmin[Number(index)] || null;
+}
+
+function diasCodigoVipTrial(codigo = {}) {
+  const creado = codigo.createdAt ? new Date(codigo.createdAt).getTime() : NaN;
+  const caduca = codigo.expiresAt ? new Date(codigo.expiresAt).getTime() : NaN;
+  if (!Number.isFinite(creado) || !Number.isFinite(caduca) || caduca <= creado) {
+    return '30 días';
+  }
+  const dias = Math.round((caduca - creado) / (24 * 60 * 60 * 1000));
+  return dias > 0 ? `${dias} días` : '30 días';
+}
+
+function nombreSaludoWhatsapp(codigo = {}) {
+  const nombre = String(codigo.nombreAsignado || '').trim();
+  return nombre ? `Hola, ${nombre} 😊` : 'Hola 😊';
+}
+
+function nombreSaludoEmail(codigo = {}) {
+  const nombre = String(codigo.nombreAsignado || '').trim();
+  return nombre ? `Hola, ${nombre}:` : 'Hola:';
+}
+
+function textoInvitacionWhatsappVipTrial(codigo = {}) {
+  const dias = diasCodigoVipTrial(codigo);
+  const code = codigo.code || '';
+  return `${nombreSaludoWhatsapp(codigo)}
+
+Desde HomeClick24 estamos invitando a algunas inmobiliarias y agentes de la zona a probar el plan VIP durante ${dias} gratis.
+
+Te paso tu código privado de invitación:
+
+${code}
+
+Puedes registrarte aquí:
+https://www.homeclick24.com/registro
+
+Al introducir el código en “Código promocional”, se activará la prueba VIP automáticamente.
+
+Es una prueba sin compromiso para que puedas publicar tus inmuebles y ver si la plataforma te resulta útil.
+
+Un saludo,
+Sonia
+HomeClick24`;
+}
+
+function textoInvitacionEmailVipTrial(codigo = {}) {
+  const dias = diasCodigoVipTrial(codigo);
+  const code = codigo.code || '';
+  return `Asunto: Invitación privada para probar HomeClick24 durante ${dias}
+
+${nombreSaludoEmail(codigo)}
+
+Desde HomeClick24 estamos invitando a algunas inmobiliarias y agentes de la zona a probar nuestro plan VIP durante ${dias} gratis.
+
+Te facilito tu código privado de invitación:
+
+${code}
+
+Puedes registrarte desde este enlace:
+https://www.homeclick24.com/registro
+
+Durante el registro, solo tienes que introducir el código en el campo “Código promocional” y la prueba VIP se activará automáticamente.
+
+Durante esos ${dias} podrás publicar tus inmuebles y valorar si HomeClick24 puede ayudarte a ganar visibilidad online y recibir contactos de personas interesadas.
+
+La prueba no tiene compromiso.
+
+Un saludo,
+Sonia
+HomeClick24
+https://www.homeclick24.com`;
+}
+
 function renderCodigosVipTrial() {
   const contenedor = document.getElementById('listaCodigosVipTrial');
   if (!contenedor) return;
@@ -2632,7 +2713,7 @@ function renderCodigosVipTrial() {
     return;
   }
 
-  contenedor.innerHTML = codigosVipTrialAdmin.map(codigo => {
+  contenedor.innerHTML = codigosVipTrialAdmin.map((codigo, index) => {
     const estado = estadoCodigoVipTrial(codigo);
     const usadoPor = textoUsuarioCodigo(codigo);
     const puedeCancelar = estado === 'disponible';
@@ -2652,7 +2733,9 @@ function renderCodigosVipTrial() {
           ${usadoPor ? `<span>Usado por: ${escapeHtml(usadoPor)}</span>` : ''}
         </div>
         <div class="vip-code-actions">
-          <button class="btn-exportar" onclick="copiarCodigoVipTrial('${escapeHtml(codigo.code || '')}')">Copiar código</button>
+          <button class="btn-exportar" onclick="copiarCodigoVipTrial(${index})">Copiar código</button>
+          <button class="btn-exportar" onclick="copiarInvitacionWhatsappVipTrial(${index})">Copiar invitación WhatsApp</button>
+          <button class="btn-exportar" onclick="copiarInvitacionEmailVipTrial(${index})">Copiar invitación email</button>
           ${puedeCancelar ? `<button class="btn-eliminar" onclick="cancelarCodigoVipTrial('${codigo._id}')">Cancelar</button>` : ''}
         </div>
       </article>
@@ -2714,14 +2797,38 @@ async function generarCodigoVipTrialAdmin() {
   await cargarCodigosVipTrial();
 }
 
-async function copiarCodigoVipTrial(code) {
+async function copiarTextoVipTrial(texto, mensajeOk) {
   const estado = document.getElementById('estadoCodigosVipTrial');
   try {
-    await navigator.clipboard.writeText(code);
-    if (estado) estado.textContent = 'Código copiado al portapapeles.';
+    await navigator.clipboard.writeText(texto);
+    if (estado) estado.textContent = mensajeOk;
   } catch {
-    if (estado) estado.textContent = 'No se pudo copiar automáticamente. Selecciona el código manualmente.';
+    if (estado) estado.textContent = 'No se pudo copiar automáticamente. Selecciona el texto manualmente.';
   }
+}
+
+async function copiarCodigoVipTrial(index) {
+  const codigo = obtenerCodigoVipTrialAdmin(index);
+  if (!codigo) return;
+  await copiarTextoVipTrial(codigo.code || '', 'Código copiado al portapapeles.');
+}
+
+async function copiarInvitacionWhatsappVipTrial(index) {
+  const codigo = obtenerCodigoVipTrialAdmin(index);
+  if (!codigo) return;
+  await copiarTextoVipTrial(
+    textoInvitacionWhatsappVipTrial(codigo),
+    'Invitación para WhatsApp copiada al portapapeles.'
+  );
+}
+
+async function copiarInvitacionEmailVipTrial(index) {
+  const codigo = obtenerCodigoVipTrialAdmin(index);
+  if (!codigo) return;
+  await copiarTextoVipTrial(
+    textoInvitacionEmailVipTrial(codigo),
+    'Invitación para email copiada al portapapeles.'
+  );
 }
 
 async function cancelarCodigoVipTrial(id) {
