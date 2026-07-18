@@ -186,6 +186,19 @@ function inyectarMetaPropiedad(html, propiedad) {
   );
 }
 
+function inyectarCanonicalAbsoluto(html, canonicalUrl) {
+  const escapedCanonical = escapeHtml(canonicalUrl);
+  return html
+    .replace(
+      /<link rel="canonical" href="[^"]*">/,
+      `<link rel="canonical" href="${escapedCanonical}">`
+    )
+    .replace(
+      /<meta property="og:url" content="[^"]*">/,
+      `<meta property="og:url" content="${escapedCanonical}">`
+    );
+}
+
 function enviarHtmlPropiedad(res, propiedad = null) {
   const html = fs.readFileSync(PROPERTY_HTML_PATH, "utf8");
   res.type("html").send(propiedad ? inyectarMetaPropiedad(html, propiedad) : html);
@@ -299,7 +312,8 @@ app.get(["/comprar/:zona", "/alquiler/:zona"], (req, res, next) => {
     ? "comprar.html"
     : "alquiler.html";
 
-  res.sendFile(path.join(publicPath, htmlFile));
+  const html = fs.readFileSync(path.join(publicPath, htmlFile), "utf8");
+  res.type("html").send(inyectarCanonicalAbsoluto(html, `${SITE_URL}${req.path}`));
 });
 
 app.get("/propiedad/:slug", async (req, res, next) => {
