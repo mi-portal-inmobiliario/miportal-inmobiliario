@@ -9,6 +9,18 @@ function filtroAnunciosPublicosGratis(usuarioIds = []) {
   };
 }
 
+function filtroUsuariosConHistorialVipTrial() {
+  return {
+    $or: [
+      { trialStartDate: { $exists: true, $ne: null } },
+      { trialEndDate: { $exists: true, $ne: null } },
+      { trialLimitsAppliedAt: { $exists: true, $ne: null } },
+      { trialLimitsRepairedAt: { $exists: true, $ne: null } },
+      { "trialReminders.expired": true }
+    ]
+  };
+}
+
 export function filtroNoCaducado(now = new Date()) {
   return {
     $or: [
@@ -26,13 +38,19 @@ export async function aplicarCaducidadAnunciosGratis(now = new Date()) {
     return { revisados: 0, fechasNormalizadas: 0, caducados: 0 };
   }
 
+  const usuariosGratisSinHistorialVip = await Usuario.find(
+    { plan: "gratis", $nor: [filtroUsuariosConHistorialVipTrial()] },
+    { _id: 1 }
+  ).lean();
+  const usuarioIdsSinHistorialVip = usuariosGratisSinHistorialVip.map(usuario => usuario._id);
+
   const fechaPorDefecto = propiedad => calcularFechaExpiracionPlan(
     "gratis",
     propiedad.createdAt || propiedad.updatedAt || now
   );
 
   const sinFecha = await Propiedad.find({
-    ...filtroAnunciosPublicosGratis(usuarioIds),
+    ...filtroAnunciosPublicosGratis(usuarioIdsSinHistorialVip),
     $or: [
       { fechaExpiracion: { $exists: false } },
       { fechaExpiracion: null }

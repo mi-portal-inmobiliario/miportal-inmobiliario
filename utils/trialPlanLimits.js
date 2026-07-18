@@ -46,6 +46,19 @@ function propiedadValidaParaLimites(propiedad = {}, { incluirOcultas = false } =
   return !tieneEstadoNoDisponible(propiedad);
 }
 
+function propiedadVigenteEnGratis(propiedad = {}, now = new Date()) {
+  if (!propiedadValidaParaLimites(propiedad)) return false;
+  if (!propiedad.fechaExpiracion) return false;
+  return new Date(propiedad.fechaExpiracion) > now;
+}
+
+function propiedadNecesitaNuevoPeriodoGratis(propiedad = {}, now = new Date()) {
+  if (!propiedadValidaParaLimites(propiedad, { incluirOcultas: true })) return false;
+  if (propiedad.visiblePublicamente !== true) return false;
+  if (!propiedad.fechaExpiracion) return true;
+  return new Date(propiedad.fechaExpiracion) <= now;
+}
+
 function ordenarPropiedadesParaPlan(propiedades = []) {
   return [...propiedades].sort((a, b) => {
     const updatedA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
@@ -61,6 +74,8 @@ function ordenarPropiedadesParaPlan(propiedades = []) {
 export async function aplicarLimitesPlanTrasTrial(usuarioId, {
   planDestino = "gratis",
   repararSiNoHayVisibles = false,
+  repararPeriodosCaducados = false,
+  renovarPermitidas = true,
   now = new Date()
 } = {}) {
   const limiteAnuncios = getLimiteAnunciosPlan(planDestino);
@@ -74,16 +89,21 @@ export async function aplicarLimitesPlanTrasTrial(usuarioId, {
   const todasValidas = ordenarPropiedadesParaPlan(
     propiedades.filter(propiedad => propiedadValidaParaLimites(propiedad, { incluirOcultas: true }))
   );
-  const repararOcultas = repararSiNoHayVisibles && visiblesValidas.length === 0;
+  const visiblesVigentes = visiblesValidas.filter(propiedad => propiedadVigenteEnGratis(propiedad, now));
+  const necesitaReparacion = todasValidas.some(propiedad => propiedadNecesitaNuevoPeriodoGratis(propiedad, now));
+  const repararOcultas = repararSiNoHayVisibles && visiblesVigentes.length === 0;
+  const repararPeriodo = repararPeriodosCaducados && necesitaReparacion;
   const candidatas = repararOcultas ? todasValidas : visiblesValidas;
+  const candidatasFinales = repararPeriodo ? todasValidas : candidatas;
   const permitidas = Number.isFinite(limiteAnuncios)
-    ? candidatas.slice(0, limiteAnuncios)
-    : candidatas;
+    ? candidatasFinales.slice(0, limiteAnuncios)
+    : candidatasFinales;
   const permitidasIds = new Set(permitidas.map(propiedad => String(propiedad._id)));
 
   let propiedadesVisibles = 0;
   let propiedadesOcultadas = 0;
   let propiedadesRecuperadas = 0;
+  let fechasRenovadas = 0;
 
   for (const propiedad of propiedades) {
     if (
@@ -104,9 +124,15 @@ export async function aplicarLimitesPlanTrasTrial(usuarioId, {
       propiedad.fechaExpiracion = fechaExpiracionVisible;
       await propiedad.save();
       propiedadesRecuperadas += 1;
-    } else if (debeSerVisible && fechaExpiracionVisible) {
+      fechasRenovadas += 1;
+    } else if (
+      debeSerVisible &&
+      fechaExpiracionVisible &&
+      (renovarPermitidas || !propiedad.fechaExpiracion || new Date(propiedad.fechaExpiracion) <= now)
+    ) {
       propiedad.fechaExpiracion = fechaExpiracionVisible;
       await propiedad.save();
+      fechasRenovadas += 1;
     } else if (!debeSerVisible && propiedad.visiblePublicamente !== false) {
       propiedad.visiblePublicamente = false;
       await propiedad.save();
@@ -123,17 +149,18 @@ export async function aplicarLimitesPlanTrasTrial(usuarioId, {
     propiedadesEvaluadas: propiedades.length,
     propiedadesVisibles,
     propiedadesOcultadas,
-    propiedadesRecuperadas
+    propiedadesRecuperadas,
+    fechasRenovadas
   };
 }
 
 export async function repararUsuariosGratisTrasVipTrial() {
   const usuarios = await Usuario.find({
     plan: "gratis",
-    trialLimitsRepairedAt: { $exists: false },
     $or: [
       { trialStartDate: { $exists: true, $ne: null } },
       { trialEndDate: { $exists: true, $ne: null } },
+      { trialLimitsAppliedAt: { $exists: true, $ne: null } },
       { "trialReminders.expired": true }
     ]
   });
@@ -144,10 +171,12 @@ export async function repararUsuariosGratisTrasVipTrial() {
   for (const usuario of usuarios) {
     const resultado = await aplicarLimitesPlanTrasTrial(usuario._id, {
       planDestino: "gratis",
-      repararSiNoHayVisibles: true
+      repararSiNoHayVisibles: true,
+      repararPeriodosCaducados: true,
+      renovarPermitidas: false
     });
 
-    if (resultado.propiedadesRecuperadas > 0) {
+    if (resultado.propiedadesRecuperadas > 0 || resultado.fechasRenovadas > 0) {
       usuariosReparados += 1;
       propiedadesRecuperadas += resultado.propiedadesRecuperadas;
       usuario.trialLimitsRepairedAt = new Date();
