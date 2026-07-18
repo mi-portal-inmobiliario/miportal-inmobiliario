@@ -9,7 +9,7 @@ const ERROR_MESSAGES = {
   invalid: "Código no válido.",
   expired: "Código caducado.",
   used: "Código ya utilizado.",
-  cancelled: "Código no válido.",
+  cancelled: "Este código está cancelado o ya no está disponible.",
   email_mismatch: "Este código pertenece a otro email.",
   stripe_active: "No se puede aplicar porque ya tienes una suscripción activa.",
   trial_already_used: "No se puede aplicar porque ya disfrutaste una prueba VIP."
