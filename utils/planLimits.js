@@ -1,7 +1,8 @@
 export const PLAN_LIMITS = {
   gratis: {
     anuncios: 2,
-    fotos: 7
+    fotos: 7,
+    duracionAnunciosDias: 15
   },
   basico: {
     anuncios: 3,
@@ -51,4 +52,15 @@ export function getLimiteFotosPlan(plan = "gratis") {
 
 export function planTieneLimiteFotos(plan = "gratis") {
   return Number.isFinite(getLimiteFotosPlan(plan));
+}
+
+export function getDuracionAnunciosDiasPlan(plan = "gratis") {
+  return getPlanLimits(plan).duracionAnunciosDias || null;
+}
+
+export function calcularFechaExpiracionPlan(plan = "gratis", desde = new Date()) {
+  const dias = getDuracionAnunciosDiasPlan(plan);
+  if (!Number.isFinite(dias) || dias <= 0) return null;
+
+  return new Date(new Date(desde).getTime() + dias * 24 * 60 * 60 * 1000);
 }

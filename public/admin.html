@@ -3728,6 +3728,7 @@ function normalizarEstadoRedes(valor = '') {
 function propiedadPromocionableEnRedes(propiedad = {}) {
   if (!propiedad || propiedad.visiblePublicamente !== true) return false;
   if (propiedad.activo === false || propiedad.eliminada === true || propiedad.oculto === true) return false;
+  if (propiedad.fechaExpiracion && new Date(propiedad.fechaExpiracion) <= new Date()) return false;
 
   const estado = normalizarEstadoRedes(propiedad.estadoComercial || 'Disponible');
   const estadosNoPromocionables = new Set([
@@ -3953,12 +3954,17 @@ function renderTablaPropiedades() {
 
   tabla.innerHTML = filtradas.map(p => {
     const fecha = p.createdAt ? new Date(p.createdAt).toLocaleDateString('es-ES') : '—';
+    const fechaCaducidad = p.fechaExpiracion ? new Date(p.fechaExpiracion) : null;
+    const textoCaducidad = fechaCaducidad
+      ? `${fechaCaducidad <= new Date() ? 'Caducado' : 'Caduca el'} ${fechaCaducidad.toLocaleDateString('es-ES')}`
+      : '';
     const tipo = p.tipoOperacion === 'venta' ? '🏠 Venta' : '🔑 Alquiler';
-    const botonRedes = p.visiblePublicamente !== false
+    const promocionable = propiedadPromocionableEnRedes(p);
+    const botonRedes = promocionable
       ? `<button class="btn-redes" onclick="generarTextoRedes('${p._id}')">Generar texto para redes</button>`
       : '';
     const textoBotonPublicado = textoBotonPublicacionRedes(p);
-    const botonMarcarRedes = p.visiblePublicamente !== false
+    const botonMarcarRedes = promocionable
       ? `<button class="btn-redes" onclick="marcarPropiedadPublicadaRedes('${p._id}', this)">${textoBotonPublicado}</button>`
       : '';
     return `
@@ -3967,7 +3973,7 @@ function renderTablaPropiedades() {
         <td class="tabla-muted-cell" data-label="Dirección">${escapeHtml(p.direccion || '—')}</td>
         <td data-label="Precio">${formatoPrecioAdmin(p.precio)} €</td>
         <td data-label="Operación">${tipo}</td>
-        <td data-label="Fecha">${fecha}</td>
+        <td data-label="Fecha">${fecha}${textoCaducidad ? `<br><span class="tabla-muted-cell">${escapeHtml(textoCaducidad)}</span>` : ''}</td>
         <td data-label="Redes">${renderEstadoRedesPropiedad(p)}</td>
         <td data-label="Acción">
           <div class="tabla-actions">

@@ -35,6 +35,14 @@ function estadoComercialBadge(estado = "Disponible") {
   return `<span style="display:inline-flex;align-items:center;padding:4px 8px;border-radius:999px;font-size:0.75rem;font-weight:700;${estilos[actual] || estilos.Disponible}">${actual}</span>`;
 }
 
+function textoCaducidadAnuncio(fechaExpiracion) {
+  if (!fechaExpiracion) return "";
+  const fecha = new Date(fechaExpiracion);
+  if (Number.isNaN(fecha.getTime())) return "";
+  const prefijo = fecha <= new Date() ? "Caducado el" : "Caduca el";
+  return `${prefijo} ${fecha.toLocaleDateString("es-ES")}`;
+}
+
 /* =========================
    PROPIEDADES PUBLICADAS
 ========================= */
@@ -59,6 +67,7 @@ async function cargarPropiedades() {
   mias.forEach(p => {
     const img = p.imagenes?.[0] || "https://via.placeholder.com/500?text=Sin+imagen";
     const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
+    const caducidad = textoCaducidadAnuncio(p.fechaExpiracion);
 
     cont.innerHTML += `
       <div class="card" onclick="location.href='${typeof getPropiedadSeoUrl === "function" ? getPropiedadSeoUrl(p) : `propiedad?id=${p._id}`}'">
@@ -67,6 +76,7 @@ async function cargarPropiedades() {
           <div class="precio">${p.precio} €</div>
           ${p.referencia ? `<div>Ref. ${p.referencia}</div>` : ""}
           <div>${p.direccion}</div>
+          ${caducidad ? `<div>${caducidad}</div>` : ""}
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
             ${estadoPropiedad ? `<span>${estadoPropiedad}</span>` : ""}
             ${estadoComercialBadge(p.estadoComercial)}

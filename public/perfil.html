@@ -832,6 +832,14 @@ function estadoComercialBadge(estado = "Disponible") {
   return `<span class="tag-tipo" style="${estilos[actual] || estilos.Disponible}">${actual}</span>`;
 }
 
+function textoCaducidadAnuncio(fechaExpiracion) {
+  if (!fechaExpiracion) return "";
+  const fecha = new Date(fechaExpiracion);
+  if (Number.isNaN(fecha.getTime())) return "";
+  const prefijo = fecha <= new Date() ? "Caducado el" : "Caduca el";
+  return `${prefijo} ${fecha.toLocaleDateString("es-ES")}`;
+}
+
 async function cargarPropiedades() {
   const res  = await fetch("/propiedades/mias", {
     headers: { "Authorization": "Bearer " + token }
@@ -856,6 +864,7 @@ async function cargarPropiedades() {
     const tipoCls = p.tipoOperacion === "venta" ? "tag-venta" : "tag-alquiler";
     const hab     = p.habitaciones ? `🛏 ${p.habitaciones} hab.` : "";
     const estadoPropiedad = p.estadoPropiedad || (p.estado === "obra_nueva" ? "Obra nueva" : p.estado === "segunda_mano" ? "Segunda mano" : "");
+    const caducidad = textoCaducidadAnuncio(p.fechaExpiracion);
     return `
       <div class="card-propiedad">
         <div class="card-img-wrap" onclick="location.href='${typeof getPropiedadSeoUrl === "function" ? getPropiedadSeoUrl(p) : `/propiedad?id=${p._id}`}'" style="cursor:pointer;">
@@ -867,6 +876,7 @@ async function cargarPropiedades() {
           <div class="card-titulo">${p.titulo}</div>
           ${p.referencia ? `<div class="card-direccion">Ref. ${p.referencia}</div>` : ""}
           <div class="card-direccion">📍 ${p.direccion}</div>
+          ${caducidad ? `<div class="card-direccion">${caducidad}</div>` : ""}
           ${hab ? `<div class="card-hab">${hab}</div>` : ""}
           <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
             ${estadoPropiedad ? `<span class="tag-tipo">${estadoPropiedad}</span>` : ""}

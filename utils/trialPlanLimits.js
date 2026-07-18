@@ -1,6 +1,10 @@
 import Propiedad from "../models/Propiedad.js";
 import Usuario from "../models/Usuario.js";
-import { getLimiteAnunciosPlan, getLimiteFotosPlan } from "./planLimits.js";
+import {
+  calcularFechaExpiracionPlan,
+  getLimiteAnunciosPlan,
+  getLimiteFotosPlan
+} from "./planLimits.js";
 
 function normalizarEstadoComercial(valor = "") {
   return String(valor || "")
@@ -56,10 +60,12 @@ function ordenarPropiedadesParaPlan(propiedades = []) {
 
 export async function aplicarLimitesPlanTrasTrial(usuarioId, {
   planDestino = "gratis",
-  repararSiNoHayVisibles = false
+  repararSiNoHayVisibles = false,
+  now = new Date()
 } = {}) {
   const limiteAnuncios = getLimiteAnunciosPlan(planDestino);
   const limiteFotos = getLimiteFotosPlan(planDestino);
+  const fechaExpiracionVisible = calcularFechaExpiracionPlan(planDestino, now);
 
   const propiedades = await Propiedad.find({ usuarioId });
   const visiblesValidas = ordenarPropiedadesParaPlan(
@@ -95,8 +101,12 @@ export async function aplicarLimitesPlanTrasTrial(usuarioId, {
     const debeSerVisible = permitidasIds.has(String(propiedad._id));
     if (debeSerVisible && propiedad.visiblePublicamente !== true) {
       propiedad.visiblePublicamente = true;
+      propiedad.fechaExpiracion = fechaExpiracionVisible;
       await propiedad.save();
       propiedadesRecuperadas += 1;
+    } else if (debeSerVisible && fechaExpiracionVisible) {
+      propiedad.fechaExpiracion = fechaExpiracionVisible;
+      await propiedad.save();
     } else if (!debeSerVisible && propiedad.visiblePublicamente !== false) {
       propiedad.visiblePublicamente = false;
       await propiedad.save();

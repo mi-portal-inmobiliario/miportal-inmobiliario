@@ -12,6 +12,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import { scheduleVipTrialExpiration } from "./utils/trials.js";
 import { crearRutaPropiedadSeo } from "./utils/seoSlug.js";
+import { filtroNoCaducado } from "./utils/freeListingExpiration.js";
 
 // =============================
 // MODELOS
@@ -194,7 +195,8 @@ async function buscarPropiedadPublicaPorId(id) {
   if (!mongoose.Types.ObjectId.isValid(id)) return null;
   return Propiedad.findOne({
     _id: id,
-    visiblePublicamente: { $ne: false }
+    visiblePublicamente: { $ne: false },
+    ...filtroNoCaducado()
   }).lean();
 }
 
@@ -356,6 +358,7 @@ app.get("/sitemap.xml", async (req, res) => {
     const propiedades = await Propiedad.find(
       {
         visiblePublicamente: { $ne: false },
+        ...filtroNoCaducado(),
         estadoComercial: { $nin: ["Vendido", "Alquilado"] }
       },
       { _id: 1, titulo: 1, updatedAt: 1 }

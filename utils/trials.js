@@ -1,5 +1,6 @@
 import Usuario from "../models/Usuario.js";
 import { enviarCorreo } from "./email.js";
+import { aplicarCaducidadAnunciosGratis } from "./freeListingExpiration.js";
 import {
   aplicarLimitesPlanTrasTrial,
   repararUsuariosGratisTrasVipTrial
@@ -195,6 +196,7 @@ export async function sendVipTrialReminders(now = new Date(), mailer = enviarCor
 export async function expireVipTrials(now = new Date(), mailer = enviarCorreo) {
   const legacy = await normalizarVipTrialsSinFechas(now, mailer);
   await repararUsuariosGratisTrasVipTrial();
+  await aplicarCaducidadAnunciosGratis(now);
   const expirados = await Usuario.find({
     plan: "vip_trial",
     trialEndDate: { $lte: now }

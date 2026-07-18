@@ -11,10 +11,12 @@ import Usuario from "../models/Usuario.js";
 import { enviarCorreo } from "../utils/email.js";
 import { requireAuth } from "../middleware/auth.js";
 import {
+  calcularFechaExpiracionPlan,
   getLimiteAnunciosPlan,
   getLimiteFotosPlan,
   planTieneLimiteFotos
 } from "../utils/planLimits.js";
+import { filtroNoCaducado } from "../utils/freeListingExpiration.js";
 import { limitarFotosPublicasPorPlan } from "../utils/trialPlanLimits.js";
 import {
   cleanString,
@@ -218,6 +220,13 @@ function filtroPropiedadesValidasVisibles(usuarioId) {
   };
 }
 
+function filtroPropiedadesPublicas(now = new Date()) {
+  return {
+    visiblePublicamente: { $ne: false },
+    ...filtroNoCaducado(now)
+  };
+}
+
 // ==================================================
 // CLOUDINARY CONFIG
 // ==================================================
@@ -309,7 +318,7 @@ function inicioDia(fecha = new Date()) {
 router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
   try {
     const { tipo, min, max, hab, texto, zona } = req.query;
-    const filtro = { visiblePublicamente: { $ne: false } };
+    const filtro = filtroPropiedadesPublicas();
     const condicionesTexto = [];
 
     if (tipo) filtro.tipoOperacion = tipo;
@@ -381,7 +390,7 @@ router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
 // ==================================================
 router.get("/destacadas", async (req, res) => {
   try {
-    const propiedades = await Propiedad.find({ visiblePublicamente: true })
+    const propiedades = await Propiedad.find(filtroPropiedadesPublicas())
       .sort({
         destacado: -1,
         esDestacada: -1,
@@ -405,7 +414,7 @@ router.get("/destacadas", async (req, res) => {
 router.get("/ultimas", async (req, res) => {
   try {
     const propiedades = await Propiedad.find(
-      { visiblePublicamente: true },
+      filtroPropiedadesPublicas(),
       {
         titulo: 1,
         precio: 1,
@@ -443,7 +452,11 @@ router.get("/relacionadas/:id", async (req, res) => {
     }
 
     const actual = await Propiedad.findById(req.params.id).lean();
-    if (!actual || actual.visiblePublicamente === false) {
+    if (
+      !actual ||
+      actual.visiblePublicamente === false ||
+      (actual.fechaExpiracion && actual.fechaExpiracion <= new Date())
+    ) {
       return res.status(404).json({ message: "Propiedad no encontrada" });
     }
 
@@ -475,13 +488,19 @@ router.get("/relacionadas/:id", async (req, res) => {
         }
       });
     };
-    const buscar = async filtro => Propiedad.find(
-      { ...base, _id: { $nin: [...idsUsados] }, ...filtro },
-      projection
-    )
-      .sort({ createdAt: -1 })
-      .limit(4 - relacionadas.length)
-      .lean();
+    const buscar = async (filtro = {}) => {
+      const { $or, ...restoFiltro } = filtro;
+      const condiciones = [filtroNoCaducado()];
+      if ($or) condiciones.push({ $or });
+
+      return Propiedad.find(
+        { ...base, _id: { $nin: [...idsUsados] }, ...restoFiltro, $and: condiciones },
+        projection
+      )
+        .sort({ createdAt: -1 })
+        .limit(4 - relacionadas.length)
+        .lean();
+    };
 
     const localidad = extraerLocalidadPropiedad(actual);
     if (localidad) {
@@ -570,6 +589,9 @@ router.get("/:id", async (req, res) => {
     );
     if (!propiedad) return res.status(404).json({ message: "Propiedad no encontrada" });
     if (propiedad.visiblePublicamente === false) {
+      return res.status(404).json({ message: "Propiedad no encontrada" });
+    }
+    if (propiedad.fechaExpiracion && propiedad.fechaExpiracion <= new Date()) {
       return res.status(404).json({ message: "Propiedad no encontrada" });
     }
     if (propiedad.usuarioId) {
@@ -676,8 +698,7 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
     // Calcular expiración
     let fechaExpiracion = null;
     if (plan === "gratis") {
-      fechaExpiracion = new Date();
-      fechaExpiracion.setDate(fechaExpiracion.getDate() + 15);
+      fechaExpiracion = calcularFechaExpiracionPlan(plan);
     }
 
     const propiedad = await Propiedad.create({
