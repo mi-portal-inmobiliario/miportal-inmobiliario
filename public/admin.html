@@ -3618,7 +3618,7 @@ async function reactivarUsuario(usuarioId) {
 }
 
 async function finalizarVipTrial(usuarioId) {
-  const ok = confirm('¿Finalizar la prueba VIP y pasar este usuario al plan gratis? Sus anuncios se conservarán, pero dejarán de verse públicamente.');
+  const ok = confirm('¿Finalizar la prueba VIP y pasar este usuario al plan gratis? Sus anuncios se conservarán y se aplicarán los límites del plan gratis.');
   if (!ok) return;
 
   const res = await fetch(`/admin/usuarios/${usuarioId}/finalizar-vip-trial`, {
@@ -3628,7 +3628,7 @@ async function finalizarVipTrial(usuarioId) {
 
   if (res.ok) {
     const data = await res.json().catch(() => ({}));
-    alert(`Prueba VIP finalizada. Propiedades ocultadas: ${data.propiedadesOcultadas || 0}.`);
+    alert(`Prueba VIP finalizada. Propiedades visibles: ${data.propiedadesVisibles || 0}. Propiedades ocultadas: ${data.propiedadesOcultadas || 0}.`);
     await cargarUsuarios();
     await cargarStats();
   } else {

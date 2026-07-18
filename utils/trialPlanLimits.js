@@ -1,0 +1,194 @@
+import Propiedad from "../models/Propiedad.js";
+import Usuario from "../models/Usuario.js";
+import { getLimiteAnunciosPlan, getLimiteFotosPlan } from "./planLimits.js";
+
+function normalizarEstadoComercial(valor = "") {
+  return String(valor || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function tieneOcultacionManualSeparada(propiedad = {}) {
+  return Boolean(
+    propiedad.activo === false ||
+    propiedad.eliminada === true ||
+    propiedad.oculto === true ||
+    propiedad.oculta === true ||
+    propiedad.ocultoManual === true ||
+    propiedad.ocultaManual === true ||
+    propiedad.ocultoPorAdmin === true ||
+    propiedad.ocultaPorAdmin === true
+  );
+}
+
+function tieneEstadoNoDisponible(propiedad = {}) {
+  const estado = normalizarEstadoComercial(propiedad.estadoComercial || "Disponible");
+  const estadosNoDisponibles = new Set([
+    "vendido",
+    "alquilado",
+    "reservado",
+    "no disponible"
+  ]);
+
+  return estadosNoDisponibles.has(estado);
+}
+
+function propiedadValidaParaLimites(propiedad = {}, { incluirOcultas = false } = {}) {
+  if (!propiedad || tieneOcultacionManualSeparada(propiedad)) return false;
+  if (!incluirOcultas && propiedad.visiblePublicamente === false) return false;
+
+  return !tieneEstadoNoDisponible(propiedad);
+}
+
+function ordenarPropiedadesParaPlan(propiedades = []) {
+  return [...propiedades].sort((a, b) => {
+    const updatedA = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
+    const updatedB = b.updatedAt ? new Date(b.updatedAt).getTime() : 0;
+    if (updatedA !== updatedB) return updatedB - updatedA;
+
+    const createdA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+    const createdB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+    return createdB - createdA;
+  });
+}
+
+export async function aplicarLimitesPlanTrasTrial(usuarioId, {
+  planDestino = "gratis",
+  repararSiNoHayVisibles = false
+} = {}) {
+  const limiteAnuncios = getLimiteAnunciosPlan(planDestino);
+  const limiteFotos = getLimiteFotosPlan(planDestino);
+
+  const propiedades = await Propiedad.find({ usuarioId });
+  const visiblesValidas = ordenarPropiedadesParaPlan(
+    propiedades.filter(propiedad => propiedadValidaParaLimites(propiedad))
+  );
+  const todasValidas = ordenarPropiedadesParaPlan(
+    propiedades.filter(propiedad => propiedadValidaParaLimites(propiedad, { incluirOcultas: true }))
+  );
+  const repararOcultas = repararSiNoHayVisibles && visiblesValidas.length === 0;
+  const candidatas = repararOcultas ? todasValidas : visiblesValidas;
+  const permitidas = Number.isFinite(limiteAnuncios)
+    ? candidatas.slice(0, limiteAnuncios)
+    : candidatas;
+  const permitidasIds = new Set(permitidas.map(propiedad => String(propiedad._id)));
+
+  let propiedadesVisibles = 0;
+  let propiedadesOcultadas = 0;
+  let propiedadesRecuperadas = 0;
+
+  for (const propiedad of propiedades) {
+    if (
+      !tieneOcultacionManualSeparada(propiedad) &&
+      tieneEstadoNoDisponible(propiedad) &&
+      propiedad.visiblePublicamente !== false
+    ) {
+      propiedad.visiblePublicamente = false;
+      await propiedad.save();
+      propiedadesOcultadas += 1;
+    }
+  }
+
+  for (const propiedad of todasValidas) {
+    const debeSerVisible = permitidasIds.has(String(propiedad._id));
+    if (debeSerVisible && propiedad.visiblePublicamente !== true) {
+      propiedad.visiblePublicamente = true;
+      await propiedad.save();
+      propiedadesRecuperadas += 1;
+    } else if (!debeSerVisible && propiedad.visiblePublicamente !== false) {
+      propiedad.visiblePublicamente = false;
+      await propiedad.save();
+      propiedadesOcultadas += 1;
+    }
+    if (debeSerVisible) propiedadesVisibles += 1;
+  }
+
+  return {
+    ok: true,
+    plan: planDestino,
+    limiteAnuncios,
+    limiteFotos,
+    propiedadesEvaluadas: propiedades.length,
+    propiedadesVisibles,
+    propiedadesOcultadas,
+    propiedadesRecuperadas
+  };
+}
+
+export async function repararUsuariosGratisTrasVipTrial() {
+  const usuarios = await Usuario.find({
+    plan: "gratis",
+    trialLimitsRepairedAt: { $exists: false },
+    $or: [
+      { trialStartDate: { $exists: true, $ne: null } },
+      { trialEndDate: { $exists: true, $ne: null } },
+      { "trialReminders.expired": true }
+    ]
+  });
+
+  let usuariosReparados = 0;
+  let propiedadesRecuperadas = 0;
+
+  for (const usuario of usuarios) {
+    const resultado = await aplicarLimitesPlanTrasTrial(usuario._id, {
+      planDestino: "gratis",
+      repararSiNoHayVisibles: true
+    });
+
+    if (resultado.propiedadesRecuperadas > 0) {
+      usuariosReparados += 1;
+      propiedadesRecuperadas += resultado.propiedadesRecuperadas;
+      usuario.trialLimitsRepairedAt = new Date();
+      await usuario.save();
+    }
+  }
+
+  return {
+    usuariosReparados,
+    propiedadesRecuperadas
+  };
+}
+
+export async function limitarFotosPublicasPorPlan(data) {
+  const esArray = Array.isArray(data);
+  const propiedades = esArray ? data : [data];
+  const usuarioIds = [
+    ...new Set(
+      propiedades
+        .map(propiedad => propiedad?.usuarioId)
+        .filter(Boolean)
+        .map(usuarioId => String(usuarioId))
+    )
+  ];
+
+  if (!usuarioIds.length) return data;
+
+  const usuarios = await Usuario.find(
+    { _id: { $in: usuarioIds } },
+    { plan: 1, planActivo: 1, trialAccepted: 1 }
+  ).lean();
+  const usuariosPorId = new Map(usuarios.map(usuario => [String(usuario._id), usuario]));
+
+  const limitadas = propiedades.map(propiedad => {
+    if (!propiedad) return propiedad;
+
+    const item = typeof propiedad.toObject === "function"
+      ? propiedad.toObject()
+      : { ...propiedad };
+    const usuario = usuariosPorId.get(String(item.usuarioId || ""));
+    let plan = usuario?.plan || "gratis";
+    if (plan === "vip_trial" && (!usuario?.trialAccepted || !usuario?.planActivo)) {
+      plan = "gratis";
+    }
+
+    const limiteFotos = getLimiteFotosPlan(plan);
+    if (Array.isArray(item.imagenes) && Number.isFinite(limiteFotos)) {
+      item.imagenes = item.imagenes.slice(0, limiteFotos);
+    }
+    return item;
+  });
+
+  return esArray ? limitadas : limitadas[0];
+}

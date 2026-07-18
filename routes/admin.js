@@ -498,7 +498,9 @@ router.patch('/usuarios/:id/finalizar-vip-trial', requireAdmin, async (req, res)
 
     res.json({
       ok: true,
-      propiedadesOcultadas: resultado.propiedadesOcultadas || 0
+      propiedadesVisibles: resultado.propiedadesVisibles || 0,
+      propiedadesOcultadas: resultado.propiedadesOcultadas || 0,
+      propiedadesRecuperadas: resultado.propiedadesRecuperadas || 0
     });
   } catch (err) {
     console.error('Error finalizando prueba VIP desde admin:', {

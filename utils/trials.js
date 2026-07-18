@@ -1,6 +1,9 @@
 import Usuario from "../models/Usuario.js";
-import Propiedad from "../models/Propiedad.js";
 import { enviarCorreo } from "./email.js";
+import {
+  aplicarLimitesPlanTrasTrial,
+  repararUsuariosGratisTrasVipTrial
+} from "./trialPlanLimits.js";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const VIP_TRIAL_DAYS = 30;
@@ -64,15 +67,15 @@ function getTrialEmail(usuario, stage) {
     },
     threeDays: {
       subject: "Tu prueba VIP termina en 3 días",
-      html: `<p>${nombre}, tu prueba gratuita VIP de HomeClick24 termina en 3 días, el ${fechaFin}.</p><p>Cuando expire, tus anuncios se conservarán pero dejarán de ser visibles públicamente.</p>`
+      html: `<p>${nombre}, tu prueba gratuita VIP de HomeClick24 termina en 3 días, el ${fechaFin}.</p><p>Cuando expire, tu cuenta pasará al plan gratis y se aplicarán sus límites de anuncios y fotos.</p>`
     },
     lastDay: {
       subject: "Último día de tu prueba VIP",
-      html: `<p>${nombre}, hoy es el último día de tu prueba gratuita VIP de HomeClick24.</p><p>Al finalizar, tu cuenta pasará al plan gratis y tus anuncios se conservarán ocultos al público.</p>`
+      html: `<p>${nombre}, hoy es el último día de tu prueba gratuita VIP de HomeClick24.</p><p>Al finalizar, tu cuenta pasará al plan gratis y se aplicarán sus límites de anuncios y fotos.</p>`
     },
     expired: {
       subject: "Tu prueba VIP ha finalizado",
-      html: `<p>${nombre}, tu prueba gratuita VIP de HomeClick24 ha finalizado.</p><p>Tu cuenta ha pasado al plan gratis. Tus anuncios no se han borrado, pero ya no son visibles públicamente.</p>`
+      html: `<p>${nombre}, tu prueba gratuita VIP de HomeClick24 ha finalizado.</p><p>Tu cuenta ha pasado al plan gratis. Tus anuncios e imágenes no se han borrado y se han aplicado los límites del plan gratis.</p>`
     }
   };
 
@@ -114,16 +117,14 @@ export async function expirarVipTrialUsuario(usuario, { mailer = enviarCorreo, e
   usuario.trialAccepted = false;
   usuario.trialReminderSent = true;
   usuario.trialReminders.expired = true;
+  usuario.trialLimitsAppliedAt = new Date();
   await usuario.save();
 
-  const propiedadesActualizadas = await Propiedad.updateMany(
-    { usuarioId: usuario._id },
-    { visiblePublicamente: false }
-  );
+  const limites = await aplicarLimitesPlanTrasTrial(usuario._id, { planDestino: "gratis" });
 
   return {
     ok: true,
-    propiedadesOcultadas: propiedadesActualizadas.modifiedCount || 0
+    ...limites
   };
 }
 
@@ -193,6 +194,7 @@ export async function sendVipTrialReminders(now = new Date(), mailer = enviarCor
 
 export async function expireVipTrials(now = new Date(), mailer = enviarCorreo) {
   const legacy = await normalizarVipTrialsSinFechas(now, mailer);
+  await repararUsuariosGratisTrasVipTrial();
   const expirados = await Usuario.find({
     plan: "vip_trial",
     trialEndDate: { $lte: now }

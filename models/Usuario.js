@@ -37,6 +37,8 @@ const UsuarioSchema = new mongoose.Schema({
   trialAccepted:         { type: Boolean, default: false },
   trialStartDate:        { type: Date },
   trialEndDate:          { type: Date },
+  trialLimitsAppliedAt:  { type: Date },
+  trialLimitsRepairedAt: { type: Date },
   trialReminderSent:     { type: Boolean, default: false },
   trialReminders: {
     sevenDays:           { type: Boolean, default: false },

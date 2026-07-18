@@ -11,6 +11,12 @@ import Usuario from "../models/Usuario.js";
 import { enviarCorreo } from "../utils/email.js";
 import { requireAuth } from "../middleware/auth.js";
 import {
+  getLimiteAnunciosPlan,
+  getLimiteFotosPlan,
+  planTieneLimiteFotos
+} from "../utils/planLimits.js";
+import { limitarFotosPublicasPorPlan } from "../utils/trialPlanLimits.js";
+import {
   cleanString,
   isObjectId,
   numberFromInput,
@@ -155,34 +161,6 @@ function extraerLocalidadPropiedad(propiedad = {}) {
   return limpias.length > 1 ? limpias[limpias.length - 1] : "";
 }
 
-const LIMITES_ANUNCIOS = {
-  gratis: 2,
-  basico: 3,
-  destacado: 4,
-  starter: 15,
-  pro_agentes: 40,
-  agencia_basica: 50,
-  agencia_pro: Infinity,
-  vip_trial: Infinity,
-  vip: Infinity
-};
-
-const MAX_FOTOS = {
-  gratis: 7,
-  basico: 10,
-  destacado: 15,
-  starter: 20,
-  pro_agentes: 30,
-  agencia_basica: 40,
-  agencia_pro: 50,
-  vip_trial: Infinity,
-  vip: Infinity
-};
-
-function planTieneLimiteFotos(plan) {
-  return Number.isFinite(MAX_FOTOS[plan] ?? MAX_FOTOS.gratis);
-}
-
 function getPlanParaFotos(usuario) {
   let plan = usuario?.plan || "gratis";
   if (plan === "vip_trial" && (!usuario.trialAccepted || !usuario.planActivo)) {
@@ -229,6 +207,17 @@ function usuarioTienePlanActivoParaPublicar(usuario) {
   return Boolean(usuario.planActivo);
 }
 
+function filtroPropiedadesValidasVisibles(usuarioId) {
+  return {
+    usuarioId,
+    visiblePublicamente: { $ne: false },
+    activo: { $ne: false },
+    eliminada: { $ne: true },
+    oculto: { $ne: true },
+    estadoComercial: { $nin: ["Vendido", "Alquilado", "Reservado", "No disponible"] }
+  };
+}
+
 // ==================================================
 // CLOUDINARY CONFIG
 // ==================================================
@@ -272,7 +261,7 @@ const upload = multer({
     }
 
     const plan = getPlanParaFotos(req.user);
-    const maxFotos = MAX_FOTOS[plan] ?? MAX_FOTOS.gratis;
+    const maxFotos = getLimiteFotosPlan(plan);
     req.imagenesRecibidas = (req.imagenesRecibidas || 0) + 1;
 
     if (planTieneLimiteFotos(plan) && req.imagenesRecibidas > maxFotos) {
@@ -378,8 +367,8 @@ router.get("/", validateQuery(propiedadesQuerySchema), async (req, res) => {
 
     console.log("FILTRO APLICADO:", filtro);
 
-    const propiedades = await Propiedad.find(filtro).sort({ createdAt: -1 });
-    res.json(propiedades);
+    const propiedades = await Propiedad.find(filtro).sort({ createdAt: -1 }).lean();
+    res.json(await limitarFotosPublicasPorPlan(propiedades));
 
   } catch (err) {
     console.error(err);
@@ -403,7 +392,7 @@ router.get("/destacadas", async (req, res) => {
       .limit(8)
       .lean();
 
-    res.json(propiedades);
+    res.json(await limitarFotosPublicasPorPlan(propiedades));
   } catch (err) {
     console.error("Error obteniendo propiedades destacadas:", err.message);
     res.status(500).json({ error: "Error al obtener propiedades destacadas" });
@@ -429,6 +418,7 @@ router.get("/ultimas", async (req, res) => {
         banos: 1,
         superficie: 1,
         imagenes: 1,
+        usuarioId: 1,
         createdAt: 1
       }
     )
@@ -436,7 +426,7 @@ router.get("/ultimas", async (req, res) => {
       .limit(8)
       .lean();
 
-    res.json(propiedades);
+    res.json(await limitarFotosPublicasPorPlan(propiedades));
   } catch (err) {
     console.error("Error obteniendo últimos anuncios:", err.message);
     res.status(500).json({ error: "Error al obtener últimos anuncios" });
@@ -469,6 +459,7 @@ router.get("/relacionadas/:id", async (req, res) => {
       banos: 1,
       superficie: 1,
       imagenes: 1,
+      usuarioId: 1,
       createdAt: 1
     };
     const base = { visiblePublicamente: true };
@@ -495,21 +486,21 @@ router.get("/relacionadas/:id", async (req, res) => {
     const localidad = extraerLocalidadPropiedad(actual);
     if (localidad) {
       const localidadRegex = new RegExp(escapeRegex(localidad), "i");
-      agregar(await buscar({
+      agregar(await limitarFotosPublicasPorPlan(await buscar({
         $or: [
           { ciudad: localidadRegex },
           { localidad: localidadRegex },
           { direccion: localidadRegex }
         ]
-      }));
+      })));
     }
 
     if (relacionadas.length < 4 && actual.tipoOperacion) {
-      agregar(await buscar({ tipoOperacion: actual.tipoOperacion }));
+      agregar(await limitarFotosPublicasPorPlan(await buscar({ tipoOperacion: actual.tipoOperacion })));
     }
 
     if (relacionadas.length < 4) {
-      agregar(await buscar({}));
+      agregar(await limitarFotosPublicasPorPlan(await buscar({})));
     }
 
     res.json(relacionadas);
@@ -591,7 +582,7 @@ router.get("/:id", async (req, res) => {
         { upsert: true }
       ).catch(err => console.warn("No se pudo registrar visita diaria:", err.message));
     }
-    res.json(propiedad);
+    res.json(await limitarFotosPublicasPorPlan(propiedad));
   } catch (err) {
     res.status(400).json({ message: "ID inválido" });
   }
@@ -634,10 +625,10 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
 
       plan = getPlanParaLimites(usuario);
       
-      const limite = LIMITES_ANUNCIOS[plan] ?? LIMITES_ANUNCIOS.gratis;
+      const limite = getLimiteAnunciosPlan(plan);
       // Límite de fotos
       const planFotos = getPlanParaFotos(usuario);
-      const maxFotos = MAX_FOTOS[planFotos] ?? MAX_FOTOS.gratis;
+      const maxFotos = getLimiteFotosPlan(planFotos);
       const numFotos = req.files?.length || 0;
       if (planTieneLimiteFotos(planFotos) && numFotos > maxFotos) {
         logPublicacion("limite_fotos", {
@@ -650,7 +641,7 @@ router.post("/", requireAuth, uploadImagenes, validateBody(propiedadCreateSchema
           error: `Tu plan permite un máximo de ${maxFotos} fotos por anuncio.`
         });
       }
-      const totalAnuncios = await Propiedad.countDocuments({ usuarioId });
+      const totalAnuncios = await Propiedad.countDocuments(filtroPropiedadesValidasVisibles(usuarioId));
       if (totalAnuncios >= limite) {
         logPublicacion("limite_anuncios", {
           userId: usuarioId,
