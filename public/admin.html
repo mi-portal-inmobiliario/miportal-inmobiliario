@@ -2734,8 +2734,8 @@ function renderCodigosVipTrial() {
         </div>
         <div class="vip-code-actions">
           <button class="btn-exportar" onclick="copiarCodigoVipTrial(${index})">Copiar código</button>
-          <button class="btn-exportar" onclick="copiarInvitacionWhatsappVipTrial(${index})">Copiar invitación WhatsApp</button>
-          <button class="btn-exportar" onclick="copiarInvitacionEmailVipTrial(${index})">Copiar invitación email</button>
+          ${puedeCancelar ? `<button class="btn-exportar" onclick="copiarInvitacionWhatsappVipTrial(${index})">Copiar invitación WhatsApp</button>` : ''}
+          ${puedeCancelar ? `<button class="btn-exportar" onclick="copiarInvitacionEmailVipTrial(${index})">Copiar invitación email</button>` : ''}
           ${puedeCancelar ? `<button class="btn-eliminar" onclick="cancelarCodigoVipTrial('${codigo._id}')">Cancelar</button>` : ''}
         </div>
       </article>
